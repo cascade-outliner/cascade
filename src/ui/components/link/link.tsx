@@ -1,7 +1,7 @@
 import { ArrowSquareOutIcon } from '@phosphor-icons/react';
 import { Link as RouterLink, type LinkProps as RouterLinkProps } from '@tanstack/react-router';
 import { cva, type VariantProps } from 'class-variance-authority';
-import type {ReactNode} from "react";
+import type { ReactNode } from "react";
 
 const linkVariants = cva('group transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2', {
   variants: {
