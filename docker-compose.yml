@@ -1,15 +1,4 @@
 services:
-  app:
-    image: mcr.microsoft.com/devcontainers/javascript-node:22
-    volumes:
-      - ..:/workspace:cached
-    command: sleep infinity
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/cascade
-    depends_on:
-      db:
-        condition: service_healthy
-
   db:
     image: postgres:17-alpine
     environment:
