@@ -5,9 +5,11 @@ import { NodeItem } from "#/ui/patterns/node-item/node-item";
 export function NodeList({
 	nodes,
 	parentId,
+	withTransition,
 }: {
 	nodes: NodeType[];
-	parentId?: number;
+	parentId?: string;
+	withTransition?: boolean;
 }) {
 	const children = useMemo(() => {
 		if (!parentId) return nodes;
@@ -22,7 +24,7 @@ export function NodeList({
 	return (
 		<div className="pl-4 border-l border-gray-200 ml-1">
 			{children.map((child) => (
-				<NodeItem key={child.id} node={child} allNodes={nodes} />
+				<NodeItem key={child.id} node={child} allNodes={nodes} withTransition={withTransition} />
 			))}
 		</div>
 	);

@@ -12,19 +12,23 @@ export const listNodes = os.handler(() => {
 export const addNode = os
 	.input(
 		z.object({
-			parentId: z.number().int().nullable(),
+			parentId: z.string().nullable(),
 			position: z.number(),
 			text: z.string(),
 		}),
 	)
 	.handler(({ input }) => {
-		return db.insert(nodes).values(input).returning().get();
+		return db
+			.insert(nodes)
+			.values({ ...input, id: crypto.randomUUID() })
+			.returning()
+			.get();
 	});
 
 export const updateNode = os
 	.input(
 		z.object({
-			id: z.number().int(),
+			id: z.string(),
 			text: z.string().optional(),
 			position: z.number().optional(),
 		}),
@@ -40,7 +44,7 @@ export const updateNode = os
 	});
 
 export const deleteNode = os
-	.input(z.object({ id: z.number().int() }))
+	.input(z.object({ id: z.string() }))
 	.handler(({ input }) => {
 		return db.delete(nodes).where(eq(nodes.id, input.id)).returning().get();
 	});

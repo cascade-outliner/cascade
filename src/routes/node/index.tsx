@@ -15,7 +15,7 @@ function NoteZoomPage() {
 
 	return (
 		<div className="max-w-6xl mx-auto py-10">
-			<NodeList nodes={data} />
+			<NodeList nodes={data} withTransition />
 		</div>
 	);
 }
