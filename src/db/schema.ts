@@ -1,12 +1,18 @@
-import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core'
-import { sql } from 'drizzle-orm'
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import {
+	type AnySQLiteColumn,
+	integer,
+	real,
+	sqliteTable,
+	text,
+} from "drizzle-orm/sqlite-core";
 
-export const todos = sqliteTable('todos', {
-  id: integer({ mode: 'number' }).primaryKey({
-    autoIncrement: true,
-  }),
-  title: text().notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(unixepoch())`,
-  ),
-})
+export const nodes = sqliteTable("nodes", {
+	id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }), // TODO: Replace this with UUID in the future
+	parentId: integer("parent_id").references((): AnySQLiteColumn => nodes.id),
+	position: real().notNull(),
+	text: text().notNull(),
+});
+
+export type NodeType = InferSelectModel<typeof nodes>;
+export type NodeInsertType = InferInsertModel<typeof nodes>;

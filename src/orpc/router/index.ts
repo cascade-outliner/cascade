@@ -1,6 +1,8 @@
-import { addTodo, listTodos } from './todos'
+import { addNode, deleteNode, listNodes, updateNode } from './nodes'
 
 export default {
-  listTodos,
-  addTodo,
+  listNodes,
+  addNode,
+  updateNode,
+  deleteNode,
 }

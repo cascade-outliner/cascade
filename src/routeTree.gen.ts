@@ -9,37 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as DemoOrpcTodoRouteImport } from './routes/demo/orpc-todo'
-import { Route as DemoDrizzleRouteImport } from './routes/demo/drizzle'
+import { Route as NodeIndexRouteImport } from './routes/node/index'
+import { Route as NodeNodeIdRouteImport } from './routes/node/$nodeId'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
 
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
+const NodeIndexRoute = NodeIndexRouteImport.update({
+  id: '/node/',
+  path: '/node/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoOrpcTodoRoute = DemoOrpcTodoRouteImport.update({
-  id: '/demo/orpc-todo',
-  path: '/demo/orpc-todo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoDrizzleRoute = DemoDrizzleRouteImport.update({
-  id: '/demo/drizzle',
-  path: '/demo/drizzle',
+const NodeNodeIdRoute = NodeNodeIdRouteImport.update({
+  id: '/node/$nodeId',
+  path: '/node/$nodeId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
@@ -55,81 +43,44 @@ const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/api/$': typeof ApiSplatRoute
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/orpc-todo': typeof DemoOrpcTodoRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/node/$nodeId': typeof NodeNodeIdRoute
+  '/node/': typeof NodeIndexRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/api/$': typeof ApiSplatRoute
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/orpc-todo': typeof DemoOrpcTodoRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/node/$nodeId': typeof NodeNodeIdRoute
+  '/node': typeof NodeIndexRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/api/$': typeof ApiSplatRoute
-  '/demo/drizzle': typeof DemoDrizzleRoute
-  '/demo/orpc-todo': typeof DemoOrpcTodoRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/node/$nodeId': typeof NodeNodeIdRoute
+  '/node/': typeof NodeIndexRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/about'
-    | '/api/$'
-    | '/demo/drizzle'
-    | '/demo/orpc-todo'
-    | '/demo/tanstack-query'
-    | '/api/rpc/$'
+  fullPaths: '/' | '/api/$' | '/node/$nodeId' | '/node/' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/about'
-    | '/api/$'
-    | '/demo/drizzle'
-    | '/demo/orpc-todo'
-    | '/demo/tanstack-query'
-    | '/api/rpc/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/about'
-    | '/api/$'
-    | '/demo/drizzle'
-    | '/demo/orpc-todo'
-    | '/demo/tanstack-query'
-    | '/api/rpc/$'
+  to: '/' | '/api/$' | '/node/$nodeId' | '/node' | '/api/rpc/$'
+  id: '__root__' | '/' | '/api/$' | '/node/$nodeId' | '/node/' | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   ApiSplatRoute: typeof ApiSplatRoute
-  DemoDrizzleRoute: typeof DemoDrizzleRoute
-  DemoOrpcTodoRoute: typeof DemoOrpcTodoRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  NodeNodeIdRoute: typeof NodeNodeIdRoute
+  NodeIndexRoute: typeof NodeIndexRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -137,25 +88,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
+    '/node/': {
+      id: '/node/'
+      path: '/node'
+      fullPath: '/node/'
+      preLoaderRoute: typeof NodeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/orpc-todo': {
-      id: '/demo/orpc-todo'
-      path: '/demo/orpc-todo'
-      fullPath: '/demo/orpc-todo'
-      preLoaderRoute: typeof DemoOrpcTodoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/drizzle': {
-      id: '/demo/drizzle'
-      path: '/demo/drizzle'
-      fullPath: '/demo/drizzle'
-      preLoaderRoute: typeof DemoDrizzleRouteImport
+    '/node/$nodeId': {
+      id: '/node/$nodeId'
+      path: '/node/$nodeId'
+      fullPath: '/node/$nodeId'
+      preLoaderRoute: typeof NodeNodeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/$': {
@@ -177,11 +121,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   ApiSplatRoute: ApiSplatRoute,
-  DemoDrizzleRoute: DemoDrizzleRoute,
-  DemoOrpcTodoRoute: DemoOrpcTodoRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  NodeNodeIdRoute: NodeNodeIdRoute,
+  NodeIndexRoute: NodeIndexRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
 export const routeTree = rootRouteImport
