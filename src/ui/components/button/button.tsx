@@ -7,11 +7,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500',
-        destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
-        outline: 'border border-gray-300 bg-transparent hover:bg-gray-100 focus-visible:ring-gray-400',
-        ghost: 'hover:bg-gray-100 focus-visible:ring-gray-400',
-        link: 'text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500',
+        default: 'bg-redleather text-white hover:bg-redleather/85 focus-visible:ring-redleather',
+        ghost: 'hover:bg-redleather hover:text-white focus-visible:ring-redleather',
       },
       size: {
         sm: 'h-8 px-3 text-sm',
