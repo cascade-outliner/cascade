@@ -1,11 +1,16 @@
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 import { db } from "./index.ts";
 import { nodes } from "./schema.ts";
 
 migrate(db, { migrationsFolder: "./drizzle" });
 
-type NodeRow = { id: string; parentId: string | null; position: number; text: string };
+type NodeRow = {
+	id: string;
+	parentId: string | null;
+	position: number;
+	text: string;
+};
 
 function makeId() {
 	return crypto.randomUUID();
@@ -107,16 +112,64 @@ const childrenByRoot: Record<string, string[]> = {
 };
 
 const grandchildrenTemplates: Record<string, string[]> = {
-	"Q3 Planning": ["Define goals", "Stakeholder alignment", "Resource allocation", "Timeline", "Risk assessment"],
-	"Team meetings": ["Daily standup", "Weekly sync", "Retrospective", "Sprint planning", "1-on-1s"],
-	"Code reviews": ["Frontend PRs", "Backend PRs", "Infra changes", "Review guidelines", "Feedback templates"],
-	"Documentation": ["API docs", "Architecture decision records", "Runbooks", "Onboarding guide", "README updates"],
-	"Onboarding": ["Day 1 checklist", "Tool access", "Team intro", "First tasks", "30-60-90 plan"],
-	"Cascade": ["Bug backlog", "Feature ideas", "Design system", "Deploy pipeline", "Analytics"],
-	"Books": ["Currently reading", "Want to read", "Finished", "Notes", "Recommendations"],
-	"Exercise": ["Gym routine", "Running log", "Stretching", "Goals", "Equipment"],
-	"Budget": ["Monthly expenses", "Fixed costs", "Variable costs", "Income", "Reports"],
-	"Family": ["Parents", "Siblings", "Extended family", "Visits", "Gifts"],
+	"Q3 Planning": [
+		"Define goals",
+		"Stakeholder alignment",
+		"Resource allocation",
+		"Timeline",
+		"Risk assessment",
+	],
+	"Team meetings": [
+		"Daily standup",
+		"Weekly sync",
+		"Retrospective",
+		"Sprint planning",
+		"1-on-1s",
+	],
+	"Code reviews": [
+		"Frontend PRs",
+		"Backend PRs",
+		"Infra changes",
+		"Review guidelines",
+		"Feedback templates",
+	],
+	Documentation: [
+		"API docs",
+		"Architecture decision records",
+		"Runbooks",
+		"Onboarding guide",
+		"README updates",
+	],
+	Onboarding: [
+		"Day 1 checklist",
+		"Tool access",
+		"Team intro",
+		"First tasks",
+		"30-60-90 plan",
+	],
+	Cascade: [
+		"Bug backlog",
+		"Feature ideas",
+		"Design system",
+		"Deploy pipeline",
+		"Analytics",
+	],
+	Books: [
+		"Currently reading",
+		"Want to read",
+		"Finished",
+		"Notes",
+		"Recommendations",
+	],
+	Exercise: ["Gym routine", "Running log", "Stretching", "Goals", "Equipment"],
+	Budget: [
+		"Monthly expenses",
+		"Fixed costs",
+		"Variable costs",
+		"Income",
+		"Reports",
+	],
+	Family: ["Parents", "Siblings", "Extended family", "Visits", "Gifts"],
 };
 
 const rootIds: Record<string, string> = {};
@@ -148,10 +201,30 @@ Object.entries(grandchildrenTemplates).forEach(([parent, grandchildren]) => {
 		// Add one more level for Cascade specifically
 		if (parent === "Cascade") {
 			const detailItems =
-				gc === "Bug backlog" ? ["Login crash on mobile", "Slow tree render", "Drag-drop broken in Firefox", "Search returns stale results"] :
-				gc === "Feature ideas" ? ["Keyboard shortcuts", "Dark mode", "Export to markdown", "Collaborative editing", "Inline AI assistant"] :
-				gc === "Design system" ? ["Color tokens", "Typography scale", "Spacing", "Component library", "Icon set"] :
-				[];
+				gc === "Bug backlog"
+					? [
+							"Login crash on mobile",
+							"Slow tree render",
+							"Drag-drop broken in Firefox",
+							"Search returns stale results",
+						]
+					: gc === "Feature ideas"
+						? [
+								"Keyboard shortcuts",
+								"Dark mode",
+								"Export to markdown",
+								"Collaborative editing",
+								"Inline AI assistant",
+							]
+						: gc === "Design system"
+							? [
+									"Color tokens",
+									"Typography scale",
+									"Spacing",
+									"Component library",
+									"Icon set",
+								]
+							: [];
 			detailItems.forEach((item, ii) => {
 				rows.push({ id: makeId(), parentId: id, position: ii + 1, text: item });
 			});

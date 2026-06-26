@@ -1,14 +1,9 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import {
-	type AnySQLiteColumn,
-	real,
-	sqliteTable,
-	text,
-} from "drizzle-orm/sqlite-core";
+import { type AnyPgColumn, pgTable, real, text } from "drizzle-orm/pg-core";
 
-export const nodes = sqliteTable("nodes", {
+export const nodes = pgTable("nodes", {
 	id: text().primaryKey(),
-	parentId: text("parent_id").references((): AnySQLiteColumn => nodes.id),
+	parentId: text("parent_id").references((): AnyPgColumn => nodes.id),
 	position: real().notNull(),
 	text: text().notNull(),
 });

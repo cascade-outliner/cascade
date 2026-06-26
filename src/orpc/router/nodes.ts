@@ -20,14 +20,14 @@ function buildTree(flat: NodeType[], rootId: string | null = null): TreeNode[] {
 	return roots;
 }
 
-export const listNodes = os.handler(() => {
-	return buildTree(db.select().from(nodes).all());
+export const listNodes = os.handler(async () => {
+	return buildTree(await db.select().from(nodes));
 });
 
 export const getNode = os
 	.input(z.object({ id: z.string() }))
-	.handler(({ input }) => {
-		const flat = db.select().from(nodes).all();
+	.handler(async ({ input }) => {
+		const flat = await db.select().from(nodes);
 		const node = flat.find((n) => n.id === input.id);
 		if (!node) throw new ORPCError("NOT_FOUND");
 		return { ...node, children: buildTree(flat, input.id) };
@@ -41,12 +41,12 @@ export const addNode = os
 			text: z.string(),
 		}),
 	)
-	.handler(({ input }) => {
-		return db
+	.handler(async ({ input }) => {
+		const [row] = await db
 			.insert(nodes)
 			.values({ ...input, id: crypto.randomUUID() })
-			.returning()
-			.get();
+			.returning();
+		return row;
 	});
 
 export const updateNode = os
@@ -57,18 +57,19 @@ export const updateNode = os
 			position: z.number().optional(),
 		}),
 	)
-	.handler(({ input }) => {
+	.handler(async ({ input }) => {
 		const { id, ...patch } = input;
-		return db
+		const [row] = await db
 			.update(nodes)
 			.set(patch)
 			.where(eq(nodes.id, id))
-			.returning()
-			.get();
+			.returning();
+		return row;
 	});
 
 export const deleteNode = os
 	.input(z.object({ id: z.string() }))
-	.handler(({ input }) => {
-		return db.delete(nodes).where(eq(nodes.id, input.id)).returning().get();
+	.handler(async ({ input }) => {
+		const [row] = await db.delete(nodes).where(eq(nodes.id, input.id)).returning();
+		return row;
 	});
