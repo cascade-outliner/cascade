@@ -3,13 +3,3 @@ packages:
 allowBuilds:
   better-sqlite3: true
   esbuild: true
-supportedArchitectures:
-  os:
-    - current
-    - linux
-  cpu:
-    - current
-    - x64
-  libc:
-    - current
-    - glibc
