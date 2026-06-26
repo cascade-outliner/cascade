@@ -18,13 +18,13 @@ const dirname =
 		: path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-const config = defineConfig(({ mode }) => ({
+const config = defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
 	plugins: [
 		devtools(),
-		mode !== "production" && nitro(),
+		nitro(),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),
@@ -59,6 +59,6 @@ const config = defineConfig(({ mode }) => ({
 			},
 		],
 	},
-}));
+});
 
 export default config;
