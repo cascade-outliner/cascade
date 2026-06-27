@@ -5,9 +5,38 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useState } from "react";
 import type { NodeWithMeta } from "#/db/schema";
 import { orpc } from "#/orpc/client";
+import { useInlineEdit } from "#/ui/hooks/use-inline-edit";
 import { NodeMenu } from "#/ui/patterns/node-menu/node-menu";
 
 type FlatNode = { node: NodeWithMeta; depth: number };
+
+function EditableText({
+	initialValue,
+	onSave,
+	onCancel,
+}: {
+	initialValue: string;
+	onSave: (value: string) => void;
+	onCancel: () => void;
+}) {
+	const { mountRef, handleKeyDown, handleBlur } = useInlineEdit({
+		onSave,
+		onCancel,
+	});
+	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: For now allow this
+		<div
+			ref={mountRef}
+			contentEditable
+			suppressContentEditableWarning
+			className="outline-none wrap-break-word min-w-4 flex-1"
+			onKeyDown={handleKeyDown}
+			onBlur={handleBlur}
+		>
+			{initialValue}
+		</div>
+	);
+}
 
 function buildFlat(
 	nodes: NodeWithMeta[],
@@ -34,6 +63,7 @@ export function NodeTree({
 	withTransition?: boolean;
 }) {
 	const queryClient = useQueryClient();
+	const [editingId, setEditingId] = useState<string | null>(null);
 	const [openSet, setOpenSet] = useState<Set<string>>(() => {
 		// Walk the pre-fetched cache to find all open node IDs synchronously,
 		// so the tree renders fully-expanded on first paint with no re-render passes.
@@ -129,16 +159,49 @@ export function NodeTree({
 							/>
 
 							<div className="flex-1 flex items-center gap-2 min-w-0">
-								<div
-									className="outline-none wrap-break-word"
-									style={
-										withTransition
-											? { viewTransitionName: `node-text-${node.id}` }
-											: undefined
-									}
-								>
-									{node.text}
-								</div>
+								{editingId === node.id ? (
+									<EditableText
+										initialValue={node.text}
+										onSave={(text) => {
+											const trimmed = text.trim();
+											if (trimmed && trimmed !== node.text) {
+												const queryOptions = node.parentId
+													? orpc.getChildren.queryOptions({
+															input: { parentId: node.parentId },
+														})
+													: orpc.listNodes.queryOptions();
+												queryClient.setQueryData(
+													queryOptions.queryKey,
+													(old: NodeWithMeta[] | undefined) =>
+														old?.map((n) =>
+															n.id === node.id ? { ...n, text: trimmed } : n,
+														),
+												);
+												updateNode(
+													{ id: node.id, text: trimmed },
+													{
+														onSettled: () =>
+															queryClient.invalidateQueries(queryOptions),
+													},
+												);
+											}
+											setEditingId(null);
+										}}
+										onCancel={() => setEditingId(null)}
+									/>
+								) : (
+									<div
+										className="outline-none wrap-break-word cursor-text"
+										style={
+											withTransition
+												? { viewTransitionName: `node-text-${node.id}` }
+												: undefined
+										}
+										onClick={() => setEditingId(node.id)}
+									>
+										{node.text}
+									</div>
+								)}
 								<NodeMenu node={node} />
 							</div>
 						</div>
