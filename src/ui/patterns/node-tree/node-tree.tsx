@@ -5,6 +5,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useState } from "react";
 import type { NodeWithMeta } from "#/db/schema";
 import { orpc } from "#/orpc/client";
+import { NodeMenu } from "#/ui/patterns/node-menu/node-menu";
 
 type FlatNode = { node: NodeWithMeta; depth: number };
 
@@ -127,15 +128,18 @@ export function NodeTree({
 								className="w-2 h-2 rounded-full bg-gray-400 hover:bg-black transition-colors shrink-0"
 							/>
 
-							<div
-								className="flex-1 outline-none wrap-break-word"
-								style={
-									withTransition
-										? { viewTransitionName: `node-text-${node.id}` }
-										: undefined
-								}
-							>
-								{node.text}
+							<div className="flex-1 flex items-center gap-2 min-w-0">
+								<div
+									className="outline-none wrap-break-word"
+									style={
+										withTransition
+											? { viewTransitionName: `node-text-${node.id}` }
+											: undefined
+									}
+								>
+									{node.text}
+								</div>
+								<NodeMenu node={node} />
 							</div>
 						</div>
 					</div>
