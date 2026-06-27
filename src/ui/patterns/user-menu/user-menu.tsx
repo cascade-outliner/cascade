@@ -24,15 +24,16 @@ export function UserMenu() {
 									{session.user.name}
 								</div>
 							)}
-							{NAV_ITEMS.map(({ label, href }) => (
-								<Menu.LinkItem
-									key={href}
-									href={href}
-									className="flex items-center rounded-lg px-3 py-2 text-sm text-dark-grey cursor-pointer outline-none data-highlighted:bg-ginger"
-								>
-									{label}
-								</Menu.LinkItem>
-							))}
+							{session?.user &&
+								NAV_ITEMS.map(({ label, href }) => (
+									<Menu.LinkItem
+										key={href}
+										href={href}
+										className="flex items-center rounded-lg px-3 py-2 text-sm text-dark-grey cursor-pointer outline-none data-highlighted:bg-ginger"
+									>
+										{label}
+									</Menu.LinkItem>
+								))}
 							{session ? (
 								<Menu.Item
 									className="flex items-center rounded-lg px-3 py-2 text-sm text-dark-grey cursor-pointer outline-none data-highlighted:bg-ginger"
@@ -42,7 +43,7 @@ export function UserMenu() {
 								</Menu.Item>
 							) : (
 								<Menu.LinkItem
-									href="auth/sign-in"
+									href="/auth/sign-in"
 									className="flex items-center rounded-lg px-3 py-2 text-sm text-dark-grey cursor-pointer outline-none data-highlighted:bg-ginger"
 								>
 									Sign in

@@ -1,3 +1,4 @@
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { authClient } from "#/integrations/better-auth/auth-client";
@@ -9,51 +10,61 @@ export const Route = createFileRoute("/auth/sign-in")({
 function SignIn() {
 	const navigate = useNavigate();
 	const [error, setError] = useState<string | null>(null);
-
-	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		const data = new FormData(e.currentTarget);
-		const { error } = await authClient.signIn.email({
-			email: data.get("email") as string,
-			password: data.get("password") as string,
-		});
-		if (error) {
-			setError(error.message ?? "Sign in failed");
-		} else {
-			navigate({ to: "/" });
-		}
-	}
+	const form = useForm({
+		defaultValues: { email: "", password: "" },
+		onSubmit: async ({ value }) => {
+			const { error } = await authClient.signIn.email(value);
+			if (error) {
+				setError(error.message ?? "Sign in failed");
+			} else {
+				await navigate({ to: "/" });
+			}
+		},
+	});
 
 	return (
 		<div className="flex min-h-screen items-center justify-center">
 			<form
-				onSubmit={handleSubmit}
-				className="flex flex-col gap-4 w-80 p-8 rounded-2xl border border-black/10 bg-white shadow-lg"
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+				className="flex flex-col gap-4 w-80"
 			>
 				<h1 className="text-xl font-semibold">Sign in</h1>
 				{error && <p className="text-sm text-red-500">{error}</p>}
-				<input
-					name="email"
-					type="email"
-					placeholder="Email"
-					required
-					className="rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-dark-grey"
-				/>
-				<input
-					name="password"
-					type="password"
-					placeholder="Password"
-					required
-					className="rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-dark-grey"
-				/>
+				<form.Field name="email">
+					{(field) => (
+						<input
+							type="email"
+							placeholder="Email"
+							required
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							className="border px-3 py-2 text-sm rounded"
+						/>
+					)}
+				</form.Field>
+				<form.Field name="password">
+					{(field) => (
+						<input
+							type="password"
+							placeholder="Password"
+							required
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							className="border px-3 py-2 text-sm rounded"
+						/>
+					)}
+				</form.Field>
 				<button
 					type="submit"
-					className="rounded-lg bg-dark-grey py-2 text-sm text-white hover:opacity-90"
+					className="py-2 text-sm bg-dark-grey text-white rounded"
 				>
 					Sign in
 				</button>
 				<a
-					href="/sign-up"
+					href="/auth/sign-up"
 					className="text-center text-sm text-dark-grey/60 hover:underline"
 				>
 					No account? Sign up
