@@ -64,6 +64,7 @@ export const getNode = authedProcedure
 				parentId: nodes.parentId,
 				position: nodes.position,
 				text: nodes.text,
+				isOpen: nodes.isOpen,
 				hasChildren: hasChildrenExpr,
 			})
 			.from(nodes)
