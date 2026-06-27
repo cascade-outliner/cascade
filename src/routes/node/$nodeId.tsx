@@ -27,7 +27,7 @@ function NoteZoomPage() {
 	return (
 		<div className="max-w-6xl mx-auto py-10">
 			<div
-				className="text-xl font-semibold mb-4"
+				className="text-xl font-semibold mb-4 inline-flex"
 				style={{ viewTransitionName: `node-text-${nodeId}` }}
 			>
 				{data.text}
