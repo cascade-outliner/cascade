@@ -1,4 +1,4 @@
-import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 import {
 	type AnyPgColumn,
 	boolean,
@@ -13,11 +13,11 @@ export const nodes = pgTable("nodes", {
 	parentId: text("parent_id").references((): AnyPgColumn => nodes.id),
 	position: real().notNull(),
 	text: text().notNull(),
+	isOpen: boolean("is_open").notNull().default(false),
 });
 
 export type NodeType = InferSelectModel<typeof nodes>;
-export type NodeInsertType = InferInsertModel<typeof nodes>;
-export type TreeNode = NodeType & { children: TreeNode[] };
+export type NodeWithMeta = NodeType & { hasChildren: boolean };
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),

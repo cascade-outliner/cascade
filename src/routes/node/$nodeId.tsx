@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getSession } from "#/integrations/better-auth/auth.functions";
 import { orpc } from "#/orpc/client";
-import { NodeList } from "#/ui/patterns/node-list/node-list";
+import { NodeTree } from "#/ui/patterns/node-tree/node-tree";
 
 export const Route = createFileRoute("/node/$nodeId")({
 	beforeLoad: async () => {
@@ -32,7 +32,7 @@ function NoteZoomPage() {
 			>
 				{data.text}
 			</div>
-			<NodeList nodes={data.children} withTransition />
+			<NodeTree roots={data.children} withTransition />
 		</div>
 	);
 }

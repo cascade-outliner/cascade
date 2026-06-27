@@ -1,10 +1,10 @@
 import { ORPCError, os } from "@orpc/server";
-import { eq } from "drizzle-orm";
+import { eq, isNull, sql } from "drizzle-orm";
 import * as z from "zod";
 
 import { db } from "#/db";
-import { nodes, type NodeType, type TreeNode } from "#/db/schema";
-import { auth } from "#/integrations/better-auth/auth";
+import { nodes } from "#/db/schema";
+import type { auth } from "#/integrations/better-auth/auth";
 
 type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
@@ -15,32 +15,61 @@ const authedProcedure = os
 		return next({ context });
 	});
 
-function buildTree(flat: NodeType[], rootId: string | null = null): TreeNode[] {
-	const map = new Map(flat.map((n) => [n.id, { ...n, children: [] as TreeNode[] }]));
-	const roots: TreeNode[] = [];
-	for (const node of map.values()) {
-		if (node.parentId === rootId) roots.push(node);
-		else map.get(node.parentId!)?.children.push(node);
-	}
-	const sort = (ns: TreeNode[]) => {
-		ns.sort((a, b) => a.position - b.position);
-		ns.forEach((n) => sort(n.children));
-	};
-	sort(roots);
-	return roots;
-}
+const hasChildrenExpr = sql<boolean>`EXISTS(SELECT 1 FROM nodes AS c WHERE c.parent_id = nodes.id)`;
 
 export const listNodes = authedProcedure.handler(async () => {
-	return buildTree(await db.select().from(nodes));
+	return db
+		.select({
+			id: nodes.id,
+			parentId: nodes.parentId,
+			position: nodes.position,
+			text: nodes.text,
+			isOpen: nodes.isOpen,
+			hasChildren: hasChildrenExpr,
+		})
+		.from(nodes)
+		.where(isNull(nodes.parentId))
+		.orderBy(nodes.position);
 });
+
+export const getChildren = authedProcedure
+	.input(z.object({ parentId: z.string() }))
+	.handler(async ({ input }) => {
+		return db
+			.select({
+				id: nodes.id,
+				parentId: nodes.parentId,
+				position: nodes.position,
+				text: nodes.text,
+				isOpen: nodes.isOpen,
+				hasChildren: hasChildrenExpr,
+			})
+			.from(nodes)
+			.where(eq(nodes.parentId, input.parentId))
+			.orderBy(nodes.position);
+	});
 
 export const getNode = authedProcedure
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input }) => {
-		const flat = await db.select().from(nodes);
-		const node = flat.find((n) => n.id === input.id);
+		const [node] = await db
+			.select()
+			.from(nodes)
+			.where(eq(nodes.id, input.id))
+			.limit(1);
 		if (!node) throw new ORPCError("NOT_FOUND");
-		return { ...node, children: buildTree(flat, input.id) };
+		const children = await db
+			.select({
+				id: nodes.id,
+				parentId: nodes.parentId,
+				position: nodes.position,
+				text: nodes.text,
+				hasChildren: hasChildrenExpr,
+			})
+			.from(nodes)
+			.where(eq(nodes.parentId, input.id))
+			.orderBy(nodes.position);
+		return { ...node, children };
 	});
 
 export const addNode = authedProcedure
@@ -65,6 +94,7 @@ export const updateNode = authedProcedure
 			id: z.string(),
 			text: z.string().optional(),
 			position: z.number().optional(),
+			isOpen: z.boolean().optional(),
 		}),
 	)
 	.handler(async ({ input }) => {
@@ -80,6 +110,9 @@ export const updateNode = authedProcedure
 export const deleteNode = authedProcedure
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input }) => {
-		const [row] = await db.delete(nodes).where(eq(nodes.id, input.id)).returning();
+		const [row] = await db
+			.delete(nodes)
+			.where(eq(nodes.id, input.id))
+			.returning();
 		return row;
 	});

@@ -43,6 +43,7 @@
     "@tanstack/react-router-devtools": "^1.167.0",
     "@tanstack/react-router-ssr-query": "^1.167.1",
     "@tanstack/react-start": "^1.168.26",
+    "@tanstack/react-virtual": "^3.14.4",
     "@tanstack/router-plugin": "^1.132.0",
     "better-auth": "^1.6.21",
     "class-variance-authority": "^0.7.1",

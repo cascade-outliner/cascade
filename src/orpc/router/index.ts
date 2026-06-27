@@ -1,9 +1,17 @@
-import { addNode, deleteNode, getNode, listNodes, updateNode } from './nodes'
+import {
+	addNode,
+	deleteNode,
+	getChildren,
+	getNode,
+	listNodes,
+	updateNode,
+} from "./nodes";
 
 export default {
-  listNodes,
-  getNode,
-  addNode,
-  updateNode,
-  deleteNode,
-}
+	listNodes,
+	getNode,
+	getChildren,
+	addNode,
+	updateNode,
+	deleteNode,
+};
