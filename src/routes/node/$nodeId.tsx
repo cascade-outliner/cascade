@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getSession } from "#/integrations/better-auth/auth.functions";
 import { orpc } from "#/orpc/client";
+import { EditableNodeTitle } from "#/ui/patterns/editable-node-title/editable-node-title";
 import { NodeTree } from "#/ui/patterns/node-tree/node-tree";
 
 export const Route = createFileRoute("/node/$nodeId")({
@@ -26,12 +27,11 @@ function NoteZoomPage() {
 
 	return (
 		<div className="max-w-6xl mx-auto py-10">
-			<div
-				className="text-xl font-semibold mb-4 inline-flex"
-				style={{ viewTransitionName: `node-text-${nodeId}` }}
-			>
-				{data.text}
-			</div>
+			<EditableNodeTitle
+				nodeId={nodeId}
+				text={data.text}
+				parentId={data.parentId}
+			/>
 			<NodeTree roots={data.children} withTransition />
 		</div>
 	);

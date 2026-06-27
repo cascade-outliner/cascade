@@ -2,7 +2,7 @@ import { CaretRightIcon } from "@phosphor-icons/react/ssr";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { NodeWithMeta } from "#/db/schema";
 import { orpc } from "#/orpc/client";
 import { useInlineEdit } from "#/ui/hooks/use-inline-edit";
@@ -14,14 +14,17 @@ function EditableText({
 	initialValue,
 	onSave,
 	onCancel,
+	clickAt,
 }: {
 	initialValue: string;
 	onSave: (value: string) => void;
 	onCancel: () => void;
+	clickAt?: { x: number; y: number };
 }) {
 	const { mountRef, handleKeyDown, handleBlur } = useInlineEdit({
 		onSave,
 		onCancel,
+		clickAt,
 	});
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: For now allow this
@@ -64,6 +67,7 @@ export function NodeTree({
 }) {
 	const queryClient = useQueryClient();
 	const [editingId, setEditingId] = useState<string | null>(null);
+	const editClickAt = useRef<{ x: number; y: number } | undefined>(undefined);
 	const [openSet, setOpenSet] = useState<Set<string>>(() => {
 		// Walk the pre-fetched cache to find all open node IDs synchronously,
 		// so the tree renders fully-expanded on first paint with no re-render passes.
@@ -162,6 +166,7 @@ export function NodeTree({
 								{editingId === node.id ? (
 									<EditableText
 										initialValue={node.text}
+										clickAt={editClickAt.current}
 										onSave={(text) => {
 											const trimmed = text.trim();
 											if (trimmed && trimmed !== node.text) {
@@ -190,14 +195,23 @@ export function NodeTree({
 										onCancel={() => setEditingId(null)}
 									/>
 								) : (
+									// biome-ignore lint/a11y/useSemanticElements: div is used for interaction
 									<div
-										className="outline-none wrap-break-word cursor-text"
+										className="outline-none wrap-break-word cursor-text text-left"
+										role="button"
+										tabIndex={0}
 										style={
 											withTransition
 												? { viewTransitionName: `node-text-${node.id}` }
 												: undefined
 										}
-										onClick={() => setEditingId(node.id)}
+										onClick={(e) => {
+											editClickAt.current = { x: e.clientX, y: e.clientY };
+											setEditingId(node.id);
+										}}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") setEditingId(node.id);
+										}}
 									>
 										{node.text}
 									</div>
