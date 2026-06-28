@@ -1,5 +1,5 @@
-import type React from "react";
 import type { AnyPgTable } from "drizzle-orm/pg-core";
+import type React from "react";
 
 export interface FeatureHooks {
 	/** Called once at app startup, after all features are resolved */
@@ -11,8 +11,10 @@ export interface FeatureHooks {
  * Add new slots here to make them available across the entire plugin system.
  */
 export interface CascadeUISlots {
-	/** Components rendered in the top-right corner of every page */
 	topRightMenu?: React.ComponentType[];
+	topLeftMenu?: React.ComponentType[];
+	bottomLeftMenu?: React.ComponentType[];
+	bottomRightMenu?: React.ComponentType[];
 }
 
 export interface CascadeFeature {

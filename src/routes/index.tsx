@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+	NodeListPage,
+	nodeListLoader,
+} from "#/features/nodes/routes/node-list";
 
-export const Route = createFileRoute("/")({ component: App });
-
-function App() {
-	return <p>Hello World</p>;
-}
+export const Route = createFileRoute("/")({
+	loader: nodeListLoader,
+	component: NodeListPage,
+});
