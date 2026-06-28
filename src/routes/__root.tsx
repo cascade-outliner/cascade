@@ -6,13 +6,16 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { UserMenu } from "#/ui/patterns/user-menu/user-menu";
+import { assembleSlot } from "#/core/assemble";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
+import config from "../../cascade.config";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
+
+const topRightMenu = assembleSlot(config, "topRightMenu");
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: () => ({
@@ -45,7 +48,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<UserMenu />
+				{topRightMenu.map((Component, i) => (
+					// biome-ignore lint/suspicious/noArrayIndexKey: slot order is static
+					<Component key={i} />
+				))}
 				{children}
 				<TanStackDevtools
 					config={{

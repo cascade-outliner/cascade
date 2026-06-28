@@ -20,9 +20,7 @@
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:seed": "node --env-file=.env.local --import tsx/esm src/db/seed.ts",
-    "db:studio": "drizzle-kit studio",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -59,13 +57,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
-    "@chromatic-com/storybook": "^5.2.1",
     "@rolldown/plugin-babel": "^0.2.3",
-    "@storybook/addon-a11y": "^10.4.6",
-    "@storybook/addon-docs": "^10.4.6",
-    "@storybook/addon-mcp": "^0.6.0",
-    "@storybook/addon-vitest": "^10.4.6",
-    "@storybook/tanstack-react": "^10.4.6",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-vite": "^0.8.1",
     "@tanstack/router-cli": "^1.132.0",
@@ -81,7 +73,6 @@
     "dotenv": "^17.3.1",
     "jsdom": "^28.1.0",
     "playwright": "^1.61.1",
-    "storybook": "^10.4.6",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.0",

@@ -1,10 +1,8 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { redirect } from "@tanstack/react-router";
-import { getSession } from "#/features/auth/auth.functions";
 import { orpc } from "#/orpc/client";
-import type { NodeWithMeta } from "../schema";
 import { NodeTree } from "../components/node-tree";
+import type { NodeWithMeta } from "../schema";
 
 async function prefetchOpenChildren(
 	queryClient: QueryClient,
@@ -23,12 +21,6 @@ async function prefetchOpenChildren(
 		childLists.map((children) => prefetchOpenChildren(queryClient, children)),
 	);
 }
-
-export const nodeListBeforeLoad = async () => {
-	const session = await getSession();
-	if (!session) throw redirect({ to: "/" });
-	return { user: session.user };
-};
 
 export const nodeListLoader = async ({
 	context,

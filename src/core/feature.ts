@@ -1,8 +1,18 @@
+import type React from "react";
 import type { AnyPgTable } from "drizzle-orm/pg-core";
 
 export interface FeatureHooks {
 	/** Called once at app startup, after all features are resolved */
 	onInit?: (config: ResolvedCascadeConfig) => void | Promise<void>;
+}
+
+/**
+ * Named layout slots that features can contribute React components into.
+ * Add new slots here to make them available across the entire plugin system.
+ */
+export interface CascadeUISlots {
+	/** Components rendered in the top-right corner of every page */
+	topRightMenu?: React.ComponentType[];
 }
 
 export interface CascadeFeature {
@@ -18,6 +28,8 @@ export interface CascadeFeature {
 	dependencies?: string[];
 	/** Lifecycle hooks */
 	hooks?: FeatureHooks;
+	/** UI components contributed to named layout slots */
+	slots?: CascadeUISlots;
 }
 
 export interface ResolvedCascadeConfig {

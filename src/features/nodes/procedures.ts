@@ -3,21 +3,11 @@ import { eq, isNull, sql } from "drizzle-orm";
 import * as z from "zod";
 
 import { db } from "#/db";
-import type { auth } from "#/features/auth/auth";
 import { nodes } from "./schema";
-
-type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
-
-const authedProcedure = os
-	.$context<{ session?: Session | null }>()
-	.use(({ context, next }) => {
-		if (!context.session) throw new ORPCError("UNAUTHORIZED");
-		return next({ context });
-	});
 
 const hasChildrenExpr = sql<boolean>`EXISTS(SELECT 1 FROM nodes AS c WHERE c.parent_id = nodes.id)`;
 
-export const listNodes = authedProcedure.handler(async () => {
+export const listNodes = os.handler(async () => {
 	return db
 		.select({
 			id: nodes.id,
@@ -32,7 +22,7 @@ export const listNodes = authedProcedure.handler(async () => {
 		.orderBy(nodes.position);
 });
 
-export const getChildren = authedProcedure
+export const getChildren = os
 	.input(z.object({ parentId: z.string() }))
 	.handler(async ({ input }) => {
 		return db
@@ -49,7 +39,7 @@ export const getChildren = authedProcedure
 			.orderBy(nodes.position);
 	});
 
-export const getNode = authedProcedure
+export const getNode = os
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input }) => {
 		const [node] = await db
@@ -73,7 +63,7 @@ export const getNode = authedProcedure
 		return { ...node, children };
 	});
 
-export const addNode = authedProcedure
+export const addNode = os
 	.input(
 		z.object({
 			parentId: z.string().nullable(),
@@ -89,7 +79,7 @@ export const addNode = authedProcedure
 		return row;
 	});
 
-export const updateNode = authedProcedure
+export const updateNode = os
 	.input(
 		z.object({
 			id: z.string(),
@@ -108,7 +98,7 @@ export const updateNode = authedProcedure
 		return row;
 	});
 
-export const deleteNode = authedProcedure
+export const deleteNode = os
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input }) => {
 		const [row] = await db
