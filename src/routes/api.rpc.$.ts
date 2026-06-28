@@ -1,6 +1,6 @@
 import { RPCHandler } from "@orpc/server/fetch";
 import { createFileRoute } from "@tanstack/react-router";
-import { auth } from "#/integrations/better-auth/auth";
+import { auth } from "#/features/auth/auth";
 import router from "#/orpc/router";
 
 const handler = new RPCHandler(router);

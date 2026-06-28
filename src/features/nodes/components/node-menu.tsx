@@ -1,8 +1,8 @@
 import { Menu } from "@base-ui/react/menu";
 import { DotsThreeIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { NodeWithMeta } from "#/db/schema";
 import { orpc } from "#/orpc/client";
+import type { NodeWithMeta } from "../schema";
 
 export function NodeMenu({ node }: { node: NodeWithMeta }) {
 	const queryClient = useQueryClient();

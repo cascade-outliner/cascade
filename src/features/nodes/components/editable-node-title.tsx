@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import type { NodeType, NodeWithMeta } from "#/db/schema";
 import { orpc } from "#/orpc/client";
 import { useInlineEdit } from "#/ui/hooks/use-inline-edit";
+import type { NodeType, NodeWithMeta } from "../schema";
 
 export function EditableNodeTitle({
 	nodeId,
@@ -23,7 +23,8 @@ export function EditableNodeTitle({
 		? orpc.getChildren.queryOptions({ input: { parentId } })
 		: orpc.listNodes.queryOptions();
 
-	const { mountRef, handleKeyDown, handleBlur } = useInlineEdit({ clickAt,
+	const { mountRef, handleKeyDown, handleBlur } = useInlineEdit({
+		clickAt,
 		onSave: (value) => {
 			const trimmed = value.trim();
 			if (trimmed && trimmed !== text) {
@@ -60,8 +61,13 @@ export function EditableNodeTitle({
 				style={{ viewTransitionName: `node-text-${nodeId}` }}
 				role="button"
 				tabIndex={0}
-				onClick={(e) => { setClickAt({ x: e.clientX, y: e.clientY }); setIsEditing(true); }}
-				onKeyDown={(e) => { if (e.key === "Enter") setIsEditing(true); }}
+				onClick={(e) => {
+					setClickAt({ x: e.clientX, y: e.clientY });
+					setIsEditing(true);
+				}}
+				onKeyDown={(e) => {
+					if (e.key === "Enter") setIsEditing(true);
+				}}
 			>
 				{text}
 			</div>

@@ -1,7 +1,7 @@
 import { Avatar } from "@base-ui/react/avatar";
 import { Menu } from "@base-ui/react/menu";
 import { Link } from "@tanstack/react-router";
-import { authClient } from "#/integrations/better-auth/auth-client";
+import { authClient } from "#/features/auth/auth-client";
 
 const NAV_ITEMS = [{ label: "Nodes", to: "/node" as const }];
 

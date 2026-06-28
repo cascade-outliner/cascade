@@ -3,10 +3,10 @@ import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useRef, useState } from "react";
-import type { NodeWithMeta } from "#/db/schema";
 import { orpc } from "#/orpc/client";
 import { useInlineEdit } from "#/ui/hooks/use-inline-edit";
-import { NodeMenu } from "#/ui/patterns/node-menu/node-menu";
+import type { NodeWithMeta } from "../schema";
+import { NodeMenu } from "./node-menu";
 
 type FlatNode = { node: NodeWithMeta; depth: number };
 

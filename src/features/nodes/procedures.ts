@@ -3,8 +3,8 @@ import { eq, isNull, sql } from "drizzle-orm";
 import * as z from "zod";
 
 import { db } from "#/db";
-import { nodes } from "#/db/schema";
-import type { auth } from "#/integrations/better-auth/auth";
+import type { auth } from "#/features/auth/auth";
+import { nodes } from "./schema";
 
 type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
 
