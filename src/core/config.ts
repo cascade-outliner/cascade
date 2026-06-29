@@ -1,9 +1,5 @@
-import type { CascadeFeature, ResolvedCascadeConfig } from "./feature";
+export type CascadeConfig = {};
 
-export interface CascadeConfig {
-	features: CascadeFeature[];
-}
-
-export function defineConfig(config: CascadeConfig): ResolvedCascadeConfig {
+export function defineConfig(config: CascadeConfig): CascadeConfig {
 	return config;
 }

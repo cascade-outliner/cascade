@@ -1,6 +1,6 @@
 # Cascade
 
-A self-hosted, plugin-based outliner. Every capability — from node editing to deletion — is a feature plugin. The core ships minimal; you extend it.
+A self-hosted, plugin-based outliner.
 
 ## Features
 
@@ -52,74 +52,6 @@ Open [http://localhost:3000](http://localhost:3000).
 ```bash
 pnpm build
 pnpm start
-```
-
-## Plugin system
-
-Cascade is built around a feature plugin system. Everything — including the built-in node management, editing, and deletion — is a feature.
-
-A feature is a single object registered in `cascade.config.ts`:
-
-```ts
-// cascade.config.ts
-export default defineConfig({
-  features: [nodesFeature, deleteNodeFeature, editNodeFeature, yourFeature],
-});
-```
-
-### Anatomy of a feature
-
-```ts
-// src/features/my-feature/index.ts
-import { defineFeature } from "#/core/feature";
-
-export const myFeature = defineFeature({
-  name: "my-feature",
-  description: "Does something useful",
-  dependencies: ["nodes"], // validated at startup
-
-  // Drizzle table definitions
-  schema: { myTable },
-
-  // ORPC procedures exposed as RPC endpoints
-  procedures: { myProcedure },
-
-  // React components injected into named layout slots
-  slots: {
-    afterNodeActions: [MyActionComponent],
-  },
-
-  // Runs once at server startup
-  hooks: {
-    onInit: async (config) => {
-      console.log("my-feature initialized");
-    },
-  },
-});
-```
-
-### UI slots
-
-Features inject React components into named slots rendered by the layout:
-
-| Slot | Description |
-|------|-------------|
-| `topRightMenu` | Top-right toolbar area |
-| `topLeftMenu` | Top-left toolbar area |
-| `bottomRightMenu` | Bottom-right toolbar area |
-| `bottomLeftMenu` | Bottom-left toolbar area |
-| `afterNodeActions` | Actions appended to each node's context menu |
-| `nodeText` | Replaces the node's text renderer |
-
-### RPC procedures
-
-Procedures contributed by features are merged into a single type-safe ORPC router and called from the client via TanStack Query:
-
-```ts
-import { orpc } from "#/orpc/client";
-import { useQuery } from "@tanstack/react-query";
-
-const { data } = useQuery(orpc.myProcedure.queryOptions({ ... }));
 ```
 
 ## Development
