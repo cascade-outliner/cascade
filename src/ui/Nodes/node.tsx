@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { NodeType } from "#/core/nodes/node.types";
+import { sortByOrder } from "#/lib/node-sort";
 import { orpc } from "#/orpc/client";
 import { NodeLink } from "#/ui/Nodes/node-link";
 import { NodeText } from "#/ui/Nodes/node-text";
@@ -31,7 +32,7 @@ export function Node({ node }: { node: NodeProps }) {
 
 			{node.expanded && children && (
 				<div className="ml-4">
-					{children.map((child) => (
+					{sortByOrder(children).map((child) => (
 						<Node key={child.id} node={child} />
 					))}
 				</div>

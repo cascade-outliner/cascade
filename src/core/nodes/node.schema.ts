@@ -15,6 +15,7 @@ export const nodes = pgTable(
 		}),
 		text: text().notNull(),
 		expanded: boolean().notNull().default(false),
+		order: text("order"),
 	},
 	(t) => [index("nodes_parent_id_idx").on(t.parentId)],
 );

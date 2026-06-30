@@ -1,5 +1,5 @@
 import { os } from "@orpc/server";
-import { eq, isNull, sql } from "drizzle-orm";
+import { asc, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { nodes } from "#/core/nodes/node.schema";
 import { db } from "#/db";
@@ -13,6 +13,7 @@ export const listNodes = os
 				parentId: nodes.parentId,
 				text: nodes.text,
 				expanded: nodes.expanded,
+				order: nodes.order,
 				hasChildren: sql<boolean>`EXISTS (SELECT 1 FROM nodes c WHERE c.parent_id = nodes.id)`,
 			})
 			.from(nodes)
@@ -20,7 +21,8 @@ export const listNodes = os
 				input.parentId === null
 					? isNull(nodes.parentId)
 					: eq(nodes.parentId, input.parentId),
-			);
+			)
+			.orderBy(asc(nodes.order));
 	});
 
 export const toggleNodeExpanded = os

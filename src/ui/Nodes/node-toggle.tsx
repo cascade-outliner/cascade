@@ -26,9 +26,12 @@ export function NodeToggle({
 	const queryClient = useQueryClient();
 	const { mutate } = useMutation({
 		...orpc.toggleNodeExpanded.mutationOptions(),
-		onSuccess: () => {
-			queryClient.invalidateQueries(
-				orpc.listNodes.queryOptions({ input: { parentId } }),
+		onSuccess: (_, { id: nodeId, expanded: newExpanded }) => {
+			const { queryKey } = orpc.listNodes.queryOptions({ input: { parentId } });
+			queryClient.setQueryData(queryKey, (old: NodeType[] | undefined) =>
+				old?.map((node) =>
+					node.id === nodeId ? { ...node, expanded: newExpanded } : node,
+				),
 			);
 		},
 	});
