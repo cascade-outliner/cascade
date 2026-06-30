@@ -25,7 +25,10 @@ export function Node({ node }: { node: NodeProps }) {
 				/>
 				<NodeLink id={node.id} />
 
-				<div className="flex-1 flex items-center gap-2 min-w-0">
+				<div
+					className="flex-1 flex items-center gap-2 min-w-0"
+					style={{ viewTransitionName: `node-${node.id}` }}
+				>
 					<NodeText text={node.text} />
 				</div>
 			</div>

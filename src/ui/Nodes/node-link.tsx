@@ -9,7 +9,7 @@ export function NodeLink({ id }: NodeLinkProps) {
 			to="/node/$nodeId"
 			params={{ nodeId: id }}
 			viewTransition
-			className="w-2 h-2 rounded-full bg-gray-400 hover:bg-black transition-colors shrink-0"
+className="w-2 h-2 rounded-full bg-gray-400 hover:bg-black transition-colors shrink-0"
 		/>
 	);
 }

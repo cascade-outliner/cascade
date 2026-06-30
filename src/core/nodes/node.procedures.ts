@@ -25,6 +25,24 @@ export const listNodes = os
 			.orderBy(asc(nodes.order));
 	});
 
+export const getNode = os
+	.input(z.object({ id: z.string() }))
+	.handler(async ({ input }) => {
+		const [node] = await db
+			.select({
+				id: nodes.id,
+				parentId: nodes.parentId,
+				text: nodes.text,
+				expanded: nodes.expanded,
+				order: nodes.order,
+				hasChildren: sql<boolean>`EXISTS (SELECT 1 FROM nodes c WHERE c.parent_id = nodes.id)`,
+			})
+			.from(nodes)
+			.where(eq(nodes.id, input.id))
+			.limit(1);
+		return node ?? null;
+	});
+
 export const toggleNodeExpanded = os
 	.input(z.object({ id: z.string(), expanded: z.boolean() }))
 	.handler(async ({ input }) => {
