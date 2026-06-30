@@ -1,18 +1,8 @@
-import { type QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { orpc } from "#/orpc/client";
 import { GenericErrorComponent } from "#/ui/ErrorComponent/GenericErrorComponent";
 import { Node } from "#/ui/Nodes/node";
-
-export const nodeListLoader = async ({
-	context,
-}: {
-	context: { queryClient: QueryClient };
-}) => {
-	return await context.queryClient.ensureQueryData(
-		orpc.listNodes.queryOptions({ input: { parentId: null } }),
-	);
-};
 
 export const Route = createFileRoute("/")({
 	errorComponent: GenericErrorComponent,

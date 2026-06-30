@@ -12,6 +12,7 @@ export const listNodes = os
 				id: nodes.id,
 				parentId: nodes.parentId,
 				text: nodes.text,
+				expanded: nodes.expanded,
 				hasChildren: sql<boolean>`EXISTS (SELECT 1 FROM nodes c WHERE c.parent_id = nodes.id)`,
 			})
 			.from(nodes)
@@ -20,4 +21,13 @@ export const listNodes = os
 					? isNull(nodes.parentId)
 					: eq(nodes.parentId, input.parentId),
 			);
+	});
+
+export const toggleNodeExpanded = os
+	.input(z.object({ id: z.string(), expanded: z.boolean() }))
+	.handler(async ({ input }) => {
+		await db
+			.update(nodes)
+			.set({ expanded: input.expanded })
+			.where(eq(nodes.id, input.id));
 	});
