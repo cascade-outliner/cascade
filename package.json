@@ -45,6 +45,7 @@
     "@tanstack/router-plugin": "^1.132.0",
     "better-auth": "^1.6.21",
     "class-variance-authority": "^0.7.1",
+    "cva": "1.0.0-beta.4",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",
     "nitro": "3.0.260610-beta",
@@ -52,6 +53,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "srvx": "^0.11.17",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.1.18",
     "zod": "^4.3.6"
   },

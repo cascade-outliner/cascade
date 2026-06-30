@@ -10,14 +10,16 @@ export const nodeListLoader = async ({
 	context: { queryClient: QueryClient };
 }) => {
 	return await context.queryClient.ensureQueryData(
-		orpc.listNodes.queryOptions(),
+		orpc.listNodes.queryOptions({ input: { parentId: null } }),
 	);
 };
 
 export const Route = createFileRoute("/")({
 	errorComponent: GenericErrorComponent,
 	component: () => {
-		const { data } = useSuspenseQuery(orpc.listNodes.queryOptions());
+		const { data } = useSuspenseQuery(
+			orpc.listNodes.queryOptions({ input: { parentId: null } }),
+		);
 
 		return (
 			<div className="max-w-6xl mx-auto py-32">
