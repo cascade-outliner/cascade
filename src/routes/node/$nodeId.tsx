@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { sortByOrder } from "#/lib/node-sort";
 import { orpc } from "#/orpc/client";
 import {
 	type LexicalElementNode,
@@ -44,7 +43,7 @@ function NodeDetailPage() {
 				/>
 			</div>
 			<div>
-				{sortByOrder(children ?? []).map((child) => (
+				{children.map((child) => (
 					<Node key={child.id} node={child} />
 				))}
 			</div>

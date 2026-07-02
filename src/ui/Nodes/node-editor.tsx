@@ -23,7 +23,9 @@ export function NodeEditor({ node }: NodeEditorProps) {
 			{editView ? (
 				<LexicalEditView
 					id={node.id}
+					parentId={node.parentId}
 					content={node.content as { root: LexicalElementNode }}
+					onExit={() => setEditView(false)}
 				/>
 			) : (
 				<LexicalReadView

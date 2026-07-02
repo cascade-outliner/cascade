@@ -1,15 +1,16 @@
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { $createParagraphNode, $createTextNode, $getRoot } from "lexical";
 import type { NodeType } from "#/core/nodes/node.types";
+import { EditableContent } from "#/ui/Lexical/Edit/lexical-editable-content";
 import type { LexicalElementNode } from "#/ui/Lexical/Read/lexical-read-view";
 import type { LexicalTextNode } from "#/ui/Lexical/Read/render-text-nodes";
 
-interface LexicalEditViewProps extends Pick<NodeType, "id"> {
+export interface LexicalEditViewProps
+	extends Pick<NodeType, "id" | "parentId"> {
 	content: {
 		root: LexicalElementNode;
 	};
+	onExit?: () => void;
 }
 
 function buildInitialState(content: LexicalEditViewProps["content"]) {
@@ -29,7 +30,12 @@ function buildInitialState(content: LexicalEditViewProps["content"]) {
 	};
 }
 
-export function LexicalEditView({ id, content }: LexicalEditViewProps) {
+export function LexicalEditView({
+	id,
+	parentId,
+	content,
+	onExit,
+}: LexicalEditViewProps) {
 	return (
 		<LexicalComposer
 			initialConfig={{
@@ -40,11 +46,7 @@ export function LexicalEditView({ id, content }: LexicalEditViewProps) {
 				editorState: buildInitialState(content),
 			}}
 		>
-			<RichTextPlugin
-				contentEditable={<ContentEditable />}
-				placeholder={null}
-				ErrorBoundary={({ children }) => children}
-			/>
+			<EditableContent id={id} parentId={parentId} onExit={onExit} />
 		</LexicalComposer>
 	);
 }

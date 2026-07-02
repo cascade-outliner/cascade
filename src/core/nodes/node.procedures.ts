@@ -57,3 +57,36 @@ export const deleteNode = os
 	.handler(async ({ input }) => {
 		await db.delete(nodes).where(eq(nodes.id, input.id));
 	});
+
+const lexicalTextNodeSchema = z
+	.object({
+		type: z.literal("text"),
+		text: z.string(),
+		format: z.number().optional(),
+	})
+	.passthrough();
+
+const lexicalElementNodeSchema: z.ZodType<unknown> = z.lazy(() =>
+	z
+		.object({
+			type: z.string(),
+			children: z
+				.array(z.union([lexicalTextNodeSchema, lexicalElementNodeSchema]))
+				.optional(),
+		})
+		.passthrough(),
+);
+
+export const updateNodeContent = os
+	.input(
+		z.object({
+			id: z.string(),
+			content: z.object({ root: lexicalElementNodeSchema }),
+		}),
+	)
+	.handler(async ({ input }) => {
+		await db
+			.update(nodes)
+			.set({ content: input.content })
+			.where(eq(nodes.id, input.id));
+	});
