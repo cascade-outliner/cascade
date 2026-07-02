@@ -9,7 +9,7 @@ import {
 	moveSubtree,
 	patchRow,
 	removeSubtree,
-} from "@/ui/nodes/virtual-tree/visible-rows";
+} from "./visible-rows";
 
 interface VisibleTreeData {
 	rows: VisibleNodeRow[];
