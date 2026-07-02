@@ -93,19 +93,47 @@ function textToLexicalContent(text: string) {
 	};
 }
 
-let inserted = 0;
+const BATCH_SIZE = 5000; // postgres bind-param limit is ~65535; 5 cols * 5000 = well under it
 
-async function insertChildren(parentId: string, depth: number) {
-	if (depth <= 0) return;
-	const count = faker.number.int({ min: 1, max: config.maxChildren });
-	const orders = generateNKeysBetween(null, null, count);
-	for (let i = 0; i < count; i++) {
-		const id = randomUUID();
-		const text = faker.lorem.sentences({ min: 1, max: 2 });
-		const content = textToLexicalContent(text);
-		await db.insert(nodes).values({ id, parentId, content, order: orders[i] });
-		process.stdout.write(`\rinserted: ${++inserted}`);
-		await insertChildren(id, depth - 1);
+type Row = {
+	id: string;
+	parentId: string | null;
+	content: ReturnType<typeof textToLexicalContent>;
+	order: string;
+};
+
+function buildRow(parentId: string | null, order: string): Row {
+	const text = faker.lorem.sentences({ min: 1, max: 2 });
+	return {
+		id: randomUUID(),
+		parentId,
+		content: textToLexicalContent(text),
+		order,
+	};
+}
+
+// Yields rows lazily (BFS over the tree) instead of collecting them all in
+// memory, since holding millions of nodes at once OOMs the process.
+function* buildTree(): Generator<Row> {
+	const rootOrders = generateNKeysBetween(null, null, config.roots);
+	const queue: Array<{ parentId: string; depth: number }> = [];
+
+	for (let i = 0; i < config.roots; i++) {
+		const row = buildRow(null, rootOrders[i]);
+		yield row;
+		queue.push({ parentId: row.id, depth: config.maxDepth - 1 });
+	}
+
+	while (queue.length > 0) {
+		const { parentId, depth } = queue.pop()!;
+		if (depth <= 0) continue;
+		const count = faker.number.int({ min: 1, max: config.maxChildren });
+		const orders = generateNKeysBetween(null, null, count);
+		for (let i = 0; i < count; i++) {
+			const row = buildRow(parentId, orders[i]);
+			yield row;
+			queue.push({ parentId: row.id, depth: depth - 1 });
+		}
 	}
 }
 
@@ -122,21 +150,31 @@ async function main() {
 
 	console.log(`expected ~${expectedNodeCount()} nodes`);
 
-	// All root nodes are siblings under the same parent (null), so they must
-	// share a single order batch rather than each generating its own from scratch.
-	const rootOrders = generateNKeysBetween(null, null, config.roots);
-	for (let i = 0; i < config.roots; i++) {
-		const id = randomUUID();
-		const text = faker.lorem.sentences({ min: 1, max: 2 });
-		const content = textToLexicalContent(text);
-		await db
-			.insert(nodes)
-			.values({ id, parentId: null, content, order: rootOrders[i] });
-		process.stdout.write(`\rinserted: ${++inserted}`);
-		await insertChildren(id, config.maxDepth - 1);
+	const expected = expectedNodeCount();
+	const start = performance.now();
+	let buffer: Row[] = [];
+	let done = 0;
+
+	for (const row of buildTree()) {
+		buffer.push(row);
+		if (buffer.length >= BATCH_SIZE) {
+			await db.insert(nodes).values(buffer);
+			done += buffer.length;
+			buffer = [];
+			const elapsed = (performance.now() - start) / 1000;
+			const rate = done / elapsed;
+			const eta = (expected - done) / rate;
+			console.log(
+				`inserted: ${done}/~${expected} (${rate.toFixed(0)}/s, eta ${eta.toFixed(0)}s)`,
+			);
+		}
+	}
+	if (buffer.length > 0) {
+		await db.insert(nodes).values(buffer);
+		done += buffer.length;
 	}
 
-	console.log(`\nSeeded ${inserted} nodes.`);
+	console.log(`Seeded ${done} nodes.`);
 	process.exit(0);
 }
 
