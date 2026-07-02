@@ -3,6 +3,7 @@ import {
 	draggable,
 	dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { disableNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview";
 import {
 	attachInstruction,
 	extractInstruction,
@@ -12,7 +13,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { NodeType } from "#/core/nodes/node.types";
 import { orpc } from "#/orpc/client";
+import {
+	createDragPreview,
+	type DragPreviewHandle,
+} from "#/ui/Nodes/drag-animation/drag-preview";
+import { animateDropSettle } from "#/ui/Nodes/drag-animation/drop-settle";
+import { nodeRowDomAttributes } from "#/ui/Nodes/drag-animation/node-rows";
 import { NodeDragHandle } from "#/ui/Nodes/node-drag-handle";
+import { NodeDropIndicator } from "#/ui/Nodes/node-drop-indicator";
 
 interface NodeDragAndDropProps
 	extends Pick<NodeType, "id" | "parentId" | "expanded" | "hasChildren"> {
@@ -40,7 +48,17 @@ export function NodeDragAndDrop({
 	const queryClient = useQueryClient();
 	const rowRef = useRef<HTMLDivElement>(null);
 	const handleRef = useRef<HTMLButtonElement>(null);
+	const previewRef = useRef<DragPreviewHandle | null>(null);
 	const [instruction, setInstruction] = useState<Instruction | null>(null);
+
+	const { mutate: expandNode } = useMutation({
+		...orpc.toggleNodeExpanded.mutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries(
+				orpc.listNodes.queryOptions({ input: { parentId } }),
+			);
+		},
+	});
 
 	const { mutate: moveNode } = useMutation({
 		...orpc.moveNode.mutationOptions(),
@@ -66,6 +84,31 @@ export function NodeDragAndDrop({
 				element: row,
 				dragHandle: handle,
 				getInitialData: (): DragData => ({ nodeId: id, parentId }),
+				onGenerateDragPreview: disableNativeDragPreview,
+				onDragStart: ({ location }) => {
+					const { clientX, clientY } = location.current.input;
+					previewRef.current = createDragPreview(row, {
+						x: clientX,
+						y: clientY,
+					});
+				},
+				onDrag: ({ location }) => {
+					const { clientX, clientY } = location.current.input;
+					previewRef.current?.follow({ x: clientX, y: clientY });
+				},
+				onDrop: ({ location }) => {
+					const preview = previewRef.current;
+					previewRef.current = null;
+					if (!preview) return;
+
+					const target = location.current.dropTargets[0];
+					const inst = target ? extractInstruction(target.data) : null;
+					if (!target || !inst || inst.type === "instruction-blocked") {
+						preview.cancel();
+						return;
+					}
+					animateDropSettle(preview, id, row);
+				},
 			}),
 			dropTargetForElements({
 				element: row,
@@ -113,28 +156,29 @@ export function NodeDragAndDrop({
 							position: "append",
 							targetId: null,
 						});
+						if (!expanded) expandNode({ id, expanded: true });
 					}
 				},
 			}),
 		);
-	}, [id, parentId, expanded, hasChildren, level, isLastChild, moveNode]);
+	}, [
+		id,
+		parentId,
+		expanded,
+		hasChildren,
+		level,
+		isLastChild,
+		moveNode,
+		expandNode,
+	]);
 
 	return (
 		<div
 			ref={rowRef}
+			{...nodeRowDomAttributes(id)}
 			className="group/node py-1 flex items-center gap-2 relative"
 		>
-			{instruction && instruction.type !== "instruction-blocked" && (
-				<div
-					className={
-						instruction.type === "make-child"
-							? "absolute inset-0 rounded ring-2 ring-redleather pointer-events-none"
-							: `absolute left-0 right-0 h-0.5 bg-redleather pointer-events-none ${
-									instruction.type === "reorder-above" ? "top-0" : "bottom-0"
-								}`
-					}
-				/>
-			)}
+			<NodeDropIndicator instruction={instruction} />
 			<NodeDragHandle ref={handleRef} />
 			{children}
 		</div>
