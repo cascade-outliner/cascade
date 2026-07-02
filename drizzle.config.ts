@@ -3,11 +3,15 @@ import { defineConfig } from 'drizzle-kit'
 
 config({ path: ['.env.local', '.env'] })
 
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set — configure it in .env.local')
+}
+
 export default defineConfig({
   out: './drizzle',
-  schema: './src/db/schema.ts',
+  schema: './src/**/*.schema.ts',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "", // TODO: Improve failure handling
+    url: process.env.DATABASE_URL,
   },
 })

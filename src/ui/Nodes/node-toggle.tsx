@@ -1,0 +1,46 @@
+import { CaretRightIcon } from "@phosphor-icons/react";
+import { cva } from "#/integrations/cva/cva.config";
+
+interface NodeToggleProps {
+	hasChildren: boolean;
+	expanded: boolean;
+	onToggle: (expanded: boolean) => void;
+}
+
+const nodeToggleCaret = cva({
+	base: ["transition-transform"],
+	variants: {
+		rotation: {
+			expanded: ["rotate-90"],
+			collapsed: [],
+		},
+	},
+});
+
+export function NodeToggle({
+	hasChildren,
+	expanded,
+	onToggle,
+}: NodeToggleProps) {
+	return (
+		<>
+			{hasChildren ? (
+				<button
+					type="button"
+					onClick={() => onToggle(!expanded)}
+					aria-label={expanded ? "Collapse" : "Expand"}
+					aria-expanded={expanded}
+					className="shrink-0 text-dark-grey hover:text-redleather transition-colors"
+				>
+					<CaretRightIcon
+						className={nodeToggleCaret({
+							rotation: expanded ? "expanded" : "collapsed",
+						})}
+					/>
+				</button>
+			) : (
+				<span className="w-4 shrink-0" />
+			)}
+		</>
+	);
+}

@@ -3,11 +3,23 @@ import {
 	defaultStreamHandler,
 } from "@tanstack/react-start/server";
 import { FastResponse } from "srvx";
-import { bootstrap } from "#/core/bootstrap";
 
 globalThis.Response = FastResponse;
 
-// Run feature onInit hooks at server startup
-bootstrap();
+const startHandler = createStartHandler(defaultStreamHandler);
 
-export default { fetch: createStartHandler(defaultStreamHandler) };
+const securityHeaders: Record<string, string> = {
+	"X-Content-Type-Options": "nosniff",
+	"X-Frame-Options": "DENY",
+	"Referrer-Policy": "strict-origin-when-cross-origin",
+};
+
+export default {
+	async fetch(request: Request): Promise<Response> {
+		const response = await startHandler(request);
+		for (const [key, value] of Object.entries(securityHeaders)) {
+			response.headers.set(key, value);
+		}
+		return response;
+	},
+};

@@ -10,13 +10,3 @@
 	--color-peach: #e38b75;
 	--color-dark-grey: #2b2d33;
 }
-
-.prose {
-	--tw-prose-body: var(--color-dark-grey);
-	--tw-prose-headings: var(--color-dark-grey);
-	--tw-prose-bullets: var(--color-dark-grey);
-	--tw-prose-counters: var(--color-dark-grey);
-	--tw-prose-quote-borders: var(--color-dark-grey);
-	--tw-prose-th-borders: var(--color-dark-grey);
-	--tw-prose-td-borders: var(--color-dark-grey);
-}

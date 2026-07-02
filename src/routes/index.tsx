@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-	NodeListPage,
-	nodeListLoader,
-} from "#/features/nodes/routes/node-list";
+import { GenericErrorComponent } from "#/ui/error/generic-error";
+import { visibleTreeOptions } from "#/ui/nodes/virtual-tree/use-visible-tree";
+import { VirtualTree } from "#/ui/nodes/virtual-tree/virtual-tree";
 
 export const Route = createFileRoute("/")({
-	loader: nodeListLoader,
-	component: NodeListPage,
+	loader: ({ context: { queryClient } }) =>
+		queryClient.ensureQueryData(visibleTreeOptions(null)),
+	errorComponent: GenericErrorComponent,
+	component: () => <VirtualTree rootId={null} />,
 });

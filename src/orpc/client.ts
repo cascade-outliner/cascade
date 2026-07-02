@@ -8,7 +8,7 @@ import type router from "#/orpc/router";
 const url =
 	typeof window !== "undefined"
 		? `${window.location.origin}/api/rpc`
-		: `http://localhost:${process.env.PORT ?? 3000}/api/rpc`;
+		: `http://localhost:${process.env.PORT ?? 3000}/api/rpc`; // server-side only; env module would leak into the client bundle here
 
 export const client = createORPCClient<RouterClient<typeof router>>(
 	new RPCLink({ url }),

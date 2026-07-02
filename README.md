@@ -1,12 +1,11 @@
 # Cascade
 
-A self-hosted, plugin-based outliner. Every capability — from node editing to deletion — is a feature plugin. The core ships minimal; you extend it.
+A self-hosted outliner.
 
 ## Features
 
-- Tree-based outliner with infinitely nestable nodes
+- Tree-based outliner with infinitely nestable nodes, virtualized for large trees
 - Self-hosted on your own infrastructure with a PostgreSQL database
-- Plugin architecture: add, remove, or replace any feature
 - Type-safe throughout — RPC, database queries, and routing
 
 ## Getting started
@@ -23,7 +22,6 @@ Copy `.env.local.example` to `.env.local` and set:
 
 ```env
 DATABASE_URL=postgres://user:password@localhost:5432/cascade
-BETTER_AUTH_SECRET=your-secret
 ```
 
 Start a local database:
@@ -32,12 +30,17 @@ Start a local database:
 docker compose up -d
 ```
 
-Run migrations and seed:
+Apply the schema and seed:
 
 ```bash
-pnpm db:migrate
+pnpm db:push
 pnpm db:seed
 ```
+
+> Note: the `order` column must use `COLLATE "C"` (byte-order comparison for
+> fractional-index keys). `db:push` can't express collation — on a fresh
+> database run once:
+> `ALTER TABLE nodes ALTER COLUMN "order" TYPE text COLLATE "C";`
 
 Start the dev server:
 
@@ -54,74 +57,6 @@ pnpm build
 pnpm start
 ```
 
-## Plugin system
-
-Cascade is built around a feature plugin system. Everything — including the built-in node management, editing, and deletion — is a feature.
-
-A feature is a single object registered in `cascade.config.ts`:
-
-```ts
-// cascade.config.ts
-export default defineConfig({
-  features: [nodesFeature, deleteNodeFeature, editNodeFeature, yourFeature],
-});
-```
-
-### Anatomy of a feature
-
-```ts
-// src/features/my-feature/index.ts
-import { defineFeature } from "#/core/feature";
-
-export const myFeature = defineFeature({
-  name: "my-feature",
-  description: "Does something useful",
-  dependencies: ["nodes"], // validated at startup
-
-  // Drizzle table definitions
-  schema: { myTable },
-
-  // ORPC procedures exposed as RPC endpoints
-  procedures: { myProcedure },
-
-  // React components injected into named layout slots
-  slots: {
-    afterNodeActions: [MyActionComponent],
-  },
-
-  // Runs once at server startup
-  hooks: {
-    onInit: async (config) => {
-      console.log("my-feature initialized");
-    },
-  },
-});
-```
-
-### UI slots
-
-Features inject React components into named slots rendered by the layout:
-
-| Slot | Description |
-|------|-------------|
-| `topRightMenu` | Top-right toolbar area |
-| `topLeftMenu` | Top-left toolbar area |
-| `bottomRightMenu` | Bottom-right toolbar area |
-| `bottomLeftMenu` | Bottom-left toolbar area |
-| `afterNodeActions` | Actions appended to each node's context menu |
-| `nodeText` | Replaces the node's text renderer |
-
-### RPC procedures
-
-Procedures contributed by features are merged into a single type-safe ORPC router and called from the client via TanStack Query:
-
-```ts
-import { orpc } from "#/orpc/client";
-import { useQuery } from "@tanstack/react-query";
-
-const { data } = useQuery(orpc.myProcedure.queryOptions({ ... }));
-```
-
 ## Development
 
 ```bash
@@ -129,8 +64,7 @@ pnpm dev          # Start dev server
 pnpm test         # Run tests
 pnpm check        # Lint + format
 
-pnpm db:generate  # Generate migration from schema changes
-pnpm db:migrate   # Apply migrations
+pnpm db:push      # Apply schema changes to the database
 pnpm db:studio    # Open Drizzle Studio
 ```
 

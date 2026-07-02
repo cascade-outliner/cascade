@@ -1,12 +1,21 @@
-import { assembleRouter } from "#/core/assemble";
-import type * as deleteNodeProcedures from "#/features/delete-node/procedures";
-import type * as editNodeProcedures from "#/features/edit-node/procedures";
-import type * as nodesProcedures from "#/features/nodes/procedures";
-import config from "../../../cascade.config";
+import {
+	deleteNode,
+	getNode,
+	listNodes,
+	moveNode,
+	toggleNodeExpanded,
+	updateNodeContent,
+	visibleTree,
+} from "#/core/nodes/node.procedures";
 
-// Assembled at runtime from cascade.config features.
-// Type assertion preserves ORPC procedure brands for the client.
-// When adding a new feature with procedures, add its type to this intersection.
-export default assembleRouter(config) as typeof nodesProcedures &
-	typeof deleteNodeProcedures &
-	typeof editNodeProcedures;
+export default {
+	nodes: {
+		list: listNodes,
+		get: getNode,
+		visibleTree,
+		move: moveNode,
+		toggleExpanded: toggleNodeExpanded,
+		delete: deleteNode,
+		updateContent: updateNodeContent,
+	},
+};
