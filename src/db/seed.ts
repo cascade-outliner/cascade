@@ -5,7 +5,7 @@ import { nodes } from "#/core/nodes/node.schema";
 import { db } from "#/db";
 
 const config = {
-	roots: 1000, // number of root nodes
+	roots: 25, // number of root nodes
 	maxDepth: 6, // max nesting depth
 	maxChildren: 12, // max children per node
 } as const;
