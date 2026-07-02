@@ -5,8 +5,8 @@ import { nodes } from "#/core/nodes/node.schema";
 import { db } from "#/db";
 
 const config = {
-	roots: 30, // number of root nodes
-	maxDepth: 3, // max nesting depth
+	roots: 1000, // number of root nodes
+	maxDepth: 6, // max nesting depth
 	maxChildren: 12, // max children per node
 } as const;
 
@@ -93,6 +93,8 @@ function textToLexicalContent(text: string) {
 	};
 }
 
+let inserted = 0;
+
 async function insertChildren(parentId: string, depth: number) {
 	if (depth <= 0) return;
 	const count = faker.number.int({ min: 1, max: config.maxChildren });
@@ -102,7 +104,7 @@ async function insertChildren(parentId: string, depth: number) {
 		const text = faker.lorem.sentences({ min: 1, max: 2 });
 		const content = textToLexicalContent(text);
 		await db.insert(nodes).values({ id, parentId, content, order: orders[i] });
-		console.log(`inserted: ${id} "${text}" (parent: ${parentId})`);
+		process.stdout.write(`\rinserted: ${++inserted}`);
 		await insertChildren(id, depth - 1);
 	}
 }
@@ -120,11 +122,11 @@ async function main() {
 		await db
 			.insert(nodes)
 			.values({ id, parentId: null, content, order: rootOrders[i] });
-		console.log(`inserted: ${id} "${text}" (parent: root)`);
+		process.stdout.write(`\rinserted: ${++inserted}`);
 		await insertChildren(id, config.maxDepth - 1);
 	}
 
-	console.log("Seeded nodes.");
+	console.log(`\nSeeded ${inserted} nodes.`);
 	process.exit(0);
 }
 
