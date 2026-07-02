@@ -1,5 +1,5 @@
 import { CaretRightIcon } from "@phosphor-icons/react";
-import { cva } from "#/integrations/cva/cva.config";
+import { cva } from "@/integrations/cva/cva.config";
 
 interface NodeToggleProps {
 	hasChildren: boolean;

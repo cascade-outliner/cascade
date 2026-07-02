@@ -1,5 +1,5 @@
-import { renderNode } from "#/ui/lexical/read/lexical-render-node";
-import type { LexicalTextNode } from "#/ui/lexical/read/render-text-nodes";
+import { renderNode } from "@/ui/lexical/read/lexical-render-node";
+import type { LexicalTextNode } from "@/ui/lexical/read/render-text-nodes";
 
 export interface LexicalElementNode {
 	type: string;

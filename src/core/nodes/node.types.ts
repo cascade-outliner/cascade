@@ -1,5 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
-import type { nodes } from "#/core/nodes/node.schema";
+import type { nodes } from "@/core/nodes/node.schema";
 
 export type NodeType = Pick<
 	InferSelectModel<typeof nodes>,

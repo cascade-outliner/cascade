@@ -1,4 +1,4 @@
-import type { LexicalElementNode } from "#/ui/lexical/read/lexical-read-view";
+import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 
 /**
  * Single place where untyped jsonb content is narrowed to Lexical shape,

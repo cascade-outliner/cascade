@@ -1,7 +1,7 @@
-import { LexicalEditView } from "#/ui/lexical/edit/lexical-edit-view";
-import { toLexicalContent } from "#/ui/lexical/lexical-content";
-import type { LexicalElementNode } from "#/ui/lexical/read/lexical-read-view";
-import { LexicalReadView } from "#/ui/lexical/read/lexical-read-view";
+import { LexicalEditView } from "@/ui/lexical/edit/lexical-edit-view";
+import { toLexicalContent } from "@/ui/lexical/lexical-content";
+import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
+import { LexicalReadView } from "@/ui/lexical/read/lexical-read-view";
 
 interface NodeEditorProps {
 	id: string;

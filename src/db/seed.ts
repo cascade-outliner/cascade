@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { faker } from "@faker-js/faker";
 import { generateNKeysBetween } from "fractional-indexing";
-import { nodes } from "#/core/nodes/node.schema";
-import { db } from "#/db";
+import { nodes } from "@/core/nodes/node.schema";
+import { db } from "@/db";
 
 const config = {
 	roots: 25, // number of root nodes

@@ -1,6 +1,6 @@
 import { gsap } from "gsap";
-import { dragAnimationConfig } from "#/ui/nodes/drag-animation/config";
-import { NODE_ROW_ATTRIBUTE } from "#/ui/nodes/drag-animation/node-rows";
+import { dragAnimationConfig } from "@/ui/nodes/drag-animation/config";
+import { NODE_ROW_ATTRIBUTE } from "@/ui/nodes/drag-animation/node-rows";
 
 export interface Point {
 	x: number;

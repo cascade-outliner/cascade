@@ -6,7 +6,7 @@ import {
 	toggleNodeExpanded,
 	updateNodeContent,
 	visibleTree,
-} from "#/core/nodes/node.procedures";
+} from "@/core/nodes/node.procedures";
 
 export default {
 	nodes: {

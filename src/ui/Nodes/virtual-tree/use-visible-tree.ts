@@ -1,7 +1,7 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRef } from "react";
-import type { VisibleNodeRow } from "#/core/nodes/node.types";
-import { client, orpc } from "#/orpc/client";
+import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import { client, orpc } from "@/orpc/client";
 import {
 	collapseNode,
 	expandNode,
@@ -9,7 +9,7 @@ import {
 	moveSubtree,
 	patchRow,
 	removeSubtree,
-} from "#/ui/nodes/virtual-tree/visible-rows";
+} from "@/ui/nodes/virtual-tree/visible-rows";
 
 interface VisibleTreeData {
 	rows: VisibleNodeRow[];

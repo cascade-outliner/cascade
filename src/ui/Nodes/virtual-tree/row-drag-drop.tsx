@@ -18,16 +18,16 @@ import {
 	useRef,
 	useState,
 } from "react";
-import type { VisibleNodeRow } from "#/core/nodes/node.types";
-import { createDragPreview } from "#/ui/nodes/drag-animation/drag-preview";
-import { nodeRowDomAttributes } from "#/ui/nodes/drag-animation/node-rows";
-import { NodeDragHandle } from "#/ui/nodes/node-drag-handle";
-import { NodeDropIndicator } from "#/ui/nodes/node-drop-indicator";
-import type { ActiveDragPreview } from "#/ui/nodes/virtual-tree/virtual-tree";
+import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import { createDragPreview } from "@/ui/nodes/drag-animation/drag-preview";
+import { nodeRowDomAttributes } from "@/ui/nodes/drag-animation/node-rows";
+import { NodeDragHandle } from "@/ui/nodes/node-drag-handle";
+import { NodeDropIndicator } from "@/ui/nodes/node-drop-indicator";
+import type { ActiveDragPreview } from "@/ui/nodes/virtual-tree/virtual-tree";
 import {
 	type MoveTarget,
 	subtreeRange,
-} from "#/ui/nodes/virtual-tree/visible-rows";
+} from "@/ui/nodes/virtual-tree/visible-rows";
 
 export const INDENT_PER_LEVEL = 16;
 

@@ -9,12 +9,6 @@ import { defineConfig } from "vite";
 export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
-		alias: [
-			{
-				find: /^#\/(.*)/,
-				replacement: `${import.meta.dirname}/src/$1`,
-			},
-		],
 	},
 	plugins: [
 		devtools(),

@@ -3,7 +3,7 @@ import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 
-import type router from "#/orpc/router";
+import type router from "@/orpc/router";
 
 const url =
 	typeof window !== "undefined"

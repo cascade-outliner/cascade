@@ -3,7 +3,7 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { useEffect, useRef } from "react";
-import type { LexicalElementNode } from "#/ui/lexical/read/lexical-read-view";
+import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 
 interface EditableContentProps {
 	onSave: (content: { root: LexicalElementNode }) => void;

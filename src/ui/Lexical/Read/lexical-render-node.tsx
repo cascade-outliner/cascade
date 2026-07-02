@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import type { LexicalElementNode } from "#/ui/lexical/read/lexical-read-view";
+import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 import {
 	type LexicalTextNode,
 	renderTextNode,
-} from "#/ui/lexical/read/render-text-nodes";
+} from "@/ui/lexical/read/render-text-nodes";
 
 export function renderNode(
 	node: LexicalTextNode | LexicalElementNode,

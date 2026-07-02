@@ -3,15 +3,15 @@
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
-import type { DragPreviewHandle } from "#/ui/nodes/drag-animation/drag-preview";
-import { findNodeRow } from "#/ui/nodes/drag-animation/node-rows";
+import type { DragPreviewHandle } from "@/ui/nodes/drag-animation/drag-preview";
+import { findNodeRow } from "@/ui/nodes/drag-animation/node-rows";
 import {
 	captureRowPositions,
 	playDisplacement,
-} from "#/ui/nodes/virtual-tree/flip-displacement";
-import { useVisibleTree } from "#/ui/nodes/virtual-tree/use-visible-tree";
-import { VirtualTreeRow } from "#/ui/nodes/virtual-tree/virtual-tree-row";
-import type { MoveTarget } from "#/ui/nodes/virtual-tree/visible-rows";
+} from "@/ui/nodes/virtual-tree/flip-displacement";
+import { useVisibleTree } from "@/ui/nodes/virtual-tree/use-visible-tree";
+import { VirtualTreeRow } from "@/ui/nodes/virtual-tree/virtual-tree-row";
+import type { MoveTarget } from "@/ui/nodes/virtual-tree/visible-rows";
 
 export interface ActiveDragPreview {
 	nodeId: string;

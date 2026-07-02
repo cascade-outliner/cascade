@@ -3,9 +3,9 @@ import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { onError } from "@orpc/server";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { createFileRoute } from "@tanstack/react-router";
-import { logger } from "#/lib/logger";
-import { createContext } from "#/orpc/context";
-import router from "#/orpc/router";
+import { logger } from "@/lib/logger";
+import { createContext } from "@/orpc/context";
+import router from "@/orpc/router";
 
 const handler = new OpenAPIHandler(router, {
 	interceptors: [
