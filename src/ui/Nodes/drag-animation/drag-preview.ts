@@ -1,9 +1,6 @@
 import { gsap } from "gsap";
-import { dragAnimationConfig } from "#/ui/Nodes/drag-animation/config";
-import {
-	getNodeSubtreeElement,
-	stripNodeRowAttributes,
-} from "#/ui/Nodes/drag-animation/node-rows";
+import { dragAnimationConfig } from "#/ui/nodes/drag-animation/config";
+import { NODE_ROW_ATTRIBUTE } from "#/ui/nodes/drag-animation/node-rows";
 
 export interface Point {
 	x: number;
@@ -16,19 +13,24 @@ export interface DragPreviewHandle {
 	cancel(): void;
 }
 
+/**
+ * Cursor-following clone of a single row (rows are flat siblings under
+ * virtualization, so there is no subtree element to clone). An optional
+ * descendant count is shown as a badge on the preview.
+ */
 export function createDragPreview(
 	sourceRow: HTMLElement,
 	grabPoint: Point,
+	descendantCount = 0,
 ): DragPreviewHandle {
 	const { preview, settle, cancel, sourceDimOpacity } = dragAnimationConfig;
 
-	const subtree = getNodeSubtreeElement(sourceRow);
-	const rect = subtree.getBoundingClientRect();
+	const rect = sourceRow.getBoundingClientRect();
 	const grabX = grabPoint.x - rect.left;
 	const grabY = grabPoint.y - rect.top;
 
-	const el = subtree.cloneNode(true) as HTMLElement;
-	stripNodeRowAttributes(el);
+	const el = sourceRow.cloneNode(true) as HTMLElement;
+	el.removeAttribute(NODE_ROW_ATTRIBUTE);
 	Object.assign(el.style, {
 		position: "fixed",
 		top: "0",
@@ -42,18 +44,28 @@ export function createDragPreview(
 		boxShadow: preview.boxShadow,
 	});
 
-	const maxHeight =
-		sourceRow.getBoundingClientRect().height * preview.maxVisibleRows;
-	if (rect.height > maxHeight) {
-		Object.assign(el.style, {
-			maxHeight: `${maxHeight}px`,
-			overflow: "hidden",
-			maskImage: preview.overflowMask,
+	if (descendantCount > 0) {
+		const badge = document.createElement("span");
+		badge.textContent = String(descendantCount + 1);
+		Object.assign(badge.style, {
+			position: "absolute",
+			top: "-8px",
+			right: "-8px",
+			minWidth: "20px",
+			height: "20px",
+			padding: "0 5px",
+			borderRadius: "10px",
+			background: "var(--color-redleather, #b3402a)",
+			color: "white",
+			fontSize: "11px",
+			lineHeight: "20px",
+			textAlign: "center",
 		});
+		el.appendChild(badge);
 	}
 
 	document.body.appendChild(el);
-	subtree.style.opacity = String(sourceDimOpacity);
+	sourceRow.style.opacity = String(sourceDimOpacity);
 
 	gsap.set(el, {
 		x: rect.left,
@@ -75,7 +87,7 @@ export function createDragPreview(
 	const finish = (): boolean => {
 		if (finished) return false;
 		finished = true;
-		subtree.style.opacity = "";
+		sourceRow.style.opacity = "";
 		gsap.killTweensOf(el);
 		return true;
 	};

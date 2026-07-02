@@ -1,40 +1,47 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { orpc } from "#/orpc/client";
-import type { LexicalEditViewProps } from "#/ui/Lexical/Edit/lexical-edit-view";
-import type { LexicalElementNode } from "#/ui/Lexical/Read/lexical-read-view";
+import { useEffect, useRef } from "react";
+import type { LexicalElementNode } from "#/ui/lexical/read/lexical-read-view";
 
-export function EditableContent({
-	id,
-	parentId,
-	onExit,
-}: Pick<LexicalEditViewProps, "id" | "parentId" | "onExit">) {
+interface EditableContentProps {
+	onSave: (content: { root: LexicalElementNode }) => void;
+	onExit?: () => void;
+}
+
+export function EditableContent({ onSave, onExit }: EditableContentProps) {
 	const [editor] = useLexicalComposerContext();
-	const queryClient = useQueryClient();
-	const { mutate } = useMutation({
-		...orpc.updateNodeContent.mutationOptions(),
-		onSuccess: () => {
-			queryClient.invalidateQueries(
-				orpc.listNodes.queryOptions({ input: { parentId } }),
-			);
-		},
-	});
+	const lastSavedRef = useRef<string | null>(null);
+
+	const save = () => {
+		const state = editor.getEditorState().toJSON();
+		const serialized = JSON.stringify(state);
+		if (serialized === lastSavedRef.current) return;
+		lastSavedRef.current = serialized;
+		onSave({ root: state.root as unknown as LexicalElementNode });
+	};
+
+	const saveRef = useRef(save);
+	saveRef.current = save;
+
+	useEffect(() => {
+		lastSavedRef.current = JSON.stringify(editor.getEditorState().toJSON());
+		return () => saveRef.current();
+	}, [editor]);
 
 	return (
 		<RichTextPlugin
 			contentEditable={
 				<ContentEditable
 					onBlur={() => {
-						const { root } = editor.getEditorState().toJSON();
-						mutate({ id, content: { root: root as LexicalElementNode } });
+						save();
 						onExit?.();
 					}}
 				/>
 			}
 			placeholder={null}
-			ErrorBoundary={({ children }) => children}
+			ErrorBoundary={LexicalErrorBoundary}
 		/>
 	);
 }

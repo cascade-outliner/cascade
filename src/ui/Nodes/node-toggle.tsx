@@ -1,11 +1,11 @@
 import { CaretRightIcon } from "@phosphor-icons/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { NodeType } from "#/core/nodes/node.types";
 import { cva } from "#/integrations/cva/cva.config";
-import { orpc } from "#/orpc/client";
 
-interface NodeToggleProps
-	extends Pick<NodeType, "hasChildren" | "expanded" | "id" | "parentId"> {}
+interface NodeToggleProps {
+	hasChildren: boolean;
+	expanded: boolean;
+	onToggle: (expanded: boolean) => void;
+}
 
 const nodeToggleCaret = cva({
 	base: ["transition-transform"],
@@ -20,28 +20,14 @@ const nodeToggleCaret = cva({
 export function NodeToggle({
 	hasChildren,
 	expanded,
-	id,
-	parentId,
+	onToggle,
 }: NodeToggleProps) {
-	const queryClient = useQueryClient();
-	const { mutate } = useMutation({
-		...orpc.toggleNodeExpanded.mutationOptions(),
-		onSuccess: (_, { id: nodeId, expanded: newExpanded }) => {
-			const { queryKey } = orpc.listNodes.queryOptions({ input: { parentId } });
-			queryClient.setQueryData(queryKey, (old: NodeType[] | undefined) =>
-				old?.map((node) =>
-					node.id === nodeId ? { ...node, expanded: newExpanded } : node,
-				),
-			);
-		},
-	});
-
 	return (
 		<>
 			{hasChildren ? (
 				<button
 					type="button"
-					onClick={() => mutate({ id, expanded: !expanded })}
+					onClick={() => onToggle(!expanded)}
 					aria-label={expanded ? "Collapse" : "Expand"}
 					aria-expanded={expanded}
 					className="shrink-0 text-dark-grey hover:text-redleather transition-colors"

@@ -27,10 +27,4 @@ export const dragAnimationConfig = {
 	cancel: { duration: 0.15, ease: "power2.in", scale: 0.96 },
 
 	displacement: { duration: 0.45, ease: "power3.out" },
-
-	settleDetection: {
-		stableFrames: 8,
-		maxFrames: 150,
-		movementThresholdPx: 1,
-	},
 } as const;

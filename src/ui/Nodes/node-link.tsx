@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import type { NodeProps } from "#/ui/Nodes/node";
 
-interface NodeLinkProps extends Pick<NodeProps, "id"> {}
+interface NodeLinkProps {
+	id: string;
+}
 
 export function NodeLink({ id }: NodeLinkProps) {
 	return (
@@ -9,6 +10,7 @@ export function NodeLink({ id }: NodeLinkProps) {
 			to="/node/$nodeId"
 			params={{ nodeId: id }}
 			viewTransition
+			aria-label="Open node"
 			className="w-2 h-2 rounded-full bg-dark-grey hover:bg-redleather transition-colors shrink-0"
 		/>
 	);

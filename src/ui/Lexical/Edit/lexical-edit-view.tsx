@@ -1,52 +1,29 @@
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { $createParagraphNode, $createTextNode, $getRoot } from "lexical";
-import type { NodeType } from "#/core/nodes/node.types";
-import { EditableContent } from "#/ui/Lexical/Edit/lexical-editable-content";
-import type { LexicalElementNode } from "#/ui/Lexical/Read/lexical-read-view";
-import type { LexicalTextNode } from "#/ui/Lexical/Read/render-text-nodes";
+import { EditableContent } from "#/ui/lexical/edit/lexical-editable-content";
+import type { LexicalElementNode } from "#/ui/lexical/read/lexical-read-view";
 
-export interface LexicalEditViewProps
-	extends Pick<NodeType, "id" | "parentId"> {
-	content: {
-		root: LexicalElementNode;
-	};
+export interface LexicalEditViewProps {
+	id: string;
+	content: { root: LexicalElementNode } | null;
+	onSave: (content: { root: LexicalElementNode }) => void;
 	onExit?: () => void;
-}
-
-function buildInitialState(content: LexicalEditViewProps["content"]) {
-	return () => {
-		const root = $getRoot();
-		for (const paragraph of content.root.children ?? []) {
-			const paragraphNode = $createParagraphNode();
-			const children =
-				"children" in paragraph ? (paragraph.children ?? []) : [];
-			for (const child of children as LexicalTextNode[]) {
-				const textNode = $createTextNode(child.text);
-				textNode.setFormat(child.format ?? 0);
-				paragraphNode.append(textNode);
-			}
-			root.append(paragraphNode);
-		}
-	};
 }
 
 export function LexicalEditView({
 	id,
-	parentId,
 	content,
+	onSave,
 	onExit,
 }: LexicalEditViewProps) {
 	return (
 		<LexicalComposer
 			initialConfig={{
 				namespace: `node-editor-${id}`,
-				onError: (error) => {
-					throw error;
-				},
-				editorState: buildInitialState(content),
+				onError: (error) => console.error("lexical error", error),
+				editorState: content ? JSON.stringify(content) : null,
 			}}
 		>
-			<EditableContent id={id} parentId={parentId} onExit={onExit} />
+			<EditableContent onSave={onSave} onExit={onExit} />
 		</LexicalComposer>
 	);
 }
