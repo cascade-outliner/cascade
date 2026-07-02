@@ -1,7 +1,21 @@
-import * as nodeProcedures from "../../core/nodes/node.procedures";
+import {
+	deleteNode,
+	getNode,
+	listNodes,
+	moveNode,
+	toggleNodeExpanded,
+	updateNodeContent,
+	visibleTree,
+} from "#/core/nodes/node.procedures";
 
-function assembleRouter() {
-	return Object.assign({}, nodeProcedures);
-}
-
-export default assembleRouter();
+export default {
+	nodes: {
+		list: listNodes,
+		get: getNode,
+		visibleTree,
+		move: moveNode,
+		toggleExpanded: toggleNodeExpanded,
+		delete: deleteNode,
+		updateContent: updateNodeContent,
+	},
+};
