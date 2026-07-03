@@ -1,8 +1,8 @@
 "use no memo";
 
 import type { RefObject } from "react";
-import type { NodeTypeName } from "@/core/nodes/node-types";
 import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import type { NodeTypeName } from "@/core/nodes/node-types";
 import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 import { NodeActions } from "@/ui/nodes/node-actions";
 import { NodeCheckbox } from "@/ui/nodes/node-checkbox";
@@ -68,7 +68,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					viewTransitionName={`node-${row.id}`}
 				>
 					{row.type === "task" && (
-						<NodeCheckbox metadata={row.metadata} onToggle={props.onToggleTask} />
+						<NodeCheckbox
+							metadata={row.metadata}
+							onToggle={props.onToggleTask}
+						/>
 					)}
 					<div className="block w-full">
 						<NodeEditor

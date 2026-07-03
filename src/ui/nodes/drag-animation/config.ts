@@ -25,7 +25,7 @@ interface DragAnimationConfig {
 	};
 	cancel: Tween & { scale: number };
 	displacement: Tween;
-	enter: Tween & { offsetY: number };
+	enter: Tween & { offsetY: number; stagger: number };
 	leave: Tween & { scale: number };
 }
 
@@ -60,6 +60,6 @@ export const dragAnimationConfig = {
 
 	displacement: { duration: 0.45, ease: "power3.out" },
 
-	enter: { duration: 0.25, ease: "power2.out", offsetY: -8 },
+	enter: { duration: 0.25, ease: "power2.out", offsetY: -8, stagger: 0.3 },
 	leave: { duration: 0.15, ease: "power1.in", scale: 0.96 },
 } as const satisfies DragAnimationConfig;
