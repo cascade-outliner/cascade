@@ -6,6 +6,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { AppContextMenu } from "@/ui/app-context-menu";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
@@ -62,7 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="bg-ginger text-dark-grey">
-				{children}
+				<AppContextMenu>{children}</AppContextMenu>
 				{import.meta.env.DEV && (
 					<TanStackDevtools
 						config={{
