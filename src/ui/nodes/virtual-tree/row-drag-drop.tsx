@@ -190,7 +190,7 @@ export function RowDragAndDrop({
 		<div
 			ref={rowRef}
 			{...nodeRowDomAttributes(row.id)}
-			className="group/node py-1 flex items-center gap-2 relative bg-ginger rounded-md transition-colors duration-150 has-[[data-popup-open]]:bg-peach/25 has-[[data-popup-open]]:ring-1 has-[[data-popup-open]]:ring-inset has-[[data-popup-open]]:ring-peach/60"
+			className="group/node py-1 flex items-center gap-2 relative rounded-md transition-colors duration-150 has-[[data-popup-open]]:bg-peach/25 has-[[data-popup-open]]:ring-1 has-[[data-popup-open]]:ring-inset has-[[data-popup-open]]:ring-peach/60"
 		>
 			<div style={{ paddingLeft: row.depth * INDENT_PER_LEVEL }} />
 			<NodeDropIndicator instruction={instruction} />

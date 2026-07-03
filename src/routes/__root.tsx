@@ -34,6 +34,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "#f9e4d6",
 			},
 		],
+		scripts: [
+			{
+				children:
+					'if(localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")',
+			},
+		],
 		links: [
 			{
 				rel: "stylesheet",
@@ -63,7 +69,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="bg-ginger text-dark-grey">
+			<body className="bg-ginger text-dark-grey dark:bg-dark-grey dark:text-ginger">
 				<AppContextMenu>{children}</AppContextMenu>
 				<UserMenu />
 				{import.meta.env.DEV && (

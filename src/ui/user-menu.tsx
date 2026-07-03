@@ -1,11 +1,11 @@
-import { Dialog, Menu } from "@base-ui/react";
+import { Dialog, Menu, Switch } from "@base-ui/react";
 import { GearIcon, UserCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cva } from "@/integrations/cva/cva.config";
 
 const popup = cva({
 	base: [
-		"origin-(--transform-origin) min-w-40 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey",
+		"origin-(--transform-origin) min-w-40 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger",
 		"shadow-lg shadow-dark-grey/15 transition-[transform,opacity] duration-150 ease-out",
 		"data-starting-style:scale-95 data-starting-style:opacity-0",
 		"data-ending-style:scale-95 data-ending-style:opacity-0",
@@ -16,19 +16,30 @@ const popup = cva({
 const item = cva({
 	base: [
 		"flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-ginger/70 data-disabled:cursor-default data-disabled:opacity-40",
+		"data-highlighted:bg-ginger/70 data-disabled:cursor-default data-disabled:opacity-40 dark:data-highlighted:bg-ginger/20",
 	],
 });
 
 export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [dark, setDark] = useState(false);
+
+	useEffect(() => {
+		setDark(document.documentElement.classList.contains("dark"));
+	}, []);
+
+	function toggleDark(next: boolean) {
+		setDark(next);
+		document.documentElement.classList.toggle("dark", next);
+		localStorage.theme = next ? "dark" : "light";
+	}
 
 	return (
 		<div className="fixed top-4 right-4 z-50">
 			<Menu.Root>
 				<Menu.Trigger
 					aria-label="User menu"
-					className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-dark-grey/10 bg-white text-dark-grey shadow-md shadow-dark-grey/15 outline-none select-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:bg-ginger/70"
+					className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-dark-grey/10 bg-white text-dark-grey shadow-md shadow-dark-grey/15 outline-none select-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:bg-ginger/70 dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger dark:hover:bg-ginger/20 dark:data-popup-open:bg-ginger/20"
 				>
 					<UserCircleIcon size={22} weight="bold" />
 				</Menu.Trigger>
@@ -54,17 +65,28 @@ export function UserMenu() {
 			<Dialog.Root open={settingsOpen} onOpenChange={setSettingsOpen}>
 				<Dialog.Portal>
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm transition-[opacity,backdrop-filter] duration-300 data-starting-style:opacity-0 data-starting-style:backdrop-blur-none data-ending-style:opacity-0 data-ending-style:backdrop-blur-none data-ending-style:duration-150" />
-					<Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 scale-100 rounded-lg border border-dark-grey/10 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out">
+					<Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 scale-100 rounded-lg border border-dark-grey/10 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger">
 						<div className="mb-4 flex items-center justify-between">
 							<Dialog.Title className="text-lg font-semibold">
 								Settings
 							</Dialog.Title>
 							<Dialog.Close
 								aria-label="Close settings"
-								className="cursor-pointer rounded-md p-1 outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50"
+								className="cursor-pointer rounded-md p-1 outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
 							>
 								<XIcon size={16} weight="bold" />
 							</Dialog.Close>
+						</div>
+						<div className="flex items-center justify-between text-sm">
+							Dark mode
+							<Switch.Root
+								aria-label="Dark mode"
+								checked={dark}
+								onCheckedChange={toggleDark}
+								className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
+							>
+								<Switch.Thumb className="block size-4 rounded-full bg-white transition-transform data-checked:translate-x-4" />
+							</Switch.Root>
 						</div>
 					</Dialog.Popup>
 				</Dialog.Portal>

@@ -3,6 +3,15 @@
 
 @source "../src/**/*.{ts,tsx}";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+	--drag-preview-bg: var(--color-ginger);
+}
+.dark {
+	--drag-preview-bg: var(--color-dark-grey);
+}
+
 @theme {
 	--color-ginger: #f9e4d6;
 	--color-redleather: #ad4c4e;
