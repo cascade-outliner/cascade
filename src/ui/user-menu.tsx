@@ -20,13 +20,6 @@ const item = cva({
 	],
 });
 
-const field = cva({
-	base: [
-		"w-full rounded-md border border-dark-grey/10 bg-white px-3 py-1.5 text-sm text-dark-grey",
-		"outline-none focus-visible:ring-2 focus-visible:ring-redleather/50",
-	],
-});
-
 export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -72,48 +65,6 @@ export function UserMenu() {
 							>
 								<XIcon size={16} weight="bold" />
 							</Dialog.Close>
-						</div>
-
-						{/* ponytail: mocked settings, no state or persistence yet */}
-						<div className="flex flex-col gap-4">
-							<label className="flex flex-col gap-1 text-sm font-medium">
-								Display name
-								<input
-									type="text"
-									defaultValue="Anonymous"
-									className={field()}
-								/>
-							</label>
-							<label className="flex flex-col gap-1 text-sm font-medium">
-								Theme
-								<select className={field()} defaultValue="system">
-									<option value="system">System</option>
-									<option value="light">Light</option>
-									<option value="dark">Dark</option>
-								</select>
-							</label>
-							<fieldset className="flex flex-col gap-2 text-sm">
-								<legend className="mb-1 font-medium">Notifications</legend>
-								<label className="flex items-center gap-2">
-									<input
-										type="checkbox"
-										defaultChecked
-										className="accent-redleather"
-									/>
-									Email notifications
-								</label>
-								<label className="flex items-center gap-2">
-									<input type="checkbox" className="accent-redleather" />
-									Weekly digest
-								</label>
-							</fieldset>
-							<button
-								type="button"
-								disabled
-								className="mt-2 cursor-not-allowed self-end rounded-md bg-redleather px-4 py-1.5 text-sm font-medium text-white opacity-50"
-							>
-								Save
-							</button>
 						</div>
 					</Dialog.Popup>
 				</Dialog.Portal>
