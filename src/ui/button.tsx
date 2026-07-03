@@ -4,7 +4,7 @@ import { cva } from "@/integrations/cva/cva.config";
 
 const root = cva({
 	base: [
-		"group relative inline-flex items-center rounded-full outline-none cursor-pointer",
+		"group relative inline-flex select-none items-center rounded-full outline-none cursor-pointer",
 		"focus-visible:ring-2 focus-visible:ring-redleather/50",
 	],
 });
