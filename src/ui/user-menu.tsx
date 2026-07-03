@@ -65,7 +65,7 @@ export function UserMenu() {
 			<Dialog.Root open={settingsOpen} onOpenChange={setSettingsOpen}>
 				<Dialog.Portal>
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm transition-[opacity,backdrop-filter] duration-300 data-starting-style:opacity-0 data-starting-style:backdrop-blur-none data-ending-style:opacity-0 data-ending-style:backdrop-blur-none data-ending-style:duration-150" />
-					<Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 scale-100 rounded-lg border border-dark-grey/10 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger">
+					<Dialog.Popup className="fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 scale-100 border-0 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out sm:inset-auto sm:h-auto sm:rounded-lg sm:border sm:border-dark-grey/10 dark:bg-dark-grey dark:text-ginger sm:dark:border-ginger/15">
 						<div className="mb-4 flex items-center justify-between">
 							<Dialog.Title className="text-lg font-semibold">
 								Settings
