@@ -4,6 +4,7 @@ import { client, orpc } from "#/orpc/client";
 import { GenericErrorComponent } from "#/ui/error/generic-error";
 import { toLexicalContent } from "#/ui/lexical/lexical-content";
 import { LexicalReadView } from "#/ui/lexical/read/lexical-read-view";
+import { Breadcrumbs } from "#/ui/nodes/breadcrumbs";
 import { NodeCheckbox } from "#/ui/nodes/node-checkbox";
 import { visibleTreeOptions } from "#/ui/nodes/virtual-tree/use-visible-tree";
 import { VirtualTree } from "#/ui/nodes/virtual-tree/virtual-tree";
@@ -15,6 +16,9 @@ export const Route = createFileRoute("/node/$nodeId")({
 				orpc.nodes.get.queryOptions({ input: { id: nodeId } }),
 			),
 			queryClient.ensureQueryData(visibleTreeOptions(nodeId)),
+			queryClient.ensureQueryData(
+				orpc.nodes.ancestors.queryOptions({ input: { id: nodeId } }),
+			),
 		]),
 	errorComponent: GenericErrorComponent,
 	component: NodeDetailPage,
@@ -45,15 +49,18 @@ function NodeDetailPage() {
 		<VirtualTree
 			rootId={nodeId}
 			header={
-				<div
-					style={{ viewTransitionName: `node-${nodeId}` }}
-					className="text-2xl mb-8 flex items-center gap-3"
-				>
-					{node.type === "task" && (
-						<NodeCheckbox metadata={node.metadata} onToggle={toggleTask} />
-					)}
-					<LexicalReadView content={toLexicalContent(node.content)} />
-				</div>
+				<>
+					<Breadcrumbs nodeId={nodeId} />
+					<div
+						style={{ viewTransitionName: `node-${nodeId}` }}
+						className="text-2xl mb-8 flex items-center gap-3"
+					>
+						{node.type === "task" && (
+							<NodeCheckbox metadata={node.metadata} onToggle={toggleTask} />
+						)}
+						<LexicalReadView content={toLexicalContent(node.content)} />
+					</div>
+				</>
 			}
 		/>
 	);

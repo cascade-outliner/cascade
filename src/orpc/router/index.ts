@@ -2,6 +2,7 @@ import {
 	createNode,
 	deleteNode,
 	getNode,
+	getNodeAncestors,
 	listNodes,
 	moveNode,
 	setNodeType,
@@ -14,6 +15,7 @@ export default {
 	nodes: {
 		list: listNodes,
 		get: getNode,
+		ancestors: getNodeAncestors,
 		visibleTree,
 		create: createNode,
 		move: moveNode,

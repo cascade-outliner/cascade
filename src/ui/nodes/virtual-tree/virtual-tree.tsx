@@ -24,10 +24,6 @@ export interface ActiveDragPreview {
 
 const LOAD_MORE_THRESHOLD = 50;
 
-/**
- * Flattened, virtualized node tree. "use no memo" is required: React Compiler
- * memoization breaks useVirtualizer's scroll-driven re-renders.
- */
 export function VirtualTree({
 	rootId,
 	header,
@@ -162,7 +158,7 @@ export function VirtualTree({
 						setFocusPoint(null);
 						setEditingNodeId(id);
 					}}
-					className="mt-4"
+					className="mt-4 mb-4"
 				>
 					Add node
 				</Button>

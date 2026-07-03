@@ -138,6 +138,22 @@ export const getNode = base
 		return node;
 	});
 
+export const getNodeAncestors = base
+	.input(z.object({ id: z.string() }))
+	.handler(async ({ input }) => {
+		const result = (await db.execute(sql`
+			WITH RECURSIVE chain AS (
+				SELECT id, parent_id, content, 0 AS depth FROM nodes WHERE id = ${input.id}
+				UNION ALL
+				SELECT n.id, n.parent_id, n.content, c.depth + 1
+				FROM nodes n JOIN chain c ON n.id = c.parent_id
+				WHERE c.depth < 64
+			)
+			SELECT id, content FROM chain ORDER BY depth DESC
+		`)) as unknown as { id: string; content: unknown }[];
+		return result;
+	});
+
 export const toggleNodeExpanded = base
 	.input(z.object({ id: z.string(), expanded: z.boolean() }))
 	.handler(async ({ input }) => {
