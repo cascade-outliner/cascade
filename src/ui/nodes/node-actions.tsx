@@ -1,5 +1,9 @@
 import { ContextMenu } from "@base-ui/react";
-import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react/ssr";
+import {
+	ArrowsClockwiseIcon,
+	CaretRightIcon,
+	TrashIcon,
+} from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import {
 	type NodeTypeName,
@@ -47,6 +51,7 @@ export function NodeActions({
 									<ArrowsClockwiseIcon size={14} weight="bold" />
 									Convert into
 								</span>
+								<CaretRightIcon size={14} weight="bold" />
 							</ContextMenu.SubmenuTrigger>
 							<ContextMenu.Portal>
 								<ContextMenu.Positioner className="z-50 outline-none">
@@ -66,6 +71,7 @@ export function NodeActions({
 								</ContextMenu.Positioner>
 							</ContextMenu.Portal>
 						</ContextMenu.SubmenuRoot>
+						<ContextMenu.Separator className="my-1 h-px bg-dark-grey/10" />
 						<ContextMenu.Item
 							className={`${itemClassName} text-redleather`}
 							onClick={onDelete}
