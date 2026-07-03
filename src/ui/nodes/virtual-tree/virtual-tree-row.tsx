@@ -7,10 +7,7 @@ import { NodeActions } from "@/ui/nodes/node-actions";
 import { NodeEditor } from "@/ui/nodes/node-editor";
 import { NodeLink } from "@/ui/nodes/node-link";
 import { NodeToggle } from "@/ui/nodes/node-toggle";
-import {
-	INDENT_PER_LEVEL,
-	RowDragAndDrop,
-} from "@/ui/nodes/virtual-tree/row-drag-drop";
+import { RowDragAndDrop } from "@/ui/nodes/virtual-tree/row-drag-drop";
 import type { ActiveDragPreview } from "@/ui/nodes/virtual-tree/virtual-tree";
 import type { MoveTarget } from "@/ui/nodes/virtual-tree/visible-rows";
 
@@ -56,7 +53,6 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 				onMoveDrop={props.onMoveDrop}
 				previewRef={props.previewRef}
 			>
-				<div style={{ paddingLeft: row.depth * INDENT_PER_LEVEL }} />
 				<NodeToggle
 					hasChildren={row.hasChildren}
 					expanded={row.expanded}

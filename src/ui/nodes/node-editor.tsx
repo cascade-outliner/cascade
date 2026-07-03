@@ -22,14 +22,12 @@ export function NodeEditor({
 }: NodeEditorProps) {
 	if (editing) {
 		return (
-			<div className="flex-1 min-w-0">
-				<LexicalEditView
-					id={id}
-					content={toLexicalContent(content)}
-					onSave={onSave}
-					onExit={onExit}
-				/>
-			</div>
+			<LexicalEditView
+				id={id}
+				content={toLexicalContent(content)}
+				onSave={onSave}
+				onExit={onExit}
+			/>
 		);
 	}
 
@@ -39,7 +37,7 @@ export function NodeEditor({
 			role="button"
 			tabIndex={0}
 			aria-label="Edit node text"
-			className="flex-1 min-w-0 cursor-text text-left"
+			className="cursor-text text-left"
 			onClick={onStartEdit}
 			onKeyDown={(event) => {
 				if (event.key === "Enter" || event.key === " ") {

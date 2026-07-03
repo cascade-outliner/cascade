@@ -192,6 +192,7 @@ export function RowDragAndDrop({
 			{...nodeRowDomAttributes(row.id)}
 			className="group/node py-1 flex items-center gap-2 relative bg-ginger"
 		>
+			<div style={{ paddingLeft: row.depth * INDENT_PER_LEVEL }} />
 			<NodeDropIndicator instruction={instruction} />
 			<NodeDragHandle ref={handleRef} />
 			{children}
