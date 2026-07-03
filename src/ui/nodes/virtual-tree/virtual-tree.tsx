@@ -97,7 +97,7 @@ export function VirtualTree({
 
 	return (
 		<div ref={scrollRef} className="h-dvh overflow-auto">
-			<div className="max-w-6xl mx-auto py-32">
+			<div className="max-w-6xl mx-auto px-4 py-12 sm:py-32">
 				{header}
 				<div
 					style={{

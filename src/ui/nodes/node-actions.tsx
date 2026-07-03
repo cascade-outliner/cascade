@@ -9,7 +9,7 @@ export function NodeActions({ onDelete }: NodeActionsProps) {
 	return (
 		<Menu.Root>
 			<Menu.Trigger
-				className="opacity-0 group-hover/node:opacity-100 group-focus-within/node:opacity-100 transition-opacity shrink-0 text-gray-400 hover:text-gray-700 p-0.5 rounded"
+				className="opacity-0 group-hover/node:opacity-100 group-focus-within/node:opacity-100 pointer-coarse:opacity-100 transition-opacity shrink-0 text-gray-400 hover:text-gray-700 p-0.5 rounded"
 				aria-label="Node options"
 			>
 				<DotsThreeIcon size={16} weight="bold" />
