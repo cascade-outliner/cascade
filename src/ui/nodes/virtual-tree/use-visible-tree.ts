@@ -88,8 +88,11 @@ export function useVisibleTree(rootId: string | null) {
 		}
 	};
 
-	const remove = async (id: string) => {
-		setRows((rows) => removeSubtree(rows, id));
+	const remove = async (
+		id: string,
+		commit: (splice: () => void) => void = (splice) => splice(),
+	) => {
+		commit(() => setRows((rows) => removeSubtree(rows, id)));
 		try {
 			await client.nodes.delete({ id });
 		} catch {
@@ -119,22 +122,26 @@ export function useVisibleTree(rootId: string | null) {
 	};
 
 	/** Create and append a new node as the last child of this view's root. */
-	const add = async () => {
+	const add = async (
+		commit: (splice: () => void) => void = (splice) => splice(),
+	) => {
 		const created = await client.nodes.create({ parentId: rootId });
-		setRows((rows) =>
-			appendRow(rows, {
-				id: created.id,
-				parentId: created.parentId,
-				content: created.content,
-				type: created.type,
-				metadata: created.metadata,
-				expanded: created.expanded,
-				order: created.order,
-				depth: 0,
-				path: [created.order],
-				hasChildren: created.hasChildren,
-				isLastChild: true,
-			}),
+		commit(() =>
+			setRows((rows) =>
+				appendRow(rows, {
+					id: created.id,
+					parentId: created.parentId,
+					content: created.content,
+					type: created.type,
+					metadata: created.metadata,
+					expanded: created.expanded,
+					order: created.order,
+					depth: 0,
+					path: [created.order],
+					hasChildren: created.hasChildren,
+					isLastChild: true,
+				}),
+			),
 		);
 		return created.id;
 	};

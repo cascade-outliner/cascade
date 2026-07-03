@@ -3,7 +3,10 @@ import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
 import { flushSync } from "react-dom";
 import { dragAnimationConfig } from "@/ui/nodes/drag-animation/config";
-import { FLIP_ID_ATTRIBUTE } from "@/ui/nodes/drag-animation/node-rows";
+import {
+	FLIP_ID_ATTRIBUTE,
+	findNodeRow,
+} from "@/ui/nodes/drag-animation/node-rows";
 
 gsap.registerPlugin(Flip);
 
@@ -35,9 +38,37 @@ export function animateTreeChange(
 					gsap.fromTo(
 						elements,
 						{ opacity: 0, y: enter.offsetY },
-						{ opacity: 1, y: 0, duration: enter.duration, ease: enter.ease },
+						{
+							opacity: 1,
+							y: 0,
+							duration: enter.duration,
+							ease: enter.ease,
+							stagger: enter.stagger,
+						},
 					)
 			: undefined,
+	});
+}
+
+/** Fades a row out, then closes the gap it leaves behind. */
+export function animateNodeRemoval(
+	container: HTMLElement,
+	nodeId: string,
+	mutate: () => void,
+): void {
+	const row = findNodeRow(container, nodeId);
+	if (!row) {
+		commitSync(mutate);
+		return;
+	}
+	const { leave } = dragAnimationConfig;
+	gsap.to(row, {
+		opacity: 0,
+		scale: leave.scale,
+		duration: leave.duration,
+		ease: leave.ease,
+		onComplete: () =>
+			animateTreeChange(container, mutate, { ignoredId: nodeId }),
 	});
 }
 

@@ -9,7 +9,10 @@ import { Button } from "@/ui/button";
 import type { DragPreviewHandle } from "@/ui/nodes/drag-animation/drag-preview";
 import { findNodeRow } from "@/ui/nodes/drag-animation/node-rows";
 import type { FocusPoint } from "@/ui/nodes/node-editor";
-import { animateTreeChange } from "@/ui/nodes/virtual-tree/flip-displacement";
+import {
+	animateNodeRemoval,
+	animateTreeChange,
+} from "@/ui/nodes/virtual-tree/flip-displacement";
 import { useVisibleTree } from "@/ui/nodes/virtual-tree/use-visible-tree";
 import { VirtualTreeRow } from "@/ui/nodes/virtual-tree/virtual-tree-row";
 import type { MoveTarget } from "@/ui/nodes/virtual-tree/visible-rows";
@@ -133,7 +136,13 @@ export function VirtualTree({
 										metadata: { completed },
 									})
 								}
-								onDelete={() => tree.remove(row.id)}
+								onDelete={() => {
+									const container = scrollRef.current;
+									tree.remove(row.id, (splice) => {
+										if (!container) return splice();
+										animateNodeRemoval(container, row.id, splice);
+									});
+								}}
 								onSaveContent={(content) => tree.updateContent(row.id, content)}
 								onMoveDrop={handleMoveDrop}
 								previewRef={previewRef}
@@ -145,7 +154,11 @@ export function VirtualTree({
 					data-flip-id="add-node"
 					icon={<PlusIcon className="size-4" />}
 					onClick={async () => {
-						const id = await tree.add();
+						const container = scrollRef.current;
+						const id = await tree.add((splice) => {
+							if (!container) return splice();
+							animateTreeChange(container, splice, { animateEnter: true });
+						});
 						setFocusPoint(null);
 						setEditingNodeId(id);
 					}}
