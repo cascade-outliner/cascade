@@ -102,47 +102,6 @@ export const visibleTree = base
 		};
 	});
 
-interface TreeStatsSqlRow {
-	total_nodes: number;
-	max_depth: number;
-	leaf_count: number;
-	root_count: number;
-	widest_depth: number | null;
-	widest_depth_count: number | null;
-}
-
-export const treeStats = base.handler(async () => {
-	const [row] = (await db.execute(sql`
-		WITH RECURSIVE depths AS (
-			SELECT id, parent_id, 0 AS depth FROM nodes WHERE parent_id IS NULL
-			UNION ALL
-			SELECT n.id, n.parent_id, d.depth + 1
-			FROM nodes n JOIN depths d ON n.parent_id = d.id
-			WHERE d.depth < 64
-		)
-		SELECT
-			count(*) AS total_nodes,
-			coalesce(max(depth), 0) AS max_depth,
-			count(*) FILTER (
-				WHERE NOT EXISTS (SELECT 1 FROM nodes c WHERE c.parent_id = depths.id)
-			) AS leaf_count,
-			count(*) FILTER (WHERE parent_id IS NULL) AS root_count,
-			(SELECT depth FROM depths GROUP BY depth ORDER BY count(*) DESC, depth ASC LIMIT 1) AS widest_depth,
-			(SELECT count(*) FROM depths GROUP BY depth ORDER BY count(*) DESC LIMIT 1) AS widest_depth_count
-		FROM depths
-	`)) as unknown as TreeStatsSqlRow[];
-
-	return {
-		totalNodes: Number(row?.total_nodes ?? 0),
-		maxDepth: Number(row?.max_depth ?? 0),
-		leafCount: Number(row?.leaf_count ?? 0),
-		rootCount: Number(row?.root_count ?? 0),
-		widestDepth: row?.widest_depth == null ? 0 : Number(row.widest_depth),
-		widestDepthCount:
-			row?.widest_depth_count == null ? 0 : Number(row.widest_depth_count),
-	};
-});
-
 export const createNode = base
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
