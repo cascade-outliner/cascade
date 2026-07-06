@@ -3,6 +3,7 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import type { VisibleNodeRow } from "@/core/nodes/node.types";
 import type { TypedMetadata } from "@/core/nodes/node-types";
+import type { TagSummary } from "@/core/tags/tag.types";
 import { client, orpc } from "@/orpc/client";
 import {
 	appendRow,
@@ -146,6 +147,36 @@ export function useVisibleTree(rootId: string | null) {
 		}
 	};
 
+	/** Attach a tag to a node, optimistically inserting the chip into the row. */
+	const addTag = async (id: string, tag: TagSummary) => {
+		setRows((rows) => {
+			const row = rows.find((r) => r.id === id);
+			if (!row || row.tags.some((t) => t.id === tag.id)) return rows;
+			return patchRow(rows, id, { tags: [...row.tags, tag] });
+		});
+		try {
+			await client.tags.attach({ nodeId: id, tagId: tag.id });
+		} catch {
+			invalidate();
+		}
+	};
+
+	/** Detach a tag from a node, optimistically removing its chip from the row. */
+	const removeTag = async (id: string, tagId: string) => {
+		setRows((rows) => {
+			const row = rows.find((r) => r.id === id);
+			if (!row) return rows;
+			return patchRow(rows, id, {
+				tags: row.tags.filter((t) => t.id !== tagId),
+			});
+		});
+		try {
+			await client.tags.detach({ nodeId: id, tagId });
+		} catch {
+			invalidate();
+		}
+	};
+
 	/** Create and append a new node as the last child of this view's root. */
 	const add = async (
 		commit: (splice: () => void) => void = (splice) => splice(),
@@ -165,6 +196,7 @@ export function useVisibleTree(rootId: string | null) {
 					path: [created.order],
 					hasChildren: created.hasChildren,
 					isLastChild: true,
+					tags: [],
 				}),
 			),
 		);
@@ -196,6 +228,7 @@ export function useVisibleTree(rootId: string | null) {
 					path: [...sibling.path.slice(0, -1), created.order],
 					hasChildren: created.hasChildren,
 					isLastChild: sibling.isLastChild,
+					tags: [],
 				}),
 			),
 		);
@@ -230,6 +263,8 @@ export function useVisibleTree(rootId: string | null) {
 		remove,
 		updateContent,
 		setType,
+		addTag,
+		removeTag,
 		add,
 		addAfter,
 		loadMore,

@@ -196,6 +196,8 @@ export function VirtualTree({
 											animateNodeRemoval(container, row.id, splice);
 										});
 									}}
+									onAddTag={(tag) => tree.addTag(row.id, tag)}
+									onRemoveTag={(tagId) => tree.removeTag(row.id, tagId)}
 									onSaveContent={(content) =>
 										tree.updateContent(row.id, content)
 									}

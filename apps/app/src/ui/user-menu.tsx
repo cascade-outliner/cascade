@@ -14,6 +14,7 @@ import {
 	MIN_INDENT_SIZE,
 	useSettings,
 } from "@/ui/settings-context";
+import { TagManager } from "@/ui/tags/tag-manager";
 
 const stepperButton = cva({
 	base: [
@@ -114,6 +115,9 @@ export function UserMenu() {
 								<Tabs.Tab value="general" className={tabTrigger()}>
 									General
 								</Tabs.Tab>
+								<Tabs.Tab value="tags" className={tabTrigger()}>
+									Tags
+								</Tabs.Tab>
 								<Tabs.Tab value="changelog" className={tabTrigger()}>
 									Changelog
 									{hasUnseenChangelog && (
@@ -170,6 +174,9 @@ export function UserMenu() {
 										</NumberField.Group>
 									</NumberField.Root>
 								</div>
+							</Tabs.Panel>
+							<Tabs.Panel value="tags">
+								<TagManager />
 							</Tabs.Panel>
 							<Tabs.Panel
 								value="changelog"

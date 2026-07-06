@@ -10,6 +10,18 @@ import {
 	updateNodeContent,
 	visibleTree,
 } from "@/core/nodes/node.procedures";
+import {
+	attachTag,
+	createTag,
+	deleteTag,
+	detachTag,
+	getNodesForTag,
+	getTagsForNode,
+	listTags,
+	moveTag,
+	renameTag,
+	setTagColor,
+} from "@/core/tags/tag.procedures";
 
 export default {
 	nodes: {
@@ -23,5 +35,17 @@ export default {
 		delete: deleteNode,
 		updateContent: updateNodeContent,
 		setType: setNodeType,
+	},
+	tags: {
+		list: listTags,
+		create: createTag,
+		rename: renameTag,
+		setColor: setTagColor,
+		move: moveTag,
+		delete: deleteTag,
+		forNode: getTagsForNode,
+		nodesForTag: getNodesForTag,
+		attach: attachTag,
+		detach: detachTag,
 	},
 };

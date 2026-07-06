@@ -8,6 +8,7 @@ import {
 	type NodeTypeName,
 	typedMetadataSchema,
 } from "@/core/nodes/node-types";
+import type { TagSummary } from "@/core/tags/tag.types";
 import { db } from "@/db";
 import { base } from "@/orpc/context";
 
@@ -37,6 +38,7 @@ interface VisibleTreeSqlRow {
 	path: string[];
 	has_children: boolean;
 	is_last_child: boolean;
+	tags: TagSummary[];
 }
 
 /**
@@ -73,7 +75,13 @@ export const visibleTree = base
 			)
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.depth, v.path,
 				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id) AS has_children,
-				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
+				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child,
+				COALESCE(
+					(SELECT json_agg(json_build_object('id', t.id, 'name', t.name, 'color', t.color, 'parentId', t.parent_id) ORDER BY lower(t.name))
+					 FROM node_tags nt JOIN tags t ON t.id = nt.tag_id
+					 WHERE nt.node_id = v.id),
+					'[]'
+				) AS tags
 			FROM visible v
 			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
 			ORDER BY v.path
@@ -93,6 +101,7 @@ export const visibleTree = base
 			path: r.path,
 			hasChildren: r.has_children,
 			isLastChild: r.is_last_child,
+			tags: r.tags,
 		}));
 
 		return {

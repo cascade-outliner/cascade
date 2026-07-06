@@ -1,6 +1,7 @@
 import type { InferSelectModel } from "drizzle-orm";
 import type { nodes } from "@/core/nodes/node.schema";
 import type { NodeTypeName } from "@/core/nodes/node-types";
+import type { TagSummary } from "@/core/tags/tag.types";
 
 export type NodeType = Pick<
 	InferSelectModel<typeof nodes>,
@@ -24,4 +25,5 @@ export interface VisibleNodeRow {
 	path: string[];
 	hasChildren: boolean;
 	isLastChild: boolean;
+	tags: TagSummary[];
 }

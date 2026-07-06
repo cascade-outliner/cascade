@@ -3,6 +3,7 @@
 import type { RefObject } from "react";
 import type { VisibleNodeRow } from "@/core/nodes/node.types";
 import type { NodeTypeName } from "@/core/nodes/node-types";
+import type { TagSummary } from "@/core/tags/tag.types";
 import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 import { NodeActions } from "@/ui/nodes/node-actions";
 import { NodeCheckbox } from "@/ui/nodes/node-checkbox";
@@ -12,6 +13,7 @@ import { NodeToggle } from "@/ui/nodes/node-toggle";
 import { RowDragAndDrop } from "@/ui/nodes/virtual-tree/row-drag-drop";
 import type { ActiveDragPreview } from "@/ui/nodes/virtual-tree/virtual-tree";
 import type { MoveTarget } from "@/ui/nodes/virtual-tree/visible-rows";
+import { TagChip } from "@/ui/tags/tag-chip";
 
 export interface VirtualTreeRowProps {
 	row: VisibleNodeRow;
@@ -27,6 +29,8 @@ export interface VirtualTreeRowProps {
 	onConvert: (type: NodeTypeName) => void;
 	onToggleTask: (completed: boolean) => void;
 	onDelete: () => void;
+	onAddTag: (tag: TagSummary) => void;
+	onRemoveTag: (tagId: string) => void;
 	onSaveContent: (content: { root: LexicalElementNode }) => void;
 	onCreateBelow: () => void;
 	onDeleteEmpty: () => void;
@@ -61,8 +65,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			>
 				<NodeActions
 					nodeType={row.type}
+					tags={row.tags}
 					onConvert={props.onConvert}
 					onDelete={props.onDelete}
+					onAddTag={props.onAddTag}
+					onRemoveTag={props.onRemoveTag}
 					viewTransitionName={`node-${row.id}`}
 				>
 					<NodeToggle
@@ -92,6 +99,17 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							onOutdent={props.onOutdent}
 						/>
 					</div>
+					{row.tags.length > 0 && (
+						<div className="flex flex-wrap items-center gap-1 shrink-0">
+							{row.tags.map((tag) => (
+								<TagChip
+									key={tag.id}
+									tag={tag}
+									onRemove={() => props.onRemoveTag(tag.id)}
+								/>
+							))}
+						</div>
+					)}
 				</NodeActions>
 			</RowDragAndDrop>
 		</div>
