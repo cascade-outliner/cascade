@@ -1,6 +1,6 @@
 import { ContextMenu as BaseContextMenu } from "@base-ui/react";
 import { CaretRightIcon } from "@phosphor-icons/react/ssr";
-import { cva } from "@/integrations/cva/cva.config";
+import { cva } from "./cva.config";
 
 const popup = cva({
 	base: [

@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
 import {
 	ContextMenu,
 	ContextMenuContent,
 	ContextMenuTrigger,
-} from "@/ui/context-menu";
+} from "@cascade/ui/context-menu";
+import type { ReactNode } from "react";
 
 export function AppContextMenu({ children }: { children: ReactNode }) {
 	return (

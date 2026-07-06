@@ -29,6 +29,9 @@ importers:
       '@cascade/theme':
         specifier: workspace:*
         version: link:../../packages/theme
+      '@cascade/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@lexical/history':
         specifier: ^0.46.0
         version: 0.46.0(typescript@6.0.3)
@@ -200,6 +203,28 @@ importers:
         version: 4.1.9(@types/node@22.20.0)(@vitest/browser-playwright@4.1.9)(@vitest/coverage-v8@4.1.9)(jsdom@28.1.0(@noble/hashes@2.2.0))(vite@8.1.0(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4))
 
   packages/theme: {}
+
+  packages/ui:
+    dependencies:
+      '@base-ui/react':
+        specifier: ^1.6.0
+        version: 1.6.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@phosphor-icons/react':
+        specifier: ^2.1.10
+        version: 2.1.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      cva:
+        specifier: 1.0.0-beta.4
+        version: 1.0.0-beta.4(typescript@6.0.3)
+      react:
+        specifier: ^19
+        version: 19.2.7
+      tailwind-merge:
+        specifier: ^3.6.0
+        version: 3.6.0
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.17
 
 packages:
 

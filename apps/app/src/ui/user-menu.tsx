@@ -1,7 +1,7 @@
 import { Dialog, Menu, Switch } from "@base-ui/react";
+import { cva } from "@cascade/ui/cva.config";
 import { GearIcon, UserCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { useEffect, useState } from "react";
-import { cva } from "@/integrations/cva/cva.config";
 
 const popup = cva({
 	base: [

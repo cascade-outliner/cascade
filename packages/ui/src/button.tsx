@@ -1,6 +1,6 @@
 import { Button as BaseButton } from "@base-ui/react";
 import { useId } from "react";
-import { cva } from "@/integrations/cva/cva.config";
+import { cva } from "./cva.config";
 
 const root = cva({
 	base: [

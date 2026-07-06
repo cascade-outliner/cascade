@@ -3,6 +3,7 @@
 @plugin "@tailwindcss/typography";
 
 @source "../src/**/*.{ts,tsx}";
+@source "../../../packages/ui/src";
 
 :root {
 	--drag-preview-bg: var(--color-ginger);
