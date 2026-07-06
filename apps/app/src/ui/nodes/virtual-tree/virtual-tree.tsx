@@ -15,7 +15,11 @@ import {
 } from "@/ui/nodes/virtual-tree/flip-displacement";
 import { useVisibleTree } from "@/ui/nodes/virtual-tree/use-visible-tree";
 import { VirtualTreeRow } from "@/ui/nodes/virtual-tree/virtual-tree-row";
-import type { MoveTarget } from "@/ui/nodes/virtual-tree/visible-rows";
+import {
+	findIndentTarget,
+	findOutdentTarget,
+	type MoveTarget,
+} from "@/ui/nodes/virtual-tree/visible-rows";
 
 export interface ActiveDragPreview {
 	nodeId: string;
@@ -107,6 +111,25 @@ export function VirtualTree({
 		setEditingNodeId(previous.id);
 	};
 
+	const handleIndent = (id: string) => {
+		const container = scrollRef.current;
+		const target = findIndentTarget(tree.rows, id);
+		if (!container || !target) return;
+		const newParent = tree.rows.find((row) => row.id === target.parentId);
+		const expandParentId =
+			newParent && !newParent.expanded ? newParent.id : undefined;
+		animateTreeChange(container, () =>
+			tree.move(id, target, { expandParentId }),
+		);
+	};
+
+	const handleOutdent = (id: string) => {
+		const container = scrollRef.current;
+		const target = findOutdentTarget(tree.rows, id);
+		if (!container || !target) return;
+		animateTreeChange(container, () => tree.move(id, target));
+	};
+
 	const handleToggle = (nodeId: string, expanded: boolean) => {
 		tree.toggle(nodeId, expanded, (splice) => {
 			const container = scrollRef.current;
@@ -170,6 +193,8 @@ export function VirtualTree({
 								onSaveContent={(content) => tree.updateContent(row.id, content)}
 								onCreateBelow={() => handleCreateBelow(row.id)}
 								onDeleteEmpty={() => handleDeleteEmpty(row.id)}
+								onIndent={() => handleIndent(row.id)}
+								onOutdent={() => handleOutdent(row.id)}
 								onMoveDrop={handleMoveDrop}
 								previewRef={previewRef}
 							/>

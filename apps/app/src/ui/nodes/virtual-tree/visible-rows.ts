@@ -134,6 +134,35 @@ export type MoveTarget =
 	| { position: "before" | "after"; targetId: string; parentId: string | null }
 	| { position: "append"; parentId: string | null };
 
+/** Indent target: become the last child of the previous sibling, if any. */
+export function findIndentTarget(
+	rows: VisibleNodeRow[],
+	id: string,
+): MoveTarget | null {
+	const index = rows.findIndex((r) => r.id === id);
+	if (index === -1) return null;
+	const depth = rows[index].depth;
+	for (let i = index - 1; i >= 0; i--) {
+		if (rows[i].depth < depth) return null;
+		if (rows[i].depth === depth) {
+			return { position: "append", parentId: rows[i].id };
+		}
+	}
+	return null;
+}
+
+/** Outdent target: become the next sibling of the current parent, if any. */
+export function findOutdentTarget(
+	rows: VisibleNodeRow[],
+	id: string,
+): MoveTarget | null {
+	const row = rows.find((r) => r.id === id);
+	if (!row || row.parentId === null) return null;
+	const parent = rows.find((r) => r.id === row.parentId);
+	if (!parent) return null;
+	return { position: "after", targetId: parent.id, parentId: parent.parentId };
+}
+
 /**
  * Move a node (and its visible descendants) to a new location, re-depthing
  * the slice and repairing parent flags. Mirrors the server's moveNode

@@ -11,6 +11,8 @@ export interface LexicalEditViewProps {
 	onExit?: () => void;
 	onCreateBelow?: () => void;
 	onDeleteEmpty?: () => void;
+	onIndent?: () => void;
+	onOutdent?: () => void;
 }
 
 export function LexicalEditView({
@@ -21,6 +23,8 @@ export function LexicalEditView({
 	onExit,
 	onCreateBelow,
 	onDeleteEmpty,
+	onIndent,
+	onOutdent,
 }: LexicalEditViewProps) {
 	return (
 		<LexicalComposer
@@ -36,6 +40,8 @@ export function LexicalEditView({
 				onExit={onExit}
 				onCreateBelow={onCreateBelow}
 				onDeleteEmpty={onDeleteEmpty}
+				onIndent={onIndent}
+				onOutdent={onOutdent}
 			/>
 		</LexicalComposer>
 	);

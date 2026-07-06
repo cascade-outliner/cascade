@@ -7,6 +7,7 @@ import {
 	COMMAND_PRIORITY_HIGH,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
+	KEY_TAB_COMMAND,
 } from "lexical";
 import { useEffect, useRef } from "react";
 import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
@@ -18,6 +19,8 @@ interface EditableContentProps {
 	onExit?: () => void;
 	onCreateBelow?: () => void;
 	onDeleteEmpty?: () => void;
+	onIndent?: () => void;
+	onOutdent?: () => void;
 }
 
 /** Cross-browser caret lookup for a screen point (Firefox lacks caretRangeFromPoint). */
@@ -37,6 +40,8 @@ export function EditableContent({
 	onExit,
 	onCreateBelow,
 	onDeleteEmpty,
+	onIndent,
+	onOutdent,
 }: EditableContentProps) {
 	const [editor] = useLexicalComposerContext();
 	const lastSavedRef = useRef<string | null>(null);
@@ -57,6 +62,28 @@ export function EditableContent({
 
 	const onDeleteEmptyRef = useRef(onDeleteEmpty);
 	onDeleteEmptyRef.current = onDeleteEmpty;
+
+	const onIndentRef = useRef(onIndent);
+	onIndentRef.current = onIndent;
+
+	const onOutdentRef = useRef(onOutdent);
+	onOutdentRef.current = onOutdent;
+
+	useEffect(() => {
+		return editor.registerCommand(
+			KEY_TAB_COMMAND,
+			(event) => {
+				const handler = event.shiftKey
+					? onOutdentRef.current
+					: onIndentRef.current;
+				if (!handler) return false;
+				event.preventDefault();
+				handler();
+				return true;
+			},
+			COMMAND_PRIORITY_HIGH,
+		);
+	}, [editor]);
 
 	useEffect(() => {
 		return editor.registerCommand(
