@@ -8,6 +8,7 @@
     "build": "pnpm --filter app build",
     "preview": "pnpm --filter app preview",
     "test": "pnpm --filter app test",
+    "test:e2e": "pnpm --filter app test:e2e",
     "start": "pnpm --filter app start",
     "db:generate": "pnpm --filter app db:generate",
     "db:migrate": "pnpm --filter app db:migrate",

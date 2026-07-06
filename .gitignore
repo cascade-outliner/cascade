@@ -15,3 +15,5 @@ todos.json
 storybook-static
 .idea
 *.db
+playwright-report/
+test-results/
