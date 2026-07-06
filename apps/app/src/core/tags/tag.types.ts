@@ -1,4 +1,5 @@
 import type { InferSelectModel } from "drizzle-orm";
+import type { NodeTypeName } from "@/core/nodes/node-types";
 import type { tags } from "@/core/tags/tag.schema";
 
 export type TagType = Pick<
@@ -14,4 +15,17 @@ export interface TagSummary {
 	name: string;
 	color: string;
 	parentId: string | null;
+}
+
+/** A node row as returned by `tags.nodesForTag`; mirrors `NodeType` plus its tags. */
+export interface TaggedNode {
+	id: string;
+	parentId: string | null;
+	content: unknown;
+	type: NodeTypeName;
+	metadata: unknown;
+	expanded: boolean;
+	order: string;
+	hasChildren: boolean;
+	tags: TagSummary[];
 }

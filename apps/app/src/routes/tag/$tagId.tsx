@@ -1,11 +1,13 @@
 import { HouseIcon } from "@phosphor-icons/react/ssr";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { nodeTypeDefs, type TypedMetadata } from "@/core/nodes/node-types";
 import { orpc } from "@/orpc/client";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
-import { toLexicalContent } from "@/ui/lexical/lexical-content";
-import { LexicalReadView } from "@/ui/lexical/read/lexical-read-view";
+import type { FocusPoint } from "@/ui/nodes/node-editor";
+import { TagFilteredNodeRow } from "@/ui/tags/tag-filtered-node-row";
+import { useTagFilteredNodes } from "@/ui/tags/use-tag-filtered-nodes";
 
 export const Route = createFileRoute("/tag/$tagId")({
 	loader: ({ context: { queryClient }, params: { tagId } }) =>
@@ -23,33 +25,12 @@ export const Route = createFileRoute("/tag/$tagId")({
 
 function TagFilterPage() {
 	const { tagId } = Route.useParams();
-	const queryClient = useQueryClient();
 	const { data: tag } = useSuspenseQuery(
 		orpc.tags.get.queryOptions({ input: { id: tagId } }),
 	);
-	const { data } = useSuspenseQuery(
-		orpc.tags.nodesForTag.queryOptions({ input: { tagId, cursor: null } }),
-	);
-
-	const [rows, setRows] = useState(data.rows);
-	const [nextCursor, setNextCursor] = useState(data.nextCursor);
-	const [loadingMore, setLoadingMore] = useState(false);
-
-	const loadMore = async () => {
-		if (!nextCursor || loadingMore) return;
-		setLoadingMore(true);
-		try {
-			const next = await queryClient.fetchQuery(
-				orpc.tags.nodesForTag.queryOptions({
-					input: { tagId, cursor: nextCursor },
-				}),
-			);
-			setRows((r) => [...r, ...next.rows]);
-			setNextCursor(next.nextCursor);
-		} finally {
-			setLoadingMore(false);
-		}
-	};
+	const tree = useTagFilteredNodes(tagId);
+	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
 
 	return (
 		<div className="max-w-6xl mx-auto px-4 py-12 sm:py-32">
@@ -71,40 +52,53 @@ function TagFilterPage() {
 				/>
 				{tag.name}
 			</div>
-			{rows.length === 0 ? (
+			{tree.rows.length === 0 ? (
 				<p className="text-sm py-4">
 					No nodes are tagged with &quot;{tag.name}&quot; yet.
 				</p>
 			) : (
-				<ul className="flex flex-col gap-2">
-					{rows.map((node) => (
-						<li key={node.id}>
-							<Link
-								to="/node/$nodeId"
-								params={{ nodeId: node.id }}
-								viewTransition
-								className="group flex items-center gap-2"
-							>
-								<span
-									aria-hidden
-									className="relative z-0 w-2 h-2 rounded-full bg-dark-grey group-hover:bg-redleather dark:bg-ginger dark:group-hover:bg-redleather shrink-0 transition-all"
-								/>
-								<span className="block w-full min-w-0 group-hover:opacity-80 transition-opacity">
-									<LexicalReadView content={toLexicalContent(node.content)} />
-								</span>
-							</Link>
-						</li>
+				<div>
+					{tree.rows.map((row) => (
+						<TagFilteredNodeRow
+							key={row.id}
+							row={row}
+							editing={editingNodeId === row.id}
+							focusPoint={editingNodeId === row.id ? focusPoint : null}
+							onStartEdit={(point) => {
+								setEditingNodeId(row.id);
+								setFocusPoint(point ?? null);
+							}}
+							onExitEdit={() =>
+								setEditingNodeId((current) =>
+									current === row.id ? null : current,
+								)
+							}
+							onSaveContent={(content) => tree.updateContent(row.id, content)}
+							onConvert={(type) =>
+								tree.setType(row.id, {
+									type,
+									metadata: nodeTypeDefs[type].defaultMetadata,
+								} as TypedMetadata)
+							}
+							onToggleTask={(completed) =>
+								tree.setType(row.id, { type: "task", metadata: { completed } })
+							}
+							onDelete={() => tree.remove(row.id)}
+							onAddTag={(tag) => tree.addTag(row.id, tag)}
+							onRemoveTag={(removedTagId) =>
+								tree.removeTag(row.id, removedTagId)
+							}
+						/>
 					))}
-				</ul>
+				</div>
 			)}
-			{nextCursor && (
+			{tree.hasMore && (
 				<button
 					type="button"
-					onClick={loadMore}
-					disabled={loadingMore}
-					className="mt-4 text-sm underline outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:opacity-50"
+					onClick={() => tree.loadMore()}
+					className="mt-4 text-sm underline outline-none focus-visible:ring-2 focus-visible:ring-redleather/50"
 				>
-					{loadingMore ? "Loading…" : "Load more"}
+					Load more
 				</button>
 			)}
 		</div>

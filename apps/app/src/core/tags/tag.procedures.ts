@@ -3,7 +3,7 @@ import postgres from "postgres";
 import { z } from "zod";
 import { nodeColumns } from "@/core/nodes/node.queries";
 import { nodes } from "@/core/nodes/node.schema";
-import { tagColumns } from "@/core/tags/tag.queries";
+import { getTagsForNodeIds, tagColumns } from "@/core/tags/tag.queries";
 import { nodeTags, tags } from "@/core/tags/tag.schema";
 import { db } from "@/db";
 import { base } from "@/orpc/context";
@@ -221,8 +221,12 @@ export const getNodesForTag = base
 			.limit(input.limit + 1);
 
 		const page = rows.slice(0, input.limit);
+		const tagsByNode = await getTagsForNodeIds(page.map((r) => r.id));
 		return {
-			rows: page.map(({ attachedAt, ...node }) => node),
+			rows: page.map(({ attachedAt, ...node }) => ({
+				...node,
+				tags: tagsByNode.get(node.id) ?? [],
+			})),
 			nextCursor:
 				rows.length > input.limit
 					? (page[page.length - 1]?.attachedAt.toISOString() ?? null)
