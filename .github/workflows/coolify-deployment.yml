@@ -1,41 +1,41 @@
-name: Coolify Preview Status
+name: Coolify Preview Deploy
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  check-preview-status:
+  deploy-preview:
     runs-on: ubuntu-latest
     steps:
       - name: Get active deployment UUID for PR
         id: get-deployment
         run: |
-          # Fetch the application's ongoing deployments
-          # Note: Adjust the endpoint if you are using a specific Coolify v4 application endpoint
-          RESPONSE=$(curl -s -X GET \
-            "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ secrets.COOLIFY_APP_UUID }}/deployments" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
-            -H "Content-Type: application/json")
-
-          # Extract the latest deployment UUID (you may need to adjust the jq filter 
-          # based on Coolify's exact response structure to match the PR number)
-          DEPLOYMENT_UUID=$(echo "$RESPONSE" | jq -r '.[0].deployment_uuid // empty')
-
-          if [ -z "$DEPLOYMENT_UUID" ]; then
-            echo "No active deployments found for this application."
-            exit 1
-          fi
-
-          echo "deployment_uuid=$DEPLOYMENT_UUID" >> "$GITHUB_OUTPUT"
+            # Fetch the application's ongoing deployments
+            RESPONSE=$(curl -s -X GET \
+              "${{ secrets.COOLIFY_URL }}/api/v1/applications/${{ secrets.COOLIFY_APP_UUID }}/deployments" \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+              -H "Content-Type: application/json")
+            
+            # Print the raw response to the logs for debugging
+            echo "Raw API Response: $RESPONSE"
+            
+            # Safely extract the UUID, checking if it's wrapped in '.data' or if it's a direct array
+            # The '?' prevents jq from throwing an error if the path doesn't exist
+            DEPLOYMENT_UUID=$(echo "$RESPONSE" | jq -r '.data[0]?.deployment_uuid? // .[0]?.deployment_uuid? // empty')
+            
+            if [ -z "$DEPLOYMENT_UUID" ] || [ "$DEPLOYMENT_UUID" = "null" ]; then
+              echo "No active deployments found for this application."
+              exit 1
+            fi
+            
+            echo "deployment_uuid=$DEPLOYMENT_UUID" >> "$GITHUB_OUTPUT"
 
       - name: Poll deployment status
         run: |
-          UUID="${{ steps.get-deployment.outputs.deployment_uuid }}"
+          UUID="${{ steps.trigger.outputs.deployment_uuid }}"
           MAX_ATTEMPTS=60
           SLEEP_SECONDS=10
-
-          echo "Polling status for deployment: $UUID"
 
           for i in $(seq 1 $MAX_ATTEMPTS); do
             STATUS_RESPONSE=$(curl -s -X GET \
