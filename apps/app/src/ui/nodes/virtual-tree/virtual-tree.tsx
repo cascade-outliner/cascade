@@ -83,6 +83,16 @@ export function VirtualTree({
 		}
 	};
 
+	const handleCreateBelow = async (id: string) => {
+		const container = scrollRef.current;
+		const newId = await tree.addAfter(id, (splice) => {
+			if (!container) return splice();
+			animateTreeChange(container, splice, { animateEnter: true });
+		});
+		setFocusPoint(null);
+		setEditingNodeId(newId);
+	};
+
 	const handleToggle = (nodeId: string, expanded: boolean) => {
 		tree.toggle(nodeId, expanded, (splice) => {
 			const container = scrollRef.current;
@@ -140,6 +150,7 @@ export function VirtualTree({
 									});
 								}}
 								onSaveContent={(content) => tree.updateContent(row.id, content)}
+								onCreateBelow={() => handleCreateBelow(row.id)}
 								onMoveDrop={handleMoveDrop}
 								previewRef={previewRef}
 							/>

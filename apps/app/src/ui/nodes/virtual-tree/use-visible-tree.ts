@@ -7,6 +7,7 @@ import {
 	appendRow,
 	collapseNode,
 	expandNode,
+	insertRowAfter,
 	type MoveTarget,
 	moveSubtree,
 	patchRow,
@@ -149,6 +150,37 @@ export function useVisibleTree(rootId: string | null) {
 		return created.id;
 	};
 
+	/** Create a new node as the next sibling right after `afterId`. */
+	const addAfter = async (
+		afterId: string,
+		commit: (splice: () => void) => void = (splice) => splice(),
+	) => {
+		const sibling = data.rows.find((r) => r.id === afterId);
+		if (!sibling) return add(commit);
+		const created = await client.nodes.create({
+			parentId: sibling.parentId,
+			afterId,
+		});
+		commit(() =>
+			setRows((rows) =>
+				insertRowAfter(rows, afterId, {
+					id: created.id,
+					parentId: created.parentId,
+					content: created.content,
+					type: created.type,
+					metadata: created.metadata,
+					expanded: created.expanded,
+					order: created.order,
+					depth: sibling.depth,
+					path: [...sibling.path.slice(0, -1), created.order],
+					hasChildren: created.hasChildren,
+					isLastChild: sibling.isLastChild,
+				}),
+			),
+		);
+		return created.id;
+	};
+
 	const loadMore = async () => {
 		if (loadingMore.current || !data.nextCursor) return;
 		loadingMore.current = true;
@@ -178,6 +210,7 @@ export function useVisibleTree(rootId: string | null) {
 		updateContent,
 		setType,
 		add,
+		addAfter,
 		loadMore,
 	};
 }

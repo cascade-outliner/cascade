@@ -115,6 +115,21 @@ export function appendRow(
 	return recomputeIsLastChild([...rows, row]);
 }
 
+/** Insert a freshly created node as the next sibling right after `afterId`'s subtree. */
+export function insertRowAfter(
+	rows: VisibleNodeRow[],
+	afterId: string,
+	row: VisibleNodeRow,
+): VisibleNodeRow[] {
+	const range = subtreeRange(rows, afterId);
+	if (!range) return appendRow(rows, row);
+	return recomputeIsLastChild([
+		...rows.slice(0, range.end),
+		row,
+		...rows.slice(range.end),
+	]);
+}
+
 export type MoveTarget =
 	| { position: "before" | "after"; targetId: string; parentId: string | null }
 	| { position: "append"; parentId: string | null };

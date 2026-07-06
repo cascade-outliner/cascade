@@ -2,6 +2,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { COMMAND_PRIORITY_HIGH, KEY_ENTER_COMMAND } from "lexical";
 import { useEffect, useRef } from "react";
 import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 import type { FocusPoint } from "@/ui/nodes/node-editor";
@@ -10,6 +11,7 @@ interface EditableContentProps {
 	focusPoint: FocusPoint | null;
 	onSave: (content: { root: LexicalElementNode }) => void;
 	onExit?: () => void;
+	onCreateBelow?: () => void;
 }
 
 /** Cross-browser caret lookup for a screen point (Firefox lacks caretRangeFromPoint). */
@@ -27,6 +29,7 @@ export function EditableContent({
 	focusPoint,
 	onSave,
 	onExit,
+	onCreateBelow,
 }: EditableContentProps) {
 	const [editor] = useLexicalComposerContext();
 	const lastSavedRef = useRef<string | null>(null);
@@ -41,6 +44,23 @@ export function EditableContent({
 
 	const saveRef = useRef(save);
 	saveRef.current = save;
+
+	const onCreateBelowRef = useRef(onCreateBelow);
+	onCreateBelowRef.current = onCreateBelow;
+
+	useEffect(() => {
+		return editor.registerCommand(
+			KEY_ENTER_COMMAND,
+			(event) => {
+				if (event?.shiftKey) return false;
+				event?.preventDefault();
+				saveRef.current();
+				onCreateBelowRef.current?.();
+				return true;
+			},
+			COMMAND_PRIORITY_HIGH,
+		);
+	}, [editor]);
 
 	useEffect(() => {
 		lastSavedRef.current = JSON.stringify(editor.getEditorState().toJSON());
