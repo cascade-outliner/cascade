@@ -4,6 +4,7 @@ import { faker } from "@faker-js/faker";
 import { generateNKeysBetween } from "fractional-indexing";
 import { nodes } from "@/core/nodes/node.schema";
 import { db } from "@/db";
+import { lexicalToPlainText } from "@/ui/lexical/lexical-content";
 
 const config = {
 	roots: 25, // number of root nodes
@@ -110,15 +111,18 @@ type Row = {
 	id: string;
 	parentId: string | null;
 	content: ReturnType<typeof textToLexicalContent>;
+	searchText: string;
 	order: string;
 };
 
 function buildRow(parentId: string | null, order: string): Row {
 	const text = faker.lorem.sentences({ min: 1, max: 2 });
+	const content = textToLexicalContent(text);
 	return {
 		id: randomUUID(),
 		parentId,
-		content: textToLexicalContent(text),
+		content,
+		searchText: lexicalToPlainText(content, 10_000),
 		order,
 	};
 }

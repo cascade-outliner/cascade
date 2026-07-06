@@ -10,6 +10,7 @@ import {
 	updateNodeContent,
 	visibleTree,
 } from "@/core/nodes/node.procedures";
+import { searchNodes } from "@/core/nodes/node.search";
 
 export default {
 	nodes: {
@@ -23,5 +24,6 @@ export default {
 		delete: deleteNode,
 		updateContent: updateNodeContent,
 		setType: setNodeType,
+		search: searchNodes,
 	},
 };

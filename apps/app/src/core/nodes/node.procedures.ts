@@ -10,6 +10,7 @@ import {
 } from "@/core/nodes/node-types";
 import { db } from "@/db";
 import { base } from "@/orpc/context";
+import { lexicalToPlainText } from "@/ui/lexical/lexical-content";
 
 export const listNodes = base
 	.input(z.object({ parentId: z.string().nullable() }))
@@ -340,6 +341,8 @@ const lexicalElementNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		.passthrough(),
 );
 
+const SEARCH_TEXT_LIMIT = 10_000; // defensive cap against pathological single-node content
+
 export const updateNodeContent = base
 	.input(
 		z.object({
@@ -350,6 +353,9 @@ export const updateNodeContent = base
 	.handler(async ({ input }) => {
 		await db
 			.update(nodes)
-			.set({ content: input.content })
+			.set({
+				content: input.content,
+				searchText: lexicalToPlainText(input.content, SEARCH_TEXT_LIMIT),
+			})
 			.where(eq(nodes.id, input.id));
 	});

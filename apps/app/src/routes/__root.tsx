@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
+import { CommandPalette } from "@/ui/search/command-palette";
 import { SettingsProvider } from "@/ui/settings-context";
 import { UserMenu } from "@/ui/user-menu";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
@@ -75,6 +76,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<Toaster>
 						{children}
 						<UserMenu />
+						<CommandPalette />
 					</Toaster>
 				</SettingsProvider>
 				{import.meta.env.DEV && (
