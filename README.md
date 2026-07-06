@@ -71,7 +71,3 @@ pnpm db:studio    # Open Drizzle Studio
 ## AI usage
 
 This project is developed with AI assistance as a convenience. The rule is simple: use AI when you already know the solution and want to move faster; use your own brain when you don't. AI is a execution accelerator, not a thinking replacement. Reaching for it to figure out what to build, or to paper over a gap in understanding, produces code nobody truly understands and nobody can confidently maintain. Know the problem, know the solution, then let AI write the boilerplate.
-
-## License
-
-MIT
