@@ -21,9 +21,6 @@ export const nodes = pgTable(
 		type: text().notNull().default("text").$type<NodeTypeName>(),
 		metadata: jsonb("metadata"),
 		expanded: boolean().notNull().default(false),
-		// Must use COLLATE "C" in the database (applied via one-off SQL; drizzle
-		// can't declare collation) — fractional-index keys require byte-order
-		// comparison or DFS path sorting silently breaks.
 		order: text("order").notNull(),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
