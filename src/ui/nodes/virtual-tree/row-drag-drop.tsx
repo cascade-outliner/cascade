@@ -28,8 +28,7 @@ import {
 	type MoveTarget,
 	subtreeRange,
 } from "@/ui/nodes/virtual-tree/visible-rows";
-
-export const INDENT_PER_LEVEL = 16;
+import { useSettings } from "@/ui/settings-context";
 
 interface RowDragAndDropProps {
 	row: VisibleNodeRow;
@@ -64,11 +63,15 @@ export function RowDragAndDrop({
 	const rowRef = useRef<HTMLDivElement>(null);
 	const handleRef = useRef<HTMLButtonElement>(null);
 	const [instruction, setInstruction] = useState<Instruction | null>(null);
+	const { settings } = useSettings();
 
-	// DnD callbacks read the latest props through this ref so registration
-	// survives cache splices without tearing down listeners on every render.
-	const latest = useRef({ row, rows, onMoveDrop });
-	latest.current = { row, rows, onMoveDrop };
+	const latest = useRef({
+		row,
+		rows,
+		onMoveDrop,
+		indentSize: settings.indentSize,
+	});
+	latest.current = { row, rows, onMoveDrop, indentSize: settings.indentSize };
 
 	useEffect(() => {
 		const rowElement = rowRef.current;
@@ -118,14 +121,14 @@ export function RowDragAndDrop({
 					return !isInSubtree(latest.current.rows, dragged, id);
 				},
 				getData: ({ input, element }) => {
-					const { row: current } = latest.current;
+					const { row: current, indentSize } = latest.current;
 					return attachInstruction(
 						{ nodeId: id },
 						{
 							input,
 							element,
 							currentLevel: current.depth,
-							indentPerLevel: INDENT_PER_LEVEL,
+							indentPerLevel: indentSize,
 							mode:
 								current.expanded && current.hasChildren
 									? "expanded"
@@ -190,9 +193,9 @@ export function RowDragAndDrop({
 		<div
 			ref={rowRef}
 			{...nodeRowDomAttributes(row.id)}
-			className="group/node py-1 flex items-center gap-2 relative rounded-md transition-colors duration-150 has-[[data-popup-open]]:bg-peach/25 has-[[data-popup-open]]:ring-1 has-[[data-popup-open]]:ring-inset has-[[data-popup-open]]:ring-peach/60"
+			className="group/node py-1 flex items-center gap-2 relative rounded-md transition-colors duration-150 has-data-popup-open:bg-peach/25 has-data-popup-open:ring-1 has-data-popup-open:ring-inset has-data-popup-open:ring-peach/60"
 		>
-			<div style={{ paddingLeft: row.depth * INDENT_PER_LEVEL }} />
+			<div style={{ paddingLeft: row.depth * settings.indentSize }} />
 			<NodeDropIndicator instruction={instruction} />
 			<NodeDragHandle ref={handleRef} />
 			{children}

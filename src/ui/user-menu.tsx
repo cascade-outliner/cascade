@@ -1,7 +1,26 @@
-import { Dialog, Menu, Switch } from "@base-ui/react";
-import { GearIcon, UserCircleIcon, XIcon } from "@phosphor-icons/react/ssr";
-import { useEffect, useState } from "react";
+import { Dialog, Menu, NumberField, Switch } from "@base-ui/react";
+import {
+	GearIcon,
+	MinusIcon,
+	PlusIcon,
+	UserCircleIcon,
+	XIcon,
+} from "@phosphor-icons/react/ssr";
+import { useState } from "react";
 import { cva } from "@/integrations/cva/cva.config";
+import {
+	MAX_INDENT_SIZE,
+	MIN_INDENT_SIZE,
+	useSettings,
+} from "@/ui/settings-context";
+
+const stepperButton = cva({
+	base: [
+		"flex size-6 cursor-pointer items-center justify-center rounded-md text-dark-grey outline-none",
+		"hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40",
+		"dark:text-ginger dark:hover:bg-ginger/20",
+	],
+});
 
 const popup = cva({
 	base: [
@@ -22,17 +41,7 @@ const item = cva({
 
 export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
-	const [dark, setDark] = useState(false);
-
-	useEffect(() => {
-		setDark(document.documentElement.classList.contains("dark"));
-	}, []);
-
-	function toggleDark(next: boolean) {
-		setDark(next);
-		document.documentElement.classList.toggle("dark", next);
-		localStorage.theme = next ? "dark" : "light";
-	}
+	const { settings, setSetting } = useSettings();
 
 	return (
 		<div className="fixed top-4 right-4 z-50">
@@ -81,12 +90,46 @@ export function UserMenu() {
 							Dark mode
 							<Switch.Root
 								aria-label="Dark mode"
-								checked={dark}
-								onCheckedChange={toggleDark}
+								checked={settings.dark}
+								onCheckedChange={(next) => setSetting("dark", next)}
 								className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
 							>
 								<Switch.Thumb className="block size-4 rounded-full bg-white transition-transform data-checked:translate-x-4" />
 							</Switch.Root>
+						</div>
+						<div className="mt-3 flex items-center justify-between text-sm">
+							Indent size
+							<NumberField.Root
+								aria-label="Indent size"
+								value={settings.indentSize}
+								min={MIN_INDENT_SIZE}
+								max={MAX_INDENT_SIZE}
+								step={2}
+								snapOnStep
+								onValueChange={(value) => {
+									if (value == null) return;
+									const snapped =
+										MIN_INDENT_SIZE +
+										Math.round((value - MIN_INDENT_SIZE) / 2) * 2;
+									setSetting(
+										"indentSize",
+										Math.min(
+											Math.max(snapped, MIN_INDENT_SIZE),
+											MAX_INDENT_SIZE,
+										),
+									);
+								}}
+							>
+								<NumberField.Group className="flex items-center gap-1">
+									<NumberField.Decrement className={stepperButton()}>
+										<MinusIcon size={12} weight="bold" />
+									</NumberField.Decrement>
+									<NumberField.Input className="w-8 rounded-md bg-dark-grey/10 py-0.5 text-center outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 dark:bg-ginger/10" />
+									<NumberField.Increment className={stepperButton()}>
+										<PlusIcon size={12} weight="bold" />
+									</NumberField.Increment>
+								</NumberField.Group>
+							</NumberField.Root>
 						</div>
 					</Dialog.Popup>
 				</Dialog.Portal>

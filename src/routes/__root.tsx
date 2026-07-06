@@ -8,6 +8,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { AppContextMenu } from "@/ui/app-context-menu";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
+import { SettingsProvider } from "@/ui/settings-context";
 import { UserMenu } from "@/ui/user-menu";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
@@ -37,7 +38,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		scripts: [
 			{
 				children:
-					'if(localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")',
+					'if(JSON.parse(localStorage.settings||"{}").dark??matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.classList.add("dark")',
 			},
 		],
 		links: [
@@ -70,8 +71,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="bg-ginger text-dark-grey dark:bg-dark-grey dark:text-ginger">
-				<AppContextMenu>{children}</AppContextMenu>
-				<UserMenu />
+				<SettingsProvider>
+					<AppContextMenu>{children}</AppContextMenu>
+					<UserMenu />
+				</SettingsProvider>
 				{import.meta.env.DEV && (
 					<TanStackDevtools
 						config={{
