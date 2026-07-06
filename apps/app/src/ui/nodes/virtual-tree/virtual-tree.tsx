@@ -100,7 +100,8 @@ export function VirtualTree({
 	const handleDeleteEmpty = (id: string) => {
 		const index = tree.rows.findIndex((row) => row.id === id);
 		const previous = index > 0 ? tree.rows[index - 1] : null;
-		if (!previous) return;
+		const next = tree.rows[index + 1] ?? null;
+		const focusTarget = previous ?? next;
 
 		const container = scrollRef.current;
 		tree.remove(id, (splice) => {
@@ -108,7 +109,7 @@ export function VirtualTree({
 			animateNodeRemoval(container, id, splice);
 		});
 		setFocusPoint(null);
-		setEditingNodeId(previous.id);
+		setEditingNodeId(focusTarget?.id ?? null);
 	};
 
 	const handleIndent = (id: string) => {
@@ -142,65 +143,73 @@ export function VirtualTree({
 		<div ref={scrollRef} className="h-dvh overflow-auto">
 			<div className="max-w-6xl mx-auto px-4 py-12 sm:py-32">
 				{header}
-				<div
-					style={{
-						height: virtualizer.getTotalSize(),
-						position: "relative",
-					}}
-				>
-					{virtualItems.map((virtualItem) => {
-						const row = tree.rows[virtualItem.index];
-						if (!row) return null;
-						return (
-							<VirtualTreeRow
-								key={virtualItem.key}
-								row={row}
-								rows={tree.rows}
-								start={virtualItem.start}
-								index={virtualItem.index}
-								measureElement={virtualizer.measureElement}
-								editing={editingNodeId === row.id}
-								focusPoint={editingNodeId === row.id ? focusPoint : null}
-								onStartEdit={(point) => {
-									setEditingNodeId(row.id);
-									setFocusPoint(point ?? null);
-								}}
-								onExitEdit={() =>
-									setEditingNodeId((current) =>
-										current === row.id ? null : current,
-									)
-								}
-								onToggle={(expanded) => handleToggle(row.id, expanded)}
-								onConvert={(type) =>
-									tree.setType(row.id, {
-										type,
-										metadata: nodeTypeDefs[type].defaultMetadata,
-									} as TypedMetadata)
-								}
-								onToggleTask={(completed) =>
-									tree.setType(row.id, {
-										type: "task",
-										metadata: { completed },
-									})
-								}
-								onDelete={() => {
-									const container = scrollRef.current;
-									tree.remove(row.id, (splice) => {
-										if (!container) return splice();
-										animateNodeRemoval(container, row.id, splice);
-									});
-								}}
-								onSaveContent={(content) => tree.updateContent(row.id, content)}
-								onCreateBelow={() => handleCreateBelow(row.id)}
-								onDeleteEmpty={() => handleDeleteEmpty(row.id)}
-								onIndent={() => handleIndent(row.id)}
-								onOutdent={() => handleOutdent(row.id)}
-								onMoveDrop={handleMoveDrop}
-								previewRef={previewRef}
-							/>
-						);
-					})}
-				</div>
+				{tree.rows.length === 0 ? (
+					<p className="text-sm py-4">
+						This tree is empty. Add a node to get started.
+					</p>
+				) : (
+					<div
+						style={{
+							height: virtualizer.getTotalSize(),
+							position: "relative",
+						}}
+					>
+						{virtualItems.map((virtualItem) => {
+							const row = tree.rows[virtualItem.index];
+							if (!row) return null;
+							return (
+								<VirtualTreeRow
+									key={virtualItem.key}
+									row={row}
+									rows={tree.rows}
+									start={virtualItem.start}
+									index={virtualItem.index}
+									measureElement={virtualizer.measureElement}
+									editing={editingNodeId === row.id}
+									focusPoint={editingNodeId === row.id ? focusPoint : null}
+									onStartEdit={(point) => {
+										setEditingNodeId(row.id);
+										setFocusPoint(point ?? null);
+									}}
+									onExitEdit={() =>
+										setEditingNodeId((current) =>
+											current === row.id ? null : current,
+										)
+									}
+									onToggle={(expanded) => handleToggle(row.id, expanded)}
+									onConvert={(type) =>
+										tree.setType(row.id, {
+											type,
+											metadata: nodeTypeDefs[type].defaultMetadata,
+										} as TypedMetadata)
+									}
+									onToggleTask={(completed) =>
+										tree.setType(row.id, {
+											type: "task",
+											metadata: { completed },
+										})
+									}
+									onDelete={() => {
+										const container = scrollRef.current;
+										tree.remove(row.id, (splice) => {
+											if (!container) return splice();
+											animateNodeRemoval(container, row.id, splice);
+										});
+									}}
+									onSaveContent={(content) =>
+										tree.updateContent(row.id, content)
+									}
+									onCreateBelow={() => handleCreateBelow(row.id)}
+									onDeleteEmpty={() => handleDeleteEmpty(row.id)}
+									onIndent={() => handleIndent(row.id)}
+									onOutdent={() => handleOutdent(row.id)}
+									onMoveDrop={handleMoveDrop}
+									previewRef={previewRef}
+								/>
+							);
+						})}
+					</div>
+				)}
 				<Button
 					data-flip-id="add-node"
 					icon={<PlusIcon className="size-4" />}
