@@ -1,4 +1,4 @@
-import { Dialog, Menu, NumberField, Switch } from "@base-ui/react";
+import { Dialog, Menu, NumberField, Switch, Tabs } from "@base-ui/react";
 import { cva } from "@cascade/ui/cva.config";
 import {
 	GearIcon,
@@ -7,7 +7,9 @@ import {
 	UserCircleIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { orpc } from "@/orpc/client";
 import {
 	MAX_INDENT_SIZE,
 	MIN_INDENT_SIZE,
@@ -39,12 +41,24 @@ const item = cva({
 	],
 });
 
+const tab = cva({
+	base: [
+		"cursor-pointer rounded-md px-3 py-1.5 text-sm outline-none",
+		"hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20",
+		"data-active:font-semibold",
+	],
+});
+
 export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const { settings, setSetting } = useSettings();
+	const { data: stats } = useQuery({
+		...orpc.nodes.stats.queryOptions(),
+		enabled: settingsOpen,
+	});
 
 	return (
-		<div className="fixed top-4 right-4 z-50">
+		<div className="fixed top-4 right-6 z-50">
 			<Menu.Root>
 				<Menu.Trigger
 					aria-label="User menu"
@@ -75,62 +89,122 @@ export function UserMenu() {
 				<Dialog.Portal>
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm transition-[opacity,backdrop-filter] duration-300 data-starting-style:opacity-0 data-starting-style:backdrop-blur-none data-ending-style:opacity-0 data-ending-style:backdrop-blur-none data-ending-style:duration-150" />
 					<Dialog.Popup className="fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 scale-100 border-0 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out sm:right-auto sm:bottom-auto sm:h-auto sm:rounded-lg sm:border sm:border-dark-grey/10 dark:bg-dark-grey dark:text-ginger sm:dark:border-ginger/15">
-						<div className="mb-4 flex items-center justify-between">
-							<Dialog.Title className="text-lg font-semibold">
-								Settings
-							</Dialog.Title>
-							<Dialog.Close
-								aria-label="Close settings"
-								className="cursor-pointer rounded-md p-1 outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
-							>
-								<XIcon size={16} weight="bold" />
-							</Dialog.Close>
-						</div>
-						<div className="flex items-center justify-between text-sm">
-							Dark mode
-							<Switch.Root
-								aria-label="Dark mode"
-								checked={settings.dark}
-								onCheckedChange={(next) => setSetting("dark", next)}
-								className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
-							>
-								<Switch.Thumb className="block size-4 rounded-full bg-white transition-transform data-checked:translate-x-4" />
-							</Switch.Root>
-						</div>
-						<div className="mt-3 flex items-center justify-between text-sm">
-							Indent size
-							<NumberField.Root
-								aria-label="Indent size"
-								value={settings.indentSize}
-								min={MIN_INDENT_SIZE}
-								max={MAX_INDENT_SIZE}
-								step={2}
-								snapOnStep
-								onValueChange={(value) => {
-									if (value == null) return;
-									const snapped =
-										MIN_INDENT_SIZE +
-										Math.round((value - MIN_INDENT_SIZE) / 2) * 2;
-									setSetting(
-										"indentSize",
-										Math.min(
-											Math.max(snapped, MIN_INDENT_SIZE),
-											MAX_INDENT_SIZE,
-										),
-									);
-								}}
-							>
-								<NumberField.Group className="flex items-center gap-1">
-									<NumberField.Decrement className={stepperButton()}>
-										<MinusIcon size={12} weight="bold" />
-									</NumberField.Decrement>
-									<NumberField.Input className="w-8 rounded-md bg-dark-grey/10 py-0.5 text-center outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 dark:bg-ginger/10" />
-									<NumberField.Increment className={stepperButton()}>
-										<PlusIcon size={12} weight="bold" />
-									</NumberField.Increment>
-								</NumberField.Group>
-							</NumberField.Root>
-						</div>
+						<Dialog.Title className="sr-only">Settings</Dialog.Title>
+						<Tabs.Root defaultValue="general">
+							<div className="mb-4 flex items-center justify-between">
+								<Tabs.List className="flex gap-1">
+									<Tabs.Tab value="general" className={tab()}>
+										Settings
+									</Tabs.Tab>
+									<Tabs.Tab value="stats" className={tab()}>
+										Stats for nerds
+									</Tabs.Tab>
+								</Tabs.List>
+								<Dialog.Close
+									aria-label="Close settings"
+									className="cursor-pointer rounded-md p-1 outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+								>
+									<XIcon size={16} weight="bold" />
+								</Dialog.Close>
+							</div>
+							<div className="mb-4 border-b border-dark-grey/10 dark:border-ginger/15" />
+
+							<Tabs.Panel value="general">
+								<div className="flex items-center justify-between text-sm">
+									Dark mode
+									<Switch.Root
+										aria-label="Dark mode"
+										checked={settings.dark}
+										onCheckedChange={(next) => setSetting("dark", next)}
+										className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
+									>
+										<Switch.Thumb className="block size-4 rounded-full bg-white transition-transform data-checked:translate-x-4" />
+									</Switch.Root>
+								</div>
+								<div className="mt-3 flex items-center justify-between text-sm">
+									Indent size
+									<NumberField.Root
+										aria-label="Indent size"
+										value={settings.indentSize}
+										min={MIN_INDENT_SIZE}
+										max={MAX_INDENT_SIZE}
+										step={2}
+										snapOnStep
+										onValueChange={(value) => {
+											if (value == null) return;
+											const snapped =
+												MIN_INDENT_SIZE +
+												Math.round((value - MIN_INDENT_SIZE) / 2) * 2;
+											setSetting(
+												"indentSize",
+												Math.min(
+													Math.max(snapped, MIN_INDENT_SIZE),
+													MAX_INDENT_SIZE,
+												),
+											);
+										}}
+									>
+										<NumberField.Group className="flex items-center gap-1">
+											<NumberField.Decrement className={stepperButton()}>
+												<MinusIcon size={12} weight="bold" />
+											</NumberField.Decrement>
+											<NumberField.Input className="w-8 rounded-md bg-dark-grey/10 py-0.5 text-center outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 dark:bg-ginger/10" />
+											<NumberField.Increment className={stepperButton()}>
+												<PlusIcon size={12} weight="bold" />
+											</NumberField.Increment>
+										</NumberField.Group>
+									</NumberField.Root>
+								</div>
+							</Tabs.Panel>
+
+							<Tabs.Panel value="stats">
+								{stats ? (
+									<div className="grid grid-cols-2 gap-y-2 text-sm">
+										<span className="text-dark-grey/60 dark:text-ginger/60">
+											Nodes
+										</span>
+										<span className="text-right font-medium">
+											{stats.totalNodes}
+										</span>
+										<span className="text-dark-grey/60 dark:text-ginger/60">
+											Leaves
+										</span>
+										<span className="text-right font-medium">
+											{stats.leafCount}
+										</span>
+										<span className="text-dark-grey/60 dark:text-ginger/60">
+											Deepest branch
+										</span>
+										<span className="text-right font-medium">
+											{stats.maxDepth} level{stats.maxDepth === 1 ? "" : "s"}
+										</span>
+										<span className="text-dark-grey/60 dark:text-ginger/60">
+											Widest level
+										</span>
+										<span className="text-right font-medium">
+											{stats.widestDepthCount} node
+											{stats.widestDepthCount === 1 ? "" : "s"} (depth{" "}
+											{stats.widestDepth})
+										</span>
+										<span className="text-dark-grey/60 dark:text-ginger/60">
+											Branching factor
+										</span>
+										<span className="text-right font-medium">
+											{stats.totalNodes - stats.leafCount > 0
+												? (
+														(stats.totalNodes - stats.rootCount) /
+														(stats.totalNodes - stats.leafCount)
+													).toFixed(1)
+												: "—"}
+										</span>
+									</div>
+								) : (
+									<div className="text-sm text-dark-grey/60 dark:text-ginger/60">
+										Loading…
+									</div>
+								)}
+							</Tabs.Panel>
+						</Tabs.Root>
 					</Dialog.Popup>
 				</Dialog.Portal>
 			</Dialog.Root>

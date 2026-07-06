@@ -7,6 +7,7 @@ import {
 	moveNode,
 	setNodeType,
 	toggleNodeExpanded,
+	treeStats,
 	updateNodeContent,
 	visibleTree,
 } from "@/core/nodes/node.procedures";
@@ -17,6 +18,7 @@ export default {
 		get: getNode,
 		ancestors: getNodeAncestors,
 		visibleTree,
+		stats: treeStats,
 		create: createNode,
 		move: moveNode,
 		toggleExpanded: toggleNodeExpanded,
