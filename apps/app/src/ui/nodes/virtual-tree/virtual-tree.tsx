@@ -135,6 +135,7 @@ export function VirtualTree({
 	};
 
 	const handleToggle = (nodeId: string, expanded: boolean) => {
+		sound.play(expanded ? "pickup" : "drop");
 		tree.toggle(nodeId, expanded, (splice) => {
 			const container = scrollRef.current;
 			if (!container) return splice();

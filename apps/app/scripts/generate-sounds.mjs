@@ -5,19 +5,24 @@ import { fileURLToPath } from "node:url";
 const SAMPLE_RATE = 44100;
 
 /**
- * A soft, round "blob/pop" tone: exponential pitch glide (not linear — that's
- * what makes a sweep sound like a physical droplet instead of a synth
- * sweep) under an exponential-decay envelope (fast attack, no sustain, no
- * hard cutoff), with a quiet sub-oscillator one octave down for body.
+ * A bright, bouncy "cartoon" tone: exponential pitch glide (not linear —
+ * that's what makes a sweep sound like a springy hop instead of a synth
+ * sweep) under an exponential-decay envelope, with a sub-octave layer for
+ * body, a bright upper-harmonic layer for toy-like sparkle, and optional
+ * vibrato for a "boing" wobble.
  */
 function blob({
 	duration,
 	freqStart,
 	freqEnd = freqStart,
-	amp = 0.3,
-	attack = 0.006,
+	amp = 0.5,
+	attack = 0.003,
 	decay = 20,
-	sub = 0.35,
+	sub = 0.3,
+	bright = 0.28,
+	brightRatio = 2,
+	vibratoRate = 0,
+	vibratoDepth = 0,
 }) {
 	const n = Math.max(1, Math.floor(duration * SAMPLE_RATE));
 	const samples = new Float32Array(n);
@@ -25,15 +30,25 @@ function blob({
 	const freqRatio = freqEnd / freqStart;
 	let phase = 0;
 	let subPhase = 0;
+	let brightPhase = 0;
 	for (let i = 0; i < n; i++) {
 		const t = i / SAMPLE_RATE;
 		const frac = i / n;
-		const freq = freqStart * freqRatio ** frac;
+		const baseFreq = freqStart * freqRatio ** frac;
+		const vibrato =
+			vibratoRate > 0
+				? 1 + vibratoDepth * Math.sin(2 * Math.PI * vibratoRate * t)
+				: 1;
+		const freq = baseFreq * vibrato;
 		phase += (2 * Math.PI * freq) / SAMPLE_RATE;
 		subPhase += (2 * Math.PI * freq * 0.5) / SAMPLE_RATE;
+		brightPhase += (2 * Math.PI * freq * brightRatio) / SAMPLE_RATE;
 		const attackEnv = i < attackSamples ? i / attackSamples : 1;
 		const env = attackEnv * Math.exp(-decay * t);
-		samples[i] = (Math.sin(phase) + sub * Math.sin(subPhase)) * amp * env;
+		samples[i] =
+			(Math.sin(phase) + sub * Math.sin(subPhase) + bright * Math.sin(brightPhase)) *
+			amp *
+			env;
 	}
 	return samples;
 }
@@ -49,6 +64,16 @@ function mixAt(totalDuration, layers) {
 		}
 	}
 	return out;
+}
+
+/** Scales a buffer so its peak sample hits `target`, for consistent loudness. */
+function normalize(samples, target = 0.92) {
+	let peak = 0;
+	for (const s of samples) peak = Math.max(peak, Math.abs(s));
+	if (peak === 0) return samples;
+	const gain = target / peak;
+	for (let i = 0; i < samples.length; i++) samples[i] *= gain;
+	return samples;
 }
 
 function writeWav(filePath, samples) {
@@ -82,37 +107,94 @@ const outDir = process.argv[2] ?? defaultOutDir;
 fs.mkdirSync(outDir, { recursive: true });
 
 const sounds = {
-	// Quick downward pop — a soft "blip" rather than a flat beep.
-	click: blob({ duration: 0.07, freqStart: 520, freqEnd: 260, amp: 0.26, decay: 32, sub: 0.4 }),
+	// Bright, quick upward chirp — a snappy "blip" instead of a flat beep.
+	click: blob({ duration: 0.06, freqStart: 650, freqEnd: 950, decay: 30, bright: 0.32 }),
 
-	// Rising blob — "picking something up".
-	pickup: blob({ duration: 0.09, freqStart: 260, freqEnd: 420, amp: 0.24, decay: 18, sub: 0.4 }),
+	// Springy upward boing — "picking something up".
+	pickup: blob({
+		duration: 0.13,
+		freqStart: 380,
+		freqEnd: 700,
+		decay: 14,
+		bright: 0.3,
+		vibratoRate: 32,
+		vibratoDepth: 0.06,
+	}),
 
-	// Falling blob — a soft landing.
-	drop: blob({ duration: 0.1, freqStart: 420, freqEnd: 220, amp: 0.24, decay: 16, sub: 0.45 }),
+	// Springy downward boing — a bouncy little landing.
+	drop: blob({
+		duration: 0.15,
+		freqStart: 700,
+		freqEnd: 360,
+		decay: 12,
+		sub: 0.35,
+		bright: 0.28,
+		vibratoRate: 28,
+		vibratoDepth: 0.06,
+	}),
 
-	// Two low, slightly overlapping descending blobs — soft "uh-oh", not harsh.
-	error: mixAt(0.28, [
-		{ samples: blob({ duration: 0.12, freqStart: 300, freqEnd: 190, amp: 0.28, decay: 14, sub: 0.5 }), offset: 0 },
-		{ samples: blob({ duration: 0.16, freqStart: 230, freqEnd: 140, amp: 0.26, decay: 11, sub: 0.5 }), offset: 0.1 },
+	// Playful descending "womp womp" with a wobble, not a harsh buzz.
+	error: mixAt(0.3, [
+		{
+			samples: blob({
+				duration: 0.14,
+				freqStart: 480,
+				freqEnd: 380,
+				decay: 12,
+				sub: 0.35,
+				bright: 0.2,
+				vibratoRate: 20,
+				vibratoDepth: 0.08,
+			}),
+			offset: 0,
+		},
+		{
+			samples: blob({
+				duration: 0.18,
+				freqStart: 360,
+				freqEnd: 260,
+				decay: 9,
+				sub: 0.4,
+				bright: 0.2,
+				vibratoRate: 16,
+				vibratoDepth: 0.08,
+			}),
+			offset: 0.12,
+		},
 	]),
 
-	// Two overlapping rising blobs, legato — cheerful "bloop-bloop".
-	success: mixAt(0.3, [
-		{ samples: blob({ duration: 0.14, freqStart: 320, freqEnd: 460, amp: 0.24, decay: 13, sub: 0.35 }), offset: 0 },
-		{ samples: blob({ duration: 0.18, freqStart: 460, freqEnd: 640, amp: 0.24, decay: 10, sub: 0.35 }), offset: 0.08 },
+	// Bright staccato 3-note ascending arpeggio — a snappy "coin get".
+	success: mixAt(0.26, [
+		{ samples: blob({ duration: 0.08, freqStart: 600, freqEnd: 650, decay: 22 }), offset: 0 },
+		{ samples: blob({ duration: 0.08, freqStart: 800, freqEnd: 850, decay: 22 }), offset: 0.06 },
+		{
+			samples: blob({ duration: 0.12, freqStart: 1050, freqEnd: 1100, decay: 16, bright: 0.32 }),
+			offset: 0.12,
+		},
 	]),
 
-	// Fuller three-blob rising run — a satisfying little "ta-da".
-	complete: mixAt(0.38, [
-		{ samples: blob({ duration: 0.12, freqStart: 360, freqEnd: 480, amp: 0.22, decay: 15, sub: 0.35 }), offset: 0 },
-		{ samples: blob({ duration: 0.14, freqStart: 480, freqEnd: 620, amp: 0.24, decay: 12, sub: 0.35 }), offset: 0.07 },
-		{ samples: blob({ duration: 0.2, freqStart: 620, freqEnd: 780, amp: 0.24, decay: 9, sub: 0.35 }), offset: 0.16 },
+	// Fuller staccato 4-note ascending run with a shimmering flourish on the last note.
+	complete: mixAt(0.34, [
+		{ samples: blob({ duration: 0.07, freqStart: 500, freqEnd: 520, decay: 24 }), offset: 0 },
+		{ samples: blob({ duration: 0.07, freqStart: 650, freqEnd: 670, decay: 24 }), offset: 0.06 },
+		{ samples: blob({ duration: 0.07, freqStart: 820, freqEnd: 840, decay: 22, bright: 0.32 }), offset: 0.12 },
+		{
+			samples: blob({
+				duration: 0.16,
+				freqStart: 1040,
+				freqEnd: 1080,
+				decay: 11,
+				bright: 0.35,
+				vibratoRate: 24,
+				vibratoDepth: 0.04,
+			}),
+			offset: 0.18,
+		},
 	]),
 };
 
 for (const [name, samples] of Object.entries(sounds)) {
-	writeWav(path.join(outDir, `${name}.wav`), samples);
+	writeWav(path.join(outDir, `${name}.wav`), normalize(samples));
 }
 
 console.log("Wrote", Object.keys(sounds).join(", "), "to", outDir);

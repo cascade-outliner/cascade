@@ -1,4 +1,4 @@
-const DEFAULT_VOLUME = 0.4;
+const DEFAULT_VOLUME = 0.85;
 const COOLDOWN_MS = 70;
 
 interface SoundManagerOptions {
