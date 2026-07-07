@@ -9,18 +9,21 @@ import {
 	typedMetadataSchema,
 } from "@/core/nodes/node-types";
 import { db } from "@/db";
-import { base } from "@/orpc/context";
+import { authed } from "@/orpc/context";
 
-export const listNodes = base
+export const listNodes = authed
 	.input(z.object({ parentId: z.string().nullable() }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		return db
 			.select(nodeColumns)
 			.from(nodes)
 			.where(
-				input.parentId === null
-					? isNull(nodes.parentId)
-					: eq(nodes.parentId, input.parentId),
+				and(
+					eq(nodes.userId, context.user.id),
+					input.parentId === null
+						? isNull(nodes.parentId)
+						: eq(nodes.parentId, input.parentId),
+				),
 			)
 			.orderBy(asc(nodes.order));
 	});
@@ -45,7 +48,7 @@ interface VisibleTreeSqlRow {
  * from comparing fractional-index path arrays, which requires the `order`
  * column to use COLLATE "C" (byte-order comparison).
  */
-export const visibleTree = base
+export const visibleTree = authed
 	.input(
 		z.object({
 			rootId: z.string().nullable(),
@@ -53,8 +56,9 @@ export const visibleTree = base
 			limit: z.number().int().min(1).max(2000).default(500),
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		const { rootId, cursor, limit } = input;
+		const userId = context.user.id;
 
 		const result = (await db.execute(sql`
 			WITH RECURSIVE visible AS (
@@ -62,17 +66,18 @@ export const visibleTree = base
 					0 AS depth,
 					ARRAY[n."order"] AS path
 				FROM nodes n
-				WHERE ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
+				WHERE n.user_id = ${userId}
+					AND ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
 				UNION ALL
 				SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order",
 					v.depth + 1,
 					v.path || c."order"
 				FROM nodes c
 				JOIN visible v ON c.parent_id = v.id
-				WHERE v.expanded = true AND v.depth < 64
+				WHERE c.user_id = ${userId} AND v.expanded = true AND v.depth < 64
 			)
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.depth, v.path,
-				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id) AS has_children,
+				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id AND ch.user_id = ${userId}) AS has_children,
 				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
 			FROM visible v
 			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
@@ -102,7 +107,7 @@ export const visibleTree = base
 		};
 	});
 
-export const createNode = base
+export const createNode = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
 	})
@@ -112,18 +117,21 @@ export const createNode = base
 			afterId: z.string().nullable().optional(),
 		}),
 	)
-	.handler(async ({ input, errors }) => {
-		const parentFilter =
+	.handler(async ({ input, context, errors }) => {
+		const userId = context.user.id;
+		const parentFilter = and(
+			eq(nodes.userId, userId),
 			input.parentId === null
 				? isNull(nodes.parentId)
-				: eq(nodes.parentId, input.parentId);
+				: eq(nodes.parentId, input.parentId),
+		);
 
 		let order: string;
 		if (input.afterId) {
 			const [after] = await db
 				.select({ order: nodes.order })
 				.from(nodes)
-				.where(eq(nodes.id, input.afterId))
+				.where(and(eq(nodes.id, input.afterId), eq(nodes.userId, userId)))
 				.limit(1);
 			if (!after) throw errors.NOT_FOUND();
 			const [next] = await db
@@ -145,58 +153,60 @@ export const createNode = base
 
 		const [created] = await db
 			.insert(nodes)
-			.values({ parentId: input.parentId, order })
+			.values({ parentId: input.parentId, order, userId })
 			.returning(nodeColumns);
 		return created;
 	});
 
-export const getNode = base
+export const getNode = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
 	})
 	.input(z.object({ id: z.string() }))
-	.handler(async ({ input, errors }) => {
+	.handler(async ({ input, context, errors }) => {
 		const [node] = await db
 			.select(nodeColumns)
 			.from(nodes)
-			.where(eq(nodes.id, input.id))
+			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
 			.limit(1);
 		if (!node) throw errors.NOT_FOUND();
 		return node;
 	});
 
-export const getNodeAncestors = base
+export const getNodeAncestors = authed
 	.input(z.object({ id: z.string() }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
+		const userId = context.user.id;
 		const result = (await db.execute(sql`
 			WITH RECURSIVE chain AS (
-				SELECT id, parent_id, content, 0 AS depth FROM nodes WHERE id = ${input.id}
+				SELECT id, parent_id, content, 0 AS depth FROM nodes
+				WHERE id = ${input.id} AND user_id = ${userId}
 				UNION ALL
 				SELECT n.id, n.parent_id, n.content, c.depth + 1
 				FROM nodes n JOIN chain c ON n.id = c.parent_id
-				WHERE c.depth < 64
+				WHERE n.user_id = ${userId} AND c.depth < 64
 			)
 			SELECT id, content FROM chain ORDER BY depth DESC
 		`)) as unknown as { id: string; content: unknown }[];
 		return result;
 	});
 
-export const toggleNodeExpanded = base
+export const toggleNodeExpanded = authed
 	.input(z.object({ id: z.string(), expanded: z.boolean() }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		await db
 			.update(nodes)
 			.set({ expanded: input.expanded })
-			.where(eq(nodes.id, input.id));
+			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
 	});
 
-export const setNodeType = base
+export const setNodeType = authed
 	.input(z.object({ id: z.string() }).and(typedMetadataSchema))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		await db
 			.update(nodes)
 			.set({ type: input.type, metadata: input.metadata })
-			.where(eq(nodes.id, input.id));
+			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
 	});
 
 const moveNodeBase = {
@@ -218,41 +228,50 @@ const moveNodeInput = z.discriminatedUnion("position", [
 	z.object({ ...moveNodeBase, position: z.literal("append") }),
 ]);
 
-export const moveNode = base
+export const moveNode = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
 		INVALID_MOVE: { status: 422, message: "Invalid move operation" },
 	})
 	.input(moveNodeInput)
-	.handler(async ({ input, errors }) => {
+	.handler(async ({ input, context, errors }) => {
+		const userId = context.user.id;
 		await db.transaction(async (tx) => {
 			const [moved] = await tx
 				.select({ id: nodes.id })
 				.from(nodes)
-				.where(eq(nodes.id, input.id))
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
 				.for("update");
 			if (!moved) throw errors.NOT_FOUND();
 
 			if (input.parentId) {
-				const cycle = await tx.execute(sql`
+				// The anchor also verifies the target parent exists and belongs to
+				// this user; an empty result means it doesn't.
+				const ancestors = (await tx.execute(sql`
 					WITH RECURSIVE ancestors AS (
-						SELECT id, parent_id FROM nodes WHERE id = ${input.parentId}
+						SELECT id, parent_id FROM nodes
+						WHERE id = ${input.parentId} AND user_id = ${userId}
 						UNION ALL
-						SELECT n.id, n.parent_id FROM nodes n JOIN ancestors a ON n.id = a.parent_id
+						SELECT n.id, n.parent_id FROM nodes n
+						JOIN ancestors a ON n.id = a.parent_id
+						WHERE n.user_id = ${userId}
 					)
-					SELECT 1 FROM ancestors WHERE id = ${input.id} LIMIT 1
-				`);
-				if (cycle.length > 0) {
+					SELECT id FROM ancestors
+				`)) as unknown as { id: string }[];
+				if (ancestors.length === 0) throw errors.NOT_FOUND();
+				if (ancestors.some((a) => a.id === input.id)) {
 					throw errors.INVALID_MOVE({
 						message: "Cannot move a node into its own subtree",
 					});
 				}
 			}
 
-			const parentFilter =
+			const parentFilter = and(
+				eq(nodes.userId, userId),
 				input.parentId === null
 					? isNull(nodes.parentId)
-					: eq(nodes.parentId, input.parentId);
+					: eq(nodes.parentId, input.parentId),
+			);
 
 			let before: string | null = null;
 			let after: string | null = null;
@@ -269,7 +288,7 @@ export const moveNode = base
 				const [target] = await tx
 					.select({ order: nodes.order })
 					.from(nodes)
-					.where(eq(nodes.id, input.targetId))
+					.where(and(eq(nodes.id, input.targetId), eq(nodes.userId, userId)))
 					.limit(1)
 					.for("update");
 				if (!target) {
@@ -300,23 +319,28 @@ export const moveNode = base
 			await tx
 				.update(nodes)
 				.set({ parentId: input.parentId, order })
-				.where(eq(nodes.id, input.id));
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
 		});
 	});
 
-export const deleteNode = base
+export const deleteNode = authed
 	.input(z.object({ id: z.string() }))
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
+		const userId = context.user.id;
 		const [{ count }] = (await db.execute(sql`
 			WITH RECURSIVE descendants AS (
-				SELECT id FROM nodes WHERE parent_id = ${input.id}
+				SELECT id FROM nodes WHERE parent_id = ${input.id} AND user_id = ${userId}
 				UNION ALL
-				SELECT c.id FROM nodes c JOIN descendants d ON c.parent_id = d.id
+				SELECT c.id FROM nodes c
+				JOIN descendants d ON c.parent_id = d.id
+				WHERE c.user_id = ${userId}
 			)
 			SELECT count(*)::int AS count FROM descendants
 		`)) as unknown as [{ count: number }];
 
-		await db.delete(nodes).where(eq(nodes.id, input.id));
+		await db
+			.delete(nodes)
+			.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
 
 		return { childrenDeleted: count };
 	});
@@ -340,16 +364,16 @@ const lexicalElementNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		.passthrough(),
 );
 
-export const updateNodeContent = base
+export const updateNodeContent = authed
 	.input(
 		z.object({
 			id: z.string(),
 			content: z.object({ root: lexicalElementNodeSchema }),
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		await db
 			.update(nodes)
 			.set({ content: input.content })
-			.where(eq(nodes.id, input.id));
+			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
 	});

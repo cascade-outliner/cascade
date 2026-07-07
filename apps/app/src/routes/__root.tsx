@@ -4,9 +4,11 @@ import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
+	redirect,
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { getSession } from "@/auth/session";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { SettingsProvider } from "@/ui/settings-context";
 import { UserMenu } from "@/ui/user-menu";
@@ -17,7 +19,16 @@ interface MyRouterContext {
 	queryClient: QueryClient;
 }
 
+const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+	beforeLoad: async () => {
+		const session = await getSession();
+		if (!session) {
+			throw redirect({ href: `${webUrl}/login` });
+		}
+		return { user: session.user };
+	},
 	head: () => ({
 		meta: [
 			{

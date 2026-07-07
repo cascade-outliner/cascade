@@ -17,4 +17,5 @@ storybook-static
 *.db
 playwright-report/
 test-results/
+**/e2e/.auth/
 sitemap.xml

@@ -1,3 +1,4 @@
+import { user } from "@cascade/auth/schema";
 import { sql } from "drizzle-orm";
 import {
 	type AnyPgColumn,
@@ -17,6 +18,9 @@ export const nodes = pgTable(
 		parentId: text("parent_id").references((): AnyPgColumn => nodes.id, {
 			onDelete: "cascade",
 		}),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
 		content: jsonb("content"),
 		type: text().notNull().default("text").$type<NodeTypeName>(),
 		metadata: jsonb("metadata"),
@@ -33,5 +37,6 @@ export const nodes = pgTable(
 	(t) => [
 		index("nodes_parent_id_idx").on(t.parentId),
 		index("nodes_parent_order_idx").on(t.parentId, t.order),
+		index("nodes_user_id_idx").on(t.userId),
 	],
 );

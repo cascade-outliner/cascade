@@ -1,0 +1,19 @@
+{
+	"name": "@cascade/auth",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"exports": {
+		"./schema": "./src/auth.schema.ts",
+		"./server": "./src/server.ts",
+		"./client": "./src/client.ts"
+	},
+	"dependencies": {
+		"better-auth": "1.6.23",
+		"drizzle-orm": "^0.45.1",
+		"postgres": "^3.4.9"
+	},
+	"peerDependencies": {
+		"react": "^19.2.0"
+	}
+}

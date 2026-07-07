@@ -11,8 +11,10 @@ test("dark mode toggles via the user menu and survives reload", async ({
 
 	await expect(page.locator("html")).toHaveClass(/dark/);
 	await expect
-		.poll(() => page.evaluate(() => localStorage.getItem("theme")))
-		.toBe("dark");
+		.poll(() =>
+			page.evaluate(() => JSON.parse(localStorage.settings ?? "{}").dark),
+		)
+		.toBe(true);
 
 	await page.getByRole("button", { name: "Close settings" }).click();
 	await page.reload();

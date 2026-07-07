@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@11.5.2",
   "scripts": {
+    "dev": "pnpm --filter app --filter web --parallel run dev",
     "-----": "--------------------------",
     "dev:app": "pnpm --filter app dev",
     "generate-routes:app": "pnpm --filter app generate-routes",
