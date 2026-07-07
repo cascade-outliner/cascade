@@ -18,6 +18,17 @@ export const Route = createRootRoute({
 				title: "TanStack Start Starter",
 			},
 		],
+		scripts: [
+			...(import.meta.env.PROD
+				? [
+						{
+							defer: true,
+							src: "https://umami.patrickroelofs.com/script.js",
+							"data-website-id": "da150693-4b35-47a5-9961-83a4a3fde076",
+						},
+					]
+				: []),
+		],
 		links: [
 			{
 				rel: "stylesheet",

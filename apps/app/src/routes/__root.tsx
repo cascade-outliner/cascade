@@ -40,6 +40,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				children:
 					'if(JSON.parse(localStorage.settings||"{}").dark??matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.classList.add("dark")',
 			},
+			...(import.meta.env.PROD
+				? [
+					{
+						defer: true,
+						src: "https://umami.patrickroelofs.com/script.js",
+						"data-website-id": "3b6d63e5-a55a-4c71-a30d-a28ec42b2bc0",
+					},
+				]
+				: []),
 		],
 		links: [
 			{
