@@ -6,7 +6,7 @@
 @source "../../../packages/ui/src";
 
 :root {
-	--drag-preview-bg: var(--color-ginger);
+	--drag-preview-bg: var(--color-super-ginger);
 }
 .dark {
 	--drag-preview-bg: var(--color-dark-grey);

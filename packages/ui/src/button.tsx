@@ -70,11 +70,13 @@ export function Button({
 				/>
 			</span>
 			<span className="relative z-10 flex h-11 items-center">
-				<span className={`origin-right px-6 font-semibold text-ginger ${grow}`}>
+				<span
+					className={`origin-right px-6 font-semibold text-super-ginger ${grow}`}
+				>
 					{children}
 				</span>
 				<span
-					className={`flex size-11 items-center justify-center text-ginger ${slide}`}
+					className={`flex size-11 items-center justify-center text-super-ginger ${slide}`}
 				>
 					{icon}
 				</span>
