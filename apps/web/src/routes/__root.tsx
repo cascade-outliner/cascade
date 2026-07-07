@@ -15,7 +15,12 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Cascade — a quieter place to think in lists",
+			},
+			{
+				name: "description",
+				content:
+					"Cascade is an infinitely nested outliner. One outline for everything — notes, plans, someday-maybes. Free, and it runs in your browser.",
 			},
 		],
 		scripts: [
@@ -30,6 +35,19 @@ export const Route = createRootRoute({
 				: []),
 		],
 		links: [
+			{
+				rel: "preconnect",
+				href: "https://fonts.googleapis.com",
+			},
+			{
+				rel: "preconnect",
+				href: "https://fonts.gstatic.com",
+				crossOrigin: "anonymous",
+			},
+			{
+				rel: "stylesheet",
+				href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap",
+			},
 			{
 				rel: "stylesheet",
 				href: appCss,

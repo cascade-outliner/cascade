@@ -1,5 +1,12 @@
 
 @import "tailwindcss";
+@import "@cascade/theme";
+
+@source "../../../packages/ui/src";
+
+@theme {
+  --font-serif: "Newsreader", Georgia, serif;
+}
 
 * {
   box-sizing: border-box;
@@ -13,5 +20,25 @@ body,
 
 body {
   margin: 0;
+  background: #fcf5ee;
+  color: var(--color-dark-grey);
+  font-family: Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-ginger);
+}
+
+input::placeholder {
+  color: #b9bbc1;
+}
+
+details > summary {
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
 }
 

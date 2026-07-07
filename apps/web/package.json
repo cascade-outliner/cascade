@@ -15,6 +15,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@cascade/theme": "workspace:*",
+    "@cascade/ui": "workspace:*",
+    "@phosphor-icons/react": "^2.1.10",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-router": "latest",
