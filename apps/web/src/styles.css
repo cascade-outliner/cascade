@@ -1,17 +1,10 @@
 
 @import "tailwindcss";
+@import "@cascade/theme";
+@plugin "@tailwindcss/typography";
 
-* {
-  box-sizing: border-box;
+@source "../../../packages/ui/src";
+
+@theme {
+	--font-serif: 'Bitter Variable', serif;
 }
-
-html,
-body,
-#app {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-}
-
