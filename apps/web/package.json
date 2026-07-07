@@ -7,9 +7,9 @@
   },
   "packageManager": "pnpm@11.5.2",
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "node scripts/generate-sitemap.mjs && vite dev --port 3000",
     "generate-routes": "tsr generate",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.mjs && vite build",
     "start": "node ./.output/server/index.mjs",
     "preview": "vite preview",
     "test": "vitest run"

@@ -2,18 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { changelogEntries } from "#/changelog";
 import { Footer } from "#/components/marketing/footer";
 import { Nav } from "#/components/marketing/nav";
+import { seoHead } from "#/lib/seo";
 
 export const Route = createFileRoute("/changelog")({
-	head: () => ({
-		meta: [
-			{ title: "Changelog - Cascade" },
-			{
-				name: "description",
-				content: "See what's new in Cascade, the infinitely nested outliner.",
-			},
-		],
-		links: [{ rel: "canonical", href: "https://cascadelist.com/changelog" }],
-	}),
+	head: () =>
+		seoHead(
+			"Changelog - Cascade",
+			"See what's new in Cascade, the infinitely nested outliner.",
+			"/changelog",
+		),
 	component: Changelog,
 });
 

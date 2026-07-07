@@ -13,7 +13,7 @@ export function Features() {
 			<h2 className="mb-16 text-center font-serif text-5xl font-light">
 				Everything is a list.
 			</h2>
-			<div className="grid grid-cols-3 gap-14">
+			<div className="grid md:grid-cols-3 gap-14">
 				<FeatureCard
 					title="Infinite depth"
 					description="Nest as deep as your thoughts go. Every item is a list of its own, all the way down."
