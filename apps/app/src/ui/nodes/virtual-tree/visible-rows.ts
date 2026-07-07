@@ -1,4 +1,4 @@
-import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import type { VisibleNodeRow } from "@/core/nodes/node-types";
 
 /**
  * Pure splice helpers for the flat visible-rows array. Every function returns

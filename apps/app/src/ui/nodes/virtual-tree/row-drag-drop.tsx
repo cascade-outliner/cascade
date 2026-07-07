@@ -18,7 +18,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import type { VisibleNodeRow } from "@/core/nodes/node-types";
 import { createDragPreview } from "@/ui/nodes/drag-animation/drag-preview";
 import { nodeRowDomAttributes } from "@/ui/nodes/drag-animation/node-rows";
 import { NodeDragHandle } from "@/ui/nodes/node-drag-handle";

@@ -1,8 +1,7 @@
 "use no memo";
 
 import type { RefObject } from "react";
-import type { VisibleNodeRow } from "@/core/nodes/node.types";
-import type { NodeTypeName } from "@/core/nodes/node-types";
+import type { NodeTypeName, VisibleNodeRow } from "@/core/nodes/node-types";
 import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 import { NodeActions } from "@/ui/nodes/node-actions";
 import { NodeCheckbox } from "@/ui/nodes/node-checkbox";

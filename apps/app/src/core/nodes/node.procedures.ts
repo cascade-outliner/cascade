@@ -3,7 +3,7 @@ import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
 import { nodeColumns } from "@/core/nodes/node.queries";
 import { nodes } from "@/core/nodes/node.schema";
-import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import type { VisibleNodeRow } from "@/core/nodes/node-types";
 import {
 	type NodeTypeName,
 	typedMetadataSchema,

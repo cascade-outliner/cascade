@@ -1,5 +1,22 @@
 import { z } from "zod";
 
+/** One row of the flattened, depth-first visible tree (see nodes.visibleTree). */
+export interface VisibleNodeRow {
+	id: string;
+	parentId: string | null;
+	content: unknown;
+	type: NodeTypeName;
+	/** Per-type data; narrow via the `type` discriminant (see node-types.ts). */
+	metadata: unknown;
+	expanded: boolean;
+	order: string;
+	depth: number;
+	/** Fractional-index orders from the query root down to this node; DFS sort key. */
+	path: string[];
+	hasChildren: boolean;
+	isLastChild: boolean;
+}
+
 /**
  * Single source of truth for node types. Adding a type = one entry here plus
  * one member in `typedMetadataSchema` and a render branch in the tree row.

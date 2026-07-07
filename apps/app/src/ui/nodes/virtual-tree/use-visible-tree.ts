@@ -1,8 +1,7 @@
 import { toast } from "@cascade/ui/toast";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRef } from "react";
-import type { VisibleNodeRow } from "@/core/nodes/node.types";
-import type { TypedMetadata } from "@/core/nodes/node-types";
+import type { TypedMetadata, VisibleNodeRow } from "@/core/nodes/node-types";
 import { client, orpc } from "@/orpc/client";
 import {
 	appendRow,
