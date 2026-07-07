@@ -2,6 +2,7 @@ import { authClient } from "@cascade/auth/client";
 import { Button } from "@cascade/ui/button";
 import { Input } from "@cascade/ui/input";
 import { ArrowRightIcon } from "@phosphor-icons/react";
+import { GithubLogoIcon } from "@phosphor-icons/react/ssr";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Footer } from "#/components/marketing/footer";
@@ -43,6 +44,10 @@ function Register() {
 		window.location.href = appUrl;
 	}
 
+	async function handleGithub() {
+		await authClient.signIn.social({ provider: "github", callbackURL: appUrl });
+	}
+
 	return (
 		<>
 			<Nav />
@@ -50,6 +55,19 @@ function Register() {
 				<h1 className="mb-8 text-center font-serif text-4xl italic">
 					Create an account
 				</h1>
+				<button
+					type="button"
+					onClick={handleGithub}
+					className="cursor-pointer mb-6 flex w-full items-center justify-center gap-2 rounded-full bg-dark-grey py-3 text-sm font-bold text-white"
+				>
+					<GithubLogoIcon className="size-4" weight="bold" />
+					Continue with GitHub
+				</button>
+				<div className="mb-6 flex items-center gap-3 text-xs text-graphite">
+					<hr className="grow border-graphite/30" />
+					or
+					<hr className="grow border-graphite/30" />
+				</div>
 				<form
 					method="post"
 					onSubmit={handleSubmit}
@@ -93,7 +111,7 @@ function Register() {
 				</form>
 				<p className="mt-8 text-center text-sm text-graphite">
 					Already have an account?
-					<Link to="/login" className="font-bold text-redleather">
+					<Link to="/login" className="font-bold text-redleather pl-1">
 						Log in
 					</Link>
 				</p>
