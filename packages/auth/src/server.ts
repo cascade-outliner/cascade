@@ -25,6 +25,12 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
+	socialProviders: {
+		github: {
+			clientId: process.env.BETTER_AUTH_GITHUB_CLIENT_ID as string,
+			clientSecret: process.env.BETTER_AUTH_GITHUB_CLIENT_SECRET as string,
+		},
+	},
 	trustedOrigins: [
 		"http://localhost:3000",
 		"http://localhost:3001",

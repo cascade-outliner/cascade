@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-08
+- Added several oauth providers
+
 ## 2026-07-07
 - Added authentication allowing users to log in with their personal accounts
 
