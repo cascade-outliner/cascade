@@ -1,3 +1,4 @@
+import { PreAlphaBanner } from "@cascade/ui/pre-alpha-banner";
 import { Toaster } from "@cascade/ui/toast";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { getSession } from "@/auth/session";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
-import { SettingsProvider } from "@/ui/settings-context";
+import { SettingsProvider, useSettings } from "@/ui/settings-context";
 import { UserMenu } from "@/ui/user-menu";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
@@ -92,6 +93,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
 				<SettingsProvider>
+					<AppPreAlphaBanner />
 					<Toaster>
 						{children}
 						<UserMenu />
@@ -114,5 +116,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<Scripts />
 			</body>
 		</html>
+	);
+}
+
+function AppPreAlphaBanner() {
+	const { settings, setSetting } = useSettings();
+
+	if (settings.preAlphaBannerDismissed) return null;
+
+	return (
+		<PreAlphaBanner
+			onDismiss={() => setSetting("preAlphaBannerDismissed", true)}
+		/>
 	);
 }

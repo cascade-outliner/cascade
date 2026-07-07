@@ -7,6 +7,7 @@ interface Settings {
 	dark: boolean;
 	indentSize: number;
 	lastSeenChangelogId: string | null;
+	preAlphaBannerDismissed: boolean;
 }
 
 function defaults(): Settings {
@@ -16,6 +17,7 @@ function defaults(): Settings {
 			matchMedia("(prefers-color-scheme: dark)").matches,
 		indentSize: 16,
 		lastSeenChangelogId: null,
+		preAlphaBannerDismissed: false,
 	};
 }
 
