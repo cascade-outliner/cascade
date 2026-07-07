@@ -139,6 +139,33 @@ export function VirtualTree({
 		});
 	};
 
+	const focusRow = (id: string) => {
+		const container = scrollRef.current;
+		if (!container) return;
+		const tryFocus = () => {
+			const target = findNodeRow(container, id)?.querySelector<HTMLElement>(
+				"[data-node-focus-target]",
+			);
+			target?.focus();
+			return !!target;
+		};
+		if (!tryFocus()) requestAnimationFrame(tryFocus);
+	};
+
+	const handleFocusNeighbor = (id: string, direction: 1 | -1) => {
+		const index = tree.rows.findIndex((row) => row.id === id);
+		if (index === -1) return;
+		const target = tree.rows[index + direction];
+		if (!target) return;
+		virtualizer.scrollToIndex(index + direction, { align: "auto" });
+		if (editingNodeId === id) {
+			setFocusPoint(null);
+			setEditingNodeId(target.id);
+		} else {
+			focusRow(target.id);
+		}
+	};
+
 	return (
 		<div ref={scrollRef} className="h-dvh overflow-auto">
 			<div className="max-w-6xl mx-auto px-4 py-12 sm:py-32">
@@ -203,6 +230,8 @@ export function VirtualTree({
 									onDeleteEmpty={() => handleDeleteEmpty(row.id)}
 									onIndent={() => handleIndent(row.id)}
 									onOutdent={() => handleOutdent(row.id)}
+									onFocusNext={() => handleFocusNeighbor(row.id, 1)}
+									onFocusPrevious={() => handleFocusNeighbor(row.id, -1)}
 									onMoveDrop={handleMoveDrop}
 									previewRef={previewRef}
 								/>

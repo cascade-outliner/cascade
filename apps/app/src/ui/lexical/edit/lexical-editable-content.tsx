@@ -5,6 +5,8 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
 	$getRoot,
 	COMMAND_PRIORITY_HIGH,
+	KEY_ARROW_DOWN_COMMAND,
+	KEY_ARROW_UP_COMMAND,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
 	KEY_TAB_COMMAND,
@@ -21,6 +23,8 @@ interface EditableContentProps {
 	onDeleteEmpty?: () => void;
 	onIndent?: () => void;
 	onOutdent?: () => void;
+	onFocusNext?: () => void;
+	onFocusPrevious?: () => void;
 }
 
 /** Cross-browser caret lookup for a screen point (Firefox lacks caretRangeFromPoint). */
@@ -42,6 +46,8 @@ export function EditableContent({
 	onDeleteEmpty,
 	onIndent,
 	onOutdent,
+	onFocusNext,
+	onFocusPrevious,
 }: EditableContentProps) {
 	const [editor] = useLexicalComposerContext();
 	const lastSavedRef = useRef<string | null>(null);
@@ -68,6 +74,12 @@ export function EditableContent({
 
 	const onOutdentRef = useRef(onOutdent);
 	onOutdentRef.current = onOutdent;
+
+	const onFocusNextRef = useRef(onFocusNext);
+	onFocusNextRef.current = onFocusNext;
+
+	const onFocusPreviousRef = useRef(onFocusPrevious);
+	onFocusPreviousRef.current = onFocusPrevious;
 
 	useEffect(() => {
 		return editor.registerCommand(
@@ -107,6 +119,34 @@ export function EditableContent({
 				if ($getRoot().getTextContent() !== "") return false;
 				event?.preventDefault();
 				onDeleteEmptyRef.current();
+				return true;
+			},
+			COMMAND_PRIORITY_HIGH,
+		);
+	}, [editor]);
+
+	useEffect(() => {
+		return editor.registerCommand(
+			KEY_ARROW_DOWN_COMMAND,
+			(event) => {
+				if (!event?.shiftKey || !onFocusNextRef.current) return false;
+				event.preventDefault();
+				saveRef.current();
+				onFocusNextRef.current();
+				return true;
+			},
+			COMMAND_PRIORITY_HIGH,
+		);
+	}, [editor]);
+
+	useEffect(() => {
+		return editor.registerCommand(
+			KEY_ARROW_UP_COMMAND,
+			(event) => {
+				if (!event?.shiftKey || !onFocusPreviousRef.current) return false;
+				event.preventDefault();
+				saveRef.current();
+				onFocusPreviousRef.current();
 				return true;
 			},
 			COMMAND_PRIORITY_HIGH,

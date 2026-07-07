@@ -20,6 +20,8 @@ interface NodeEditorProps {
 	onDeleteEmpty?: () => void;
 	onIndent?: () => void;
 	onOutdent?: () => void;
+	onFocusNext?: () => void;
+	onFocusPrevious?: () => void;
 }
 
 export function NodeEditor({
@@ -34,6 +36,8 @@ export function NodeEditor({
 	onDeleteEmpty,
 	onIndent,
 	onOutdent,
+	onFocusNext,
+	onFocusPrevious,
 }: NodeEditorProps) {
 	if (editing) {
 		return (
@@ -47,6 +51,8 @@ export function NodeEditor({
 				onDeleteEmpty={onDeleteEmpty}
 				onIndent={onIndent}
 				onOutdent={onOutdent}
+				onFocusNext={onFocusNext}
+				onFocusPrevious={onFocusPrevious}
 			/>
 		);
 	}
@@ -57,12 +63,22 @@ export function NodeEditor({
 			role="button"
 			tabIndex={0}
 			aria-label="Edit node text"
+			data-node-focus-target
 			className="cursor-text text-left flex-1 min-w-0"
 			onClick={(event) => onStartEdit({ x: event.clientX, y: event.clientY })}
 			onKeyDown={(event) => {
 				if (event.key === "Enter" || event.key === " ") {
 					event.preventDefault();
 					onStartEdit();
+					return;
+				}
+				if (!event.shiftKey) return;
+				if (event.key === "ArrowDown") {
+					event.preventDefault();
+					onFocusNext?.();
+				} else if (event.key === "ArrowUp") {
+					event.preventDefault();
+					onFocusPrevious?.();
 				}
 			}}
 		>

@@ -13,6 +13,8 @@ export interface LexicalEditViewProps {
 	onDeleteEmpty?: () => void;
 	onIndent?: () => void;
 	onOutdent?: () => void;
+	onFocusNext?: () => void;
+	onFocusPrevious?: () => void;
 }
 
 export function LexicalEditView({
@@ -25,6 +27,8 @@ export function LexicalEditView({
 	onDeleteEmpty,
 	onIndent,
 	onOutdent,
+	onFocusNext,
+	onFocusPrevious,
 }: LexicalEditViewProps) {
 	return (
 		<LexicalComposer
@@ -42,6 +46,8 @@ export function LexicalEditView({
 				onDeleteEmpty={onDeleteEmpty}
 				onIndent={onIndent}
 				onOutdent={onOutdent}
+				onFocusNext={onFocusNext}
+				onFocusPrevious={onFocusPrevious}
 			/>
 		</LexicalComposer>
 	);

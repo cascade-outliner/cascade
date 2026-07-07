@@ -32,6 +32,8 @@ export interface VirtualTreeRowProps {
 	onDeleteEmpty: () => void;
 	onIndent: () => void;
 	onOutdent: () => void;
+	onFocusNext: () => void;
+	onFocusPrevious: () => void;
 	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
 	previewRef: RefObject<ActiveDragPreview | null>;
 }
@@ -90,6 +92,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							onDeleteEmpty={props.onDeleteEmpty}
 							onIndent={props.onIndent}
 							onOutdent={props.onOutdent}
+							onFocusNext={props.onFocusNext}
+							onFocusPrevious={props.onFocusPrevious}
 						/>
 					</div>
 				</NodeActions>
