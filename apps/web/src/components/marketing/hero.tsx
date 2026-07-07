@@ -15,7 +15,7 @@ export function Hero() {
 			<div className="flex flex-col items-center gap-3.5">
 				<Button
 					// biome-ignore lint/a11y/useAnchorContent: content is supplied as Button's children and composed onto the anchor by Base UI's render prop
-					render={<a href="https://app.cascadelist.com/" />}
+					render={<a href="/register" />}
 					icon={<ArrowRightIcon className="size-4" weight="bold" />}
 				>
 					Try Cascade; it&rsquo;s free

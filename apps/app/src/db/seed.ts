@@ -1,9 +1,33 @@
 import { randomUUID } from "node:crypto";
 import { createInterface } from "node:readline/promises";
+import { user } from "@cascade/auth/schema";
+import { auth } from "@cascade/auth/server";
 import { faker } from "@faker-js/faker";
+import { eq } from "drizzle-orm";
 import { generateNKeysBetween } from "fractional-indexing";
 import { nodes } from "@/core/nodes/node.schema";
 import { db } from "@/db";
+
+const DEV_USER = {
+	email: "dev@cascadelist.com",
+	password: "password1234",
+	name: "Dev User",
+};
+
+async function ensureDevUser(): Promise<string> {
+	const existing = await db
+		.select({ id: user.id })
+		.from(user)
+		.where(eq(user.email, DEV_USER.email));
+	if (existing.length > 0) return existing[0].id;
+
+	await auth.api.signUpEmail({ body: DEV_USER });
+	const [created] = await db
+		.select({ id: user.id })
+		.from(user)
+		.where(eq(user.email, DEV_USER.email));
+	return created.id;
+}
 
 const config = {
 	roots: 25, // number of root nodes
@@ -12,6 +36,7 @@ const config = {
 };
 
 async function promptConfig() {
+	if (!process.stdin.isTTY) return;
 	const rl = createInterface({ input: process.stdin, output: process.stdout });
 	for (const key of Object.keys(config) as Array<keyof typeof config>) {
 		const answer = await rl.question(`${key} [${config[key]}]: `);
@@ -109,15 +134,17 @@ const BATCH_SIZE = 5000; // postgres bind-param limit is ~65535; 5 cols * 5000 =
 type Row = {
 	id: string;
 	parentId: string | null;
+	userId: string;
 	content: ReturnType<typeof textToLexicalContent>;
 	order: string;
 };
 
-function buildRow(parentId: string | null, order: string): Row {
+function buildRow(parentId: string | null, order: string, userId: string): Row {
 	const text = faker.lorem.sentences({ min: 1, max: 2 });
 	return {
 		id: randomUUID(),
 		parentId,
+		userId,
 		content: textToLexicalContent(text),
 		order,
 	};
@@ -125,12 +152,12 @@ function buildRow(parentId: string | null, order: string): Row {
 
 // Yields rows lazily (BFS over the tree) instead of collecting them all in
 // memory, since holding millions of nodes at once OOMs the process.
-function* buildTree(): Generator<Row> {
+function* buildTree(userId: string): Generator<Row> {
 	const rootOrders = generateNKeysBetween(null, null, config.roots);
 	const queue: Array<{ parentId: string; depth: number }> = [];
 
 	for (let i = 0; i < config.roots; i++) {
-		const row = buildRow(null, rootOrders[i]);
+		const row = buildRow(null, rootOrders[i], userId);
 		yield row;
 		queue.push({ parentId: row.id, depth: config.maxDepth - 1 });
 	}
@@ -142,7 +169,7 @@ function* buildTree(): Generator<Row> {
 		const count = faker.number.int({ min: 1, max: config.maxChildren });
 		const orders = generateNKeysBetween(null, null, count);
 		for (let i = 0; i < count; i++) {
-			const row = buildRow(parentId, orders[i]);
+			const row = buildRow(parentId, orders[i], userId);
 			yield row;
 			queue.push({ parentId: row.id, depth: depth - 1 });
 		}
@@ -159,7 +186,8 @@ function expectedNodeCount(): number {
 
 async function main() {
 	await promptConfig();
-	await db.delete(nodes);
+	const userId = await ensureDevUser();
+	await db.delete(nodes).where(eq(nodes.userId, userId));
 
 	console.log(`expected ~${expectedNodeCount()} nodes`);
 
@@ -168,7 +196,7 @@ async function main() {
 	let buffer: Row[] = [];
 	let done = 0;
 
-	for (const row of buildTree()) {
+	for (const row of buildTree(userId)) {
 		buffer.push(row);
 		if (buffer.length >= BATCH_SIZE) {
 			await db.insert(nodes).values(buffer);
@@ -188,6 +216,7 @@ async function main() {
 	}
 
 	console.log(`Seeded ${done} nodes.`);
+	console.log(`Sign in as ${DEV_USER.email} / ${DEV_USER.password}`);
 	process.exit(0);
 }
 

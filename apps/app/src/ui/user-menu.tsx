@@ -1,12 +1,14 @@
 import { Dialog, Menu, NumberField, Switch, Tabs } from "@base-ui/react";
+import { authClient } from "@cascade/auth/client";
 import { cva } from "@cascade/ui/cva.config";
 import {
 	GearIcon,
 	MinusIcon,
 	PlusIcon,
-	UserCircleIcon,
+	SignOutIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
+import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import { changelogEntries, latestChangelogId } from "@/changelog";
 import {
@@ -48,10 +50,54 @@ const tabTrigger = cva({
 	],
 });
 
+function initials(name: string, email: string): string {
+	const source = name.trim() || email;
+	const parts = source.split(/\s+/).filter(Boolean);
+	if (parts.length >= 2) {
+		return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+	}
+	return source.slice(0, 2).toUpperCase();
+}
+
+function Avatar({
+	user,
+	className,
+}: {
+	user: { name: string; email: string; image?: string | null };
+	className?: string;
+}) {
+	if (user.image) {
+		return (
+			<img
+				src={user.image}
+				alt=""
+				referrerPolicy="no-referrer"
+				className={`rounded-full object-cover ${className ?? ""}`}
+			/>
+		);
+	}
+	return (
+		<span
+			aria-hidden="true"
+			className={`flex items-center justify-center rounded-full bg-redleather/10 text-xs font-semibold text-redleather ${className ?? ""}`}
+		>
+			{initials(user.name, user.email)}
+		</span>
+	);
+}
+
+const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
+
 export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const { settings, setSetting } = useSettings();
+	const { user } = useRouteContext({ from: "__root__" });
 	const hasUnseenChangelog = settings.lastSeenChangelogId !== latestChangelogId;
+
+	async function handleSignOut() {
+		await authClient.signOut();
+		window.location.href = `${webUrl}/login`;
+	}
 
 	return (
 		<div className="fixed top-4 right-4 z-50">
@@ -60,7 +106,7 @@ export function UserMenu() {
 					aria-label="User menu"
 					className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-dark-grey/10 bg-white text-dark-grey shadow-md shadow-dark-grey/15 outline-none select-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:bg-ginger/70 dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger dark:hover:bg-ginger/20 dark:data-popup-open:bg-ginger/20"
 				>
-					<UserCircleIcon size={22} weight="bold" />
+					<Avatar user={user} className="size-8" />
 				</Menu.Trigger>
 				<Menu.Portal>
 					<Menu.Positioner
@@ -81,6 +127,10 @@ export function UserMenu() {
 										className="ml-auto size-1.5 rounded-full bg-redleather"
 									/>
 								)}
+							</Menu.Item>
+							<Menu.Item className={item()} onClick={handleSignOut}>
+								<SignOutIcon size={14} weight="bold" />
+								Sign out
 							</Menu.Item>
 						</Menu.Popup>
 					</Menu.Positioner>
@@ -113,6 +163,9 @@ export function UserMenu() {
 							<Tabs.List className="mb-4 flex gap-4 border-b border-dark-grey/10 dark:border-ginger/15">
 								<Tabs.Tab value="general" className={tabTrigger()}>
 									General
+								</Tabs.Tab>
+								<Tabs.Tab value="user" className={tabTrigger()}>
+									User
 								</Tabs.Tab>
 								<Tabs.Tab value="changelog" className={tabTrigger()}>
 									Changelog
@@ -170,6 +223,27 @@ export function UserMenu() {
 										</NumberField.Group>
 									</NumberField.Root>
 								</div>
+							</Tabs.Panel>
+							<Tabs.Panel value="user">
+								<div className="flex items-center gap-3">
+									<Avatar user={user} className="size-12" />
+									<div className="min-w-0">
+										<div className="truncate text-sm font-semibold">
+											{user.name}
+										</div>
+										<div className="truncate text-sm text-dark-grey/60 dark:text-ginger/60">
+											{user.email}
+										</div>
+									</div>
+								</div>
+								<button
+									type="button"
+									onClick={handleSignOut}
+									className="mt-4 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm text-redleather outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+								>
+									<SignOutIcon size={14} weight="bold" />
+									Sign out
+								</button>
 							</Tabs.Panel>
 							<Tabs.Panel
 								value="changelog"

@@ -1,13 +1,15 @@
 import { Dialog } from "@base-ui/react";
 import { ArrowUpRightIcon, ListIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
+import { appUrl } from "#/lib/app-url";
 
 function NavLinks() {
 	return (
 		<>
 			<Link to="/changelog">Changelog</Link>
+			<Link to="/login">Log in</Link>
 			<a
-				href="https://app.cascadelist.com/"
+				href={appUrl}
 				className="font-bold text-redleather inline-flex items-center gap-2"
 			>
 				Open app <ArrowUpRightIcon size={24} />
