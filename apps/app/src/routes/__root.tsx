@@ -79,7 +79,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="bg-ginger text-dark-grey dark:bg-dark-grey dark:text-ginger">
+			<body className="bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
 				<SettingsProvider>
 					<Toaster>
 						{children}

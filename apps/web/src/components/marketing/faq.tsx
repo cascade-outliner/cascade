@@ -19,7 +19,7 @@ const faqs = [
 export function Faq() {
 	return (
 		<section className="mx-auto max-w-3xl px-8 py-26">
-			<h2 className="mb-12 text-center font-serif text-6xl font-light">
+			<h2 className="mb-12 text-center font-serif text-4xl md:text-6xl font-light">
 				Questions
 			</h2>
 			<div className="flex flex-col">

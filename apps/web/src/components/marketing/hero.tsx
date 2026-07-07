@@ -4,7 +4,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react";
 export function Hero() {
 	return (
 		<header className="mx-auto max-w-4xl px-8 pt-24 pb-18 text-center">
-			<h1 className="mb-6 text-balance font-serif text-[68px] leading-[1.05] font-light tracking-[-0.02em]">
+			<h1 className="mb-6 text-balance font-serif text-5xl md:text-[68px] leading-[1.05] font-light tracking-[-0.02em]">
 				A quieter place to think in lists.
 			</h1>
 			<p className="mx-auto mb-12 max-w-lg text-pretty text-lg text-graphite">

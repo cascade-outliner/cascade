@@ -5,7 +5,7 @@ import { HeartIcon } from "@phosphor-icons/react/ssr";
 export function Footer() {
 	return (
 		<footer className="mx-auto max-w-3xl px-8 pt-6 pb-12 text-center">
-			<h2 className="mb-16 font-serif text-6xl font-light italic">
+			<h2 className="mb-16 font-serif text-4xl md:text-6xl font-light italic">
 				One list to rule them all.
 			</h2>
 			<div className="flex justify-center">

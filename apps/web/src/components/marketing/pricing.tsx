@@ -6,7 +6,7 @@ export function Pricing() {
 	return (
 		<section id="pricing" className="bg-ginger">
 			<div className="mx-auto max-w-3xl px-8 py-24 text-center">
-				<h2 className="mb-5 font-serif text-6xl font-light inline-flex justify-start">
+				<h2 className="mb-5 font-serif text-4xl md:text-6xl font-light inline-flex justify-start">
 					Free.
 					<AsteriskIcon size={24} weight="thin" />
 				</h2>

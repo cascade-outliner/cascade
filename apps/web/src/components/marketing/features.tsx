@@ -10,7 +10,7 @@ export function Features() {
 			<div className="flex flex-col items-center pb-4">
 				<WavesIcon className="fill-redleather" size={64} weight="thin" />
 			</div>
-			<h2 className="mb-16 text-center font-serif text-5xl font-light">
+			<h2 className="mb-16 text-center font-serif text-4xl md:text-5xl font-light">
 				Everything is a list.
 			</h2>
 			<div className="grid md:grid-cols-3 gap-14">

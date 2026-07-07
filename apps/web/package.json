@@ -15,6 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@cascade/theme": "workspace:*",
     "@cascade/ui": "workspace:*",
     "@fontsource-variable/bitter": "^5.2.10",
