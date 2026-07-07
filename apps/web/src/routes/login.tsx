@@ -47,8 +47,6 @@ function Login() {
 			<Nav />
 			<main className="mx-auto max-w-sm px-8 pt-16 pb-24 min-h-128">
 				<h1 className="mb-8 text-center font-serif text-4xl italic">Log in</h1>
-				{/* method="post" keeps credentials out of the URL if the form is
-				    somehow submitted before hydration */}
 				<form
 					method="post"
 					onSubmit={handleSubmit}
@@ -83,7 +81,7 @@ function Login() {
 					</Button>
 				</form>
 				<p className="mt-8 text-center text-sm text-graphite">
-					No account yet?{" "}
+					No account yet?
 					<Link to="/register" className="font-bold text-redleather">
 						Create one
 					</Link>

@@ -50,8 +50,6 @@ function Register() {
 				<h1 className="mb-8 text-center font-serif text-4xl italic">
 					Create an account
 				</h1>
-				{/* method="post" keeps credentials out of the URL if the form is
-				    somehow submitted before hydration */}
 				<form
 					method="post"
 					onSubmit={handleSubmit}
@@ -94,7 +92,7 @@ function Register() {
 					</Button>
 				</form>
 				<p className="mt-8 text-center text-sm text-graphite">
-					Already have an account?{" "}
+					Already have an account?
 					<Link to="/login" className="font-bold text-redleather">
 						Log in
 					</Link>
