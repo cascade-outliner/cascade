@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./cva.config": "./src/cva.config.ts",
+    "./sound": "./src/sound.ts",
     "./*": "./src/*.tsx"
   },
   "peerDependencies": {

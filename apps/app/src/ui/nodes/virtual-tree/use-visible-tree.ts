@@ -3,6 +3,7 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import type { VisibleNodeRow } from "@/core/nodes/node.types";
 import type { TypedMetadata } from "@/core/nodes/node-types";
+import { sound } from "@/lib/sound";
 import { client, orpc } from "@/orpc/client";
 import {
 	appendRow,
@@ -112,6 +113,7 @@ export function useVisibleTree(rootId: string | null) {
 		commit(() => setRows((rows) => removeSubtree(rows, id)));
 		try {
 			const { childrenDeleted } = await client.nodes.delete({ id });
+			sound.play("success");
 			toast.success(
 				childrenDeleted > 0
 					? `Node deleted along with ${childrenDeleted} child node${childrenDeleted === 1 ? "" : "s"}`
@@ -151,6 +153,7 @@ export function useVisibleTree(rootId: string | null) {
 		commit: (splice: () => void) => void = (splice) => splice(),
 	) => {
 		const created = await client.nodes.create({ parentId: rootId });
+		sound.play("click");
 		commit(() =>
 			setRows((rows) =>
 				appendRow(rows, {
@@ -182,6 +185,7 @@ export function useVisibleTree(rootId: string | null) {
 			parentId: sibling.parentId,
 			afterId,
 		});
+		sound.play("click");
 		commit(() =>
 			setRows((rows) =>
 				insertRowAfter(rows, afterId, {

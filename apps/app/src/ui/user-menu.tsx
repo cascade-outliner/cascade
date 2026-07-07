@@ -137,6 +137,17 @@ export function UserMenu() {
 									</Switch.Root>
 								</div>
 								<div className="mt-3 flex items-center justify-between text-sm">
+									Sound effects
+									<Switch.Root
+										aria-label="Sound effects"
+										checked={settings.soundEnabled}
+										onCheckedChange={(next) => setSetting("soundEnabled", next)}
+										className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
+									>
+										<Switch.Thumb className="block size-4 rounded-full bg-white transition-transform data-checked:translate-x-4" />
+									</Switch.Root>
+								</div>
+								<div className="mt-3 flex items-center justify-between text-sm">
 									Indent size
 									<NumberField.Root
 										aria-label="Indent size"

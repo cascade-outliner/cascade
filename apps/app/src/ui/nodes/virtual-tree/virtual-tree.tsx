@@ -6,6 +6,7 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { nodeTypeDefs, type TypedMetadata } from "@/core/nodes/node-types";
+import { sound } from "@/lib/sound";
 import type { DragPreviewHandle } from "@/ui/nodes/drag-animation/drag-preview";
 import { findNodeRow } from "@/ui/nodes/drag-animation/node-rows";
 import type { FocusPoint } from "@/ui/nodes/node-editor";
@@ -119,6 +120,7 @@ export function VirtualTree({
 		const newParent = tree.rows.find((row) => row.id === target.parentId);
 		const expandParentId =
 			newParent && !newParent.expanded ? newParent.id : undefined;
+		sound.play("click");
 		animateTreeChange(container, () =>
 			tree.move(id, target, { expandParentId }),
 		);
@@ -128,6 +130,7 @@ export function VirtualTree({
 		const container = scrollRef.current;
 		const target = findOutdentTarget(tree.rows, id);
 		if (!container || !target) return;
+		sound.play("click");
 		animateTreeChange(container, () => tree.move(id, target));
 	};
 
@@ -183,12 +186,13 @@ export function VirtualTree({
 											metadata: nodeTypeDefs[type].defaultMetadata,
 										} as TypedMetadata)
 									}
-									onToggleTask={(completed) =>
+									onToggleTask={(completed) => {
+										if (completed) sound.play("complete");
 										tree.setType(row.id, {
 											type: "task",
 											metadata: { completed },
-										})
-									}
+										});
+									}}
 									onDelete={() => {
 										const container = scrollRef.current;
 										tree.remove(row.id, (splice) => {

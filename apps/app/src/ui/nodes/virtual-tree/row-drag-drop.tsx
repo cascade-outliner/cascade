@@ -19,6 +19,7 @@ import {
 	useState,
 } from "react";
 import type { VisibleNodeRow } from "@/core/nodes/node.types";
+import { sound } from "@/lib/sound";
 import { createDragPreview } from "@/ui/nodes/drag-animation/drag-preview";
 import { nodeRowDomAttributes } from "@/ui/nodes/drag-animation/node-rows";
 import { NodeDragHandle } from "@/ui/nodes/node-drag-handle";
@@ -87,6 +88,7 @@ export function RowDragAndDrop({
 				getInitialData: (): DragData => ({ nodeId: id }),
 				onGenerateDragPreview: disableNativeDragPreview,
 				onDragStart: ({ location }) => {
+					sound.play("pickup");
 					const { clientX, clientY } = location.current.input;
 					const range = subtreeRange(latest.current.rows, id);
 					const descendantIds = range
@@ -154,6 +156,7 @@ export function RowDragAndDrop({
 						return;
 					}
 
+					sound.play("drop");
 					if (inst.type === "reorder-above") {
 						drop(dragged, {
 							position: "before",
