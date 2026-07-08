@@ -1,7 +1,7 @@
 {
   "name": "cascade-monorepo",
   "private": true,
-  "packageManager": "pnpm@11.5.2",
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
     "dev": "pnpm --filter app --filter web --parallel run dev",
     "-----": "--------------------------",
@@ -35,7 +35,7 @@
     "check": "biome check"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.5"
+    "@biomejs/biome": "2.5.3"
   },
   "engines": {
     "node": ">=22.0.0"
