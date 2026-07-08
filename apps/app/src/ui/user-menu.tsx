@@ -307,9 +307,13 @@ export function UserMenu() {
 						<AlertDialog.Title className="text-lg font-semibold">
 							Delete account
 						</AlertDialog.Title>
-						<AlertDialog.Description className="mt-2 text-sm text-dark-grey/60 dark:text-ginger/60">
-							This permanently deletes your account and all of your lists. This
-							action can't be undone.
+						<AlertDialog.Description className="mt-2 text-sm text-dark-grey dark:text-ginger">
+							This permanently deletes your account and all information we have,
+							like your nodes.
+							<p className="text-redleather font-medium pt-4">
+								This action is final, there is absolutely no way of restoring
+								your information!
+							</p>
 						</AlertDialog.Description>
 						<div className="mt-6 flex justify-end gap-2">
 							<AlertDialog.Close
