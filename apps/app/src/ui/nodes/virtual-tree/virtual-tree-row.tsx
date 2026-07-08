@@ -1,7 +1,11 @@
 "use no memo";
 
 import type { RefObject } from "react";
-import type { NodeTypeName, VisibleNodeRow } from "@/core/nodes/node-types";
+import type {
+	NodeMetadataOf,
+	NodeTypeName,
+	VisibleNodeRow,
+} from "@/core/nodes/node-types";
 import type { LexicalElementNode } from "@/ui/lexical/read/lexical-read-view";
 import { NodeActions } from "@/ui/nodes/node-actions";
 import { NodeCheckbox } from "@/ui/nodes/node-checkbox";
@@ -81,6 +85,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							id={row.id}
 							content={row.content}
 							editing={props.editing}
+							completed={
+								row.type === "task" &&
+								((row.metadata as NodeMetadataOf<"task"> | null)?.completed ??
+									false)
+							}
 							focusPoint={props.focusPoint}
 							onStartEdit={props.onStartEdit}
 							onExit={props.onExitEdit}
