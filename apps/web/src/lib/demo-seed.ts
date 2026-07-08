@@ -41,8 +41,14 @@ function toRow(
 	};
 }
 
-/** Depth-first visible rows for a sibling group, skipping collapsed subtrees. */
-function collectVisible(
+/**
+ * Flattens the whole seed tree depth-first, regardless of each node's
+ * intended `expanded` state — every node is always in this array so the
+ * demo can switch which node is the current "root" without re-fetching.
+ * Each row still carries its intended `expanded` flag; view-time filtering
+ * (see use-demo-tree.ts's `visibleRowsForRoot`) decides what's shown.
+ */
+function collectAll(
 	nodes: SeedNode[],
 	parentId: string | null,
 	depth: number,
@@ -50,28 +56,11 @@ function collectVisible(
 	const rows: VisibleNodeRow[] = [];
 	nodes.forEach((node, index) => {
 		rows.push(toRow(node, parentId, depth, index, index === nodes.length - 1));
-		if ((node.expanded ?? true) && node.children?.length) {
-			rows.push(...collectVisible(node.children, node.id, depth + 1));
+		if (node.children?.length) {
+			rows.push(...collectAll(node.children, node.id, depth + 1));
 		}
 	});
 	return rows;
-}
-
-/**
- * Descendant rows for every node with children, depth-relative to that node
- * (as a real `visibleTree({ rootId: id })` call would return), so expanding a
- * collapsed node can splice its subtree in without an actual fetch.
- */
-function collectSubtreeCache(
-	nodes: SeedNode[],
-	cache: Map<string, VisibleNodeRow[]>,
-): void {
-	for (const node of nodes) {
-		if (node.children?.length) {
-			cache.set(node.id, collectVisible(node.children, node.id, 0));
-			collectSubtreeCache(node.children, cache);
-		}
-	}
 }
 
 const demoSeedTree: SeedNode[] = [
@@ -121,10 +110,4 @@ const demoSeedTree: SeedNode[] = [
 	},
 ];
 
-export const demoInitialRows = collectVisible(demoSeedTree, null, 0);
-
-export const demoSubtreeCache = (() => {
-	const cache = new Map<string, VisibleNodeRow[]>();
-	collectSubtreeCache(demoSeedTree, cache);
-	return cache;
-})();
+export const demoAllNodes = collectAll(demoSeedTree, null, 0);
