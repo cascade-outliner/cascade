@@ -1,12 +1,19 @@
 import { WarningIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { twMerge } from "tailwind-merge";
 
 export interface PreAlphaBannerProps {
 	onDismiss?: () => void;
+	sticky?: boolean;
 }
 
-export function PreAlphaBanner({ onDismiss }: PreAlphaBannerProps) {
+export function PreAlphaBanner({ onDismiss, sticky }: PreAlphaBannerProps) {
 	return (
-		<div className="bg-ginger py-2 text-center text-dark-grey text-sm">
+		<div
+			className={twMerge(
+				"bg-ginger py-2 text-center text-dark-grey text-sm",
+				sticky && "fixed top-0 w-full z-50",
+			)}
+		>
 			<div className="relative mx-auto flex max-w-3xl items-center justify-center gap-2 px-10">
 				<WarningIcon size={16} weight="fill" className="text-redleather" />
 				<span>

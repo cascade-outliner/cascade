@@ -150,10 +150,7 @@ export function VirtualTree({
 	return (
 		<div ref={scrollRef} className={twMerge("h-dvh overflow-auto", className)}>
 			<div
-				className={twMerge(
-					"max-w-6xl mx-auto px-4 py-12 sm:py-32",
-					contentClassName,
-				)}
+				className={twMerge("max-w-6xl mx-auto px-4 py-12", contentClassName)}
 			>
 				{header}
 				{tree.rows.length === 0 ? (

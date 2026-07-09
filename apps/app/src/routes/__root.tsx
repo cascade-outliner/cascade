@@ -126,6 +126,7 @@ function AppPreAlphaBanner() {
 
 	return (
 		<PreAlphaBanner
+			sticky={true}
 			onDismiss={() => setSetting("preAlphaBannerDismissed", true)}
 		/>
 	);
