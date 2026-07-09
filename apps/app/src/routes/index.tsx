@@ -31,6 +31,7 @@ function RootTree() {
 			indentSize={settings.indentSize}
 			renderNodeLink={(id) => <NodeLink id={id} />}
 			contentClassName="rr-block"
+			hideCompletedTasks={settings.hideCompletedTasks}
 		/>
 	);
 }

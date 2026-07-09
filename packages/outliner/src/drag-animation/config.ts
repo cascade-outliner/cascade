@@ -27,6 +27,7 @@ interface DragAnimationConfig {
 	displacement: Tween;
 	enter: Tween & { offsetY: number; stagger: number };
 	leave: Tween & { scale: number };
+	completedHide: { delayMs: number };
 }
 
 /**
@@ -62,4 +63,7 @@ export const dragAnimationConfig = {
 
 	enter: { duration: 0.25, ease: "power2.out", offsetY: -8, stagger: 0.05 },
 	leave: { duration: 0.15, ease: "power1.in", scale: 0.96 },
+
+	/** Pause after a task is checked off before it auto-hides (see "hide completed tasks"). */
+	completedHide: { delayMs: 1200 },
 } as const satisfies DragAnimationConfig;

@@ -245,6 +245,19 @@ export function UserMenu() {
 										</NumberField.Group>
 									</NumberField.Root>
 								</div>
+								<div className="mt-3 flex items-center justify-between text-sm">
+									Hide completed tasks
+									<Switch.Root
+										aria-label="Hide completed tasks"
+										checked={settings.hideCompletedTasks}
+										onCheckedChange={(next) =>
+											setSetting("hideCompletedTasks", next)
+										}
+										className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
+									>
+										<Switch.Thumb className="block size-4 rounded-full bg-white transition-transform data-checked:translate-x-4" />
+									</Switch.Root>
+								</div>
 							</Tabs.Panel>
 							<Tabs.Panel value="user">
 								<div className="flex items-center gap-3">

@@ -89,6 +89,7 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 			renderNodeLink={(id) => <NodeLink id={id} />}
 			header={header}
 			contentClassName="rr-block"
+			hideCompletedTasks={settings.hideCompletedTasks}
 		/>
 	);
 }

@@ -2,15 +2,20 @@
 
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { Button } from "@cascade/ui/button";
-import { PlusIcon } from "@phosphor-icons/react";
+import { EyeIcon, EyeSlashIcon, PlusIcon } from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { dragAnimationConfig } from "../drag-animation/config";
 import type { DragPreviewHandle } from "../drag-animation/drag-preview";
 import { findNodeRow } from "../drag-animation/node-rows";
 import type { FocusPoint } from "../node-editor";
-import { nodeTypeDefs, type TypedMetadata } from "../node-types";
+import {
+	type NodeMetadataOf,
+	nodeTypeDefs,
+	type TypedMetadata,
+} from "../node-types";
 import type { VisibleTree } from "../tree-types";
 import { animateNodeRemoval, animateTreeChange } from "./flip-displacement";
 import { VirtualTreeRow } from "./virtual-tree-row";
@@ -34,6 +39,7 @@ export function VirtualTree({
 	header,
 	className,
 	contentClassName,
+	hideCompletedTasks = false,
 }: {
 	tree: VisibleTree;
 	indentSize?: number;
@@ -43,18 +49,101 @@ export function VirtualTree({
 	className?: string;
 	/** Overrides the inner content wrapper's default max-width/padding. */
 	contentClassName?: string;
+	/** Auto-hide completed task nodes a short while after they're checked off. */
+	hideCompletedTasks?: boolean;
 }) {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const previewRef = useRef<ActiveDragPreview | null>(null);
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
 
+	const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
+	const [showHidden, setShowHidden] = useState(false);
+	const hiddenIdsRef = useRef(hiddenIds);
+	const pendingHideTimers = useRef(
+		new Map<string, ReturnType<typeof setTimeout>>(),
+	);
+
+	useEffect(() => {
+		hiddenIdsRef.current = hiddenIds;
+	}, [hiddenIds]);
+
+	// Schedule/cancel the delayed auto-hide for completed task rows, and drop
+	// hidden/pending state for rows that got unchecked or deleted.
+	useEffect(() => {
+		const timers = pendingHideTimers.current;
+		const rowIds = new Set(tree.rows.map((row) => row.id));
+		const toReveal: string[] = [];
+
+		for (const [id, timer] of timers) {
+			if (!rowIds.has(id)) {
+				clearTimeout(timer);
+				timers.delete(id);
+			}
+		}
+
+		for (const row of tree.rows) {
+			const completed =
+				row.type === "task" &&
+				((row.metadata as NodeMetadataOf<"task"> | null)?.completed ?? false);
+			const shouldHide = completed && hideCompletedTasks;
+
+			if (shouldHide) {
+				if (!hiddenIdsRef.current.has(row.id) && !timers.has(row.id)) {
+					const timer = setTimeout(() => {
+						timers.delete(row.id);
+						const reveal = () =>
+							setHiddenIds((prev) => new Set(prev).add(row.id));
+						const container = scrollRef.current;
+						if (container) {
+							animateNodeRemoval(container, row.id, reveal);
+						} else {
+							reveal();
+						}
+					}, dragAnimationConfig.completedHide.delayMs);
+					timers.set(row.id, timer);
+				}
+			} else {
+				const timer = timers.get(row.id);
+				if (timer) {
+					clearTimeout(timer);
+					timers.delete(row.id);
+				}
+				if (hiddenIdsRef.current.has(row.id)) toReveal.push(row.id);
+			}
+		}
+
+		for (const id of hiddenIdsRef.current) {
+			if (!rowIds.has(id)) toReveal.push(id);
+		}
+
+		if (toReveal.length > 0) {
+			setHiddenIds((prev) => {
+				const next = new Set(prev);
+				for (const id of toReveal) next.delete(id);
+				return next;
+			});
+		}
+	}, [tree.rows, hideCompletedTasks]);
+
+	useEffect(() => {
+		const timers = pendingHideTimers.current;
+		return () => {
+			for (const timer of timers.values()) clearTimeout(timer);
+			timers.clear();
+		};
+	}, []);
+
+	const visibleRows = showHidden
+		? tree.rows
+		: tree.rows.filter((row) => !hiddenIds.has(row.id));
+
 	const virtualizer = useVirtualizer({
-		count: tree.rows.length,
+		count: visibleRows.length,
 		getScrollElement: () => scrollRef.current,
 		estimateSize: () => 36,
 		overscan: 10,
-		getItemKey: (index) => tree.rows[index]?.id ?? index,
+		getItemKey: (index) => visibleRows[index]?.id ?? index,
 	});
 
 	useEffect(() => {
@@ -152,10 +241,30 @@ export function VirtualTree({
 			<div
 				className={twMerge("max-w-6xl mx-auto px-4 py-16", contentClassName)}
 			>
+				<button
+					type="button"
+					onClick={() => setShowHidden((prev) => !prev)}
+					disabled={hiddenIds.size === 0 && !showHidden}
+					aria-pressed={showHidden}
+					className="mb-4 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm text-dark-grey/60 outline-none hover:bg-ginger/70 hover:text-dark-grey focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40 dark:text-ginger/60 dark:hover:bg-ginger/20 dark:hover:text-ginger"
+				>
+					{showHidden ? (
+						<EyeSlashIcon size={14} weight="bold" />
+					) : (
+						<EyeIcon size={14} weight="bold" />
+					)}
+					{showHidden ? "Hide completed" : "Show hidden"}
+					{hiddenIds.size > 0 ? ` (${hiddenIds.size})` : ""}
+				</button>
 				{header}
 				{tree.rows.length === 0 ? (
 					<p className="text-sm py-4">
 						This tree is empty. Add a node to get started.
+					</p>
+				) : visibleRows.length === 0 ? (
+					<p className="text-sm py-4">
+						All done! Completed tasks are hidden — click "Show hidden" to view
+						them.
 					</p>
 				) : (
 					<div
@@ -165,7 +274,7 @@ export function VirtualTree({
 						}}
 					>
 						{virtualItems.map((virtualItem) => {
-							const row = tree.rows[virtualItem.index];
+							const row = visibleRows[virtualItem.index];
 							if (!row) return null;
 							return (
 								<VirtualTreeRow

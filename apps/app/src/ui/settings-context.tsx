@@ -8,6 +8,7 @@ interface Settings {
 	indentSize: number;
 	lastSeenChangelogId: string | null;
 	preAlphaBannerDismissed: boolean;
+	hideCompletedTasks: boolean;
 }
 
 function defaults(): Settings {
@@ -18,6 +19,7 @@ function defaults(): Settings {
 		indentSize: 16,
 		lastSeenChangelogId: null,
 		preAlphaBannerDismissed: false,
+		hideCompletedTasks: false,
 	};
 }
 
