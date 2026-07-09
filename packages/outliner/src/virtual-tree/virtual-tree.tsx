@@ -2,18 +2,7 @@
 
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { Button } from "@cascade/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@cascade/ui/dropdown-menu";
-import {
-	DotsThreeVerticalIcon,
-	EyeIcon,
-	EyeSlashIcon,
-	PlusIcon,
-} from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -26,6 +15,7 @@ import {
 	type NodeMetadataOf,
 	nodeTypeDefs,
 	type TypedMetadata,
+	type VisibleNodeRow,
 } from "../node-types";
 import type { VisibleTree } from "../tree-types";
 import { animateNodeRemoval, animateTreeChange } from "./flip-displacement";
@@ -42,6 +32,13 @@ export interface ActiveDragPreview {
 }
 
 const LOAD_MORE_THRESHOLD = 50;
+
+function isCompletedTask(row: VisibleNodeRow): boolean {
+	return (
+		row.type === "task" &&
+		((row.metadata as NodeMetadataOf<"task"> | null)?.completed ?? false)
+	);
+}
 
 export function VirtualTree({
 	tree,
@@ -68,8 +65,17 @@ export function VirtualTree({
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
 
-	const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
-	const [showHidden, setShowHidden] = useState(false);
+	// Seeded from the initial data so rows that were already completed before
+	// this component mounted (e.g. on page load/refresh) start hidden right
+	// away — only tasks completed live during this session get the delay+fade.
+	const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => {
+		if (!hideCompletedTasks) return new Set();
+		const initial = new Set<string>();
+		for (const row of tree.rows) {
+			if (isCompletedTask(row)) initial.add(row.id);
+		}
+		return initial;
+	});
 	const hiddenIdsRef = useRef(hiddenIds);
 	const pendingHideTimers = useRef(
 		new Map<string, ReturnType<typeof setTimeout>>(),
@@ -94,10 +100,7 @@ export function VirtualTree({
 		}
 
 		for (const row of tree.rows) {
-			const completed =
-				row.type === "task" &&
-				((row.metadata as NodeMetadataOf<"task"> | null)?.completed ?? false);
-			const shouldHide = completed && hideCompletedTasks;
+			const shouldHide = isCompletedTask(row) && hideCompletedTasks;
 
 			if (shouldHide) {
 				if (!hiddenIdsRef.current.has(row.id) && !timers.has(row.id)) {
@@ -145,9 +148,7 @@ export function VirtualTree({
 		};
 	}, []);
 
-	const visibleRows = showHidden
-		? tree.rows
-		: tree.rows.filter((row) => !hiddenIds.has(row.id));
+	const visibleRows = tree.rows.filter((row) => !hiddenIds.has(row.id));
 
 	const virtualizer = useVirtualizer({
 		count: visibleRows.length,
@@ -252,32 +253,6 @@ export function VirtualTree({
 			<div
 				className={twMerge("max-w-6xl mx-auto px-4 py-16", contentClassName)}
 			>
-				<div className="mb-4 flex justify-end">
-					<DropdownMenu>
-						<DropdownMenuTrigger
-							aria-label="Tree view options"
-							className="flex cursor-pointer items-center justify-center rounded-md p-1.5 text-dark-grey/60 outline-none hover:bg-ginger/70 hover:text-dark-grey focus-visible:ring-2 focus-visible:ring-redleather/50 dark:text-ginger/60 dark:hover:bg-ginger/20 dark:hover:text-ginger"
-						>
-							<DotsThreeVerticalIcon size={16} weight="bold" />
-						</DropdownMenuTrigger>
-						<DropdownMenuContent>
-							<DropdownMenuItem
-								icon={
-									showHidden ? (
-										<EyeSlashIcon size={14} weight="bold" />
-									) : (
-										<EyeIcon size={14} weight="bold" />
-									)
-								}
-								disabled={hiddenIds.size === 0 && !showHidden}
-								onClick={() => setShowHidden((prev) => !prev)}
-							>
-								{showHidden ? "Hide completed" : "Show hidden"}
-								{hiddenIds.size > 0 ? ` (${hiddenIds.size})` : ""}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
 				{header}
 				{tree.rows.length === 0 ? (
 					<p className="text-sm py-4">
@@ -285,8 +260,8 @@ export function VirtualTree({
 					</p>
 				) : visibleRows.length === 0 ? (
 					<p className="text-sm py-4">
-						All done! Completed tasks are hidden — click "Show hidden" to view
-						them.
+						All done! Completed tasks are hidden — turn off "Hide completed
+						tasks" in Settings to view them.
 					</p>
 				) : (
 					<div
