@@ -30,6 +30,7 @@ function RootTree() {
 			tree={tree}
 			indentSize={settings.indentSize}
 			renderNodeLink={(id) => <NodeLink id={id} />}
+			contentClassName="rr-block"
 		/>
 	);
 }
