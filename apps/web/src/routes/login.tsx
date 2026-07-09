@@ -94,7 +94,7 @@ function Login() {
 				<form
 					method="post"
 					onSubmit={handleSubmit}
-					className="flex flex-col gap-4"
+					className="flex flex-col gap-4 rr-block"
 				>
 					<Input
 						label="Email"
