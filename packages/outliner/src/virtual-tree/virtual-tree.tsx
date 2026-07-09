@@ -2,7 +2,18 @@
 
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { Button } from "@cascade/ui/button";
-import { EyeIcon, EyeSlashIcon, PlusIcon } from "@phosphor-icons/react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@cascade/ui/dropdown-menu";
+import {
+	DotsThreeVerticalIcon,
+	EyeIcon,
+	EyeSlashIcon,
+	PlusIcon,
+} from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -241,21 +252,32 @@ export function VirtualTree({
 			<div
 				className={twMerge("max-w-6xl mx-auto px-4 py-16", contentClassName)}
 			>
-				<button
-					type="button"
-					onClick={() => setShowHidden((prev) => !prev)}
-					disabled={hiddenIds.size === 0 && !showHidden}
-					aria-pressed={showHidden}
-					className="mb-4 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm text-dark-grey/60 outline-none hover:bg-ginger/70 hover:text-dark-grey focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40 dark:text-ginger/60 dark:hover:bg-ginger/20 dark:hover:text-ginger"
-				>
-					{showHidden ? (
-						<EyeSlashIcon size={14} weight="bold" />
-					) : (
-						<EyeIcon size={14} weight="bold" />
-					)}
-					{showHidden ? "Hide completed" : "Show hidden"}
-					{hiddenIds.size > 0 ? ` (${hiddenIds.size})` : ""}
-				</button>
+				<div className="mb-4 flex justify-end">
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							aria-label="Tree view options"
+							className="flex cursor-pointer items-center justify-center rounded-md p-1.5 text-dark-grey/60 outline-none hover:bg-ginger/70 hover:text-dark-grey focus-visible:ring-2 focus-visible:ring-redleather/50 dark:text-ginger/60 dark:hover:bg-ginger/20 dark:hover:text-ginger"
+						>
+							<DotsThreeVerticalIcon size={16} weight="bold" />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem
+								icon={
+									showHidden ? (
+										<EyeSlashIcon size={14} weight="bold" />
+									) : (
+										<EyeIcon size={14} weight="bold" />
+									)
+								}
+								disabled={hiddenIds.size === 0 && !showHidden}
+								onClick={() => setShowHidden((prev) => !prev)}
+							>
+								{showHidden ? "Hide completed" : "Show hidden"}
+								{hiddenIds.size > 0 ? ` (${hiddenIds.size})` : ""}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 				{header}
 				{tree.rows.length === 0 ? (
 					<p className="text-sm py-4">
