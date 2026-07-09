@@ -10,6 +10,8 @@ const root = cva({
 		"focus-visible:ring-2 focus-visible:ring-redleather/50",
 		"data-checked:border-redleather data-checked:bg-redleather",
 		"data-disabled:cursor-default data-disabled:opacity-40 data-disabled:hover:border-dark-grey/25",
+		"dark:border-ginger/25 dark:hover:border-redleather",
+		"dark:data-disabled:hover:border-ginger/25",
 	],
 });
 
