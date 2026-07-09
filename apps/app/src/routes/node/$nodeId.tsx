@@ -88,7 +88,6 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 			indentSize={settings.indentSize}
 			renderNodeLink={(id) => <NodeLink id={id} />}
 			header={header}
-			contentClassName="rr-block"
 		/>
 	);
 }
