@@ -49,6 +49,12 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 	const invalidate = () =>
 		queryClient.invalidateQueries({ queryKey: options.queryKey });
 
+	/** Roll back a failed optimistic mutation and tell the user about it. */
+	const rollback = () => {
+		toast.error("Couldn't save your change");
+		return invalidate();
+	};
+
 	const toggle = async (
 		id: string,
 		expanded: boolean,
@@ -61,14 +67,14 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 				commit(() => setRows((rows) => expandNode(rows, id, subtree.rows)));
 				await client.nodes.toggleExpanded({ id, expanded: true });
 			} catch {
-				invalidate();
+				rollback();
 			}
 		} else {
 			commit(() => setRows((rows) => collapseNode(rows, id)));
 			try {
 				await client.nodes.toggleExpanded({ id, expanded: false });
 			} catch {
-				invalidate();
+				rollback();
 			}
 		}
 	};
@@ -101,10 +107,11 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 					? client.nodes.toggleExpanded({ id: expandParentId, expanded: true })
 					: null,
 			]);
-		} finally {
 			// Server-computed fractional order is authoritative; positions match,
 			// so this reconciliation is invisible unless a concurrent edit raced us.
 			invalidate();
+		} catch {
+			rollback();
 		}
 	};
 
@@ -121,7 +128,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 					: "Node deleted",
 			);
 		} catch {
-			invalidate();
+			rollback();
 		}
 	};
 
@@ -133,7 +140,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 			// Bust breadcrumbs to refresh its data
 			queryClient.invalidateQueries({ queryKey: orpc.nodes.ancestors.key() });
 		} catch {
-			invalidate();
+			rollback();
 		}
 	};
 
@@ -145,7 +152,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 		try {
 			await client.nodes.setType({ id, ...typed });
 		} catch {
-			invalidate();
+			rollback();
 		}
 	};
 
