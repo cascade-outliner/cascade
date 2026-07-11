@@ -28,9 +28,11 @@ export default defineConfig({
 	],
 	webServer: {
 		// `pnpm start` alone expects env vars from the deploy platform; locally
-		// they live in .env.local, same as `pnpm dev`.
+		// they live in .env.local, same as `pnpm dev`. In CI there's no
+		// .env.local at all — env vars come from the workflow directly — so use
+		// the "if-exists" variant rather than the hard-erroring `--env-file`.
 		command:
-			"pnpm build && node --env-file=.env.local .output/server/index.mjs",
+			"pnpm build && node --env-file-if-exists=.env.local .output/server/index.mjs",
 		url: "http://localhost:3001",
 		reuseExistingServer: !process.env.CI,
 		timeout: 120_000,
