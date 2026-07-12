@@ -21,6 +21,7 @@
     "@cascade/theme": "workspace:*",
     "@cascade/ui": "workspace:*",
     "@fontsource-variable/bitter": "^5.2.10",
+    "@inlang/paraglide-js": "2.21.0",
     "@phosphor-icons/react": "^2.1.10",
     "@t3-oss/env-core": "^0.13.11",
     "@tailwindcss/vite": "^4.3.2",
@@ -38,6 +39,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@inlang/plugin-message-format": "4.4.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tanstack/devtools-vite": "latest",
     "@tanstack/router-cli": "^1.167.18",

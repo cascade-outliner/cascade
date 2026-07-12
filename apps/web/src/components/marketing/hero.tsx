@@ -2,8 +2,10 @@ import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { Button } from "@cascade/ui/button";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { HouseIcon } from "@phosphor-icons/react/ssr";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useDemoTree } from "#/lib/use-demo-tree";
+import { m } from "#/paraglide/messages.js";
 
 function DemoBreadcrumbs({
 	ancestors,
@@ -13,13 +15,13 @@ function DemoBreadcrumbs({
 	onNavigate: (id: string | null) => void;
 }) {
 	return (
-		<nav aria-label="Breadcrumb" className="mb-4 text-sm">
+		<nav aria-label={m.hero_breadcrumb_nav_label()} className="mb-4 text-sm">
 			<ol className="flex items-center gap-1.5 flex-wrap">
 				<li className="flex items-center">
 					<button
 						type="button"
 						onClick={() => onNavigate(null)}
-						aria-label="Back to full outline"
+						aria-label={m.hero_breadcrumb_back_to_root()}
 						className="hover:text-redleather transition-colors"
 					>
 						<HouseIcon size={16} weight="bold" />
@@ -59,25 +61,23 @@ export function Hero() {
 	return (
 		<header className="mx-auto max-w-4xl px-8 pt-24 pb-18 text-center">
 			<h1 className="mb-6 text-balance font-serif text-5xl md:text-[68px] leading-[1.05] font-light tracking-[-0.02em]">
-				A quieter place to think in lists.
+				{m.hero_heading()}
 			</h1>
 			<p className="mx-auto mb-12 max-w-lg text-pretty text-lg text-graphite">
-				Cascade is an infinitely nested outliner.
+				{m.hero_subtitle_line1()}
 				<br />
-				One outline for all your notes.
+				{m.hero_subtitle_line2()}
 			</p>
 			<div className="flex flex-col items-center gap-3.5">
 				<Button
 					nativeButton={false}
 					// biome-ignore lint/a11y/useAnchorContent: content is supplied as Button's children and composed onto the anchor by Base UI's render prop
-					render={<a href="/register" />}
+					render={<Link to="/register" />}
 					icon={<ArrowRightIcon className="size-4" weight="bold" />}
 				>
-					Try Cascade; it&rsquo;s free
+					{m.hero_cta()}
 				</Button>
-				<p className="text-sm text-graphite">
-					Or try the outline below it&rsquo;s live, nothing is saved.
-				</p>
+				<p className="text-sm text-graphite">{m.hero_demo_hint()}</p>
 			</div>
 			<VirtualTree
 				tree={tree}
@@ -85,7 +85,7 @@ export function Hero() {
 				renderNodeLink={(id) => (
 					<button
 						type="button"
-						aria-label="Open node"
+						aria-label={m.hero_demo_open_node()}
 						onClick={() => setRootId(id)}
 						className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-dark-grey hover:bg-redleather shrink-0 hover:scale-150 hover:-z-10 transition-all ease-in-out"
 					/>
@@ -101,9 +101,7 @@ export function Hero() {
 				className="mt-10 h-[420px] overflow-auto rounded-2xl border border-dark-grey/10 bg-white text-left shadow-lg shadow-dark-grey/10"
 				contentClassName="max-w-none mx-0 px-6 py-6"
 			/>
-			<p className="mt-3 text-xs text-graphite">
-				This is just a taste the real app goes much further.
-			</p>
+			<p className="mt-3 text-xs text-graphite">{m.hero_demo_footer()}</p>
 		</header>
 	);
 }

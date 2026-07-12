@@ -8,6 +8,7 @@ import {
 } from "@base-ui/react";
 import { authClient } from "@cascade/auth/client";
 import { cva } from "@cascade/ui/cva.config";
+import { LanguageSwitcher } from "@cascade/ui/language-switcher";
 import { toast } from "@cascade/ui/toast";
 import {
 	GearIcon,
@@ -19,6 +20,13 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
+import { m } from "#/paraglide/messages.js";
+import {
+	getLocale,
+	type Locale,
+	locales,
+	setLocale,
+} from "#/paraglide/runtime.js";
 import { changelogEntries, latestChangelogId } from "@/changelog";
 import {
 	MAX_INDENT_SIZE,
@@ -115,7 +123,7 @@ export function UserMenu() {
 		const { error } = await authClient.deleteUser();
 		setIsDeleting(false);
 		if (error) {
-			toast.error(error.message ?? "Failed to delete account");
+			toast.error(error.message ?? m.user_menu_delete_failed());
 			return;
 		}
 		window.location.href = `${webUrl}/login`;
@@ -125,7 +133,7 @@ export function UserMenu() {
 		<div className="fixed top-4 right-8 z-50">
 			<Menu.Root>
 				<Menu.Trigger
-					aria-label="User menu"
+					aria-label={m.user_menu_trigger_label()}
 					className="flex size-12 cursor-pointer items-center justify-center rounded-full border border-dark-grey/10 bg-white text-dark-grey shadow-md shadow-dark-grey/15 outline-none select-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:bg-ginger/70 dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger dark:hover:bg-dark-grey dark:data-popup-open:bg-dark-grey"
 				>
 					<Avatar user={user} className="size-10" />
@@ -142,7 +150,7 @@ export function UserMenu() {
 								onClick={() => setSettingsOpen(true)}
 							>
 								<GearIcon size={14} weight="bold" />
-								Settings
+								{m.user_menu_settings()}
 								{hasUnseenChangelog && (
 									<span
 										aria-hidden="true"
@@ -152,7 +160,7 @@ export function UserMenu() {
 							</Menu.Item>
 							<Menu.Item className={item()} onClick={handleSignOut}>
 								<SignOutIcon size={14} weight="bold" />
-								Sign out
+								{m.user_menu_sign_out()}
 							</Menu.Item>
 						</Menu.Popup>
 					</Menu.Positioner>
@@ -165,10 +173,10 @@ export function UserMenu() {
 					<Dialog.Popup className="fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 scale-100 border-0 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out sm:right-auto sm:bottom-auto sm:h-auto sm:rounded-lg sm:border sm:border-dark-grey/10 dark:bg-dark-grey dark:text-ginger sm:dark:border-ginger/15">
 						<div className="mb-4 flex items-center justify-between">
 							<Dialog.Title className="text-lg font-semibold">
-								Settings
+								{m.user_menu_settings()}
 							</Dialog.Title>
 							<Dialog.Close
-								aria-label="Close settings"
+								aria-label={m.user_menu_close_settings()}
 								className="cursor-pointer rounded-md p-1 outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
 							>
 								<XIcon size={16} weight="bold" />
@@ -184,13 +192,13 @@ export function UserMenu() {
 						>
 							<Tabs.List className="mb-4 flex gap-4 border-b border-dark-grey/10 dark:border-ginger/15">
 								<Tabs.Tab value="general" className={tabTrigger()}>
-									General
+									{m.user_menu_general_tab()}
 								</Tabs.Tab>
 								<Tabs.Tab value="user" className={tabTrigger()}>
-									User
+									{m.user_menu_user_tab()}
 								</Tabs.Tab>
 								<Tabs.Tab value="changelog" className={tabTrigger()}>
-									Changelog
+									{m.user_menu_changelog_tab()}
 									{hasUnseenChangelog && (
 										<span
 											aria-hidden="true"
@@ -201,9 +209,9 @@ export function UserMenu() {
 							</Tabs.List>
 							<Tabs.Panel value="general">
 								<div className="flex items-center justify-between text-sm">
-									Dark mode
+									{m.user_menu_dark_mode()}
 									<Switch.Root
-										aria-label="Dark mode"
+										aria-label={m.user_menu_dark_mode()}
 										checked={settings.dark}
 										onCheckedChange={(next) => setSetting("dark", next)}
 										className="h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20"
@@ -212,9 +220,9 @@ export function UserMenu() {
 									</Switch.Root>
 								</div>
 								<div className="mt-3 flex items-center justify-between text-sm">
-									Indent size
+									{m.user_menu_indent_size()}
 									<NumberField.Root
-										aria-label="Indent size"
+										aria-label={m.user_menu_indent_size()}
 										value={settings.indentSize}
 										min={MIN_INDENT_SIZE}
 										max={MAX_INDENT_SIZE}
@@ -245,6 +253,14 @@ export function UserMenu() {
 										</NumberField.Group>
 									</NumberField.Root>
 								</div>
+								<div className="mt-3 flex items-center justify-between text-sm">
+									{m.user_menu_language()}
+									<LanguageSwitcher
+										locales={locales}
+										currentLocale={getLocale()}
+										onSelect={(locale) => setLocale(locale as Locale)}
+									/>
+								</div>
 							</Tabs.Panel>
 							<Tabs.Panel value="user">
 								<div className="flex items-center gap-3">
@@ -264,7 +280,7 @@ export function UserMenu() {
 									className="mt-4 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm text-redleather outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
 								>
 									<SignOutIcon size={14} weight="bold" />
-									Sign out
+									{m.user_menu_sign_out()}
 								</button>
 								<button
 									type="button"
@@ -272,7 +288,7 @@ export function UserMenu() {
 									className="mt-1 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm text-redleather outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
 								>
 									<TrashIcon size={14} weight="bold" />
-									Delete account
+									{m.user_menu_delete_account()}
 								</button>
 							</Tabs.Panel>
 							<Tabs.Panel
@@ -305,14 +321,12 @@ export function UserMenu() {
 					<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm transition-[opacity,backdrop-filter] duration-300 data-starting-style:opacity-0 data-starting-style:backdrop-blur-none data-ending-style:opacity-0 data-ending-style:backdrop-blur-none data-ending-style:duration-150" />
 					<AlertDialog.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 scale-100 rounded-lg border border-dark-grey/10 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 transition-[transform,opacity,scale] duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] outline-none data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-out dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger">
 						<AlertDialog.Title className="text-lg font-semibold">
-							Delete account
+							{m.user_menu_delete_account()}
 						</AlertDialog.Title>
 						<AlertDialog.Description className="mt-2 text-sm text-dark-grey dark:text-ginger">
-							This permanently deletes your account and all information we have,
-							like your nodes.
+							{m.user_menu_delete_confirm_body()}
 							<p className="text-redleather font-medium pt-4">
-								This action is final, there is absolutely no way of restoring
-								your information!
+								{m.user_menu_delete_confirm_warning()}
 							</p>
 						</AlertDialog.Description>
 						<div className="mt-6 flex justify-end gap-2">
@@ -320,7 +334,7 @@ export function UserMenu() {
 								disabled={isDeleting}
 								className="cursor-pointer rounded-md px-3 py-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40 dark:hover:bg-ginger/20"
 							>
-								Cancel
+								{m.user_menu_cancel()}
 							</AlertDialog.Close>
 							<button
 								type="button"
@@ -328,7 +342,9 @@ export function UserMenu() {
 								disabled={isDeleting}
 								className="cursor-pointer rounded-md bg-redleather px-3 py-1.5 text-sm text-super-ginger outline-none hover:bg-redleather/90 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40"
 							>
-								{isDeleting ? "Deleting…" : "Delete account"}
+								{isDeleting
+									? m.user_menu_deleting()
+									: m.user_menu_delete_account()}
 							</button>
 						</div>
 					</AlertDialog.Popup>

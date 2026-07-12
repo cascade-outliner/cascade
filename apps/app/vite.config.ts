@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -15,6 +16,13 @@ export default defineConfig({
 		exclude: ["**/node_modules/**", "**/e2e/**"],
 	},
 	plugins: [
+		paraglideVitePlugin({
+			project: "./project.inlang",
+			outdir: "./src/paraglide",
+			strategy: ["cookie", "preferredLanguage", "baseLocale"],
+			cookieName: "PARAGLIDE_LOCALE",
+			emitTsDeclarations: true,
+		}),
 		devtools(),
 		nitro(),
 		tailwindcss(),

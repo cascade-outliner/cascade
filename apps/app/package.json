@@ -26,6 +26,7 @@
     "@cascade/outliner": "workspace:*",
     "@cascade/theme": "workspace:*",
     "@cascade/ui": "workspace:*",
+    "@inlang/paraglide-js": "2.21.0",
     "@orpc/client": "^1.14.7",
     "@orpc/json-schema": "^1.14.7",
     "@orpc/openapi": "^1.14.7",
@@ -59,6 +60,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.5.0",
+    "@inlang/plugin-message-format": "4.4.0",
     "@playwright/test": "^1.61.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tailwindcss/typography": "^0.5.20",

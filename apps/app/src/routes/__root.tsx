@@ -1,3 +1,5 @@
+import { OutlinerLabelsProvider } from "@cascade/outliner/labels-context";
+import { defaultUiLabels, UiLabelsProvider } from "@cascade/ui/labels-context";
 import { Toaster } from "@cascade/ui/toast";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
@@ -8,6 +10,8 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { m } from "#/paraglide/messages.js";
+import { getLocale } from "#/paraglide/runtime.js";
 import { getSession } from "@/auth/session";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { SettingsProvider } from "@/ui/settings-context";
@@ -86,17 +90,43 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang={getLocale()} suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>
 			<body className="bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
-				<SettingsProvider>
-					<Toaster>
-						{children}
-						<UserMenu />
-					</Toaster>
-				</SettingsProvider>
+				<UiLabelsProvider
+					labels={{
+						...defaultUiLabels,
+						loading: m.ui_loading(),
+						dismissToast: m.ui_dismiss_toast(),
+					}}
+				>
+					<OutlinerLabelsProvider
+						labels={{
+							toggleExpand: m.outliner_toggle_expand(),
+							toggleCollapse: m.outliner_toggle_collapse(),
+							taskCompleted: m.outliner_task_completed(),
+							dragToReorder: m.outliner_drag_handle(),
+							editNodeText: m.outliner_edit_node_text(),
+							convertInto: m.outliner_convert_into(),
+							delete: m.outliner_delete(),
+							emptyTree: m.outliner_empty_tree(),
+							addNode: m.outliner_add_node(),
+							nodeTypeLabels: {
+								text: m.outliner_type_text(),
+								task: m.outliner_type_task(),
+							},
+						}}
+					>
+						<SettingsProvider>
+							<Toaster>
+								{children}
+								<UserMenu />
+							</Toaster>
+						</SettingsProvider>
+					</OutlinerLabelsProvider>
+				</UiLabelsProvider>
 				{import.meta.env.DEV && (
 					<TanStackDevtools
 						config={{

@@ -11,14 +11,10 @@ import { Nav } from "#/components/marketing/nav";
 import { appUrl } from "#/lib/app-url";
 import { oauthErrorMessage } from "#/lib/oauth-error";
 import { seoHead } from "#/lib/seo";
+import { m } from "#/paraglide/messages.js";
 
 export const Route = createFileRoute("/login")({
-	head: () =>
-		seoHead(
-			"Log in - Cascade",
-			"Log in to Cascade, the infinitely nested outliner.",
-			"/login",
-		),
+	head: () => seoHead(m.login_seo_title(), m.login_seo_description(), "/login"),
 	validateSearch: z.object({ error: z.string().optional() }),
 	component: Login,
 });
@@ -43,7 +39,7 @@ function Login() {
 
 		if (signInError) {
 			setSubmitting(false);
-			setError(signInError.message ?? "Something went wrong. Try again.");
+			setError(signInError.message ?? m.login_error_fallback());
 			return;
 		}
 		window.location.href = appUrl;
@@ -69,14 +65,16 @@ function Login() {
 		<>
 			<Nav />
 			<main className="mx-auto max-w-sm px-8 pt-16 pb-24 min-h-128">
-				<h1 className="mb-8 text-center font-serif text-4xl italic">Log in</h1>
+				<h1 className="mb-8 text-center font-serif text-4xl italic">
+					{m.login_heading()}
+				</h1>
 				<button
 					type="button"
 					onClick={handleGithub}
 					className="cursor-pointer mb-4 flex w-full items-center justify-center gap-2 rounded-full bg-dark-grey py-3 text-sm font-bold text-white"
 				>
 					<GithubLogoIcon className="size-4" weight="bold" />
-					Continue with GitHub
+					{m.login_continue_github()}
 				</button>
 				<button
 					type="button"
@@ -84,11 +82,11 @@ function Login() {
 					className="cursor-pointer mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-graphite/30 py-3 text-sm font-bold"
 				>
 					<GoogleLogoIcon className="size-4" weight="bold" />
-					Continue with Google
+					{m.login_continue_google()}
 				</button>
 				<div className="mb-6 flex items-center gap-3 text-xs text-graphite">
 					<hr className="grow border-graphite/30" />
-					or
+					{m.login_or()}
 					<hr className="grow border-graphite/30" />
 				</div>
 				<form
@@ -97,14 +95,14 @@ function Login() {
 					className="flex flex-col gap-4 rr-block"
 				>
 					<Input
-						label="Email"
+						label={m.login_email_label()}
 						name="email"
 						type="email"
 						autoComplete="email"
 						required
 					/>
 					<Input
-						label="Password"
+						label={m.login_password_label()}
 						name="password"
 						type="password"
 						autoComplete="current-password"
@@ -121,13 +119,13 @@ function Login() {
 						className="mt-2 self-center"
 						icon={<ArrowRightIcon className="size-4" weight="bold" />}
 					>
-						Log in
+						{m.login_submit()}
 					</Button>
 				</form>
 				<p className="mt-8 text-center text-sm text-graphite">
-					No account yet?
+					{m.login_no_account()}
 					<Link to="/register" className="font-bold text-redleather pl-1">
-						Create one
+						{m.login_create_one()}
 					</Link>
 				</p>
 			</main>

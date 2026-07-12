@@ -3,12 +3,13 @@ import { changelogEntries } from "#/changelog";
 import { Footer } from "#/components/marketing/footer";
 import { Nav } from "#/components/marketing/nav";
 import { seoHead } from "#/lib/seo";
+import { m } from "#/paraglide/messages.js";
 
 export const Route = createFileRoute("/changelog")({
 	head: () =>
 		seoHead(
-			"Changelog - Cascade",
-			"See what's new in Cascade, the infinitely nested outliner.",
+			m.changelog_seo_title(),
+			m.changelog_seo_description(),
 			"/changelog",
 		),
 	component: Changelog,
@@ -19,7 +20,9 @@ function Changelog() {
 		<>
 			<Nav />
 			<main className="mx-auto max-w-3xl p-8 min-h-128">
-				<h1 className="mb-8 font-serif text-4xl italic">Changelog</h1>
+				<h1 className="mb-8 font-serif text-4xl italic">
+					{m.changelog_heading()}
+				</h1>
 				{changelogEntries.map((entry) => (
 					<div key={entry.id} className="mb-8 last:mb-0">
 						<h2 className="mb-2 text-sm font-semibold text-dark-grey/60">

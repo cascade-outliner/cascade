@@ -1,5 +1,6 @@
 import { cva } from "@cascade/ui/cva.config";
 import { CaretRightIcon } from "@phosphor-icons/react";
+import { useOutlinerLabels } from "./labels-context";
 
 interface NodeToggleProps {
 	hasChildren: boolean;
@@ -22,13 +23,14 @@ export function NodeToggle({
 	expanded,
 	onToggle,
 }: NodeToggleProps) {
+	const labels = useOutlinerLabels();
 	return (
 		<>
 			{hasChildren ? (
 				<button
 					type="button"
 					onClick={() => onToggle(!expanded)}
-					aria-label={expanded ? "Collapse" : "Expand"}
+					aria-label={expanded ? labels.toggleCollapse : labels.toggleExpand}
 					aria-expanded={expanded}
 					className="cursor-pointer shrink-0 p-1 -m-1 text-dark-grey hover:text-redleather dark:text-ginger dark:hover:text-redleather transition-colors"
 				>
