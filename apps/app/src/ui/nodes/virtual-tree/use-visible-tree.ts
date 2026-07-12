@@ -16,6 +16,7 @@ import {
 import { toast } from "@cascade/ui/toast";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRef } from "react";
+import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
 
 interface VisibleTreeData {
@@ -117,8 +118,8 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 			const { childrenDeleted } = await client.nodes.delete({ id });
 			toast.success(
 				childrenDeleted > 0
-					? `Node deleted along with ${childrenDeleted} child node${childrenDeleted === 1 ? "" : "s"}`
-					: "Node deleted",
+					? m.node_deleted_with_children({ count: childrenDeleted })
+					: m.node_deleted(),
 			);
 		} catch {
 			invalidate();

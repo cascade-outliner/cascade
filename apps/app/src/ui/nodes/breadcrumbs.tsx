@@ -4,6 +4,7 @@ import { DotsThreeIcon, HouseIcon } from "@phosphor-icons/react/ssr";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { orpc } from "#/orpc/client";
+import { m } from "#/paraglide/messages.js";
 
 interface BreadcrumbsProps {
 	nodeId: string;
@@ -15,7 +16,7 @@ interface Crumb {
 }
 
 const crumbLabel = (crumb: Crumb) =>
-	lexicalToPlainText(crumb.content) || "Untitled";
+	lexicalToPlainText(crumb.content) || m.breadcrumbs_untitled();
 
 function CrumbLink({ crumb }: { crumb: Crumb }) {
 	return (
@@ -34,7 +35,7 @@ function CollapsedCrumbs({ crumbs }: { crumbs: Crumb[] }) {
 	return (
 		<Menu.Root>
 			<Menu.Trigger
-				aria-label={`Show ${crumbs.length} hidden breadcrumbs`}
+				aria-label={m.breadcrumbs_hidden_count({ count: crumbs.length })}
 				className="cursor-pointer rounded-md px-1 outline-none hover:text-redleather focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:text-redleather transition-colors"
 			>
 				<DotsThreeIcon size={16} weight="bold" />
@@ -84,13 +85,13 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 	const tail = collapse ? ancestors.slice(-1) : [];
 
 	return (
-		<nav aria-label="Breadcrumb" className="mb-4 text-sm">
+		<nav aria-label={m.breadcrumbs_nav_label()} className="mb-4 text-sm">
 			<ol className="flex items-center gap-1.5 flex-wrap">
 				<li className="flex items-center">
 					<Link
 						to="/"
 						viewTransition
-						aria-label="Home"
+						aria-label={m.breadcrumbs_home_label()}
 						className="hover:text-redleather transition-colors"
 					>
 						<HouseIcon size={16} weight="bold" />

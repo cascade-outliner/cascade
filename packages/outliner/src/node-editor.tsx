@@ -1,3 +1,4 @@
+import { useOutlinerLabels } from "./labels-context";
 import { LexicalEditView } from "./lexical/edit/lexical-edit-view";
 import { toLexicalContent } from "./lexical/lexical-content";
 import type { LexicalElementNode } from "./lexical/read/lexical-read-view";
@@ -41,6 +42,7 @@ export function NodeEditor({
 	onFocusNext,
 	onFocusPrevious,
 }: NodeEditorProps) {
+	const labels = useOutlinerLabels();
 	if (editing) {
 		return (
 			<LexicalEditView
@@ -64,7 +66,7 @@ export function NodeEditor({
 		<div
 			role="button"
 			tabIndex={0}
-			aria-label="Edit node text"
+			aria-label={labels.editNodeText}
 			data-node-focus-target
 			className={`cursor-text text-left flex-1 min-w-0 rr-block ${completed ? "line-through text-graphite dark:text-super-ginger/30" : ""}`}
 			onClick={(event) => onStartEdit({ x: event.clientX, y: event.clientY })}

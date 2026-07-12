@@ -11,14 +11,11 @@ import { Nav } from "#/components/marketing/nav";
 import { appUrl } from "#/lib/app-url";
 import { oauthErrorMessage } from "#/lib/oauth-error";
 import { seoHead } from "#/lib/seo";
+import { m } from "#/paraglide/messages.js";
 
 export const Route = createFileRoute("/register")({
 	head: () =>
-		seoHead(
-			"Create an account - Cascade",
-			"Create a free Cascade account and start outlining.",
-			"/register",
-		),
+		seoHead(m.register_seo_title(), m.register_seo_description(), "/register"),
 	validateSearch: z.object({ error: z.string().optional() }),
 	component: Register,
 });
@@ -44,7 +41,7 @@ function Register() {
 
 		if (signUpError) {
 			setSubmitting(false);
-			setError(signUpError.message ?? "Something went wrong. Try again.");
+			setError(signUpError.message ?? m.register_error_fallback());
 			return;
 		}
 		window.location.href = appUrl;
@@ -71,7 +68,7 @@ function Register() {
 			<Nav />
 			<main className="mx-auto max-w-sm px-8 pt-16 pb-24 min-h-128">
 				<h1 className="mb-8 text-center font-serif text-4xl italic">
-					Create an account
+					{m.register_heading()}
 				</h1>
 				<button
 					type="button"
@@ -79,7 +76,7 @@ function Register() {
 					className="cursor-pointer mb-4 flex w-full items-center justify-center gap-2 rounded-full bg-dark-grey py-3 text-sm font-bold text-white"
 				>
 					<GithubLogoIcon className="size-4" weight="bold" />
-					Continue with GitHub
+					{m.login_continue_github()}
 				</button>
 				<button
 					type="button"
@@ -87,11 +84,11 @@ function Register() {
 					className="cursor-pointer mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-graphite/30 py-3 text-sm font-bold"
 				>
 					<GoogleLogoIcon className="size-4" weight="bold" />
-					Continue with Google
+					{m.login_continue_google()}
 				</button>
 				<div className="mb-6 flex items-center gap-3 text-xs text-graphite">
 					<hr className="grow border-graphite/30" />
-					or
+					{m.login_or()}
 					<hr className="grow border-graphite/30" />
 				</div>
 				<form
@@ -100,21 +97,21 @@ function Register() {
 					className="flex flex-col gap-4 rr-block"
 				>
 					<Input
-						label="Name"
+						label={m.register_name_label()}
 						name="name"
 						type="text"
 						autoComplete="name"
 						required
 					/>
 					<Input
-						label="Email"
+						label={m.register_email_label()}
 						name="email"
 						type="email"
 						autoComplete="email"
 						required
 					/>
 					<Input
-						label="Password"
+						label={m.register_password_label()}
 						name="password"
 						type="password"
 						autoComplete="new-password"
@@ -132,13 +129,13 @@ function Register() {
 						className="mt-2 self-center"
 						icon={<ArrowRightIcon className="size-4" weight="bold" />}
 					>
-						Create account
+						{m.register_submit()}
 					</Button>
 				</form>
 				<p className="mt-8 text-center text-sm text-graphite">
-					Already have an account?
+					{m.register_have_account()}
 					<Link to="/login" className="font-bold text-redleather pl-1">
-						Log in
+						{m.register_login_link()}
 					</Link>
 				</p>
 			</main>

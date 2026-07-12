@@ -7,6 +7,7 @@ import {
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import { cva } from "./cva.config";
+import { useUiLabels } from "./labels-context";
 
 type ToastType = "success" | "error" | "warning" | "info";
 
@@ -80,6 +81,7 @@ const content = cva({
 
 function ToastList() {
 	const { toasts } = Toast.useToastManager();
+	const labels = useUiLabels();
 
 	return toasts.map((item) => (
 		<Toast.Root
@@ -96,7 +98,7 @@ function ToastList() {
 					<Toast.Description className="text-sm text-dark-grey" />
 				</div>
 				<Toast.Close
-					aria-label="Dismiss"
+					aria-label={labels.dismissToast}
 					className="shrink-0 cursor-pointer rounded p-1 text-dark-grey outline-none hover:bg-dark-grey/5 "
 				>
 					<XIcon size={16} className="text-dark-grey" />

@@ -11,6 +11,7 @@ import {
 } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
 import { useMemo, useState } from "react";
+import { m } from "#/paraglide/messages.js";
 import { demoAllNodes } from "./demo-seed";
 
 function newRow(
@@ -90,7 +91,7 @@ export function useDemoTree(rootId: string | null) {
 		while (current) {
 			chain.unshift({
 				id: current.id,
-				label: lexicalToPlainText(current.content) || "Untitled",
+				label: lexicalToPlainText(current.content) || m.untitled_node(),
 			});
 			const parentId: string | null = current.parentId;
 			current =
@@ -118,7 +119,7 @@ export function useDemoTree(rootId: string | null) {
 
 	const remove: VisibleTree["remove"] = (id, commit = (splice) => splice()) => {
 		commit(() => setAllNodes((current) => removeSubtree(current, id)));
-		toast.success("Node deleted");
+		toast.success(m.node_deleted());
 	};
 
 	const updateContent: VisibleTree["updateContent"] = (id, content) => {

@@ -16,7 +16,8 @@
 			"**/playwright.config.ts",
 			"!**/src/routeTree.gen.ts",
 			"!**/src/styles.css",
-			"!**/e2e/.auth/**/*"
+			"!**/e2e/.auth/**/*",
+			"!**/src/paraglide"
 		]
 	},
 	"formatter": {

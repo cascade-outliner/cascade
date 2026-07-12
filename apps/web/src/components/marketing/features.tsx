@@ -1,5 +1,6 @@
 import { WavesIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
+import { m } from "#/paraglide/messages.js";
 
 const kbdClassName =
 	"rounded-md border border-dark-grey/18 border-b-2 bg-[#fffcf9] px-2.5 py-1 font-mono text-xs";
@@ -11,12 +12,12 @@ export function Features() {
 				<WavesIcon className="fill-redleather" size={64} weight="thin" />
 			</div>
 			<h2 className="mb-16 text-center font-serif text-4xl md:text-5xl font-light">
-				Everything is a list.
+				{m.features_heading()}
 			</h2>
 			<div className="grid md:grid-cols-3 gap-14">
 				<FeatureCard
-					title="Infinite depth"
-					description="Nest as deep as your thoughts go. Every item is a list of its own, all the way down."
+					title={m.feature_infinite_depth_title()}
+					description={m.feature_infinite_depth_description()}
 				>
 					<div className="flex h-12 flex-col justify-center gap-2">
 						<div className="flex items-center gap-2">
@@ -34,8 +35,8 @@ export function Features() {
 					</div>
 				</FeatureCard>
 				<FeatureCard
-					title="Collapse the noise"
-					description="Fold away everything you’re not working on and give one branch your full attention."
+					title={m.feature_collapse_noise_title()}
+					description={m.feature_collapse_noise_description()}
 				>
 					<div className="flex h-12 items-center gap-3.5">
 						<span className="size-1.5 rounded-full bg-ginger" />
@@ -44,8 +45,8 @@ export function Features() {
 					</div>
 				</FeatureCard>
 				<FeatureCard
-					title="Keyboard-first"
-					description="Capture, reorder, and restructure without your hands leaving the home row."
+					title={m.feature_keyboard_first_title()}
+					description={m.feature_keyboard_first_description()}
 				>
 					<div className="flex h-12 items-center gap-2">
 						<span className={kbdClassName}>Tab</span>

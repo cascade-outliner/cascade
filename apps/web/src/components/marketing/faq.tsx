@@ -1,26 +1,16 @@
+import { m } from "#/paraglide/messages.js";
+
 const faqs = [
-	{
-		question: "Is it really free?",
-		answer:
-			"Yes. Cascade is free to use while we develop the application, in the future we may introduce paid features, but the core experience will remain free.",
-	},
-	{
-		question: "How is it different from other outliners?",
-		answer:
-			"Right now, we're focusing on perfecting the basics, so it feels very similar to existing tools. We're in active development, though, and have some exciting, unique features on the horizon!",
-	},
-	{
-		question: "Does it work on my phone?",
-		answer:
-			"Cascade runs in the browser, so it works anywhere a browser does including your phone. An independent app is possible in the future.",
-	},
+	{ question: m.faq_q1_question(), answer: m.faq_q1_answer() },
+	{ question: m.faq_q2_question(), answer: m.faq_q2_answer() },
+	{ question: m.faq_q3_question(), answer: m.faq_q3_answer() },
 ];
 
 export function Faq() {
 	return (
 		<section className="mx-auto max-w-3xl px-8 py-26">
 			<h2 className="mb-12 text-center font-serif text-4xl md:text-6xl font-light">
-				Questions
+				{m.faq_heading()}
 			</h2>
 			<div className="flex flex-col">
 				{faqs.map((faq, i) => (

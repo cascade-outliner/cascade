@@ -1,16 +1,17 @@
+import { OutlinerLabelsProvider } from "@cascade/outliner/labels-context";
+import { defaultUiLabels, UiLabelsProvider } from "@cascade/ui/labels-context";
 import { PreAlphaBanner } from "@cascade/ui/pre-alpha-banner";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { seoHead } from "#/lib/seo";
+import { m } from "#/paraglide/messages.js";
+import { getLocale, getTextDirection } from "#/paraglide/runtime.js";
 
 import "@fontsource-variable/bitter/wght-italic.css";
 import appCss from "../styles.css?url";
 
-const home = seoHead(
-	"Cascade - a quieter place to think in lists",
-	"Cascade is an infinitely nested outliner. One outline for everything.",
-);
+const home = seoHead(m.home_seo_title(), m.home_seo_description());
 
 export const Route = createRootRoute({
 	head: () => ({
@@ -49,13 +50,40 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html lang={getLocale()} dir={getTextDirection()}>
 			<head>
 				<HeadContent />
 			</head>
 			<body className="bg-super-ginger text-dark-grey">
-				<PreAlphaBanner />
-				{children}
+				<UiLabelsProvider
+					labels={{
+						...defaultUiLabels,
+						preAlphaBannerPrefix: m.ui_pre_alpha_prefix(),
+						preAlphaBannerEmphasis: m.ui_pre_alpha_emphasis(),
+						preAlphaBannerSuffix: m.ui_pre_alpha_suffix(),
+					}}
+				>
+					<OutlinerLabelsProvider
+						labels={{
+							toggleExpand: m.outliner_toggle_expand(),
+							toggleCollapse: m.outliner_toggle_collapse(),
+							taskCompleted: m.outliner_task_completed(),
+							dragToReorder: m.outliner_drag_handle(),
+							editNodeText: m.outliner_edit_node_text(),
+							convertInto: m.outliner_convert_into(),
+							delete: m.outliner_delete(),
+							emptyTree: m.outliner_empty_tree(),
+							addNode: m.outliner_add_node(),
+							nodeTypeLabels: {
+								text: m.outliner_type_text(),
+								task: m.outliner_type_task(),
+							},
+						}}
+					>
+						<PreAlphaBanner />
+						{children}
+					</OutlinerLabelsProvider>
+				</UiLabelsProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

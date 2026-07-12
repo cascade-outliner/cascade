@@ -3,6 +3,7 @@ import {
 	defaultStreamHandler,
 } from "@tanstack/react-start/server";
 import { FastResponse } from "srvx";
+import { paraglideMiddleware } from "./paraglide/server.js";
 
 globalThis.Response = FastResponse;
 
@@ -16,7 +17,9 @@ const securityHeaders: Record<string, string> = {
 
 export default {
 	async fetch(request: Request): Promise<Response> {
-		const response = await startHandler(request);
+		const response = await paraglideMiddleware(request, () =>
+			startHandler(request),
+		);
 		for (const [key, value] of Object.entries(securityHeaders)) {
 			response.headers.set(key, value);
 		}

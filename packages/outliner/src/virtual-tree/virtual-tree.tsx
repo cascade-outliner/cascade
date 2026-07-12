@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import type { DragPreviewHandle } from "../drag-animation/drag-preview";
 import { findNodeRow } from "../drag-animation/node-rows";
+import { useOutlinerLabels } from "../labels-context";
 import type { FocusPoint } from "../node-editor";
 import { nodeTypeDefs, type TypedMetadata } from "../node-types";
 import type { VisibleTree } from "../tree-types";
@@ -48,6 +49,7 @@ export function VirtualTree({
 	const previewRef = useRef<ActiveDragPreview | null>(null);
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
+	const labels = useOutlinerLabels();
 
 	const virtualizer = useVirtualizer({
 		count: tree.rows.length,
@@ -181,9 +183,7 @@ export function VirtualTree({
 			>
 				{header}
 				{tree.rows.length === 0 ? (
-					<p className="text-sm py-4">
-						This tree is empty. Add a node to get started.
-					</p>
+					<p className="text-sm py-4">{labels.emptyTree}</p>
 				) : (
 					<div
 						style={{
@@ -265,7 +265,7 @@ export function VirtualTree({
 					}}
 					className="mt-4 mb-4"
 				>
-					Add node
+					{labels.addNode}
 				</Button>
 			</div>
 		</div>

@@ -1,0 +1,60 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"error_generic_heading": "Er is iets misgegaan",
+	"error_generic_body": "Er is een onverwachte fout opgetreden. Probeer het opnieuw en herlaad de pagina als dit blijft gebeuren.",
+	"error_generic_retry": "Opnieuw proberen",
+	"user_menu_trigger_label": "Gebruikersmenu",
+	"user_menu_settings": "Instellingen",
+	"user_menu_close_settings": "Instellingen sluiten",
+	"user_menu_general_tab": "Algemeen",
+	"user_menu_user_tab": "Gebruiker",
+	"user_menu_changelog_tab": "Changelog",
+	"user_menu_dark_mode": "Donkere modus",
+	"user_menu_indent_size": "Inspringgrootte",
+	"user_menu_language": "Taal",
+	"user_menu_sign_out": "Uitloggen",
+	"user_menu_delete_account": "Account verwijderen",
+	"user_menu_delete_confirm_body": "Dit verwijdert permanent je account en alle informatie die we hebben, zoals je nodes.",
+	"user_menu_delete_confirm_warning": "Deze actie is definitief, er is geen enkele manier om je informatie te herstellen!",
+	"user_menu_cancel": "Annuleren",
+	"user_menu_deleting": "Bezig met verwijderen…",
+	"user_menu_delete_failed": "Account verwijderen mislukt",
+	"breadcrumbs_nav_label": "Kruimelpad",
+	"breadcrumbs_home_label": "Start",
+	"breadcrumbs_untitled": "Naamloos",
+	"breadcrumbs_hidden_count": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Toon {count} verborgen kruimelpad",
+				"countPlural=other": "Toon {count} verborgen kruimelpaden"
+			}
+		}
+	],
+	"node_link_open": "Node openen",
+	"node_deleted": "Node verwijderd",
+	"node_deleted_with_children": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Node verwijderd samen met {count} onderliggende node",
+				"countPlural=other": "Node verwijderd samen met {count} onderliggende nodes"
+			}
+		}
+	],
+	"outliner_toggle_expand": "Uitklappen",
+	"outliner_toggle_collapse": "Inklappen",
+	"outliner_task_completed": "Taak voltooid",
+	"outliner_drag_handle": "Sleep om te herschikken",
+	"outliner_edit_node_text": "Nodetekst bewerken",
+	"outliner_convert_into": "Omzetten naar",
+	"outliner_delete": "Verwijderen",
+	"outliner_empty_tree": "Deze boomstructuur is leeg. Voeg een node toe om te beginnen.",
+	"outliner_add_node": "Node toevoegen",
+	"outliner_type_text": "Tekst",
+	"outliner_type_task": "Taak",
+	"ui_loading": "Laden",
+	"ui_dismiss_toast": "Sluiten"
+}

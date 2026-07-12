@@ -10,7 +10,8 @@ import {
 } from "@cascade/ui/context-menu";
 import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
-import { type NodeTypeName, nodeTypeDefs, nodeTypeNames } from "./node-types";
+import { useOutlinerLabels } from "./labels-context";
+import { type NodeTypeName, nodeTypeNames } from "./node-types";
 
 interface NodeActionsProps {
 	nodeType: NodeTypeName;
@@ -27,6 +28,7 @@ export function NodeActions({
 	viewTransitionName,
 	children,
 }: NodeActionsProps) {
+	const labels = useOutlinerLabels();
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger
@@ -42,14 +44,14 @@ export function NodeActions({
 					<ContextMenuSubTrigger
 						icon={<ArrowsClockwiseIcon size={14} weight="bold" />}
 					>
-						Convert into
+						{labels.convertInto}
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent>
 						{nodeTypeNames
 							.filter((type) => type !== nodeType)
 							.map((type) => (
 								<ContextMenuItem key={type} onClick={() => onConvert(type)}>
-									{nodeTypeDefs[type].label}
+									{labels.nodeTypeLabels[type]}
 								</ContextMenuItem>
 							))}
 					</ContextMenuSubContent>
@@ -60,7 +62,7 @@ export function NodeActions({
 					icon={<TrashIcon size={14} weight="bold" />}
 					onClick={onDelete}
 				>
-					Delete
+					{labels.delete}
 				</ContextMenuItem>
 			</ContextMenuContent>
 		</ContextMenu>
