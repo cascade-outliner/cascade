@@ -47,6 +47,10 @@ const widthOpen = `w-0 overflow-hidden ${springWidth} group-hover:w-11 group-act
 // hideUntilHover: the resting icon shrinks away as the real actions open up.
 const widthClose = `w-4 opacity-100 overflow-hidden ${springWidthOpacity} group-hover:w-0 group-hover:opacity-0 group-active:w-0 group-active:opacity-0 group-focus-within:w-0 group-focus-within:opacity-0`;
 
+// hideUntilHover: trailing padding is tighter than px-6 since the resting
+// icon already occupies that space — a plain px-6 would double it up.
+const restIconGap = `gap-1.5 ${springGap} group-hover:gap-0 group-active:gap-0 group-focus-within:gap-0`;
+
 export interface ActionItem {
 	icon: React.ReactNode;
 	label: string;
@@ -116,7 +120,9 @@ export function Action({
 			<BaseButton
 				className={trigger({
 					variant,
-					className: `px-6 font-semibold text-super-ginger ${grow}`,
+					className: hideUntilHover
+						? `pl-6 pr-3 font-semibold text-super-ginger ${grow} ${restIconGap}`
+						: `px-6 font-semibold text-super-ginger ${grow}`,
 				})}
 				{...props}
 			>
@@ -124,7 +130,7 @@ export function Action({
 				{hideUntilHover && (
 					<span
 						aria-hidden
-						className={`ml-1.5 flex items-center justify-center ${widthClose}`}
+						className={`flex items-center justify-center ${widthClose}`}
 					>
 						{icon}
 					</span>
