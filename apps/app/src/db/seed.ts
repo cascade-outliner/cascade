@@ -10,23 +10,33 @@ import { db } from "@/db";
 
 const DEV_USER = {
 	email: "dev@cascadelist.com",
-	password: "password1234",
+	password: randomUUID(),
 	name: "Dev User",
 };
 
-async function ensureDevUser(): Promise<string> {
+function assertNotProduction(): void {
+	if (process.env.NODE_ENV === "production") {
+		console.error(
+			"Refusing to run the seed script with NODE_ENV=production. " +
+				"This script creates a known dev account and deletes its existing data.",
+		);
+		process.exit(1);
+	}
+}
+
+async function ensureDevUser(): Promise<{ id: string; created: boolean }> {
 	const existing = await db
 		.select({ id: user.id })
 		.from(user)
 		.where(eq(user.email, DEV_USER.email));
-	if (existing.length > 0) return existing[0].id;
+	if (existing.length > 0) return { id: existing[0].id, created: false };
 
 	await auth.api.signUpEmail({ body: DEV_USER });
 	const [created] = await db
 		.select({ id: user.id })
 		.from(user)
 		.where(eq(user.email, DEV_USER.email));
-	return created.id;
+	return { id: created.id, created: true };
 }
 
 const config = {
@@ -185,8 +195,9 @@ function expectedNodeCount(): number {
 }
 
 async function main() {
+	assertNotProduction();
 	await promptConfig();
-	const userId = await ensureDevUser();
+	const { id: userId, created } = await ensureDevUser();
 	await db.delete(nodes).where(eq(nodes.userId, userId));
 
 	console.log(`expected ~${expectedNodeCount()} nodes`);
@@ -216,7 +227,11 @@ async function main() {
 	}
 
 	console.log(`Seeded ${done} nodes.`);
-	console.log(`Sign in as ${DEV_USER.email} / ${DEV_USER.password}`);
+	if (created) {
+		console.log(`Sign in as ${DEV_USER.email} / ${DEV_USER.password}`);
+	} else {
+		console.log(`Signed in as existing user ${DEV_USER.email} (password unchanged).`);
+	}
 	process.exit(0);
 }
 
