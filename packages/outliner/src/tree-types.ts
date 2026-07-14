@@ -28,6 +28,7 @@ export interface VisibleTree {
 		content: { root: unknown },
 	) => void | Promise<void>;
 	setType: (id: string, typed: TypedMetadata) => void | Promise<void>;
+	setDueDate: (id: string, dueDate: Date | null) => void | Promise<void>;
 	add: (commit?: (splice: () => void) => void) => Promise<string>;
 	addAfter: (
 		afterId: string,

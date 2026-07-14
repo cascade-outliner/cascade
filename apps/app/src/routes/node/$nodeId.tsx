@@ -1,6 +1,8 @@
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import { NodeCheckbox } from "@cascade/outliner/node-checkbox";
+import { NodeDueDatePill } from "@cascade/outliner/node-due-date-pill";
+import type { NodeMetadataOf } from "@cascade/outliner/node-types";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -56,6 +58,25 @@ function NodeDetailPage() {
 		}
 	};
 
+	const setDueDate = async (dueDate: Date | null) => {
+		queryClient.setQueryData(options.queryKey, (old) =>
+			old ? { ...old, dueDate } : old,
+		);
+		try {
+			await client.nodes.setDueDate({ id: nodeId, dueDate });
+		} catch {
+			queryClient.invalidateQueries({ queryKey: options.queryKey });
+		}
+	};
+
+	// SSR hydration round-trips the query cache through JSON, which leaves
+	// dueDate as an ISO string instead of a Date; normalize it here so
+	// NodeDueDatePill always gets a real Date | null (see virtual-tree-row.tsx).
+	const dueDate = node.dueDate ? new Date(node.dueDate) : null;
+	const completed =
+		node.type === "task" &&
+		((node.metadata as NodeMetadataOf<"task"> | null)?.completed ?? false);
+
 	return (
 		<Suspense fallback={<CascadeLoader />}>
 			<NodeTree
@@ -71,6 +92,13 @@ function NodeDetailPage() {
 								<NodeCheckbox metadata={node.metadata} onToggle={toggleTask} />
 							)}
 							<LexicalReadView content={toLexicalContent(node.content)} />
+							{dueDate && (
+								<NodeDueDatePill
+									dueDate={dueDate}
+									completed={completed}
+									onChange={setDueDate}
+								/>
+							)}
 						</div>
 					</>
 				}

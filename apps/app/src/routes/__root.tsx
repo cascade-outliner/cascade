@@ -100,6 +100,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						...defaultUiLabels,
 						loading: m.ui_loading(),
 						dismissToast: m.ui_dismiss_toast(),
+						calendarToday: m.ui_calendar_today(),
+						calendarTomorrow: m.ui_calendar_tomorrow(),
+						calendarNextWeek: m.ui_calendar_next_week(),
+						calendarClear: m.ui_calendar_clear(),
+						calendarPreviousMonth: m.ui_calendar_previous_month(),
+						calendarNextMonth: m.ui_calendar_next_month(),
 					}}
 				>
 					<OutlinerLabelsProvider
@@ -113,6 +119,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							delete: m.outliner_delete(),
 							emptyTree: m.outliner_empty_tree(),
 							addNode: m.outliner_add_node(),
+							setDueDate: m.outliner_set_due_date(),
+							changeDueDate: m.outliner_change_due_date(),
+							changeDueDateAria: m.outliner_change_due_date_aria(),
+							dueToday: m.outliner_due_today(),
+							dueTomorrow: m.outliner_due_tomorrow(),
+							dueYesterday: m.outliner_due_yesterday(),
 							nodeTypeLabels: {
 								text: m.outliner_type_text(),
 								task: m.outliner_type_task(),

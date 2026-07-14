@@ -11,5 +11,6 @@ export const nodeColumns = {
 	metadata: nodes.metadata,
 	expanded: nodes.expanded,
 	order: nodes.order,
+	dueDate: nodes.dueDate,
 	hasChildren,
 };

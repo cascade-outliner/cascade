@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-14
+- Due dates can now be added to nodes. [#169](https://github.com/Patrickroelofs/cascade/pull/169)
+
 ## 2026-07-12
 - Set up i18n, laying the groundwork for future language support, currently supporting English and Dutch.
 

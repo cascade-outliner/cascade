@@ -55,6 +55,18 @@
 	"outliner_add_node": "Add node",
 	"outliner_type_text": "Text",
 	"outliner_type_task": "Task",
+	"outliner_set_due_date": "Set date",
+	"outliner_change_due_date": "Change date",
+	"outliner_change_due_date_aria": "Change due date",
+	"outliner_due_today": "Today",
+	"outliner_due_tomorrow": "Tomorrow",
+	"outliner_due_yesterday": "Yesterday",
 	"ui_loading": "Loading",
-	"ui_dismiss_toast": "Dismiss"
+	"ui_dismiss_toast": "Dismiss",
+	"ui_calendar_today": "Today",
+	"ui_calendar_tomorrow": "Tomorrow",
+	"ui_calendar_next_week": "Next week",
+	"ui_calendar_clear": "Clear",
+	"ui_calendar_previous_month": "Previous month",
+	"ui_calendar_next_month": "Next month"
 }

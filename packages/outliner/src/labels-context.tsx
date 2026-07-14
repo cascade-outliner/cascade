@@ -11,6 +11,12 @@ export interface OutlinerLabels {
 	delete: string;
 	emptyTree: string;
 	addNode: string;
+	setDueDate: string;
+	changeDueDate: string;
+	changeDueDateAria: string;
+	dueToday: string;
+	dueTomorrow: string;
+	dueYesterday: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
 }
 
@@ -24,6 +30,12 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	delete: "Delete",
 	emptyTree: "This tree is empty. Add a node to get started.",
 	addNode: "Add node",
+	setDueDate: "Set date",
+	changeDueDate: "Change date",
+	changeDueDateAria: "Change due date",
+	dueToday: "Today",
+	dueTomorrow: "Tomorrow",
+	dueYesterday: "Yesterday",
 	nodeTypeLabels: Object.fromEntries(
 		nodeTypeNames.map((type) => [type, nodeTypeDefs[type].label]),
 	) as Record<NodeTypeName, string>,

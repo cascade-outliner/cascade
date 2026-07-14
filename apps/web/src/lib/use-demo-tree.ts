@@ -25,6 +25,7 @@ function newRow(
 		metadata: null,
 		expanded: false,
 		order: id,
+		dueDate: null,
 		path: [],
 		hasChildren: false,
 		...partial,
@@ -132,6 +133,10 @@ export function useDemoTree(rootId: string | null) {
 		);
 	};
 
+	const setDueDate: VisibleTree["setDueDate"] = (id, dueDate) => {
+		setAllNodes((current) => patchRow(current, id, { dueDate }));
+	};
+
 	const add: VisibleTree["add"] = async (commit = (splice) => splice()) => {
 		const parentDepth =
 			rootId === null
@@ -177,6 +182,7 @@ export function useDemoTree(rootId: string | null) {
 		remove,
 		updateContent,
 		setType,
+		setDueDate,
 		add,
 		addAfter,
 		loadMore: () => {},

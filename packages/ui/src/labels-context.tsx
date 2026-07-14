@@ -6,6 +6,12 @@ export interface UiLabels {
 	preAlphaBannerSuffix: string;
 	loading: string;
 	dismissToast: string;
+	calendarToday: string;
+	calendarTomorrow: string;
+	calendarNextWeek: string;
+	calendarClear: string;
+	calendarPreviousMonth: string;
+	calendarNextMonth: string;
 }
 
 export const defaultUiLabels: UiLabels = {
@@ -14,6 +20,12 @@ export const defaultUiLabels: UiLabels = {
 	preAlphaBannerSuffix: "- expect bugs and breaking changes.",
 	loading: "Loading",
 	dismissToast: "Dismiss",
+	calendarToday: "Today",
+	calendarTomorrow: "Tomorrow",
+	calendarNextWeek: "Next week",
+	calendarClear: "Clear",
+	calendarPreviousMonth: "Previous month",
+	calendarNextMonth: "Next month",
 };
 
 const UiLabelsContext = createContext<UiLabels | null>(null);

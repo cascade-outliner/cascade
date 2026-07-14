@@ -225,6 +225,7 @@ export function VirtualTree({
 											metadata: { completed },
 										})
 									}
+									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
 									onDelete={() => {
 										const container = scrollRef.current;
 										tree.remove(row.id, (splice) => {

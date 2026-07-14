@@ -5,6 +5,7 @@ import {
 	getNodeAncestors,
 	listNodes,
 	moveNode,
+	setNodeDueDate,
 	setNodeType,
 	toggleNodeExpanded,
 	updateNodeContent,
@@ -23,5 +24,6 @@ export default {
 		delete: deleteNode,
 		updateContent: updateNodeContent,
 		setType: setNodeType,
+		setDueDate: setNodeDueDate,
 	},
 };

@@ -33,10 +33,12 @@ export const nodes = pgTable(
 			.notNull()
 			.defaultNow()
 			.$onUpdate(() => new Date()),
+		dueDate: timestamp("due_date", { withTimezone: true }),
 	},
 	(t) => [
 		index("nodes_parent_id_idx").on(t.parentId),
 		index("nodes_parent_order_idx").on(t.parentId, t.order),
 		index("nodes_user_id_idx").on(t.userId),
+		index("nodes_user_due_date_idx").on(t.userId, t.dueDate),
 	],
 );

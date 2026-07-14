@@ -55,6 +55,18 @@
 	"outliner_add_node": "Node toevoegen",
 	"outliner_type_text": "Tekst",
 	"outliner_type_task": "Taak",
+	"outliner_set_due_date": "Datum instellen",
+	"outliner_change_due_date": "Datum wijzigen",
+	"outliner_change_due_date_aria": "Vervaldatum wijzigen",
+	"outliner_due_today": "Vandaag",
+	"outliner_due_tomorrow": "Morgen",
+	"outliner_due_yesterday": "Gisteren",
 	"ui_loading": "Laden",
-	"ui_dismiss_toast": "Sluiten"
+	"ui_dismiss_toast": "Sluiten",
+	"ui_calendar_today": "Vandaag",
+	"ui_calendar_tomorrow": "Morgen",
+	"ui_calendar_next_week": "Volgende week",
+	"ui_calendar_clear": "Wissen",
+	"ui_calendar_previous_month": "Vorige maand",
+	"ui_calendar_next_month": "Volgende maand"
 }

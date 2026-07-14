@@ -1,3 +1,4 @@
+import { Calendar } from "@cascade/ui/calendar";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -8,14 +9,20 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from "@cascade/ui/context-menu";
-import { ArrowsClockwiseIcon, TrashIcon } from "@phosphor-icons/react/ssr";
+import {
+	ArrowsClockwiseIcon,
+	CalendarIcon,
+	TrashIcon,
+} from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
 import { type NodeTypeName, nodeTypeNames } from "./node-types";
 
 interface NodeActionsProps {
 	nodeType: NodeTypeName;
+	dueDate: Date | null;
 	onConvert: (type: NodeTypeName) => void;
+	onSetDueDate: (date: Date | null) => void;
 	onDelete: () => void;
 	viewTransitionName?: string;
 	children: ReactNode;
@@ -23,7 +30,9 @@ interface NodeActionsProps {
 
 export function NodeActions({
 	nodeType,
+	dueDate,
 	onConvert,
+	onSetDueDate,
 	onDelete,
 	viewTransitionName,
 	children,
@@ -40,6 +49,23 @@ export function NodeActions({
 				{children}
 			</ContextMenuTrigger>
 			<ContextMenuContent>
+				<ContextMenuSub>
+					<ContextMenuSubTrigger
+						icon={<CalendarIcon size={14} weight="bold" />}
+						openOnHover
+						delay={150}
+					>
+						{dueDate ? labels.changeDueDate : labels.setDueDate}
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<Calendar
+							value={dueDate}
+							onSelect={onSetDueDate}
+							onClear={() => onSetDueDate(null)}
+						/>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+				<ContextMenuSeparator />
 				<ContextMenuSub>
 					<ContextMenuSubTrigger
 						icon={<ArrowsClockwiseIcon size={14} weight="bold" />}
