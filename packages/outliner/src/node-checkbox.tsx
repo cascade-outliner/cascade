@@ -1,9 +1,9 @@
 import { Checkbox } from "@cascade/ui/checkbox";
 import { useOutlinerLabels } from "./labels-context";
-import type { NodeMetadataOf } from "./node-types";
+import type { NodeMetadata } from "./node-types";
 
 interface NodeCheckboxProps {
-	metadata: unknown;
+	metadata: NodeMetadata;
 	onToggle: (completed: boolean) => void;
 }
 
@@ -13,7 +13,7 @@ export function NodeCheckbox({ metadata, onToggle }: NodeCheckboxProps) {
 	return (
 		<Checkbox
 			aria-label={labels.taskCompleted}
-			checked={(metadata as NodeMetadataOf<"task"> | null)?.completed ?? false}
+			checked={metadata?.completed ?? false}
 			onCheckedChange={onToggle}
 			onClick={(e) => e.stopPropagation()}
 		/>

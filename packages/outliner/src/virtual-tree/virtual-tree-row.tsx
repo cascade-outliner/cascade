@@ -7,11 +7,7 @@ import { NodeCheckbox } from "../node-checkbox";
 import { type FocusPoint, NodeEditor } from "../node-editor";
 import { DefaultNodeLink } from "../node-link-slot";
 import { NodeToggle } from "../node-toggle";
-import type {
-	NodeMetadataOf,
-	NodeTypeName,
-	VisibleNodeRow,
-} from "../node-types";
+import type { NodeTypeName, VisibleNodeRow } from "../node-types";
 import { RowDragAndDrop } from "./row-drag-drop";
 import type { ActiveDragPreview } from "./virtual-tree";
 import type { MoveTarget } from "./visible-rows";
@@ -95,9 +91,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							content={row.content}
 							editing={props.editing}
 							completed={
-								row.type === "task" &&
-								((row.metadata as NodeMetadataOf<"task"> | null)?.completed ??
-									false)
+								row.type === "task" && (row.metadata?.completed ?? false)
 							}
 							focusPoint={props.focusPoint}
 							onStartEdit={props.onStartEdit}

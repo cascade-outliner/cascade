@@ -1,5 +1,5 @@
 import { user } from "@cascade/auth/schema";
-import type { NodeTypeName } from "@cascade/outliner/node-types";
+import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
 import { sql } from "drizzle-orm";
 import {
 	type AnyPgColumn,
@@ -23,7 +23,7 @@ export const nodes = pgTable(
 			.references(() => user.id, { onDelete: "cascade" }),
 		content: jsonb("content"),
 		type: text().notNull().default("text").$type<NodeTypeName>(),
-		metadata: jsonb("metadata"),
+		metadata: jsonb("metadata").$type<NodeMetadata>(),
 		expanded: boolean().notNull().default(false),
 		order: text("order").notNull(),
 		createdAt: timestamp("created_at", { withTimezone: true })

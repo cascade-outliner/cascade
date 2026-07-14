@@ -7,7 +7,7 @@ export interface VisibleNodeRow {
 	content: unknown;
 	type: NodeTypeName;
 	/** Per-type data; narrow via the `type` discriminant (see node-types.ts). */
-	metadata: unknown;
+	metadata: NodeMetadata;
 	expanded: boolean;
 	order: string;
 	depth: number;
@@ -54,3 +54,16 @@ export const typedMetadataSchema = z.discriminatedUnion("type", [
 ]);
 
 export type TypedMetadata = z.infer<typeof typedMetadataSchema>;
+
+/** Union of every type's `metadata` shape, e.g. for the `nodes.metadata` column. */
+export type NodeMetadata = TypedMetadata["metadata"];
+
+/** Builds a `{ type, metadata }` pair from a type's registered default metadata. */
+export function defaultTypedMetadata<T extends NodeTypeName>(
+	type: T,
+): Extract<TypedMetadata, { type: T }> {
+	return { type, metadata: nodeTypeDefs[type].defaultMetadata } as Extract<
+		TypedMetadata,
+		{ type: T }
+	>;
+}

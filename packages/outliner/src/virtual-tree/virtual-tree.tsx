@@ -11,7 +11,7 @@ import type { DragPreviewHandle } from "../drag-animation/drag-preview";
 import { findNodeRow } from "../drag-animation/node-rows";
 import { useOutlinerLabels } from "../labels-context";
 import type { FocusPoint } from "../node-editor";
-import { nodeTypeDefs, type TypedMetadata } from "../node-types";
+import { defaultTypedMetadata } from "../node-types";
 import type { VisibleTree } from "../tree-types";
 import { animateNodeRemoval, animateTreeChange } from "./flip-displacement";
 import { VirtualTreeRow } from "./virtual-tree-row";
@@ -217,10 +217,7 @@ export function VirtualTree({
 									}
 									onToggle={(expanded) => handleToggle(row.id, expanded)}
 									onConvert={(type) =>
-										tree.setType(row.id, {
-											type,
-											metadata: nodeTypeDefs[type].defaultMetadata,
-										} as TypedMetadata)
+										tree.setType(row.id, defaultTypedMetadata(type))
 									}
 									onToggleTask={(completed) =>
 										tree.setType(row.id, {
