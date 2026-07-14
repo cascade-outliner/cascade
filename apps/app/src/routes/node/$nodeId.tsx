@@ -134,6 +134,7 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 			}
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
+			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 		/>
 	);
 }

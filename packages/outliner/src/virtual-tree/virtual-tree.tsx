@@ -37,6 +37,7 @@ export function VirtualTree({
 	contentClassName,
 	hiddenRowIds,
 	contextRowIds,
+	newNodeDueDate,
 }: {
 	tree: VisibleTree;
 	indentSize?: number;
@@ -50,6 +51,9 @@ export function VirtualTree({
 	hiddenRowIds?: Set<string>;
 	/** Row ids to render dimmed but still visible, e.g. ancestors kept for context. */
 	contextRowIds?: Set<string>;
+	/** Stamped onto nodes created here, e.g. so a node added under an active
+	 * "Due today" filter matches it instead of immediately being hidden. */
+	newNodeDueDate?: Date | null;
 }) {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const previewRef = useRef<ActiveDragPreview | null>(null);
@@ -109,6 +113,7 @@ export function VirtualTree({
 			if (!container) return splice();
 			animateTreeChange(container, splice, { animateEnter: true });
 		});
+		if (newNodeDueDate) tree.setDueDate(newId, newNodeDueDate);
 		setFocusPoint(null);
 		setEditingNodeId(newId);
 	};
@@ -268,6 +273,7 @@ export function VirtualTree({
 							if (!container) return splice();
 							animateTreeChange(container, splice, { animateEnter: true });
 						});
+						if (newNodeDueDate) tree.setDueDate(id, newNodeDueDate);
 						setFocusPoint(null);
 						setEditingNodeId(id);
 					}}
