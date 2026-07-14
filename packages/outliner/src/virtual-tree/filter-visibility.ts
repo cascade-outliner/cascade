@@ -1,11 +1,12 @@
 import { dueBucket } from "../due-date-bucket";
 import type { NodeFilters } from "../node-filters";
 import type { VisibleNodeRow } from "../node-types";
+import { subtreeRange } from "./visible-rows";
 
 export interface RowVisibility {
-	/** Row ids to hide entirely: neither a match nor an ancestor of one. */
+	/** Row ids to hide entirely: not a match, and not on the path to one. */
 	hiddenIds: Set<string>;
-	/** Row ids to keep visible but dimmed: not a match, but on the path to one. */
+	/** Row ids to keep visible but dimmed: a match's ancestors or descendants. */
 	contextIds: Set<string>;
 	matchCount: number;
 }
@@ -17,10 +18,11 @@ const emptyVisibility: RowVisibility = {
 };
 
 /**
- * Resolves which rows an active filter set hides. Matches and their full
- * ancestor chain stay in the array at their original depth, so indent,
- * outdent, and drag-and-drop keep operating on the same contiguous rows
- * they always have; only rendering treats hidden/context rows differently.
+ * Resolves which rows an active filter set hides. Matches, their full
+ * ancestor chain, and their full descendant subtree stay in the array at
+ * their original depth, so indent, outdent, and drag-and-drop keep
+ * operating on the same contiguous rows they always have; only rendering
+ * treats hidden/context rows differently.
  */
 export function getRowVisibility(
 	rows: VisibleNodeRow[],
@@ -50,6 +52,16 @@ export function getRowVisibility(
 		) {
 			contextIds.add(parentId);
 			parentId = parentById.get(parentId) ?? null;
+		}
+
+		// A matched node's own descendants stay visible too, even if they
+		// don't individually match, so its subtree isn't cut off mid-tree.
+		const range = subtreeRange(rows, id);
+		if (range) {
+			for (let i = range.start + 1; i < range.end; i++) {
+				const descendantId = rows[i].id;
+				if (!matchIds.has(descendantId)) contextIds.add(descendantId);
+			}
 		}
 	}
 
