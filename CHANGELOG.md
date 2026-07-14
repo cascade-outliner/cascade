@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-14
+- Filter on due date `today`. [#174](https://github.com/Patrickroelofs/cascade/pull/174)
 - Due dates can now be added to nodes. [#169](https://github.com/Patrickroelofs/cascade/pull/169)
 
 ## 2026-07-12
