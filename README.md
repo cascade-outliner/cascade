@@ -63,6 +63,16 @@ pnpm db:push      # Apply schema changes to the database
 pnpm db:studio    # Open Drizzle Studio
 ```
 
+### Node URL slugs
+
+Node detail URLs use the node text plus a short stable node id suffix:
+`/<slug-from-content>-<uuid-first-block>`.
+
+The content-derived slug is lowercased, strips special characters, and replaces
+spaces/punctuation with hyphens, then is capped to a practical max length.
+The `-<uuid-first-block>` suffix keeps duplicate node titles unambiguous while
+keeping links stable and directly resolvable.
+
 ### End-to-end tests
 
 `apps/app` has a Playwright suite under `apps/app/e2e`. It needs a running

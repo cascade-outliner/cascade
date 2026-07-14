@@ -15,6 +15,7 @@ import { client, orpc } from "#/orpc/client";
 import { GenericErrorComponent } from "#/ui/error/generic-error";
 import { Breadcrumbs } from "#/ui/nodes/breadcrumbs";
 import { NodeLink } from "#/ui/nodes/node-link";
+import { splitNodeSlug } from "#/ui/nodes/node-slug";
 import { useNodeFilters } from "#/ui/nodes/use-node-filters";
 import {
 	useVisibleTree,
@@ -22,10 +23,14 @@ import {
 } from "#/ui/nodes/virtual-tree/use-visible-tree";
 import { useSettings } from "#/ui/settings-context";
 
-export const Route = createFileRoute("/node/$nodeId")({
-	loader: ({ context: { queryClient }, params: { nodeId } }) => {
+export const Route = createFileRoute("/$nodeSlug")({
+	loader: async ({ context: { queryClient }, params: { nodeSlug } }) => {
+		const { slugId, slugText } = splitNodeSlug(nodeSlug);
+		const { id: nodeId } = await queryClient.ensureQueryData(
+			orpc.nodes.resolveSlug.queryOptions({ input: { slugId, slugText } }),
+		);
 		queryClient.prefetchQuery(visibleTreeOptions(nodeId));
-		return Promise.all([
+		await Promise.all([
 			queryClient.ensureQueryData(
 				orpc.nodes.get.queryOptions({ input: { id: nodeId } }),
 			),
@@ -33,6 +38,7 @@ export const Route = createFileRoute("/node/$nodeId")({
 				orpc.nodes.ancestors.queryOptions({ input: { id: nodeId } }),
 			),
 		]);
+		return { nodeId };
 	},
 	pendingComponent: CascadeLoader,
 	pendingMinMs: 200,
@@ -41,7 +47,7 @@ export const Route = createFileRoute("/node/$nodeId")({
 });
 
 function NodeDetailPage() {
-	const { nodeId } = Route.useParams();
+	const { nodeId } = Route.useLoaderData();
 	const queryClient = useQueryClient();
 	const options = orpc.nodes.get.queryOptions({ input: { id: nodeId } });
 	const { data: node } = useSuspenseQuery(options);
@@ -120,7 +126,9 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 		<VirtualTree
 			tree={tree}
 			indentSize={settings.indentSize}
-			renderNodeLink={(id) => <NodeLink id={id} />}
+			renderNodeLink={(node) => (
+				<NodeLink id={node.id} content={node.content} />
+			)}
 			header={
 				<>
 					{header}

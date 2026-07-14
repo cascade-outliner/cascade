@@ -5,6 +5,7 @@ import {
 	getNodeAncestors,
 	listNodes,
 	moveNode,
+	resolveNodeSlug,
 	setNodeDueDate,
 	setNodeType,
 	toggleNodeExpanded,
@@ -16,6 +17,7 @@ export default {
 	nodes: {
 		list: listNodes,
 		get: getNode,
+		resolveSlug: resolveNodeSlug,
 		ancestors: getNodeAncestors,
 		visibleTree,
 		create: createNode,

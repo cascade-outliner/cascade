@@ -34,7 +34,9 @@ export function VirtualTree({
 }: {
 	tree: VisibleTree;
 	indentSize?: number;
-	renderNodeLink?: (id: string) => ReactNode;
+	renderNodeLink?: (
+		node: Pick<VisibleTree["rows"][number], "id" | "content">,
+	) => ReactNode;
 	header?: ReactNode;
 	/** Overrides the scroll container's default full-viewport-height sizing. */
 	className?: string;
