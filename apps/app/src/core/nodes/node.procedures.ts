@@ -223,41 +223,6 @@ export const setNodeDueDate = authed
 			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
 	});
 
-/**
- * Nodes past their due date, excluding completed tasks (a task is no longer
- * overdue once marked done; other node types have no completion concept).
- */
-export const listOverdueNodes = authed.handler(async ({ context }) => {
-	return db
-		.select(nodeColumns)
-		.from(nodes)
-		.where(
-			and(
-				eq(nodes.userId, context.user.id),
-				isNotNull(nodes.dueDate),
-				lt(nodes.dueDate, sql`now()`),
-				sql`NOT (${nodes.type} = 'task' AND (${nodes.metadata}->>'completed')::boolean = true)`,
-			),
-		)
-		.orderBy(asc(nodes.dueDate));
-});
-
-export const listNodesDueInRange = authed
-	.input(z.object({ start: z.coerce.date(), end: z.coerce.date() }))
-	.handler(async ({ input, context }) => {
-		return db
-			.select(nodeColumns)
-			.from(nodes)
-			.where(
-				and(
-					eq(nodes.userId, context.user.id),
-					gte(nodes.dueDate, input.start),
-					lte(nodes.dueDate, input.end),
-				),
-			)
-			.orderBy(asc(nodes.dueDate));
-	});
-
 export const setNodeType = authed
 	.input(z.object({ id: z.string() }).and(typedMetadataSchema))
 	.handler(async ({ input, context }) => {
