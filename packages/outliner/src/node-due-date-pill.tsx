@@ -31,6 +31,11 @@ const shortDateFormatter = new Intl.DateTimeFormat(undefined, {
 	month: "short",
 	day: "numeric",
 });
+const shortDateWithYearFormatter = new Intl.DateTimeFormat(undefined, {
+	month: "short",
+	day: "numeric",
+	year: "numeric",
+});
 
 function formatDuePill(
 	dueDate: Date,
@@ -43,7 +48,11 @@ function formatDuePill(
 	if (diffDays === 0) return labels.dueToday;
 	if (diffDays === 1) return labels.dueTomorrow;
 	if (diffDays === -1) return labels.dueYesterday;
-	return shortDateFormatter.format(dueDate);
+	const formatter =
+		dueDate.getFullYear() === new Date().getFullYear()
+			? shortDateFormatter
+			: shortDateWithYearFormatter;
+	return formatter.format(dueDate);
 }
 
 const pill = cva({
