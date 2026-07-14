@@ -9,7 +9,15 @@ interface SeedNode {
 	text: string;
 	completed?: boolean;
 	expanded?: boolean;
+	dueDate?: Date;
 	children?: SeedNode[];
+}
+
+function daysFromNow(amount: number): Date {
+	const date = new Date();
+	date.setHours(0, 0, 0, 0);
+	date.setDate(date.getDate() + amount);
+	return date;
 }
 
 function lexicalContent(text: string) {
@@ -37,6 +45,7 @@ function toRow(
 		metadata: type === "task" ? { completed: node.completed ?? false } : null,
 		expanded: node.expanded ?? true,
 		order: String(order),
+		dueDate: node.dueDate ?? null,
 		depth,
 		path: [],
 		hasChildren: (node.children?.length ?? 0) > 0,
@@ -87,8 +96,18 @@ const demoSeedTree: SeedNode[] = [
 				text: "Ship the outliner demo",
 				completed: true,
 			},
-			{ id: "plan-2", type: "task", text: "Reply to emails" },
-			{ id: "plan-3", type: "task", text: "Go for a walk" },
+			{
+				id: "plan-2",
+				type: "task",
+				text: "Reply to emails",
+				dueDate: daysFromNow(0),
+			},
+			{
+				id: "plan-3",
+				type: "task",
+				text: "Go for a walk",
+				dueDate: daysFromNow(3),
+			},
 		],
 	},
 	{
