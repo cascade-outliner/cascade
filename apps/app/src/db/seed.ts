@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { createInterface } from "node:readline/promises";
 import { user } from "@cascade/auth/schema";
-import { auth } from "@cascade/auth/server";
 import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
 import { generateNKeysBetween } from "fractional-indexing";
+import { auth } from "@/auth";
 import { nodes } from "@/core/nodes/node.schema";
 import { db } from "@/db";
 

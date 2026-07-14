@@ -1,6 +1,13 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+overrides:
+  # Pin to the version @inlang/sdk hard-requires so drizzle-orm's optional
+  # peer on kysely (satisfied by both better-auth and postgres-js) resolves
+  # to a single install workspace-wide instead of pnpm content-addressing
+  # a second copy, which otherwise makes TypeScript see two nominally
+  # distinct drizzle-orm instances across package boundaries.
+  kysely: 0.28.17
 allowBuilds:
   better-sqlite3: true
   esbuild: true
