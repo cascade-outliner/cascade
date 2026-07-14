@@ -77,6 +77,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					onConvert={props.onConvert}
 					onSetDueDate={props.onSetDueDate}
 					onDelete={props.onDelete}
+					viewTransitionName={`node-${row.id}`}
 				>
 					<NodeToggle
 						hasChildren={row.hasChildren}

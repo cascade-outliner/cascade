@@ -21,6 +21,7 @@ const crumbLabel = (crumb: Crumb) =>
 function CrumbLink({ crumb }: { crumb: Crumb }) {
 	return (
 		<Link
+			viewTransition
 			to="/node/$nodeId"
 			params={{ nodeId: crumb.id }}
 			className="max-w-48 truncate hover:text-redleather"
@@ -46,7 +47,11 @@ function CollapsedCrumbs({ crumbs }: { crumbs: Crumb[] }) {
 							<Menu.Item
 								key={crumb.id}
 								render={
-									<Link to="/node/$nodeId" params={{ nodeId: crumb.id }} />
+									<Link
+										viewTransition
+										to="/node/$nodeId"
+										params={{ nodeId: crumb.id }}
+									/>
 								}
 								className="block cursor-pointer truncate rounded-md px-3 py-1.5 text-sm outline-none data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20"
 							>
@@ -73,7 +78,6 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 
 	const current = chain[chain.length - 1];
 	const ancestors = chain.slice(0, -1);
-	// ponytail: fixed collapse threshold; measure actual width if labels vary wildly
 	const collapse = ancestors.length > 3;
 	const head = collapse ? ancestors.slice(0, 1) : ancestors;
 	const hidden = collapse ? ancestors.slice(1, -1) : [];
@@ -84,6 +88,7 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 			<ol className="flex items-center gap-1.5 flex-wrap">
 				<li className="flex items-center">
 					<Link
+						viewTransition
 						to="/"
 						aria-label={m.breadcrumbs_home_label()}
 						className="hover:text-redleather"
