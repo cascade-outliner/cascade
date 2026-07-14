@@ -4,8 +4,6 @@ import {
 	getNode,
 	getNodeAncestors,
 	listNodes,
-	listNodesDueInRange,
-	listOverdueNodes,
 	moveNode,
 	setNodeDueDate,
 	setNodeType,
@@ -27,7 +25,5 @@ export default {
 		updateContent: updateNodeContent,
 		setType: setNodeType,
 		setDueDate: setNodeDueDate,
-		listOverdue: listOverdueNodes,
-		listDueInRange: listNodesDueInRange,
 	},
 };
