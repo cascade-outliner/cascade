@@ -12,12 +12,6 @@ async function cookieHeaderFor(context: BrowserContext): Promise<string> {
 	return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
 }
 
-/**
- * A fully-typed oRPC client (same router types the app itself uses) that
- * authenticates as whichever user `context` is currently logged in as. Lets
- * tests seed/verify data through the real API instead of duplicating the
- * RPC wire format or reaching into the database directly.
- */
 export function createOrpcClient(context: BrowserContext): OrpcClient {
 	const link = new RPCLink({
 		url: `${env.appUrl}/api/rpc`,

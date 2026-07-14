@@ -2,11 +2,7 @@ import type { APIRequestContext } from "@playwright/test";
 import { env } from "./env";
 
 /**
- * Creates the shared e2e test user via better-auth's own REST API — the
- * same `auth.api.signUpEmail` path `src/db/seed.ts` uses for the dev user,
- * just called over HTTP so no DB credentials are needed in the test
- * process. Idempotent: a second run finds the user already exists and
- * moves on.
+ * Creates the shared e2e test user via better-auth's REST API
  */
 export async function ensureTestUser(
 	request: APIRequestContext,
@@ -24,6 +20,7 @@ export async function ensureTestUser(
 	const body = await response.json().catch(() => ({}));
 	const alreadyExists =
 		typeof body.code === "string" && body.code.includes("USER_ALREADY_EXISTS");
+
 	if (!alreadyExists) {
 		throw new Error(
 			`Failed to create e2e test user (${response.status()}): ${JSON.stringify(body)}`,
