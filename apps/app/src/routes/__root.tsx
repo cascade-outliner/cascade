@@ -10,6 +10,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { m } from "#/paraglide/messages.js";
 import { getLocale } from "#/paraglide/runtime.js";
 import { getSession } from "@/auth/session";
@@ -95,63 +96,65 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
-				<UiLabelsProvider
-					labels={{
-						...defaultUiLabels,
-						loading: m.ui_loading(),
-						dismissToast: m.ui_dismiss_toast(),
-						calendarToday: m.ui_calendar_today(),
-						calendarTomorrow: m.ui_calendar_tomorrow(),
-						calendarNextWeek: m.ui_calendar_next_week(),
-						calendarClear: m.ui_calendar_clear(),
-						calendarPreviousMonth: m.ui_calendar_previous_month(),
-						calendarNextMonth: m.ui_calendar_next_month(),
-					}}
-				>
-					<OutlinerLabelsProvider
+				<NuqsAdapter>
+					<UiLabelsProvider
 						labels={{
-							toggleExpand: m.outliner_toggle_expand(),
-							toggleCollapse: m.outliner_toggle_collapse(),
-							taskCompleted: m.outliner_task_completed(),
-							dragToReorder: m.outliner_drag_handle(),
-							editNodeText: m.outliner_edit_node_text(),
-							convertInto: m.outliner_convert_into(),
-							delete: m.outliner_delete(),
-							emptyTree: m.outliner_empty_tree(),
-							emptyFilterResults: m.outliner_empty_filter_results(),
-							addNode: m.outliner_add_node(),
-							setDueDate: m.outliner_set_due_date(),
-							changeDueDate: m.outliner_change_due_date(),
-							changeDueDateAria: m.outliner_change_due_date_aria(),
-							dueToday: m.outliner_due_today(),
-							dueTomorrow: m.outliner_due_tomorrow(),
-							dueYesterday: m.outliner_due_yesterday(),
-							nodeTypeLabels: {
-								text: m.outliner_type_text(),
-								task: m.outliner_type_task(),
-							},
-							filtersTrigger: m.filters_bar_trigger(),
-							filtersDueDateGroup: m.filters_bar_due_date_group(),
-							filtersDueToday: m.filters_bar_due_today(),
-							filtersDueThisWeek: m.filters_bar_due_this_week(),
-							filtersOverdue: m.filters_bar_overdue(),
-							filtersOtherGroup: m.filters_bar_other_group(),
-							filtersAssignee: m.filters_bar_assignee(),
-							filtersStatus: m.filters_bar_status(),
-							filtersSoon: m.filters_bar_soon(),
-							filtersRemoveDueToday: m.filters_bar_remove_due_today(),
-							filtersClear: m.filters_bar_clear(),
-							filtersShowing: (params) => m.filters_bar_showing(params),
+							...defaultUiLabels,
+							loading: m.ui_loading(),
+							dismissToast: m.ui_dismiss_toast(),
+							calendarToday: m.ui_calendar_today(),
+							calendarTomorrow: m.ui_calendar_tomorrow(),
+							calendarNextWeek: m.ui_calendar_next_week(),
+							calendarClear: m.ui_calendar_clear(),
+							calendarPreviousMonth: m.ui_calendar_previous_month(),
+							calendarNextMonth: m.ui_calendar_next_month(),
 						}}
 					>
-						<SettingsProvider>
-							<Toaster>
-								{children}
-								<UserMenu />
-							</Toaster>
-						</SettingsProvider>
-					</OutlinerLabelsProvider>
-				</UiLabelsProvider>
+						<OutlinerLabelsProvider
+							labels={{
+								toggleExpand: m.outliner_toggle_expand(),
+								toggleCollapse: m.outliner_toggle_collapse(),
+								taskCompleted: m.outliner_task_completed(),
+								dragToReorder: m.outliner_drag_handle(),
+								editNodeText: m.outliner_edit_node_text(),
+								convertInto: m.outliner_convert_into(),
+								delete: m.outliner_delete(),
+								emptyTree: m.outliner_empty_tree(),
+								emptyFilterResults: m.outliner_empty_filter_results(),
+								addNode: m.outliner_add_node(),
+								setDueDate: m.outliner_set_due_date(),
+								changeDueDate: m.outliner_change_due_date(),
+								changeDueDateAria: m.outliner_change_due_date_aria(),
+								dueToday: m.outliner_due_today(),
+								dueTomorrow: m.outliner_due_tomorrow(),
+								dueYesterday: m.outliner_due_yesterday(),
+								nodeTypeLabels: {
+									text: m.outliner_type_text(),
+									task: m.outliner_type_task(),
+								},
+								filtersTrigger: m.filters_bar_trigger(),
+								filtersDueDateGroup: m.filters_bar_due_date_group(),
+								filtersDueToday: m.filters_bar_due_today(),
+								filtersDueThisWeek: m.filters_bar_due_this_week(),
+								filtersOverdue: m.filters_bar_overdue(),
+								filtersOtherGroup: m.filters_bar_other_group(),
+								filtersAssignee: m.filters_bar_assignee(),
+								filtersStatus: m.filters_bar_status(),
+								filtersSoon: m.filters_bar_soon(),
+								filtersRemoveDueToday: m.filters_bar_remove_due_today(),
+								filtersClear: m.filters_bar_clear(),
+								filtersShowing: (params) => m.filters_bar_showing(params),
+							}}
+						>
+							<SettingsProvider>
+								<Toaster>
+									{children}
+									<UserMenu />
+								</Toaster>
+							</SettingsProvider>
+						</OutlinerLabelsProvider>
+					</UiLabelsProvider>
+				</NuqsAdapter>
 				{import.meta.env.DEV && (
 					<TanStackDevtools
 						config={{

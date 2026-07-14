@@ -1,12 +1,12 @@
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
-import { type NodeFilters, noFilters } from "@cascade/outliner/node-filters";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { NodeLink } from "@/ui/nodes/node-link";
+import { useNodeFilters } from "@/ui/nodes/use-node-filters";
 import {
 	useVisibleTree,
 	visibleTreeOptions,
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
 function RootTree() {
 	const tree = useVisibleTree(null);
 	const { settings } = useSettings();
-	const [filters, setFilters] = useState<NodeFilters>(noFilters);
+	const [filters, setFilters] = useNodeFilters();
 	const visibility = getRowVisibility(tree.rows, filters);
 
 	return (

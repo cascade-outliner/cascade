@@ -4,18 +4,18 @@ import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-vie
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import { NodeCheckbox } from "@cascade/outliner/node-checkbox";
 import { NodeDueDatePill } from "@cascade/outliner/node-due-date-pill";
-import { type NodeFilters, noFilters } from "@cascade/outliner/node-filters";
 import type { NodeMetadataOf } from "@cascade/outliner/node-types";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { client, orpc } from "#/orpc/client";
 import { GenericErrorComponent } from "#/ui/error/generic-error";
 import { Breadcrumbs } from "#/ui/nodes/breadcrumbs";
 import { NodeLink } from "#/ui/nodes/node-link";
+import { useNodeFilters } from "#/ui/nodes/use-node-filters";
 import {
 	useVisibleTree,
 	visibleTreeOptions,
@@ -113,7 +113,7 @@ function NodeDetailPage() {
 function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 	const tree = useVisibleTree(nodeId);
 	const { settings } = useSettings();
-	const [filters, setFilters] = useState<NodeFilters>(noFilters);
+	const [filters, setFilters] = useNodeFilters();
 	const visibility = getRowVisibility(tree.rows, filters);
 
 	return (
