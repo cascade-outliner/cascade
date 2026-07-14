@@ -19,7 +19,7 @@ export interface VirtualTreeRowProps {
 	start: number;
 	index: number;
 	indentSize: number;
-	renderNodeLink?: (id: string) => ReactNode;
+	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
 	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
 	isHidden: boolean;
@@ -85,7 +85,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 						onToggle={props.onToggle}
 					/>
 					{props.renderNodeLink ? (
-						props.renderNodeLink(row.id)
+						props.renderNodeLink({ id: row.id, content: row.content })
 					) : (
 						<DefaultNodeLink />
 					)}

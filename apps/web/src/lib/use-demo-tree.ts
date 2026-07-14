@@ -76,7 +76,7 @@ function visibleRowsForRoot(
  * every node instead of an oRPC-backed query cache. Nothing here persists or
  * hits a network. Holding the whole tree (not just the current root's visible
  * slice) lets the demo "zoom into" any node instantly, the same way clicking
- * a node's link opens /node/$nodeId in the real app.
+ * a node's link opens /$nodeSlug in the real app.
  */
 export function useDemoTree(rootId: string | null) {
 	const [allNodes, setAllNodes] = useState<VisibleNodeRow[]>(demoAllNodes);

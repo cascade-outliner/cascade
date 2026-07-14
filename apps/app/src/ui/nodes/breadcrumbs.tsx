@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { orpc } from "#/orpc/client";
 import { m } from "#/paraglide/messages.js";
+import { toNodeSlug } from "./node-slug";
 
 interface BreadcrumbsProps {
 	nodeId: string;
@@ -22,8 +23,9 @@ function CrumbLink({ crumb }: { crumb: Crumb }) {
 	return (
 		<Link
 			viewTransition
-			to="/node/$nodeId"
-			params={{ nodeId: crumb.id }}
+			to="/$nodeSlug"
+			params={{ nodeSlug: toNodeSlug(crumb) }}
+			search={true}
 			className="max-w-48 truncate hover:text-redleather"
 		>
 			{crumbLabel(crumb)}
@@ -49,8 +51,9 @@ function CollapsedCrumbs({ crumbs }: { crumbs: Crumb[] }) {
 								render={
 									<Link
 										viewTransition
-										to="/node/$nodeId"
-										params={{ nodeId: crumb.id }}
+										to="/$nodeSlug"
+										params={{ nodeSlug: toNodeSlug(crumb) }}
+										search={true}
 									/>
 								}
 								className="block cursor-pointer truncate rounded-md px-3 py-1.5 text-sm outline-none data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20"
@@ -90,6 +93,7 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 					<Link
 						viewTransition
 						to="/"
+						search={true}
 						aria-label={m.breadcrumbs_home_label()}
 						className="hover:text-redleather"
 					>

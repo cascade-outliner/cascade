@@ -9,20 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as NodeSlugRouteImport } from './routes/$nodeSlug'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as NodeNodeIdRouteImport } from './routes/node/$nodeId'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
+const NodeSlugRoute = NodeSlugRouteImport.update({
+  id: '/$nodeSlug',
+  path: '/$nodeSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NodeNodeIdRoute = NodeNodeIdRouteImport.update({
-  id: '/node/$nodeId',
-  path: '/node/$nodeId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
@@ -43,57 +43,56 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$nodeSlug': typeof NodeSlugRoute
   '/api/$': typeof ApiSplatRoute
-  '/node/$nodeId': typeof NodeNodeIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$nodeSlug': typeof NodeSlugRoute
   '/api/$': typeof ApiSplatRoute
-  '/node/$nodeId': typeof NodeNodeIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$nodeSlug': typeof NodeSlugRoute
   '/api/$': typeof ApiSplatRoute
-  '/node/$nodeId': typeof NodeNodeIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/$' | '/node/$nodeId' | '/api/auth/$' | '/api/rpc/$'
+  fullPaths: '/' | '/$nodeSlug' | '/api/$' | '/api/auth/$' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/$' | '/node/$nodeId' | '/api/auth/$' | '/api/rpc/$'
-  id:
-    '__root__' | '/' | '/api/$' | '/node/$nodeId' | '/api/auth/$' | '/api/rpc/$'
+  to: '/' | '/$nodeSlug' | '/api/$' | '/api/auth/$' | '/api/rpc/$'
+  id: '__root__' | '/' | '/$nodeSlug' | '/api/$' | '/api/auth/$' | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NodeSlugRoute: typeof NodeSlugRoute
   ApiSplatRoute: typeof ApiSplatRoute
-  NodeNodeIdRoute: typeof NodeNodeIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/$nodeSlug': {
+      id: '/$nodeSlug'
+      path: '/$nodeSlug'
+      fullPath: '/$nodeSlug'
+      preLoaderRoute: typeof NodeSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/node/$nodeId': {
-      id: '/node/$nodeId'
-      path: '/node/$nodeId'
-      fullPath: '/node/$nodeId'
-      preLoaderRoute: typeof NodeNodeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/$': {
@@ -122,8 +121,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NodeSlugRoute: NodeSlugRoute,
   ApiSplatRoute: ApiSplatRoute,
-  NodeNodeIdRoute: NodeNodeIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }

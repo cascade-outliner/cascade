@@ -1,8 +1,8 @@
 import type { NodeFilters } from "@cascade/outliner/node-filters";
-import { parseAsBoolean, useQueryStates } from "nuqs";
+import { parseAsStringLiteral, useQueryStates } from "nuqs";
 
 const filterParsers = {
-	dueToday: parseAsBoolean.withDefault(false),
+	filter: parseAsStringLiteral(["today"]),
 };
 
 /** Outliner filter state, synced to the URL so a filtered view is shareable/bookmarkable. */
@@ -10,5 +10,13 @@ export function useNodeFilters(): [
 	NodeFilters,
 	(filters: NodeFilters) => void,
 ] {
-	return useQueryStates(filterParsers);
+	const [{ filter }, setQueryFilters] = useQueryStates(filterParsers);
+
+	return [
+		{ dueToday: filter === "today" },
+		(filters) =>
+			setQueryFilters({
+				filter: filters.dueToday ? "today" : null,
+			}),
+	];
 }

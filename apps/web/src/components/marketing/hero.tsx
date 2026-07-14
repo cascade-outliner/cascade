@@ -82,7 +82,7 @@ export function Hero() {
 			<VirtualTree
 				tree={tree}
 				indentSize={16}
-				renderNodeLink={(id) => (
+				renderNodeLink={({ id }) => (
 					<button
 						type="button"
 						aria-label={m.hero_demo_open_node()}

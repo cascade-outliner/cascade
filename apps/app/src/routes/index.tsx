@@ -35,7 +35,9 @@ function RootTree() {
 		<VirtualTree
 			tree={tree}
 			indentSize={settings.indentSize}
-			renderNodeLink={(id) => <NodeLink id={id} />}
+			renderNodeLink={(node) => (
+				<NodeLink id={node.id} content={node.content} />
+			)}
 			contentClassName="rr-block"
 			header={<FiltersBar filters={filters} onFiltersChange={setFilters} />}
 			hiddenRowIds={visibility.hiddenIds}
