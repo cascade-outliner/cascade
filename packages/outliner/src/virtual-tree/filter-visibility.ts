@@ -8,13 +8,11 @@ export interface RowVisibility {
 	hiddenIds: Set<string>;
 	/** Row ids to keep visible but dimmed: a match's ancestors or descendants. */
 	contextIds: Set<string>;
-	matchCount: number;
 }
 
 const emptyVisibility: RowVisibility = {
 	hiddenIds: new Set(),
 	contextIds: new Set(),
-	matchCount: 0,
 };
 
 /**
@@ -71,5 +69,5 @@ export function getRowVisibility(
 			.map((row) => row.id),
 	);
 
-	return { hiddenIds, contextIds, matchCount: matchIds.size };
+	return { hiddenIds, contextIds };
 }
