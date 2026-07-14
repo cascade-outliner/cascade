@@ -37,11 +37,6 @@ pnpm db:push
 pnpm db:seed
 ```
 
-> Note: the `order` column must use `COLLATE "C"` (byte-order comparison for
-> fractional-index keys). `db:push` can't express collation - on a fresh
-> database run once:
-> `ALTER TABLE nodes ALTER COLUMN "order" TYPE text COLLATE "C";`
-
 Start the dev server:
 
 ```bash
@@ -67,6 +62,23 @@ pnpm check        # Lint + format
 pnpm db:push      # Apply schema changes to the database
 pnpm db:studio    # Open Drizzle Studio
 ```
+
+### End-to-end tests
+
+`apps/app` has a Playwright suite under `apps/app/e2e`. It needs a running
+database (`docker compose up -d`, `pnpm db:push:app`, plus the `COLLATE "C"`
+fix above on a fresh database) and builds+starts the app itself, so no dev
+server needs to be running first:
+
+```bash
+pnpm test:e2e:app
+```
+
+The suite authenticates once (`e2e/auth.setup.ts`, creating/reusing a
+dedicated `e2e@cascadelist.com` user) and reuses that session across tests.
+Each test gets its own throwaway node via the real API
+(`e2e/support/fixtures.ts`'s `scratchNode` fixture) so tests never touch the
+dev seed data and can run in parallel safely.
 
 ## AI usage
 

@@ -1,0 +1,55 @@
+name: e2e
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/cascade
+  BETTER_AUTH_SECRET: ci-only-secret-do-not-use-in-production-1234
+  BETTER_AUTH_URL: http://localhost:3001
+  PORT: 3001
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cascade
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply database schema
+        run: pnpm db:push:app
+
+      - run: pnpm --filter app exec playwright install --with-deps chromium
+      - run: pnpm test:e2e:app
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/app/playwright-report/
+          retention-days: 7
