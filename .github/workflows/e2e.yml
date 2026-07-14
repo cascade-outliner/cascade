@@ -42,12 +42,6 @@ jobs:
 
       - name: Apply database schema
         run: pnpm db:push:app
-      - name: Fix fractional-index ordering collation
-        # drizzle-kit push can't express COLLATE; required once per fresh
-        # database, same caveat documented in the root README.
-        run: >-
-          psql "$DATABASE_URL" -c
-          'ALTER TABLE nodes ALTER COLUMN "order" TYPE text COLLATE "C";'
 
       - run: pnpm --filter app exec playwright install --with-deps chromium
       - run: pnpm test:e2e:app
@@ -59,41 +53,3 @@ jobs:
           name: playwright-report
           path: apps/app/playwright-report/
           retention-days: 7
-
-      - name: Comment results on PR
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const marker = '<!-- e2e-test-results -->';
-            const passed = '${{ job.status }}' === 'success';
-            const status = passed ? '✅ Passed' : '❌ Failed';
-            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const lines = [marker, `### E2E tests: ${status}`, '', `[View run](${runUrl})`];
-            if (!passed) {
-              lines.push(`[Download Playwright report](${runUrl}#artifacts)`);
-            }
-            const body = lines.join('\n');
-
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            const existing = comments.find((c) => c.body?.includes(marker));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body,
-              });
-            }

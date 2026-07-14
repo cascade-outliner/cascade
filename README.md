@@ -37,11 +37,6 @@ pnpm db:push
 pnpm db:seed
 ```
 
-> Note: the `order` column must use `COLLATE "C"` (byte-order comparison for
-> fractional-index keys). `db:push` can't express collation - on a fresh
-> database run once:
-> `ALTER TABLE nodes ALTER COLUMN "order" TYPE text COLLATE "C";`
-
 Start the dev server:
 
 ```bash
