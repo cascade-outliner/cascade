@@ -124,12 +124,7 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 			header={
 				<>
 					{header}
-					<FiltersBar
-						filters={filters}
-						onFiltersChange={setFilters}
-						matchCount={visibility.matchCount}
-						totalCount={tree.rows.length}
-					/>
+					<FiltersBar filters={filters} onFiltersChange={setFilters} />
 				</>
 			}
 			hiddenRowIds={visibility.hiddenIds}
