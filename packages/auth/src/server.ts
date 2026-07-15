@@ -3,57 +3,61 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./auth.schema";
+import { env } from "./env";
 
-function required(name: string): string {
-	const value = process.env[name];
-	if (!value) {
-		throw new Error(`${name} is not set`);
-	}
-	return value;
-}
+const productionOrigins = [
+	"https://cascadelist.com",
+	"https://app.cascadelist.com",
+];
+const devOrigins = ["http://localhost:3000", "http://localhost:3001"];
 
-const db = drizzle(postgres(required("DATABASE_URL")), { schema });
+export function createAuth(db: object | string) {
+	const resolvedDb =
+		typeof db === "string" ? drizzle(postgres(db), { schema }) : db;
 
-// Set to ".cascadelist.com" in production so the session cookie spans
-// cascadelist.com and app.cascadelist.com; leave unset in dev.
-const cookieDomain = process.env.COOKIE_DOMAIN;
-
-export const auth = betterAuth({
-	baseURL: required("BETTER_AUTH_URL"),
-	secret: required("BETTER_AUTH_SECRET"),
-	database: drizzleAdapter(db, { provider: "pg", schema }),
-	emailAndPassword: {
-		enabled: true,
-	},
-	user: {
-		deleteUser: {
+	return betterAuth({
+		baseURL: env.BETTER_AUTH_URL,
+		secret: env.BETTER_AUTH_SECRET,
+		database: drizzleAdapter(resolvedDb, { provider: "pg", schema }),
+		emailAndPassword: {
 			enabled: true,
 		},
-	},
-	socialProviders: {
-		github: {
-			clientId: process.env.BETTER_AUTH_GITHUB_CLIENT_ID as string,
-			clientSecret: process.env.BETTER_AUTH_GITHUB_CLIENT_SECRET as string,
-		},
-		google: {
-			clientId: process.env.BETTER_AUTH_GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.BETTER_AUTH_GOOGLE_CLIENT_SECRET as string,
-		},
-	},
-	trustedOrigins: [
-		"http://localhost:3000",
-		"http://localhost:3001",
-		"https://cascadelist.com",
-		"https://app.cascadelist.com",
-	],
-	advanced: {
-		...(cookieDomain && {
-			crossSubDomainCookies: {
+		user: {
+			deleteUser: {
 				enabled: true,
-				domain: cookieDomain,
 			},
-		}),
-	},
-});
+		},
+		socialProviders: {
+			...(env.BETTER_AUTH_GITHUB_CLIENT_ID &&
+				env.BETTER_AUTH_GITHUB_CLIENT_SECRET && {
+					github: {
+						clientId: env.BETTER_AUTH_GITHUB_CLIENT_ID,
+						clientSecret: env.BETTER_AUTH_GITHUB_CLIENT_SECRET,
+					},
+				}),
+			...(env.BETTER_AUTH_GOOGLE_CLIENT_ID &&
+				env.BETTER_AUTH_GOOGLE_CLIENT_SECRET && {
+					google: {
+						clientId: env.BETTER_AUTH_GOOGLE_CLIENT_ID,
+						clientSecret: env.BETTER_AUTH_GOOGLE_CLIENT_SECRET,
+					},
+				}),
+		},
+		// Plaintext-HTTP localhost origins are only trustworthy in dev.
+		trustedOrigins:
+			env.NODE_ENV === "production"
+				? productionOrigins
+				: [...devOrigins, ...productionOrigins],
+		advanced: {
+			...(env.COOKIE_DOMAIN && {
+				crossSubDomainCookies: {
+					enabled: true,
+					domain: env.COOKIE_DOMAIN,
+				},
+			}),
+		},
+	});
+}
 
-export type Session = typeof auth.$Infer.Session;
+export type Auth = ReturnType<typeof createAuth>;
+export type Session = Auth["$Infer"]["Session"];
