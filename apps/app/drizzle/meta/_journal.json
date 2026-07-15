@@ -22,6 +22,13 @@
       "when": 1783978231011,
       "tag": "0002_clumsy_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784102692267,
+      "tag": "0003_remarkable_taskmaster",
+      "breakpoints": true
     }
   ]
 }
