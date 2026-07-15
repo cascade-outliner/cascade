@@ -21,6 +21,10 @@ function lexicalNodeSchema(depth: number): z.ZodType<unknown> {
 			indent: z.number().optional(),
 			direction: z.enum(["ltr", "rtl"]).nullable().optional(),
 			version: z.number().optional(),
+			// Lexical's ElementNode (root, paragraph, ...) always serializes
+			// these two alongside `format`/`children`.
+			textFormat: z.number().optional(),
+			textStyle: z.string().optional(),
 			children:
 				depth >= MAX_LEXICAL_DEPTH
 					? z.array(z.never()).max(0).optional()

@@ -1,3 +1,9 @@
+import {
+	$createParagraphNode,
+	$createTextNode,
+	$getRoot,
+	createEditor,
+} from "lexical";
 import { describe, expect, it } from "vitest";
 import {
 	MAX_CHILDREN_PER_NODE,
@@ -140,5 +146,41 @@ describe("updateNodeContentInputSchema", () => {
 			content: { root: { children: [] } },
 		});
 		expect(result.success).toBe(false);
+	});
+
+	// Regression test: the schema's `.strict()` allowlist was initially missing
+	// `textFormat`/`textStyle`, which Lexical's ElementNode (root, paragraph)
+	// always serializes. That silently rejected every real edit as soon as it
+	// left the editor, since hand-written fixtures above don't reproduce the
+	// exact shape the actual library emits. Build editor state with the real
+	// `lexical` package instead of a hand-rolled fixture so this can't drift
+	// out of sync again.
+	it("accepts content produced by a real Lexical editor", () => {
+		const editor = createEditor();
+		editor.update(
+			() => {
+				const root = $getRoot();
+
+				const paragraph = $createParagraphNode();
+				const text = $createTextNode("hello world");
+				text.toggleFormat("bold");
+				paragraph.append(text);
+				root.append(paragraph);
+
+				const secondParagraph = $createParagraphNode();
+				secondParagraph.append($createTextNode("plain second line"));
+				root.append(secondParagraph);
+
+				root.append($createParagraphNode());
+			},
+			{ discrete: true },
+		);
+
+		const content = editor.getEditorState().toJSON();
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content,
+		});
+		expect(result.success).toBe(true);
 	});
 });

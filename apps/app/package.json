@@ -78,6 +78,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "^17.4.2",
     "jsdom": "^29.1.1",
+    "lexical": "^0.46.0",
     "playwright": "^1.61.1",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2",
