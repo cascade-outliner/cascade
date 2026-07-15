@@ -168,7 +168,7 @@ export function UserMenu() {
 			<Dialog.Root open={settingsOpen} onOpenChange={setSettingsOpen}>
 				<Dialog.Portal>
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm" />
-					<Dialog.Popup className="fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 border-0 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 outline-none sm:right-auto sm:bottom-auto sm:h-auto sm:rounded-lg sm:border sm:border-dark-grey/10 dark:bg-dark-grey dark:text-ginger sm:dark:border-ginger/15">
+					<Dialog.Popup className="fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-0 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 outline-none sm:right-auto sm:bottom-auto sm:h-auto sm:rounded-lg sm:border sm:border-dark-grey/10 dark:bg-dark-grey dark:text-ginger sm:dark:border-ginger/15">
 						<div className="mb-4 flex items-center justify-between">
 							<Dialog.Title className="text-lg font-semibold">
 								{m.user_menu_settings()}
@@ -291,7 +291,7 @@ export function UserMenu() {
 							</Tabs.Panel>
 							<Tabs.Panel
 								value="changelog"
-								className="max-h-80 overflow-y-auto"
+								className="max-h-[60vh] overflow-y-auto sm:max-h-80"
 							>
 								{changelogEntries.map((entry) => (
 									<div key={entry.id} className="mb-4 last:mb-0">
