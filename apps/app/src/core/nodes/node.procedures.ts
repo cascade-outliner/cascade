@@ -49,12 +49,79 @@ interface VisibleTreeSqlRow {
 	is_last_child: boolean;
 }
 
+function toVisibleNodeRows(rows: VisibleTreeSqlRow[]): VisibleNodeRow[] {
+	return rows.map((r) => ({
+		id: r.id,
+		parentId: r.parent_id,
+		content: r.content,
+		type: r.type,
+		metadata: r.metadata as NodeMetadata,
+		expanded: r.expanded,
+		order: r.order,
+		dueDate: r.due_date,
+		depth: Number(r.depth),
+		path: r.path,
+		hasChildren: r.has_children,
+		isLastChild: r.is_last_child,
+	}));
+}
+
 /**
- * With the "due today" filter active, the client needs to match against every
- * descendant node regardless of collapse state, so this traversal cap replaces
- * normal cursor pagination in that mode (see visibleTree below).
+ * Due-today match lookup, scoped to rootId's subtree, computed independently
+ * of collapse state (nodes.expanded never gates this traversal).
+ *
+ * The recursive walk only carries the narrow columns needed to test a match
+ * and to order/scope the result (skipping `content`, the largest column, and
+ * `expanded`, which is irrelevant once a node is hidden); the due-date/
+ * completed predicate runs in SQL via the indexed `due_date` column, and only
+ * the resulting handful of matches gets joined back to `nodes` for their full
+ * row. That keeps the traversal itself cheap even over a large tree, since
+ * what dominates cost otherwise is shipping every node's full content across
+ * the network only to discard almost all of it client-side.
  */
-const FILTERED_TRAVERSAL_LIMIT = 20_000;
+async function findDueTodayRows(
+	userId: string,
+	rootId: string | null,
+	localDayStart: Date,
+	limit: number,
+): Promise<VisibleNodeRow[]> {
+	const localDayEnd = new Date(localDayStart.getTime() + 86_400_000);
+
+	const result = (await db.execute(sql`
+		WITH RECURSIVE visible AS (
+			SELECT n.id, n.parent_id, n."order", n.due_date, n.type, n.metadata,
+				0 AS depth,
+				ARRAY[n."order"] AS path
+			FROM nodes n
+			WHERE n.user_id = ${userId}
+				AND ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
+			UNION ALL
+			SELECT c.id, c.parent_id, c."order", c.due_date, c.type, c.metadata,
+				v.depth + 1,
+				v.path || c."order"
+			FROM nodes c
+			JOIN visible v ON c.parent_id = v.id
+			WHERE c.user_id = ${userId} AND v.depth < 64
+		),
+		matched AS (
+			SELECT v.id, v.parent_id, v.depth, v.path
+			FROM visible v
+			WHERE v.due_date >= ${localDayStart}
+				AND v.due_date < ${localDayEnd}
+				AND NOT (v.type = 'task' AND (v.metadata->>'completed')::boolean IS TRUE)
+		)
+		SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order", n.due_date,
+			m.depth, m.path,
+			EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = m.id AND ch.user_id = ${userId}) AS has_children,
+			(lead(m.id) OVER (PARTITION BY m.parent_id ORDER BY n."order")) IS NULL AS is_last_child
+		FROM matched m
+		JOIN nodes n ON n.id = m.id
+		ORDER BY m.path
+		LIMIT ${limit}
+	`)) as unknown as VisibleTreeSqlRow[];
+
+	return toVisibleNodeRows(result);
+}
 
 /**
  * Flat, depth-first list of every visible node (roots plus descendants of
@@ -62,26 +129,34 @@ const FILTERED_TRAVERSAL_LIMIT = 20_000;
  * from comparing fractional-index path arrays, which requires the `order`
  * column to use COLLATE "C" (byte-order comparison).
  *
- * When `filter: "today"` is set, the `expanded` gate is dropped so the whole
- * subtree is traversed instead of just the currently-expanded chains: the
- * client's due-today match/ancestor/descendant logic needs every node, not
- * only the ones already visible on screen, to catch matches hidden inside
- * collapsed sections. That traversal replaces cursor pagination with a single
- * generous cap, since a filtered result set is expected to be small.
+ * With `filter: "today"` this delegates to findDueTodayRows instead, which
+ * returns only due-today matches rather than the expanded-visible page.
  */
 export const visibleTree = authed
 	.input(
-		z.object({
-			rootId: z.string().nullable(),
-			cursor: z.array(z.string()).nullable().default(null),
-			limit: z.number().int().min(1).max(2000).default(500),
-			filter: z.enum(["today"]).nullable().default(null),
-		}),
+		z
+			.object({
+				rootId: z.string().nullable(),
+				cursor: z.array(z.string()).nullable().default(null),
+				limit: z.number().int().min(1).max(2000).default(500),
+				filter: z.enum(["today"]).nullable().default(null),
+				/** Start of "today" in the client's local timezone; required when filter is set. */
+				localDayStart: z.coerce.date().nullable().default(null),
+			})
+			.refine((v) => v.filter !== "today" || v.localDayStart !== null, {
+				message: 'localDayStart is required when filter is "today"',
+				path: ["localDayStart"],
+			}),
 	)
 	.handler(async ({ input, context }) => {
-		const { rootId, cursor, limit, filter } = input;
+		const { rootId, cursor, limit, filter, localDayStart } = input;
 		const userId = context.user.id;
-		const effectiveLimit = filter ? FILTERED_TRAVERSAL_LIMIT : limit;
+
+		if (filter === "today") {
+			if (!localDayStart) throw new Error("localDayStart is required");
+			const rows = await findDueTodayRows(userId, rootId, localDayStart, limit);
+			return { rows, nextCursor: null };
+		}
 
 		const result = (await db.execute(sql`
 			WITH RECURSIVE visible AS (
@@ -97,40 +172,24 @@ export const visibleTree = authed
 					v.path || c."order"
 				FROM nodes c
 				JOIN visible v ON c.parent_id = v.id
-				WHERE c.user_id = ${userId} AND v.depth < 64
-					${filter ? sql`` : sql`AND v.expanded = true`}
+				WHERE c.user_id = ${userId} AND v.expanded = true AND v.depth < 64
 			)
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id AND ch.user_id = ${userId}) AS has_children,
 				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
 			FROM visible v
-			${cursor && !filter ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
+			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
 			ORDER BY v.path
-			LIMIT ${effectiveLimit + 1}
+			LIMIT ${limit + 1}
 		`)) as unknown as VisibleTreeSqlRow[];
 
-		const page = result.slice(0, effectiveLimit);
-		const rows: VisibleNodeRow[] = page.map((r) => ({
-			id: r.id,
-			parentId: r.parent_id,
-			content: r.content,
-			type: r.type,
-			metadata: r.metadata as NodeMetadata,
-			expanded: r.expanded,
-			order: r.order,
-			dueDate: r.due_date,
-			depth: Number(r.depth),
-			path: r.path,
-			hasChildren: r.has_children,
-			isLastChild: r.is_last_child,
-		}));
+		const page = result.slice(0, limit);
+		const rows = toVisibleNodeRows(page);
 
 		return {
 			rows,
 			nextCursor:
-				!filter && result.length > limit
-					? (rows[rows.length - 1]?.path ?? null)
-					: null,
+				result.length > limit ? (rows[rows.length - 1]?.path ?? null) : null,
 		};
 	});
 

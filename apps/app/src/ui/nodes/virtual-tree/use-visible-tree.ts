@@ -1,3 +1,4 @@
+import { startOfDay } from "@cascade/outliner/due-date-bucket";
 import type {
 	TypedMetadata,
 	VisibleNodeRow,
@@ -28,7 +29,12 @@ export function visibleTreeOptions(
 	rootId: string | null,
 	filter: "today" | null = null,
 ) {
-	return orpc.nodes.visibleTree.queryOptions({ input: { rootId, filter } });
+	// Stable for the whole calendar day, so the query key (and cache) doesn't
+	// change on every render; the server matches "today" against this bound.
+	const localDayStart = filter === "today" ? startOfDay(new Date()) : null;
+	return orpc.nodes.visibleTree.queryOptions({
+		input: { rootId, filter, localDayStart },
+	});
 }
 
 /**
@@ -36,9 +42,10 @@ export function visibleTreeOptions(
  * touches it. All mutations splice the flat array optimistically, then persist
  * and reconcile with the server (whose fractional order is authoritative).
  *
- * `filter: "today"` fetches the node's entire subtree regardless of collapse
- * state (see visibleTree's `filter` param), so the "due today" filter can
- * match nodes hidden inside collapsed sections instead of just what's loaded.
+ * `filter: "today"` fetches only the nodes due today anywhere in this node's
+ * subtree, computed server-side independent of collapse state, so the filter
+ * can match nodes hidden inside collapsed sections instead of just what's
+ * already loaded.
  */
 export function useVisibleTree(
 	rootId: string | null,
