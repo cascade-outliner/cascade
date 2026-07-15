@@ -17,8 +17,6 @@
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:seed": "node --env-file=.env.local --import tsx/esm ./src/db/seed.ts",
-    "db:seed:prod": "node --import tsx/esm ./src/db/seed.ts",
-    "start:seeded": "pnpm db:seed:prod && pnpm start",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
