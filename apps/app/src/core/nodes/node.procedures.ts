@@ -406,22 +406,19 @@ export const deleteNode = authed
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
 		const userId = context.user.id;
-		const [{ count }] = (await db.execute(sql`
+		const [result] = (await db.execute(sql`
 			WITH RECURSIVE descendants AS (
-				SELECT id FROM nodes WHERE parent_id = ${input.id} AND user_id = ${userId}
+				SELECT id, 0 AS depth FROM nodes WHERE parent_id = ${input.id} AND user_id = ${userId}
 				UNION ALL
-				SELECT c.id FROM nodes c
+				SELECT c.id, d.depth + 1 FROM nodes c
 				JOIN descendants d ON c.parent_id = d.id
-				WHERE c.user_id = ${userId}
+				WHERE c.user_id = ${userId} AND d.depth < 64
 			)
-			SELECT count(*)::int AS count FROM descendants
-		`)) as unknown as [{ count: number }];
+			DELETE FROM nodes WHERE id = ${input.id} AND user_id = ${userId}
+			RETURNING (SELECT count(*) FROM descendants)::int AS count
+		`)) as unknown as { count: number }[];
 
-		await db
-			.delete(nodes)
-			.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
-
-		return { childrenDeleted: count };
+		return { childrenDeleted: result?.count ?? 0 };
 	});
 
 const lexicalTextNodeSchema = z
