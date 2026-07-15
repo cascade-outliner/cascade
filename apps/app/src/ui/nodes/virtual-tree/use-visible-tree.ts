@@ -134,6 +134,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 				},
 			});
 		} catch {
+			toast.error(m.node_save_failed());
 			invalidate();
 		}
 	};
