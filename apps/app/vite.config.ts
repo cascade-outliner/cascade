@@ -15,6 +15,14 @@ export default defineConfig({
 	test: {
 		exclude: ["**/node_modules/**", "**/e2e/**"],
 	},
+	build: {
+		rollupOptions: {
+			onLog(level, log, handler) {
+				if (log.code === "INVALID_ANNOTATION") return;
+				handler(level, log);
+			},
+		},
+	},
 	plugins: [
 		paraglideVitePlugin({
 			project: "./project.inlang",
