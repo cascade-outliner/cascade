@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { NodeLink } from "@/ui/nodes/node-link";
 import { useNodeFilters } from "@/ui/nodes/use-node-filters";
+import { useDueTodayReveal } from "@/ui/nodes/virtual-tree/use-due-today-reveal";
 import {
 	useVisibleTree,
 	visibleTreeOptions,
@@ -29,6 +30,7 @@ function RootTree() {
 	const tree = useVisibleTree(null);
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
+	useDueTodayReveal(null, filters.dueToday);
 	const visibility = getRowVisibility(tree.rows, filters);
 
 	return (

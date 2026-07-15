@@ -115,6 +115,38 @@ export const visibleTree = authed
 		};
 	});
 
+/**
+ * Ids of every node due in `[start, end)` plus their full ancestor chains, so
+ * the client can reveal due-today matches that live inside collapsed
+ * sections instead of only filtering whatever happens to already be loaded.
+ */
+export const dueTodayIds = authed
+	.input(z.object({ start: z.coerce.date(), end: z.coerce.date() }))
+	.handler(async ({ input, context }) => {
+		const userId = context.user.id;
+		const start = input.start.toISOString();
+		const end = input.end.toISOString();
+		const result = (await db.execute(sql`
+			WITH RECURSIVE due_matches AS (
+				SELECT id, parent_id FROM nodes
+				WHERE user_id = ${userId}
+					AND due_date >= ${start} AND due_date < ${end}
+					AND NOT (type = 'task' AND (metadata->>'completed')::boolean IS TRUE)
+			),
+			due_ancestors AS (
+				SELECT id, parent_id, 0 AS depth FROM due_matches
+				UNION ALL
+				SELECT n.id, n.parent_id, a.depth + 1
+				FROM nodes n
+				JOIN due_ancestors a ON n.id = a.parent_id
+				WHERE n.user_id = ${userId} AND a.depth < 64
+			)
+			SELECT DISTINCT id, parent_id FROM due_ancestors
+		`)) as unknown as { id: string; parent_id: string | null }[];
+
+		return result.map((r) => ({ id: r.id, parentId: r.parent_id }));
+	});
+
 export const createNode = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },

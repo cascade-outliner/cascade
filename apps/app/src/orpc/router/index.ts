@@ -1,6 +1,7 @@
 import {
 	createNode,
 	deleteNode,
+	dueTodayIds,
 	getNode,
 	getNodeAncestors,
 	listNodes,
@@ -20,6 +21,7 @@ export default {
 		resolveSlug: resolveNodeSlug,
 		ancestors: getNodeAncestors,
 		visibleTree,
+		dueTodayIds,
 		create: createNode,
 		move: moveNode,
 		toggleExpanded: toggleNodeExpanded,

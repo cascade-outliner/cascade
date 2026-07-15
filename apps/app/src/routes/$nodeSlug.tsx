@@ -17,6 +17,7 @@ import { Breadcrumbs } from "#/ui/nodes/breadcrumbs";
 import { NodeLink } from "#/ui/nodes/node-link";
 import { splitNodeSlug } from "#/ui/nodes/node-slug";
 import { useNodeFilters } from "#/ui/nodes/use-node-filters";
+import { useDueTodayReveal } from "#/ui/nodes/virtual-tree/use-due-today-reveal";
 import {
 	useVisibleTree,
 	visibleTreeOptions,
@@ -120,6 +121,7 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 	const tree = useVisibleTree(nodeId);
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
+	useDueTodayReveal(nodeId, filters.dueToday);
 	const visibility = getRowVisibility(tree.rows, filters);
 
 	return (

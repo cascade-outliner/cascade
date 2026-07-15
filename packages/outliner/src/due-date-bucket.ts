@@ -14,3 +14,9 @@ export function dueBucket(dueDate: Date, completed: boolean): DueBucket {
 	if (diffDays === 0) return "today";
 	return "upcoming";
 }
+
+/** The `[start, end)` instant range covering "today" in the local timezone. */
+export function todayRange(): { start: Date; end: Date } {
+	const start = startOfDay(new Date());
+	return { start, end: new Date(start.getTime() + 86_400_000) };
+}
