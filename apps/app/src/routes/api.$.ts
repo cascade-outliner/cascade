@@ -1,4 +1,3 @@
-import { createRateLimiter, getClientIp } from "@cascade/http/rate-limit";
 import { SmartCoercionPlugin } from "@orpc/json-schema";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { onError } from "@orpc/server";
@@ -24,15 +23,7 @@ const handler = new OpenAPIHandler(router, {
 	],
 });
 
-// Tighter than the RPC handler: this surface is meant for external API
-// consumers rather than the app's own interactive UI.
-const isRateLimited = createRateLimiter({ windowMs: 10_000, max: 100 });
-
 async function handle({ request }: { request: Request }) {
-	if (isRateLimited(getClientIp(request))) {
-		return new Response("Too Many Requests", { status: 429 });
-	}
-
 	const { response } = await handler.handle(request, {
 		prefix: "/api",
 		context: await createContext(request),
