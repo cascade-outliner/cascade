@@ -161,6 +161,15 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 		}
 	};
 
+	const setTags = async (id: string, tags: string[]) => {
+		setRows((rows) => patchRow(rows, id, { tags }));
+		try {
+			await client.nodes.setTags({ id, tags });
+		} catch {
+			invalidate();
+		}
+	};
+
 	/** Create and append a new node as the last child of this view's root. */
 	const add = async ({ dueDate = null }: AddNodeOptions = {}) => {
 		const created = await client.nodes.create({ parentId: rootId, dueDate });
@@ -174,6 +183,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 				expanded: created.expanded,
 				order: created.order,
 				dueDate: created.dueDate,
+				tags: created.tags,
 				depth: 0,
 				path: [created.order],
 				hasChildren: created.hasChildren,
@@ -203,6 +213,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 				expanded: created.expanded,
 				order: created.order,
 				dueDate: created.dueDate,
+				tags: created.tags,
 				depth: sibling.depth,
 				path: [...sibling.path.slice(0, -1), created.order],
 				hasChildren: created.hasChildren,
@@ -241,6 +252,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 		updateContent,
 		setType,
 		setDueDate,
+		setTags,
 		add,
 		addAfter,
 		loadMore,

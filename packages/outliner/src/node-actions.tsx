@@ -12,17 +12,21 @@ import {
 import {
 	ArrowsClockwiseIcon,
 	CalendarIcon,
+	TagIcon,
 	TrashIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
+import { NodeTagsEditor } from "./node-tags-editor";
 import { type NodeTypeName, nodeTypeNames } from "./node-types";
 
 interface NodeActionsProps {
 	nodeType: NodeTypeName;
 	dueDate: Date | null;
+	tags: string[];
 	onConvert: (type: NodeTypeName) => void;
 	onSetDueDate: (date: Date | null) => void;
+	onSetTags: (tags: string[]) => void;
 	onDelete: () => void;
 	viewTransitionName?: string;
 	children: ReactNode;
@@ -31,8 +35,10 @@ interface NodeActionsProps {
 export function NodeActions({
 	nodeType,
 	dueDate,
+	tags,
 	onConvert,
 	onSetDueDate,
+	onSetTags,
 	onDelete,
 	viewTransitionName,
 	children,
@@ -63,6 +69,19 @@ export function NodeActions({
 							onSelect={onSetDueDate}
 							onClear={() => onSetDueDate(null)}
 						/>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+				<ContextMenuSeparator />
+				<ContextMenuSub>
+					<ContextMenuSubTrigger
+						icon={<TagIcon size={14} weight="bold" />}
+						openOnHover
+						delay={150}
+					>
+						{tags.length > 0 ? labels.manageTags : labels.addTag}
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<NodeTagsEditor tags={tags} onChange={onSetTags} />
 					</ContextMenuSubContent>
 				</ContextMenuSub>
 				<ContextMenuSeparator />

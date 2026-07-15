@@ -4,6 +4,7 @@ import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-vie
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import { NodeCheckbox } from "@cascade/outliner/node-checkbox";
 import { NodeDueDatePill } from "@cascade/outliner/node-due-date-pill";
+import { NodeTagPills } from "@cascade/outliner/node-tags-pills";
 import type { NodeMetadataOf } from "@cascade/outliner/node-types";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
@@ -108,6 +109,7 @@ function NodeDetailPage() {
 									onChange={setDueDate}
 								/>
 							)}
+							{node.tags.length > 0 && <NodeTagPills tags={node.tags} />}
 						</div>
 					</>
 				}

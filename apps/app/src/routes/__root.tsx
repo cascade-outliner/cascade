@@ -128,6 +128,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 								dueToday: m.outliner_due_today(),
 								dueTomorrow: m.outliner_due_tomorrow(),
 								dueYesterday: m.outliner_due_yesterday(),
+								addTag: m.outliner_add_tag(),
+								manageTags: m.outliner_manage_tags(),
+								tagsInputPlaceholder: m.outliner_tags_input_placeholder(),
+								removeTagAria: m.outliner_remove_tag_aria(),
 								nodeTypeLabels: {
 									text: m.outliner_type_text(),
 									task: m.outliner_type_task(),

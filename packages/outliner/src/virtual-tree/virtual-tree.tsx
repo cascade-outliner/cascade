@@ -194,6 +194,7 @@ export function VirtualTree({
 										})
 									}
 									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
+									onSetTags={(tags) => tree.setTags(row.id, tags)}
 									onDelete={() => tree.remove(row.id)}
 									onSaveContent={(content) =>
 										tree.updateContent(row.id, content)

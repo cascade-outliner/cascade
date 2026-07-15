@@ -18,6 +18,10 @@ export interface OutlinerLabels {
 	dueToday: string;
 	dueTomorrow: string;
 	dueYesterday: string;
+	addTag: string;
+	manageTags: string;
+	tagsInputPlaceholder: string;
+	removeTagAria: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
@@ -43,6 +47,10 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	dueToday: "Today",
 	dueTomorrow: "Tomorrow",
 	dueYesterday: "Yesterday",
+	addTag: "Add tag",
+	manageTags: "Manage tags",
+	tagsInputPlaceholder: "Add tag…",
+	removeTagAria: "Remove tag",
 	nodeTypeLabels: Object.fromEntries(
 		nodeTypeNames.map((type) => [type, nodeTypeDefs[type].label]),
 	) as Record<NodeTypeName, string>,

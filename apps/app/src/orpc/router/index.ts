@@ -7,6 +7,7 @@ import {
 	moveNode,
 	resolveNodeSlug,
 	setNodeDueDate,
+	setNodeTags,
 	setNodeType,
 	toggleNodeExpanded,
 	updateNodeContent,
@@ -27,5 +28,6 @@ export default {
 		updateContent: updateNodeContent,
 		setType: setNodeType,
 		setDueDate: setNodeDueDate,
+		setTags: setNodeTags,
 	},
 };

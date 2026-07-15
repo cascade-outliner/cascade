@@ -1,3 +1,4 @@
+import { normalizeTags } from "@cascade/outliner/node-tags";
 import {
 	type NodeMetadata,
 	type NodeTypeName,
@@ -8,7 +9,7 @@ import { and, asc, desc, eq, gt, isNull, like, lt, sql } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
 import { nodeColumns } from "@/core/nodes/node.queries";
-import { nodes } from "@/core/nodes/node.schema";
+import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
 import { db } from "@/db";
 import { authed } from "@/orpc/context";
 import {
@@ -47,6 +48,7 @@ interface VisibleTreeSqlRow {
 	path: string[];
 	has_children: boolean;
 	is_last_child: boolean;
+	tags: string[];
 }
 
 /**
@@ -85,7 +87,8 @@ export const visibleTree = authed
 			)
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id AND ch.user_id = ${userId}) AS has_children,
-				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
+				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child,
+				COALESCE((SELECT array_agg(t.name ORDER BY t.name) FROM node_tags nt JOIN tags t ON t.id = nt.tag_id WHERE nt.node_id = v.id), ARRAY[]::text[]) AS tags
 			FROM visible v
 			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
 			ORDER BY v.path
@@ -102,6 +105,7 @@ export const visibleTree = authed
 			expanded: r.expanded,
 			order: r.order,
 			dueDate: r.due_date,
+			tags: r.tags,
 			depth: Number(r.depth),
 			path: r.path,
 			hasChildren: r.has_children,
@@ -277,6 +281,47 @@ export const setNodeDueDate = authed
 			.update(nodes)
 			.set({ dueDate: input.dueDate })
 			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
+	});
+
+export const setNodeTags = authed
+	.errors({
+		NOT_FOUND: { status: 404, message: "Node not found" },
+	})
+	.input(z.object({ id: z.string(), tags: z.array(z.string()) }))
+	.handler(async ({ input, context, errors }) => {
+		const userId = context.user.id;
+		const names = normalizeTags(input.tags);
+
+		await db.transaction(async (tx) => {
+			const [node] = await tx
+				.select({ id: nodes.id })
+				.from(nodes)
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
+				.limit(1);
+			if (!node) throw errors.NOT_FOUND();
+
+			let tagIds: string[] = [];
+			if (names.length > 0) {
+				// onConflictDoUpdate (no-op set) so RETURNING also yields ids for
+				// tags that already existed, not just newly-inserted ones.
+				const rows = await tx
+					.insert(tagsTable)
+					.values(names.map((name) => ({ userId, name })))
+					.onConflictDoUpdate({
+						target: [tagsTable.userId, tagsTable.name],
+						set: { name: sql`excluded.name` },
+					})
+					.returning({ id: tagsTable.id });
+				tagIds = rows.map((r) => r.id);
+			}
+
+			await tx.delete(nodeTags).where(eq(nodeTags.nodeId, input.id));
+			if (tagIds.length > 0) {
+				await tx
+					.insert(nodeTags)
+					.values(tagIds.map((tagId) => ({ nodeId: input.id, tagId })));
+			}
+		});
 	});
 
 export const setNodeType = authed
