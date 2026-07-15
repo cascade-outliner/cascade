@@ -124,8 +124,15 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 		try {
 			await client.nodes.updateContent({ id, content });
 
-			// Bust breadcrumbs to refresh its data
-			queryClient.invalidateQueries({ queryKey: orpc.nodes.ancestors.key() });
+			// Bust breadcrumbs, but only for chains the edited node is actually
+			// part of, rather than every ancestors cache entry.
+			queryClient.invalidateQueries({
+				queryKey: orpc.nodes.ancestors.key(),
+				predicate: (query) => {
+					const chain = query.state.data as { id: string }[] | undefined;
+					return chain?.some((ancestor) => ancestor.id === id) ?? false;
+				},
+			});
 		} catch {
 			invalidate();
 		}
