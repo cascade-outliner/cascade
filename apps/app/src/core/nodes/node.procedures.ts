@@ -86,6 +86,11 @@ async function findDueTodayRows(
 	limit: number,
 ): Promise<VisibleNodeRow[]> {
 	const localDayEnd = new Date(localDayStart.getTime() + 86_400_000);
+	// db.execute's raw sql tag hands parameters straight to the postgres driver,
+	// which (unlike Drizzle's typed query builder) doesn't know how to bind a
+	// bare Date - it throws ERR_INVALID_ARG_TYPE. Cast explicit ISO strings instead.
+	const localDayStartIso = localDayStart.toISOString();
+	const localDayEndIso = localDayEnd.toISOString();
 
 	const result = (await db.execute(sql`
 		WITH RECURSIVE visible AS (
@@ -106,8 +111,8 @@ async function findDueTodayRows(
 		matched AS (
 			SELECT v.id, v.parent_id, v.depth, v.path
 			FROM visible v
-			WHERE v.due_date >= ${localDayStart}
-				AND v.due_date < ${localDayEnd}
+			WHERE v.due_date >= ${localDayStartIso}::timestamptz
+				AND v.due_date < ${localDayEndIso}::timestamptz
 				AND NOT (v.type = 'task' AND (v.metadata->>'completed')::boolean IS TRUE)
 		)
 		SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order", n.due_date,
