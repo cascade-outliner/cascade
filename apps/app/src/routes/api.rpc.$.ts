@@ -1,3 +1,4 @@
+import { createRateLimiter, getClientIp } from "@cascade/http/rate-limit";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { createFileRoute } from "@tanstack/react-router";
@@ -16,7 +17,15 @@ const handler = new RPCHandler(router, {
 	],
 });
 
+// Generous window: normal interactive use (fast typing, drag-reordering)
+// legitimately fires many small RPC calls per minute.
+const isRateLimited = createRateLimiter({ windowMs: 10_000, max: 300 });
+
 async function handle({ request }: { request: Request }) {
+	if (isRateLimited(getClientIp(request))) {
+		return new Response("Too Many Requests", { status: 429 });
+	}
+
 	const { response } = await handler.handle(request, {
 		prefix: "/api/rpc",
 		context: await createContext(request),

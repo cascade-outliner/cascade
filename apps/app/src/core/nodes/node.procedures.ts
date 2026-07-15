@@ -21,7 +21,7 @@ export const listNodes = authed
 	.input(z.object({ parentId: z.string().nullable() }))
 	.handler(async ({ input, context }) => {
 		return db
-			.select(nodeColumns)
+			.select(nodeColumns(context.user.id))
 			.from(nodes)
 			.where(
 				and(
@@ -168,7 +168,7 @@ export const createNode = authed
 				userId,
 				dueDate: input.dueDate ?? null,
 			})
-			.returning(nodeColumns);
+			.returning(nodeColumns(userId));
 		return created;
 	});
 
@@ -179,7 +179,7 @@ export const getNode = authed
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context, errors }) => {
 		const [node] = await db
-			.select(nodeColumns)
+			.select(nodeColumns(context.user.id))
 			.from(nodes)
 			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
 			.limit(1);

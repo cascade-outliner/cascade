@@ -4,6 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"exports": {
-		"./security-headers": "./src/security-headers.ts"
+		"./security-headers": "./src/security-headers.ts",
+		"./rate-limit": "./src/rate-limit.ts"
 	}
 }
