@@ -4,12 +4,19 @@ import { sql } from "drizzle-orm";
 import {
 	type AnyPgColumn,
 	boolean,
+	customType,
 	index,
 	jsonb,
 	pgTable,
 	text,
 	timestamp,
 } from "drizzle-orm/pg-core";
+
+const collatedText = customType<{ data: string }>({
+	dataType() {
+		return `text COLLATE "C"`;
+	},
+});
 
 export const nodes = pgTable(
 	"nodes",
@@ -25,7 +32,7 @@ export const nodes = pgTable(
 		type: text().notNull().default("text").$type<NodeTypeName>(),
 		metadata: jsonb("metadata").$type<NodeMetadata>(),
 		expanded: boolean().notNull().default(false),
-		order: text("order").notNull(),
+		order: collatedText("order").notNull(),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),
