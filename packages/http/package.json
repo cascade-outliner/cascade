@@ -1,0 +1,9 @@
+{
+	"name": "@cascade/http",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"exports": {
+		"./security-headers": "./src/security-headers.ts"
+	}
+}
