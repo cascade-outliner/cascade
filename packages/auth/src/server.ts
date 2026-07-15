@@ -11,13 +11,6 @@ const productionOrigins = [
 ];
 const devOrigins = ["http://localhost:3000", "http://localhost:3001"];
 
-// Accepts the app's own drizzle instance (to avoid opening a second
-// connection pool against the same database) or, for apps with no other
-// database access of their own, a connection string to open the one pool
-// they need. Typed loosely (rather than as drizzle-orm's own db type) so
-// that apps whose workspace dependency resolution picks a structurally
-// identical but nominally distinct copy of drizzle-orm can still pass
-// their instance through — better-auth's own adapter takes `db: any` too.
 export function createAuth(db: object | string) {
 	const resolvedDb =
 		typeof db === "string" ? drizzle(postgres(db), { schema }) : db;
