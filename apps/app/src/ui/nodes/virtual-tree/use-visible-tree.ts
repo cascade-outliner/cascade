@@ -1,4 +1,8 @@
 import { startOfDay } from "@cascade/outliner/due-date-bucket";
+import {
+	insertMissingSubtreeRows,
+	removeNonMatchDescendants,
+} from "@cascade/outliner/filter-visibility";
 import type {
 	TypedMetadata,
 	VisibleNodeRow,
@@ -67,18 +71,34 @@ export function useVisibleTree(
 	const invalidate = () =>
 		queryClient.invalidateQueries({ queryKey: options.queryKey });
 
+	// Under the due-today filter, tree.rows only holds matches (found anywhere
+	// in the subtree regardless of collapse state) - a node's real children can
+	// already include some of those matches, sitting wherever their own path
+	// puts them, without having been "expanded" into view. Splicing by depth
+	// range (as expandNode/collapseNode do) would treat those as part of the
+	// range being replaced and silently drop them, so use the id-based variants
+	// instead, which only add rows that are missing and only remove rows that
+	// aren't themselves still due today.
 	const toggle = async (id: string, expanded: boolean) => {
 		if (expanded) {
 			setRows((rows) => patchRow(rows, id, { expanded: true }));
 			try {
 				const subtree = await client.nodes.visibleTree({ rootId: id });
-				setRows((rows) => expandNode(rows, id, subtree.rows));
+				setRows((rows) =>
+					filter === "today"
+						? insertMissingSubtreeRows(rows, id, subtree.rows)
+						: expandNode(rows, id, subtree.rows),
+				);
 				await client.nodes.toggleExpanded({ id, expanded: true });
 			} catch {
 				invalidate();
 			}
 		} else {
-			setRows((rows) => collapseNode(rows, id));
+			setRows((rows) =>
+				filter === "today"
+					? removeNonMatchDescendants(rows, id)
+					: collapseNode(rows, id),
+			);
 			try {
 				await client.nodes.toggleExpanded({ id, expanded: false });
 			} catch {
