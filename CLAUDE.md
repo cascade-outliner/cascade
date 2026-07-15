@@ -1,0 +1,94 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+Cascade is a self-hosted, tree-based outliner (infinitely nestable nodes, virtualized for large trees). It's a pnpm monorepo with two TanStack Start apps and several shared packages, backed by PostgreSQL via Drizzle.
+
+- `apps/app` — the outliner itself (`app.cascadelist.com`, dev port 3001). Owns the database schema, the oRPC API, and auth session creation.
+- `apps/web` — marketing site + login/register/legal pages (`cascadelist.com`, dev port 3000). No database access of its own; talks to `apps/app`'s API and shares its auth session via a cross-subdomain cookie.
+- `packages/auth` — better-auth setup (`createAuth(db)`), shared by both apps so the session cookie is valid on both origins.
+- `packages/http` — shared HTTP concerns (e.g. security headers).
+- `packages/outliner` — the tree/editor UI: virtualized tree rendering, drag-and-drop, Lexical-based node editor, node/tree types, filters. Framework-agnostic React, no oRPC/data-fetching code — consumers pass in data and callbacks.
+- `packages/ui` — generic design-system primitives (button, input, checkbox, popover, calendar, toast, etc.) built on `@base-ui/react` + `cva`.
+- `packages/theme` — a single `theme.css` (colors like `super-ginger`/`dark-grey` seen in `apps/app`'s root layout) consumed by both apps.
+
+Packages are consumed as workspace deps (`@cascade/auth`, `@cascade/http`, `@cascade/outliner`, `@cascade/ui`, `@cascade/theme`) via `workspace:*` and per-package `exports` maps in their `package.json` — check the `exports` field before assuming a file is importable from outside its package.
+
+## Commands
+
+Run from the repo root with pnpm. Most scripts have `:app` / `:web` variants that filter to one workspace.
+
+```bash
+pnpm install            # install all workspaces
+
+pnpm dev                # run both apps in parallel (app :3001, web :3000)
+pnpm dev:app            # just apps/app
+pnpm dev:web            # just apps/web
+
+pnpm build:app          # vite build && tsc --noEmit
+pnpm build:web
+
+pnpm test:app           # vitest run (apps/app)
+pnpm test:web           # vitest run (apps/web)
+pnpm test:e2e:app       # Playwright e2e suite (apps/app only, see below)
+
+pnpm check              # biome check (lint + format), the CI gate
+pnpm lint               # biome lint only
+pnpm format:write       # biome format --write
+
+pnpm db:push:app        # apply schema changes to the database (no migration files)
+pnpm db:generate:app    # generate a drizzle migration from schema changes
+pnpm db:migrate:app     # run drizzle migrations
+pnpm db:seed:app        # seed dev data
+pnpm db:studio:app      # open Drizzle Studio
+```
+
+To run a single vitest test file or by name, `cd` into the workspace and use vitest directly, e.g. `cd apps/app && pnpm vitest run path/to/file.test.ts` or `pnpm vitest run -t "test name"`.
+
+### Local setup
+
+Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:5432`, db `cascade`). Copy `apps/app/.env.local.example` (and the equivalent in `apps/web`) to `.env.local`. `BETTER_AUTH_SECRET` must be identical across both apps — it signs the shared session cookie. After the database is up, run `pnpm db:push:app` before `pnpm dev`.
+
+### End-to-end tests
+
+`apps/app/e2e` is a Playwright suite. It needs a running database and builds+starts the app itself (no dev server needs to be running first). It authenticates once (`e2e/auth.setup.ts`, creating/reusing a dedicated `e2e@cascadelist.com` user) and reuses that session across tests; each test gets its own throwaway node via the real oRPC API (`e2e/support/fixtures.ts`'s `scratchNode` fixture) so tests never touch dev seed data and can run in parallel.
+
+## Architecture notes
+
+### Data layer: fractional indexing + recursive CTEs
+
+`nodes` (`apps/app/src/db/schema.ts`) is a self-referencing tree table (`parent_id` FK to `nodes.id`, cascade delete). Sibling order is a fractional index string (`order`, via `fractional-indexing`'s `generateKeyBetween`), stored with a custom `COLLATE "C"` text type so that byte-order comparison matches the fractional-indexing library's ordering. Because of that, moves and inserts only ever need to touch the moved/inserted row.
+
+Reads for the tree view go through a single recursive CTE (`visibleTree` in `apps/app/src/core/nodes/node.procedures.ts`) that walks expanded nodes depth-first server-side, building a `path` array of `order` values per row for cursor pagination (`WHERE path > cursor`) and correct DFS ordering. `moveNode` takes a `pg_advisory_xact_lock` keyed on the user id to serialize concurrent reorders, and validates the destination isn't inside the moved node's own subtree via another recursive CTE before recomputing the fractional index.
+
+### API: oRPC, not REST
+
+`apps/app/src/orpc/router/index.ts` assembles the full router from procedures defined in `apps/app/src/core/<domain>/`. Procedures are built from `authed` (`apps/app/src/orpc/context.ts`), which requires a valid better-auth session and injects `context.user`. All node procedures re-scope every query by `userId` — there's no separate authorization layer, so a new procedure that queries `nodes` must filter by the current user itself. The web client (`apps/app/src/orpc/client.ts`) is consumed through `@orpc/tanstack-query` — route loaders call `queryClient.ensureQueryData(orpc.<x>.queryOptions(...))`, and one-off mutations go through the plain `client.<x>(...)` call, both from the same generated proxy.
+
+### Routing: TanStack Start, file-based
+
+Both apps use `@tanstack/react-router`'s file-based routing (`src/routes/`) with SSR via `@tanstack/react-start`. Routes are generated with `pnpm generate-routes:app` / `:web` (`tsr generate`) — don't hand-edit `src/routeTree.gen.ts`. `apps/app`'s root route (`src/routes/__root.tsx`) gates the whole app behind a session check in `beforeLoad`, redirecting to `apps/web`'s `/login` when unauthenticated; `apps/web` owns the actual login/register UI and calls the shared better-auth client.
+
+Path aliases: within a workspace, `@/*` and `#/*` both resolve to that workspace's `src/*` (see each app's `tsconfig.json`); imports across workspaces use the `@cascade/*` package names and their `exports` map.
+
+### Node content: Lexical
+
+Node text is stored as serialized Lexical editor state (`jsonb` `content` column). `packages/outliner/src/lexical/edit` has the editable view, `.../lexical/read` has a read-only renderer, and `lexical-content.ts` has plain-text extraction (`lexicalToPlainText`) used for slugs and breadcrumb labels. `node.procedures.ts` validates incoming content against a recursive Zod schema shaped like a minimal Lexical tree before writing it.
+
+### Node URL slugs
+
+Node detail URLs are `/<slug-from-content>-<uuid-first-block>` (see `apps/app/src/ui/nodes/node-slug.ts`). The content-derived slug is normalized (lowercased, diacritics stripped, non-alphanumerics collapsed to hyphens) and capped in length; the trailing UUID-first-block suffix disambiguates duplicate titles while keeping links stable. `resolveNodeSlug` (`node.procedures.ts`) resolves a slug back to a node id, falling back to a full-UUID match and, when the first-block prefix is ambiguous, filtering candidates by the slug text before raising `SLUG_AMBIGUOUS`.
+
+### i18n
+
+Both apps use `@inlang/paraglide-js` (English + Dutch). Generated message functions live under `src/paraglide` (excluded from Biome) and are imported as `m` (e.g. `m.ui_loading()`). UI/outliner packages don't import `m` directly — they take a `labels` object via context providers (`UiLabelsProvider`, `OutlinerLabelsProvider`) that the consuming app populates with translated strings, so `packages/ui` and `packages/outliner` stay decoupled from the message catalog.
+
+## Conventions
+
+- **Formatting/linting**: Biome (tabs, double quotes, import organization on save). `pnpm check` is what CI runs — run it before considering a change done.
+- **Commits / PR titles**: Conventional Commits (`feat:`, `fix:`, `chore:`, etc.), lowercase subject. PR titles are linted in CI.
+- **CHANGELOG.md**: CI requires every PR to touch `CHANGELOG.md` with a user-facing entry (dated, newest on top), unless labeled `skip-changelog`.
+- **Linked issues**: CI requires every PR to close a linked issue.
+- **AI-assisted changes**: per the README, use AI to execute a solution you already understand, not to figure out what to build — know the problem and the intended fix before generating code.
