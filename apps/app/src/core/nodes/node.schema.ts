@@ -12,13 +12,6 @@ import {
 	timestamp,
 } from "drizzle-orm/pg-core";
 
-/**
- * `text` with `COLLATE "C"` (byte-order comparison), matching migration
- * 0000_uneven_gravity.sql. The `order` column's fractional-index keys are
- * compared byte-by-byte to derive DFS order (see `visibleTree` in
- * node.procedures.ts), so schema, generated migrations, and `db:push` must
- * all agree on this collation.
- */
 const collatedText = customType<{ data: string }>({
 	dataType() {
 		return `text COLLATE "C"`;
