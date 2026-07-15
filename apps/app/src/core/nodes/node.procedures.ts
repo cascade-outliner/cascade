@@ -50,10 +50,24 @@ interface VisibleTreeSqlRow {
 }
 
 /**
+ * With the "due today" filter active, the client needs to match against every
+ * descendant node regardless of collapse state, so this traversal cap replaces
+ * normal cursor pagination in that mode (see visibleTree below).
+ */
+const FILTERED_TRAVERSAL_LIMIT = 20_000;
+
+/**
  * Flat, depth-first list of every visible node (roots plus descendants of
  * expanded nodes), computed server-side in one recursive CTE. DFS order comes
  * from comparing fractional-index path arrays, which requires the `order`
  * column to use COLLATE "C" (byte-order comparison).
+ *
+ * When `filter: "today"` is set, the `expanded` gate is dropped so the whole
+ * subtree is traversed instead of just the currently-expanded chains: the
+ * client's due-today match/ancestor/descendant logic needs every node, not
+ * only the ones already visible on screen, to catch matches hidden inside
+ * collapsed sections. That traversal replaces cursor pagination with a single
+ * generous cap, since a filtered result set is expected to be small.
  */
 export const visibleTree = authed
 	.input(
@@ -61,11 +75,13 @@ export const visibleTree = authed
 			rootId: z.string().nullable(),
 			cursor: z.array(z.string()).nullable().default(null),
 			limit: z.number().int().min(1).max(2000).default(500),
+			filter: z.enum(["today"]).nullable().default(null),
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		const { rootId, cursor, limit } = input;
+		const { rootId, cursor, limit, filter } = input;
 		const userId = context.user.id;
+		const effectiveLimit = filter ? FILTERED_TRAVERSAL_LIMIT : limit;
 
 		const result = (await db.execute(sql`
 			WITH RECURSIVE visible AS (
@@ -81,18 +97,19 @@ export const visibleTree = authed
 					v.path || c."order"
 				FROM nodes c
 				JOIN visible v ON c.parent_id = v.id
-				WHERE c.user_id = ${userId} AND v.expanded = true AND v.depth < 64
+				WHERE c.user_id = ${userId} AND v.depth < 64
+					${filter ? sql`` : sql`AND v.expanded = true`}
 			)
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id AND ch.user_id = ${userId}) AS has_children,
 				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
 			FROM visible v
-			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
+			${cursor && !filter ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
 			ORDER BY v.path
-			LIMIT ${limit + 1}
+			LIMIT ${effectiveLimit + 1}
 		`)) as unknown as VisibleTreeSqlRow[];
 
-		const page = result.slice(0, limit);
+		const page = result.slice(0, effectiveLimit);
 		const rows: VisibleNodeRow[] = page.map((r) => ({
 			id: r.id,
 			parentId: r.parent_id,
@@ -111,7 +128,9 @@ export const visibleTree = authed
 		return {
 			rows,
 			nextCursor:
-				result.length > limit ? (rows[rows.length - 1]?.path ?? null) : null,
+				!filter && result.length > limit
+					? (rows[rows.length - 1]?.path ?? null)
+					: null,
 		};
 	});
 

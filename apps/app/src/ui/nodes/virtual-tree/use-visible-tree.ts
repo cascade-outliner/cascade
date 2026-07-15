@@ -24,18 +24,28 @@ interface VisibleTreeData {
 	nextCursor: string[] | null;
 }
 
-export function visibleTreeOptions(rootId: string | null) {
-	return orpc.nodes.visibleTree.queryOptions({ input: { rootId } });
+export function visibleTreeOptions(
+	rootId: string | null,
+	filter: "today" | null = null,
+) {
+	return orpc.nodes.visibleTree.queryOptions({ input: { rootId, filter } });
 }
 
 /**
  * Single owner of the flat visible-tree cache entry and every mutation that
  * touches it. All mutations splice the flat array optimistically, then persist
  * and reconcile with the server (whose fractional order is authoritative).
+ *
+ * `filter: "today"` fetches the node's entire subtree regardless of collapse
+ * state (see visibleTree's `filter` param), so the "due today" filter can
+ * match nodes hidden inside collapsed sections instead of just what's loaded.
  */
-export function useVisibleTree(rootId: string | null): VisibleTree {
+export function useVisibleTree(
+	rootId: string | null,
+	filter: "today" | null = null,
+): VisibleTree {
 	const queryClient = useQueryClient();
-	const options = visibleTreeOptions(rootId);
+	const options = visibleTreeOptions(rootId, filter);
 	const { data } = useSuspenseQuery(options);
 	const loadingMore = useRef(false);
 

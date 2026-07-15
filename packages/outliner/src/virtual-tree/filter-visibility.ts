@@ -71,3 +71,19 @@ export function getRowVisibility(
 
 	return { hiddenIds, contextIds };
 }
+
+/**
+ * With the "due today" filter active, `rows` holds a node's full subtree even
+ * where the node itself is collapsed (see visibleTree's `filter` param), so a
+ * collapsed row can have visible children below it. Render its toggle as
+ * expanded in that case so the chevron matches what's actually on screen;
+ * manually collapsing it still works and persists as normal.
+ */
+export function withFilterExpanded(rows: VisibleNodeRow[]): VisibleNodeRow[] {
+	const parentIds = new Set(rows.map((row) => row.parentId));
+	return rows.map((row) =>
+		row.hasChildren && !row.expanded && parentIds.has(row.id)
+			? { ...row, expanded: true }
+			: row,
+	);
+}

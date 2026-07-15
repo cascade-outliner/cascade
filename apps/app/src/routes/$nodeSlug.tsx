@@ -1,4 +1,7 @@
-import { getRowVisibility } from "@cascade/outliner/filter-visibility";
+import {
+	getRowVisibility,
+	withFilterExpanded,
+} from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
@@ -117,14 +120,15 @@ function NodeDetailPage() {
 }
 
 function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
-	const tree = useVisibleTree(nodeId);
-	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
+	const tree = useVisibleTree(nodeId, filters.dueToday ? "today" : null);
+	const { settings } = useSettings();
 	const visibility = getRowVisibility(tree.rows, filters);
+	const rows = filters.dueToday ? withFilterExpanded(tree.rows) : tree.rows;
 
 	return (
 		<VirtualTree
-			tree={tree}
+			tree={{ ...tree, rows }}
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
