@@ -1,7 +1,4 @@
-import {
-	getRowVisibility,
-	withFilterExpanded,
-} from "@cascade/outliner/filter-visibility";
+import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
@@ -124,11 +121,10 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 	const tree = useVisibleTree(nodeId, filters.dueToday ? "today" : null);
 	const { settings } = useSettings();
 	const visibility = getRowVisibility(tree.rows, filters);
-	const rows = filters.dueToday ? withFilterExpanded(tree.rows) : tree.rows;
 
 	return (
 		<VirtualTree
-			tree={{ ...tree, rows }}
+			tree={tree}
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
@@ -140,7 +136,6 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 				</>
 			}
 			hiddenRowIds={visibility.hiddenIds}
-			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 		/>
 	);

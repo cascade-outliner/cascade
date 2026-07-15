@@ -1,7 +1,4 @@
-import {
-	getRowVisibility,
-	withFilterExpanded,
-} from "@cascade/outliner/filter-visibility";
+import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
@@ -33,11 +30,10 @@ function RootTree() {
 	const tree = useVisibleTree(null, filters.dueToday ? "today" : null);
 	const { settings } = useSettings();
 	const visibility = getRowVisibility(tree.rows, filters);
-	const rows = filters.dueToday ? withFilterExpanded(tree.rows) : tree.rows;
 
 	return (
 		<VirtualTree
-			tree={{ ...tree, rows }}
+			tree={tree}
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
@@ -45,7 +41,6 @@ function RootTree() {
 			contentClassName="rr-block"
 			header={<FiltersBar filters={filters} onFiltersChange={setFilters} />}
 			hiddenRowIds={visibility.hiddenIds}
-			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 		/>
 	);

@@ -29,7 +29,6 @@ export function VirtualTree({
 	className,
 	contentClassName,
 	hiddenRowIds,
-	contextRowIds,
 	newNodeDueDate,
 }: {
 	tree: VisibleTree;
@@ -44,8 +43,6 @@ export function VirtualTree({
 	contentClassName?: string;
 	/** Row ids to hide from view, e.g. rows excluded by an active filter. */
 	hiddenRowIds?: Set<string>;
-	/** Row ids to render dimmed but still visible, e.g. ancestors kept for context. */
-	contextRowIds?: Set<string>;
 	/** Stamped onto nodes created here, e.g. so a node added under an active
 	 * "Due today" filter matches it instead of immediately being hidden. */
 	newNodeDueDate?: Date | null;
@@ -171,7 +168,6 @@ export function VirtualTree({
 									renderNodeLink={renderNodeLink}
 									measureElement={virtualizer.measureElement}
 									isHidden={hiddenRowIds?.has(row.id) ?? false}
-									isContext={contextRowIds?.has(row.id) ?? false}
 									editing={editingNodeId === row.id}
 									focusPoint={editingNodeId === row.id ? focusPoint : null}
 									onStartEdit={(point) => {

@@ -23,8 +23,6 @@ export interface VirtualTreeRowProps {
 	measureElement: (element: HTMLElement | null) => void;
 	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
 	isHidden: boolean;
-	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
-	isContext: boolean;
 	editing: boolean;
 	focusPoint: FocusPoint | null;
 	onStartEdit: (point?: FocusPoint) => void;
@@ -59,7 +57,6 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			className={twMerge(
 				"top-0 left-0 w-full absolute",
 				props.isHidden && "hidden",
-				props.isContext && "opacity-45",
 			)}
 			style={{
 				transform: `translateY(${start}px)`,
