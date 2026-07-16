@@ -19,9 +19,9 @@ import {
 } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
-import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
 import { nodeColumns, nodeTagNames } from "@/core/nodes/node.queries";
 import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
+import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
 import { db } from "@/db";
 import { authed } from "@/orpc/context";
 import {

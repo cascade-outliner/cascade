@@ -36,7 +36,9 @@ describe("renderNode", () => {
 	// mirrors the crash lexicalToPlainText had server-side on pathologically
 	// nested content read straight from storage.
 	it("does not crash or infinitely recurse on pathologically deep content", () => {
-		const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		const consoleErrorSpy = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
 
 		const deeplyNested = buildDeeplyNested(100_000);
 		try {

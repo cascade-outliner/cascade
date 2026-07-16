@@ -13,7 +13,9 @@ function isLexicalElementNode(node: object): node is LexicalElementNode {
 }
 
 function isLexicalTextNode(node: LexicalNode): node is LexicalTextNode {
-	return node.type === "text" && "text" in node && typeof node.text === "string";
+	return (
+		node.type === "text" && "text" in node && typeof node.text === "string"
+	);
 }
 
 /**
@@ -34,10 +36,7 @@ export function toLexicalContent<T>(
 // rows written before size/depth limits were enforced on write).
 const MAX_WALK_DEPTH = 64;
 
-export function lexicalToPlainText<T>(
-	content: T,
-	limit = 200,
-): string {
+export function lexicalToPlainText<T>(content: T, limit = 200): string {
 	const lexical = toLexicalContent(content);
 	if (!lexical) return "";
 	let out = "";
