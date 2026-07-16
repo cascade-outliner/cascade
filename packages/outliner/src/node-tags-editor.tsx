@@ -108,6 +108,17 @@ export function NodeTagsEditor({
 	};
 
 	const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		// The context menu's typeahead (jump to a menu item by typing its first
+		// letter) listens on this popup and calls preventDefault() for every
+		// printable-character keydown, with no awareness that focus might be
+		// inside this text field — which silently ate every keystroke typed
+		// here. Stop those specifically before they can reach that listener;
+		// Escape is deliberately left alone so it still closes the menu (its
+		// dismiss listener lives on `document`, outside this component tree).
+		if (event.key.length === 1) {
+			event.stopPropagation();
+		}
+
 		if (event.key === "ArrowDown") {
 			if (optionCount === 0) return;
 			event.preventDefault();
