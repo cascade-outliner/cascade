@@ -41,7 +41,7 @@ function formatDuePill(
 
 const pill = cva({
 	base: [
-		"inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium tabular-nums outline-none",
+		"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium tabular-nums whitespace-nowrap outline-none",
 		"hover:ring-1 hover:ring-inset hover:ring-current/40",
 	],
 	variants: {
@@ -73,8 +73,10 @@ export function NodeDueDatePill({
 				aria-label={labels.changeDueDateAria}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<CalendarIcon size={11} weight="bold" />
-				{formatDuePill(dueDate, labels)}
+				<span className="shrink-0">
+					<CalendarIcon size={11} weight="bold" />
+				</span>
+				<span className="truncate">{formatDuePill(dueDate, labels)}</span>
 			</PopoverTrigger>
 			<PopoverContent>
 				<Calendar

@@ -53,7 +53,7 @@ export function NodeActions({
 		<ContextMenu>
 			<ContextMenuTrigger
 				style={{ viewTransitionName }}
-				className="flex items-center gap-2 min-w-0"
+				className="flex items-center gap-2 min-w-0 flex-1"
 				onTouchStart={(e) => e.stopPropagation()}
 				onContextMenu={(e) => e.stopPropagation()}
 			>
