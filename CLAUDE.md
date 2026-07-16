@@ -89,6 +89,6 @@ Both apps use `@inlang/paraglide-js` (English + Dutch). Generated message functi
 
 - **Formatting/linting**: Biome (tabs, double quotes, import organization on save). `pnpm check` is what CI runs — run it before considering a change done.
 - **Commits / PR titles**: Conventional Commits (`feat:`, `fix:`, `chore:`, etc.), lowercase subject. PR titles are linted in CI.
-- **CHANGELOG.md**: CI requires every PR to touch `CHANGELOG.md` with a user-facing entry (dated, newest on top), unless labeled `skip-changelog`.
+- **CHANGELOG.md**: CI requires every PR that touches `apps/app` to also touch `CHANGELOG.md` with a user-facing entry (dated, newest on top), unless labeled `skip-changelog`. PRs that don't touch `apps/app` (e.g. `apps/web`-only or package-only changes) skip this check.
 - **Linked issues**: CI requires every PR to close a linked issue.
 - **AI-assisted changes**: per the README, use AI to execute a solution you already understand, not to figure out what to build — know the problem and the intended fix before generating code.

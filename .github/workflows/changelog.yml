@@ -24,6 +24,11 @@ jobs:
           fi
 
           FILES=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate -q '.[].filename')
+          if ! echo "$FILES" | grep -q "^apps/app/"; then
+            echo "This PR doesn't touch apps/app, skipping changelog check."
+            exit 0
+          fi
+
           if echo "$FILES" | grep -qx "CHANGELOG.md"; then
             echo "CHANGELOG.md was updated."
           else
