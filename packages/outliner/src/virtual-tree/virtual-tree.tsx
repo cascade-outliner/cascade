@@ -55,8 +55,8 @@ export function VirtualTree({
 	existingTags?: string[];
 	/** Deletes a tag outright (every node that has it loses it), not just
 	 * one node's use of it. Not a `VisibleTree` mutation since it isn't
-	 * scoped to this view's rows. */
-	onDeleteTag: (name: string) => void | Promise<void>;
+	 * scoped to this view's rows. Omit to hide the delete affordance. */
+	onDeleteTag?: (name: string) => void | Promise<void>;
 }) {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);

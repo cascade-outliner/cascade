@@ -8,7 +8,7 @@ import {
 import { and, asc, desc, eq, gt, isNull, like, lt, sql } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
-import { nodeColumns } from "@/core/nodes/node.queries";
+import { nodeColumns, nodeTagNames } from "@/core/nodes/node.queries";
 import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
 import { db } from "@/db";
 import { authed } from "@/orpc/context";
@@ -88,7 +88,7 @@ export const visibleTree = authed
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id AND ch.user_id = ${userId}) AS has_children,
 				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child,
-				COALESCE((SELECT array_agg(t.name ORDER BY t.name) FROM node_tags nt JOIN tags t ON t.id = nt.tag_id WHERE nt.node_id = v.id), ARRAY[]::text[]) AS tags
+				${nodeTagNames(sql`v.id`)} AS tags
 			FROM visible v
 			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
 			ORDER BY v.path

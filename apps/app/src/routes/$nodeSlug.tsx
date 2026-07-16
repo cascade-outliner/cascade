@@ -140,28 +140,18 @@ function NodeDetailPage() {
 						</div>
 					</>
 				}
-				existingTags={existingTags}
-				onDeleteTag={deleteTag}
 			/>
 		</Suspense>
 	);
 }
 
-function NodeTree({
-	nodeId,
-	header,
-	existingTags,
-	onDeleteTag,
-}: {
-	nodeId: string;
-	header: ReactNode;
-	existingTags: string[];
-	onDeleteTag: (name: string) => void | Promise<void>;
-}) {
+function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 	const tree = useVisibleTree(nodeId);
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
 	const visibility = getRowVisibility(tree.rows, filters);
+	const existingTags = useExistingTags();
+	const deleteTag = useDeleteTag();
 
 	return (
 		<VirtualTree
@@ -180,7 +170,7 @@ function NodeTree({
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 			existingTags={existingTags}
-			onDeleteTag={onDeleteTag}
+			onDeleteTag={deleteTag}
 		/>
 	);
 }

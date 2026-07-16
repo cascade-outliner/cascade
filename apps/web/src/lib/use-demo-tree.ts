@@ -27,6 +27,7 @@ function newRow(
 		expanded: false,
 		order: id,
 		dueDate: null,
+		tags: [],
 		path: [],
 		hasChildren: false,
 		...partial,
@@ -134,6 +135,10 @@ export function useDemoTree(rootId: string | null) {
 		setAllNodes((current) => patchRow(current, id, { dueDate }));
 	};
 
+	const setTags: VisibleTree["setTags"] = (id, tags) => {
+		setAllNodes((current) => patchRow(current, id, { tags }));
+	};
+
 	const add: VisibleTree["add"] = async ({
 		dueDate = null,
 	}: AddNodeOptions = {}) => {
@@ -178,6 +183,7 @@ export function useDemoTree(rootId: string | null) {
 		updateContent,
 		setType,
 		setDueDate,
+		setTags,
 		add,
 		addAfter,
 		loadMore: () => {},

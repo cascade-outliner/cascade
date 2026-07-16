@@ -71,7 +71,6 @@
 	"outliner_create_tag": "Aanmaken",
 	"outliner_delete_tag_aria": "Label verwijderen",
 	"outliner_delete_tag_confirm_body": "Dit verwijdert het label van elke node waar het aan toegevoegd is. Dit kan niet ongedaan worden gemaakt.",
-	"outliner_deleting_tag": "Bezig met verwijderen…",
 	"outliner_cancel": "Annuleren",
 	"filters_bar_trigger": "Filter",
 	"filters_bar_due_date_group": "Vervaldatum",

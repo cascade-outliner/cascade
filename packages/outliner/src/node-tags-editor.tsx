@@ -1,4 +1,4 @@
-import { AlertDialog, Combobox } from "@base-ui/react";
+import { AlertDialog } from "@base-ui/react";
 import { cva } from "@cascade/ui/cva.config";
 import { PlusIcon, TagIcon, TrashIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { type KeyboardEvent, useMemo, useRef, useState } from "react";
@@ -11,34 +11,30 @@ interface NodeTagsEditorProps {
 	existingTags: string[];
 	onChange: (tags: string[]) => void;
 	/** Deletes the tag outright (every node that has it loses it), not just
-	 * this node's use of it. */
-	onDeleteTag: (name: string) => void | Promise<void>;
+	 * this node's use of it. Omit to hide the delete affordance. */
+	onDeleteTag?: (name: string) => void | Promise<void>;
 }
 
 const MAX_SUGGESTIONS = 6;
 
 const inputGroup = cva({
 	base: [
-		"w-64 cursor-text rounded-md border px-2 py-1.5",
+		"flex w-64 cursor-text flex-wrap items-center gap-1 rounded-md border px-2 py-1.5",
 		"border-dark-grey/15 focus-within:ring-2 focus-within:ring-redleather/50",
 		"dark:border-ginger/15",
 	],
 });
 
-const chips = cva({
-	base: "flex w-full flex-wrap items-center gap-1",
-});
-
 const chip = cva({
 	base: [
-		"flex shrink-0 items-center gap-1 rounded-full border py-1 pl-2.5 pr-1 text-[11.5px] font-medium outline-none",
+		"flex shrink-0 items-center gap-1 rounded-full border py-1 pl-2.5 pr-1 text-[11.5px] font-medium",
 		"border-peach/50 bg-peach/25 text-dark-grey dark:border-peach/40 dark:bg-peach/20 dark:text-ginger",
 	],
 });
 
 const chipRemove = cva({
 	base: [
-		"flex size-4 items-center justify-center rounded-full outline-none",
+		"flex size-4 cursor-pointer items-center justify-center rounded-full outline-none",
 		"hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15",
 	],
 });
@@ -139,16 +135,11 @@ export function NodeTagsEditor({
 			event.stopPropagation();
 		}
 
-		if (event.key === "ArrowDown") {
+		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
 			if (optionCount === 0) return;
 			event.preventDefault();
-			setHighlighted((i) => Math.min(i + 1, optionCount - 1));
-			return;
-		}
-		if (event.key === "ArrowUp") {
-			if (optionCount === 0) return;
-			event.preventDefault();
-			setHighlighted((i) => Math.max(i - 1, -1));
+			const step = event.key === "ArrowDown" ? 1 : -1;
+			setHighlighted((i) => Math.max(-1, Math.min(i + step, optionCount - 1)));
 			return;
 		}
 		if (event.key === "Escape") {
@@ -162,9 +153,8 @@ export function NodeTagsEditor({
 		event.preventDefault();
 		if (highlighted >= 0 && highlighted < suggestions.length) {
 			addTag(suggestions[highlighted]);
-		} else if (highlighted === suggestions.length && canCreate) {
-			addTag(trimmedQuery);
 		} else if (trimmedQuery) {
+			// Covers both the highlighted "create new" row and plain Enter.
 			addTag(trimmedQuery);
 		}
 	};
@@ -173,7 +163,7 @@ export function NodeTagsEditor({
 		if (!pendingDelete) return;
 		setIsDeleting(true);
 		try {
-			await onDeleteTag(pendingDelete);
+			await onDeleteTag?.(pendingDelete);
 		} finally {
 			setIsDeleting(false);
 			setPendingDelete(null);
@@ -181,42 +171,37 @@ export function NodeTagsEditor({
 	};
 
 	return (
-		<Combobox.Root
-			multiple
-			value={tags}
-			onValueChange={(next) => onChange(normalizeTags(next))}
-		>
-			<Combobox.InputGroup
-				className={inputGroup()}
-				onClick={(e) => e.stopPropagation()}
-			>
-				<Combobox.Chips className={chips()}>
-					{tags.map((tag) => (
-						<Combobox.Chip key={tag} className={chip()} aria-label={tag}>
-							{tag}
-							<Combobox.ChipRemove
-								className={chipRemove()}
-								aria-label={`${labels.removeTagAria}: ${tag}`}
-							>
-								<XIcon size={9} weight="bold" />
-							</Combobox.ChipRemove>
-						</Combobox.Chip>
-					))}
-					<input
-						ref={inputRef}
-						value={query}
-						placeholder={tags.length > 0 ? "" : labels.tagsInputPlaceholder}
-						className={input()}
-						role="combobox"
-						aria-expanded={optionCount > 0}
-						onChange={(e) => {
-							setQuery(e.target.value);
-							setHighlighted(-1);
-						}}
-						onKeyDown={handleInputKeyDown}
-					/>
-				</Combobox.Chips>
-			</Combobox.InputGroup>
+		<div>
+			{/* A label so clicking anywhere in the bordered box focuses the input. */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: not an action — it only stops the click reaching the hosting context menu, which would close it. */}
+			<label className={inputGroup()} onClick={(e) => e.stopPropagation()}>
+				{tags.map((tag) => (
+					<span key={tag} className={chip()}>
+						{tag}
+						<button
+							type="button"
+							className={chipRemove()}
+							aria-label={`${labels.removeTagAria}: ${tag}`}
+							onClick={() => onChange(tags.filter((t) => t !== tag))}
+						>
+							<XIcon size={9} weight="bold" />
+						</button>
+					</span>
+				))}
+				<input
+					ref={inputRef}
+					value={query}
+					placeholder={tags.length > 0 ? "" : labels.tagsInputPlaceholder}
+					className={input()}
+					role="combobox"
+					aria-expanded={optionCount > 0}
+					onChange={(e) => {
+						setQuery(e.target.value);
+						setHighlighted(-1);
+					}}
+					onKeyDown={handleInputKeyDown}
+				/>
+			</label>
 			{optionCount > 0 && (
 				<div className="mt-1 max-h-48 overflow-y-auto">
 					{suggestions.length > 0 && (
@@ -235,17 +220,19 @@ export function NodeTagsEditor({
 										<TagIcon size={12} weight="bold" className="shrink-0" />
 										<span className="truncate">{tag}</span>
 									</button>
-									<button
-										type="button"
-										className={deleteTagButton()}
-										aria-label={`${labels.deleteTagAria}: ${tag}`}
-										onClick={(e) => {
-											e.stopPropagation();
-											setPendingDelete(tag);
-										}}
-									>
-										<TrashIcon size={12} weight="bold" />
-									</button>
+									{onDeleteTag && (
+										<button
+											type="button"
+											className={deleteTagButton()}
+											aria-label={`${labels.deleteTagAria}: ${tag}`}
+											onClick={(e) => {
+												e.stopPropagation();
+												setPendingDelete(tag);
+											}}
+										>
+											<TrashIcon size={12} weight="bold" />
+										</button>
+									)}
 								</div>
 							))}
 						</>
@@ -299,12 +286,12 @@ export function NodeTagsEditor({
 								disabled={isDeleting}
 								className="cursor-pointer rounded-md bg-redleather px-3 py-1.5 text-sm text-super-ginger outline-none hover:bg-redleather/90 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40"
 							>
-								{isDeleting ? labels.deletingTag : labels.delete}
+								{labels.delete}
 							</button>
 						</div>
 					</AlertDialog.Popup>
 				</AlertDialog.Portal>
 			</AlertDialog.Root>
-		</Combobox.Root>
+		</div>
 	);
 }

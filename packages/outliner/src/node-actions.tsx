@@ -28,7 +28,7 @@ interface NodeActionsProps {
 	onConvert: (type: NodeTypeName) => void;
 	onSetDueDate: (date: Date | null) => void;
 	onSetTags: (tags: string[]) => void;
-	onDeleteTag: (name: string) => void | Promise<void>;
+	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDelete: () => void;
 	viewTransitionName?: string;
 	children: ReactNode;
