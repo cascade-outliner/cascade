@@ -1,7 +1,8 @@
 # Changelog
 
 ## 2026-07-16
-- Nodes can now be tagged: add or create tags from the row's context menu or the node page, with suggestions from your existing tags, and delete a tag everywhere in one step. [#78](https://github.com/Patrickroelofs/cascade/issues/78)
+- Nodes can now be tagged: add or create tags from the row's context menu or the node page, and delete a tag everywhere in one step. [#78](https://github.com/Patrickroelofs/cascade/issues/78)
+- The tag editor is a checklist of all your tags — checked means "on this node" — showing how many nodes each tag is used on. Type to filter or create. [#78](https://github.com/Patrickroelofs/cascade/issues/78)
 
 ## 2026-07-14
 - Improve slug generation for nodes, ensuring uniqueness and better readability. [#182](https://github.com/Patrickroelofs/cascade/pull/182)

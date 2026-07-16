@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
+import type { TagSummary } from "./node-tags";
 import { NodeTagsEditor } from "./node-tags-editor";
 import { type NodeTypeName, nodeTypeNames } from "./node-types";
 
@@ -24,7 +25,7 @@ interface NodeActionsProps {
 	nodeType: NodeTypeName;
 	dueDate: Date | null;
 	tags: string[];
-	existingTags: string[];
+	existingTags: TagSummary[];
 	onConvert: (type: NodeTypeName) => void;
 	onSetDueDate: (date: Date | null) => void;
 	onSetTags: (tags: string[]) => void;

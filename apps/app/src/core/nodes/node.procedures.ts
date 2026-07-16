@@ -5,7 +5,18 @@ import {
 	typedMetadataSchema,
 	type VisibleNodeRow,
 } from "@cascade/outliner/node-types";
-import { and, asc, desc, eq, gt, isNull, like, lt, sql } from "drizzle-orm";
+import {
+	and,
+	asc,
+	count,
+	desc,
+	eq,
+	gt,
+	isNull,
+	like,
+	lt,
+	sql,
+} from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
 import { nodeColumns, nodeTagNames } from "@/core/nodes/node.queries";
@@ -283,13 +294,15 @@ export const setNodeDueDate = authed
 			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
 	});
 
-export const listTagNames = authed.handler(async ({ context }) => {
-	const rows = await db
-		.select({ name: tagsTable.name })
+/** This user's tags with how many nodes each is on, sorted by name. */
+export const listTags = authed.handler(async ({ context }) => {
+	return await db
+		.select({ name: tagsTable.name, count: count(nodeTags.nodeId) })
 		.from(tagsTable)
+		.leftJoin(nodeTags, eq(nodeTags.tagId, tagsTable.id))
 		.where(eq(tagsTable.userId, context.user.id))
+		.groupBy(tagsTable.id)
 		.orderBy(asc(tagsTable.name));
-	return rows.map((r) => r.name);
 });
 
 /** Deletes a tag outright (cascades to every node it's on), not just one node's use of it. */

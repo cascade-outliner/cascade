@@ -5,7 +5,7 @@ import {
 	getNode,
 	getNodeAncestors,
 	listNodes,
-	listTagNames,
+	listTags,
 	moveNode,
 	resolveNodeSlug,
 	setNodeDueDate,
@@ -31,7 +31,7 @@ export default {
 		setType: setNodeType,
 		setDueDate: setNodeDueDate,
 		setTags: setNodeTags,
-		tagNames: listTagNames,
+		listTags,
 		deleteTag,
 	},
 };

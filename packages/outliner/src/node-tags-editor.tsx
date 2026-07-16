@@ -1,64 +1,44 @@
 import { AlertDialog } from "@base-ui/react";
 import { cva } from "@cascade/ui/cva.config";
-import { PlusIcon, TagIcon, TrashIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { CheckIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 import { type KeyboardEvent, useMemo, useRef, useState } from "react";
 import { useOutlinerLabels } from "./labels-context";
-import { normalizeTags } from "./node-tags";
+import { normalizeTags, type TagSummary } from "./node-tags";
 
 interface NodeTagsEditorProps {
 	tags: string[];
-	/** This user's other tag names, for the suggestion list (already sorted). */
-	existingTags: string[];
+	/** All of this user's tags with usage counts (already sorted by name). */
+	existingTags: TagSummary[];
 	onChange: (tags: string[]) => void;
 	/** Deletes the tag outright (every node that has it loses it), not just
 	 * this node's use of it. Omit to hide the delete affordance. */
 	onDeleteTag?: (name: string) => void | Promise<void>;
 }
 
-const MAX_SUGGESTIONS = 6;
-
-const inputGroup = cva({
+const search = cva({
 	base: [
-		"flex w-64 cursor-text flex-wrap items-center gap-1 rounded-md border px-2 py-1.5",
+		"mb-1 w-64 rounded-md border px-2 py-1.5",
 		"border-dark-grey/15 focus-within:ring-2 focus-within:ring-redleather/50",
 		"dark:border-ginger/15",
 	],
 });
 
-const chip = cva({
-	base: [
-		"flex shrink-0 items-center gap-1 rounded-full border py-1 pl-2.5 pr-1 text-[11.5px] font-medium",
-		"border-peach/50 bg-peach/25 text-dark-grey dark:border-peach/40 dark:bg-peach/20 dark:text-ginger",
-	],
-});
-
-const chipRemove = cva({
-	base: [
-		"flex size-4 cursor-pointer items-center justify-center rounded-full outline-none",
-		"hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15",
-	],
-});
-
 const input = cva({
 	base: [
-		"min-w-16 flex-1 bg-transparent text-sm outline-none",
+		"w-full bg-transparent text-sm outline-none",
 		"text-dark-grey placeholder:text-graphite/60 dark:text-ginger dark:placeholder:text-ginger/40",
 	],
 });
 
-const groupLabel = cva({
-	base: "px-2 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-graphite/75 dark:text-ginger/50",
-});
-
 const optionRow = cva({
 	base: [
-		"group/option flex w-full items-center gap-1 rounded-md pr-1 pl-2 text-sm outline-none",
+		"group/option flex w-full items-center gap-1 rounded-md pr-1 pl-1 text-sm outline-none",
 		"text-dark-grey dark:text-ginger hover:bg-ginger/70 dark:hover:bg-ginger/20",
 	],
 	variants: {
 		// Keyboard-driven (arrow keys), independent of CSS :hover above, so a
-		// stationary mouse resting over a suggestion can't silently hijack
-		// what Enter does while the user is typing something else.
+		// stationary mouse resting over an option can't silently hijack what
+		// Enter does while the user is typing something else.
 		highlighted: {
 			true: "bg-ginger/70 dark:bg-ginger/20",
 			false: "",
@@ -68,6 +48,20 @@ const optionRow = cva({
 
 const optionButton = cva({
 	base: "flex min-w-0 flex-1 cursor-pointer items-center gap-2 py-1.5 text-left outline-none",
+});
+
+const checkbox = cva({
+	base: "flex size-4 shrink-0 items-center justify-center rounded border",
+	variants: {
+		checked: {
+			true: "border-redleather bg-redleather text-super-ginger",
+			false: "border-dark-grey/30 dark:border-ginger/30",
+		},
+	},
+});
+
+const usageCount = cva({
+	base: "ml-auto shrink-0 text-[11px] tabular-nums text-graphite/70 dark:text-ginger/50",
 });
 
 const deleteTagButton = cva({
@@ -80,6 +74,25 @@ const deleteTagButton = cva({
 	],
 });
 
+const footer = cva({
+	base: [
+		"mt-1 flex gap-3 border-t px-1 pt-1.5 text-[10.5px]",
+		"border-dark-grey/10 text-graphite/75 dark:border-ginger/10 dark:text-ginger/50",
+	],
+});
+
+const kbd = cva({
+	base: [
+		"rounded border px-1 font-mono text-[9.5px]",
+		"border-dark-grey/20 bg-dark-grey/5 dark:border-ginger/20 dark:bg-ginger/10",
+	],
+});
+
+/**
+ * One checklist over all of the user's tags: checked = on this node. Typing
+ * filters the list; when the query matches nothing exactly, a "create" row is
+ * offered first.
+ */
 export function NodeTagsEditor({
 	tags,
 	existingTags,
@@ -99,28 +112,58 @@ export function NodeTagsEditor({
 		[tags],
 	);
 
-	const suggestions = useMemo(() => {
+	// The suggestion list can lag an optimistic add of a brand-new tag, so
+	// merge in this node's own tags; they're on at least this node.
+	const allTags = useMemo(() => {
+		const known = new Set(existingTags.map((t) => t.name.toLowerCase()));
+		const missing = tags
+			.filter((t) => !known.has(t.toLowerCase()))
+			.map((name) => ({ name, count: 1 }));
+		return [...missing, ...existingTags];
+	}, [existingTags, tags]);
+
+	const items = useMemo(() => {
 		const q = trimmedQuery.toLowerCase();
-		return existingTags
-			.filter((t) => !currentLower.has(t.toLowerCase()))
-			.filter((t) => q === "" || t.toLowerCase().includes(q))
-			.slice(0, MAX_SUGGESTIONS);
-	}, [existingTags, currentLower, trimmedQuery]);
+		return q === ""
+			? allTags
+			: allTags.filter((t) => t.name.toLowerCase().includes(q));
+	}, [allTags, trimmedQuery]);
 
 	const canCreate =
 		trimmedQuery !== "" &&
-		!currentLower.has(trimmedQuery.toLowerCase()) &&
-		!existingTags.some((t) => t.toLowerCase() === trimmedQuery.toLowerCase());
+		!allTags.some((t) => t.name.toLowerCase() === trimmedQuery.toLowerCase());
 
-	// Keyboard-navigable options: existing-tag suggestions, then an optional
-	// trailing "create new" row when the typed text doesn't match anything.
-	const optionCount = suggestions.length + (canCreate ? 1 : 0);
+	// Keyboard-navigable options: an optional leading "create new" row when
+	// the typed text matches no tag exactly, then the (filtered) checklist.
+	const createOffset = canCreate ? 1 : 0;
+	const optionCount = items.length + createOffset;
 
-	const addTag = (name: string) => {
-		onChange(normalizeTags([...tags, name]));
+	const resetHighlight = () => setHighlighted(-1);
+
+	const createTag = () => {
+		onChange(normalizeTags([...tags, trimmedQuery]));
 		setQuery("");
-		setHighlighted(-1);
+		resetHighlight();
 		inputRef.current?.focus();
+	};
+
+	const toggleTag = (name: string) => {
+		onChange(
+			currentLower.has(name.toLowerCase())
+				? tags.filter((t) => t.toLowerCase() !== name.toLowerCase())
+				: normalizeTags([...tags, name]),
+		);
+		// Reset the filter so the next keystroke starts a fresh search and the
+		// full list reflects the toggle just made.
+		setQuery("");
+		resetHighlight();
+		inputRef.current?.focus();
+	};
+
+	const activateOption = (index: number) => {
+		if (canCreate && index === 0) createTag();
+		else if (items[index - createOffset])
+			toggleTag(items[index - createOffset].name);
 	};
 
 	const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -145,17 +188,18 @@ export function NodeTagsEditor({
 		if (event.key === "Escape") {
 			if (highlighted !== -1) {
 				event.stopPropagation();
-				setHighlighted(-1);
+				resetHighlight();
 			}
 			return;
 		}
 		if (event.key !== "Enter") return;
 		event.preventDefault();
-		if (highlighted >= 0 && highlighted < suggestions.length) {
-			addTag(suggestions[highlighted]);
-		} else if (trimmedQuery) {
-			// Covers both the highlighted "create new" row and plain Enter.
-			addTag(trimmedQuery);
+		if (highlighted >= 0) {
+			activateOption(highlighted);
+		} else if (canCreate) {
+			createTag();
+		} else if (trimmedQuery && items[0]) {
+			toggleTag(items[0].name);
 		}
 	};
 
@@ -172,87 +216,83 @@ export function NodeTagsEditor({
 
 	return (
 		<div>
-			{/* A label so clicking anywhere in the bordered box focuses the input. */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: not an action — it only stops the click reaching the hosting context menu, which would close it. */}
-			<label className={inputGroup()} onClick={(e) => e.stopPropagation()}>
-				{tags.map((tag) => (
-					<span key={tag} className={chip()}>
-						{tag}
-						<button
-							type="button"
-							className={chipRemove()}
-							aria-label={`${labels.removeTagAria}: ${tag}`}
-							onClick={() => onChange(tags.filter((t) => t !== tag))}
-						>
-							<XIcon size={9} weight="bold" />
-						</button>
-					</span>
-				))}
+			<div className={search()}>
 				<input
 					ref={inputRef}
 					value={query}
-					placeholder={tags.length > 0 ? "" : labels.tagsInputPlaceholder}
+					placeholder={labels.tagsInputPlaceholder}
 					className={input()}
 					role="combobox"
 					aria-expanded={optionCount > 0}
+					onClick={(e) => e.stopPropagation()}
 					onChange={(e) => {
 						setQuery(e.target.value);
-						setHighlighted(-1);
+						resetHighlight();
 					}}
 					onKeyDown={handleInputKeyDown}
 				/>
-			</label>
-			{optionCount > 0 && (
-				<div className="mt-1 max-h-48 overflow-y-auto">
-					{suggestions.length > 0 && (
-						<>
-							<div className={groupLabel()}>{labels.tagSuggestions}</div>
-							{suggestions.map((tag, i) => (
-								<div
-									key={tag}
-									className={optionRow({ highlighted: i === highlighted })}
-								>
-									<button
-										type="button"
-										className={optionButton()}
-										onClick={() => addTag(tag)}
-									>
-										<TagIcon size={12} weight="bold" className="shrink-0" />
-										<span className="truncate">{tag}</span>
-									</button>
-									{onDeleteTag && (
-										<button
-											type="button"
-											className={deleteTagButton()}
-											aria-label={`${labels.deleteTagAria}: ${tag}`}
-											onClick={(e) => {
-												e.stopPropagation();
-												setPendingDelete(tag);
-											}}
-										>
-											<TrashIcon size={12} weight="bold" />
-										</button>
-									)}
-								</div>
-							))}
-						</>
-					)}
-					{canCreate && (
-						<button
-							type="button"
-							className={optionRow({
-								highlighted: highlighted === suggestions.length,
-							})}
-							onClick={() => addTag(trimmedQuery)}
-						>
-							<span className="flex min-w-0 flex-1 items-center gap-2 py-1.5">
-								<PlusIcon size={12} weight="bold" className="shrink-0" />
-								<span className="truncate">
-									{labels.createTag} &ldquo;{trimmedQuery}&rdquo;
-								</span>
+			</div>
+			<div className="max-h-48 overflow-y-auto">
+				{canCreate && (
+					<button
+						type="button"
+						className={optionRow({ highlighted: highlighted === 0 })}
+						onClick={() => createTag()}
+					>
+						<span className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pl-1">
+							<PlusIcon size={12} weight="bold" className="shrink-0" />
+							<span className="truncate">
+								{labels.createTag} &ldquo;{trimmedQuery}&rdquo;
 							</span>
-						</button>
-					)}
+						</span>
+					</button>
+				)}
+				{items.map((tag, i) => {
+					const checked = currentLower.has(tag.name.toLowerCase());
+					return (
+						<div
+							key={tag.name}
+							className={optionRow({
+								highlighted: i + createOffset === highlighted,
+							})}
+						>
+							<button
+								type="button"
+								className={optionButton()}
+								aria-pressed={checked}
+								onClick={() => toggleTag(tag.name)}
+							>
+								<span className={checkbox({ checked })}>
+									{checked && <CheckIcon size={10} weight="bold" />}
+								</span>
+								<span className="truncate">{tag.name}</span>
+								<span className={usageCount()}>{tag.count}</span>
+							</button>
+							{onDeleteTag && (
+								<button
+									type="button"
+									className={deleteTagButton()}
+									aria-label={`${labels.deleteTagAria}: ${tag.name}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										setPendingDelete(tag.name);
+									}}
+								>
+									<TrashIcon size={12} weight="bold" />
+								</button>
+							)}
+						</div>
+					);
+				})}
+			</div>
+			{optionCount > 0 && (
+				<div className={footer()}>
+					<span>
+						<span className={kbd()}>↑↓</span> {labels.tagHintNavigate}
+					</span>
+					<span>
+						<span className={kbd()}>↵</span> {labels.tagHintToggle}
+					</span>
 				</div>
 			)}
 			<AlertDialog.Root

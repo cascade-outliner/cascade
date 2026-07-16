@@ -1,18 +1,19 @@
+import type { TagSummary } from "@cascade/outliner/node-tags";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { client, orpc } from "@/orpc/client";
 
 export function existingTagsOptions() {
-	return orpc.nodes.tagNames.queryOptions();
+	return orpc.nodes.listTags.queryOptions();
 }
 
-/** This user's existing tag names, for the tag editor's suggestion list. */
-export function useExistingTags(): string[] {
+/** This user's tags with usage counts, for the tag editor's checklist. */
+export function useExistingTags(): TagSummary[] {
 	const { data } = useQuery(existingTagsOptions());
 	return data ?? [];
 }
 
 /** Deletes a tag outright (every node that has it loses it), then refreshes
- * the suggestion list and any currently-loaded trees/nodes. */
+ * the tag list and any currently-loaded trees/nodes. */
 export function useDeleteTag(): (name: string) => Promise<void> {
 	const queryClient = useQueryClient();
 	return async (name: string) => {

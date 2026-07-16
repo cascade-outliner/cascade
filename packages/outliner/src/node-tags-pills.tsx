@@ -3,11 +3,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
 import { PlusIcon, TagIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
+import type { TagSummary } from "./node-tags";
 import { NodeTagsEditor } from "./node-tags-editor";
 
 interface NodeTagsControlProps {
 	tags: string[];
-	existingTags: string[];
+	existingTags: TagSummary[];
 	onChange: (tags: string[]) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 }

@@ -21,8 +21,8 @@ export interface OutlinerLabels {
 	addTag: string;
 	manageTags: string;
 	tagsInputPlaceholder: string;
-	removeTagAria: string;
-	tagSuggestions: string;
+	tagHintNavigate: string;
+	tagHintToggle: string;
 	createTag: string;
 	deleteTagAria: string;
 	deleteTagConfirmBody: string;
@@ -55,8 +55,8 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	addTag: "Add tag",
 	manageTags: "Manage tags",
 	tagsInputPlaceholder: "Add tag…",
-	removeTagAria: "Remove tag",
-	tagSuggestions: "Suggestions",
+	tagHintNavigate: "navigate",
+	tagHintToggle: "toggle",
 	createTag: "Create",
 	deleteTagAria: "Delete tag",
 	deleteTagConfirmBody:

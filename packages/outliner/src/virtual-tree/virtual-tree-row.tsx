@@ -8,6 +8,7 @@ import { NodeCheckbox } from "../node-checkbox";
 import { NodeDueDatePill } from "../node-due-date-pill";
 import { type FocusPoint, NodeEditor } from "../node-editor";
 import { DefaultNodeLink } from "../node-link-slot";
+import type { TagSummary } from "../node-tags";
 import { NodeTagPills } from "../node-tags-pills";
 import { NodeToggle } from "../node-toggle";
 import type { NodeTypeName, VisibleNodeRow } from "../node-types";
@@ -22,8 +23,8 @@ export interface VirtualTreeRowProps {
 	indentSize: number;
 	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
-	/** This user's other tag names, for the tag editor's suggestion list. */
-	existingTags: string[];
+	/** All of this user's tags with usage counts, for the tag editor. */
+	existingTags: TagSummary[];
 	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
 	isHidden: boolean;
 	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */

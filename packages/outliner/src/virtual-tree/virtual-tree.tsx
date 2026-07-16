@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { useOutlinerLabels } from "../labels-context";
 import type { FocusPoint } from "../node-editor";
+import type { TagSummary } from "../node-tags";
 import { defaultTypedMetadata } from "../node-types";
 import type { VisibleTree } from "../tree-types";
 import { findNodeRow } from "./node-rows";
@@ -51,8 +52,8 @@ export function VirtualTree({
 	/** Stamped onto nodes created here, e.g. so a node added under an active
 	 * "Due today" filter matches it instead of immediately being hidden. */
 	newNodeDueDate?: Date | null;
-	/** This user's other tag names, for the tag editor's suggestion list. */
-	existingTags?: string[];
+	/** All of this user's tags with usage counts, for the tag editor. */
+	existingTags?: TagSummary[];
 	/** Deletes a tag outright (every node that has it loses it), not just
 	 * one node's use of it. Not a `VisibleTree` mutation since it isn't
 	 * scoped to this view's rows. Omit to hide the delete affordance. */
