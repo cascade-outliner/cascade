@@ -11,14 +11,14 @@ interface NodeTagsControlProps {
 
 const pill = cva({
 	base: [
-		"inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 mr-1 text-[11.5px] font-medium",
+		"inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11.5px] font-medium",
 		"border-dark-grey/15 bg-transparent text-graphite dark:border-ginger/15 dark:text-ginger/60",
 	],
 });
 
 const addTrigger = cva({
 	base: [
-		"inline-flex shrink-0 items-center justify-center rounded-full border border-dashed size-5 mr-1 outline-none",
+		"inline-flex shrink-0 items-center justify-center rounded-full border border-dashed size-5 outline-none",
 		"border-dark-grey/25 text-graphite/70",
 		"opacity-0 transition-opacity group-hover/node:opacity-100 group-focus-within/node:opacity-100 pointer-coarse:opacity-100 data-popup-open:opacity-100",
 		"hover:border-redleather/50 hover:text-redleather hover:bg-redleather/5",
@@ -32,19 +32,21 @@ export function NodeTagsControl({ tags, onChange }: NodeTagsControlProps) {
 	const labels = useOutlinerLabels();
 	return (
 		<Popover>
-			{tags.map((tag) => (
-				<span key={tag} className={pill()}>
-					<TagIcon size={11} weight="bold" />
-					{tag}
-				</span>
-			))}
-			<PopoverTrigger
-				className={addTrigger()}
-				aria-label={tags.length > 0 ? labels.manageTags : labels.addTag}
-				onClick={(e) => e.stopPropagation()}
-			>
-				<PlusIcon size={10} weight="bold" />
-			</PopoverTrigger>
+			<span className="inline-flex shrink-0 flex-wrap items-center gap-1">
+				{tags.map((tag) => (
+					<span key={tag} className={pill()}>
+						<TagIcon size={11} weight="bold" />
+						{tag}
+					</span>
+				))}
+				<PopoverTrigger
+					className={addTrigger()}
+					aria-label={tags.length > 0 ? labels.manageTags : labels.addTag}
+					onClick={(e) => e.stopPropagation()}
+				>
+					<PlusIcon size={10} weight="bold" />
+				</PopoverTrigger>
+			</span>
 			<PopoverContent>
 				<NodeTagsEditor tags={tags} onChange={onChange} />
 			</PopoverContent>
