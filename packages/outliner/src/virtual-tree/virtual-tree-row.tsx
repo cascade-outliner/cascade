@@ -123,7 +123,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							onFocusPrevious={props.onFocusPrevious}
 						/>
 					</div>
-					<div className="flex gap-1">
+					<div className="flex gap-1 pr-1">
 						{dueDate && (
 							<NodeDueDatePill
 								dueDate={dueDate}
