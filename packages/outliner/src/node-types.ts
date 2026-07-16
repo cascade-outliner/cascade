@@ -11,6 +11,7 @@ export interface VisibleNodeRow {
 	expanded: boolean;
 	order: string;
 	dueDate: Date | null;
+	tags: string[];
 	depth: number;
 	/** Fractional-index orders from the query root down to this node; DFS sort key. */
 	path: string[];

@@ -31,6 +31,8 @@ export function VirtualTree({
 	hiddenRowIds,
 	contextRowIds,
 	newNodeDueDate,
+	existingTags = [],
+	onDeleteTag,
 }: {
 	tree: VisibleTree;
 	indentSize?: number;
@@ -49,6 +51,12 @@ export function VirtualTree({
 	/** Stamped onto nodes created here, e.g. so a node added under an active
 	 * "Due today" filter matches it instead of immediately being hidden. */
 	newNodeDueDate?: Date | null;
+	/** This user's other tag names, for the tag editor's suggestion list. */
+	existingTags?: string[];
+	/** Deletes a tag outright (every node that has it loses it), not just
+	 * one node's use of it. Not a `VisibleTree` mutation since it isn't
+	 * scoped to this view's rows. */
+	onDeleteTag: (name: string) => void | Promise<void>;
 }) {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
@@ -170,6 +178,8 @@ export function VirtualTree({
 									indentSize={indentSize}
 									renderNodeLink={renderNodeLink}
 									measureElement={virtualizer.measureElement}
+									existingTags={existingTags}
+									onDeleteTag={onDeleteTag}
 									isHidden={hiddenRowIds?.has(row.id) ?? false}
 									isContext={contextRowIds?.has(row.id) ?? false}
 									editing={editingNodeId === row.id}
@@ -194,6 +204,7 @@ export function VirtualTree({
 										})
 									}
 									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
+									onSetTags={(tags) => tree.setTags(row.id, tags)}
 									onDelete={() => tree.remove(row.id)}
 									onSaveContent={(content) =>
 										tree.updateContent(row.id, content)

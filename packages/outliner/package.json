@@ -6,6 +6,7 @@
   "exports": {
     "./virtual-tree": "./src/virtual-tree/virtual-tree.tsx",
     "./node-types": "./src/node-types.ts",
+    "./node-tags": "./src/node-tags.ts",
     "./tree-types": "./src/tree-types.ts",
     "./visible-rows": "./src/virtual-tree/visible-rows.ts",
     "./filter-visibility": "./src/virtual-tree/filter-visibility.ts",

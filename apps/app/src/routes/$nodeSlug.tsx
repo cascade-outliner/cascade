@@ -4,6 +4,7 @@ import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-vie
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import { NodeCheckbox } from "@cascade/outliner/node-checkbox";
 import { NodeDueDatePill } from "@cascade/outliner/node-due-date-pill";
+import { NodeTagsControl } from "@cascade/outliner/node-tags-pills";
 import type { NodeMetadataOf } from "@cascade/outliner/node-types";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
@@ -16,6 +17,11 @@ import { GenericErrorComponent } from "#/ui/error/generic-error";
 import { Breadcrumbs } from "#/ui/nodes/breadcrumbs";
 import { NodeLink } from "#/ui/nodes/node-link";
 import { splitNodeSlug } from "#/ui/nodes/node-slug";
+import {
+	existingTagsOptions,
+	useDeleteTag,
+	useExistingTags,
+} from "#/ui/nodes/use-existing-tags";
 import { useNodeFilters } from "#/ui/nodes/use-node-filters";
 import {
 	useVisibleTree,
@@ -30,6 +36,7 @@ export const Route = createFileRoute("/$nodeSlug")({
 			orpc.nodes.resolveSlug.queryOptions({ input: { slugId, slugText } }),
 		);
 		queryClient.prefetchQuery(visibleTreeOptions(nodeId));
+		queryClient.prefetchQuery(existingTagsOptions());
 		await Promise.all([
 			queryClient.ensureQueryData(
 				orpc.nodes.get.queryOptions({ input: { id: nodeId } }),
@@ -51,6 +58,8 @@ function NodeDetailPage() {
 	const queryClient = useQueryClient();
 	const options = orpc.nodes.get.queryOptions({ input: { id: nodeId } });
 	const { data: node } = useSuspenseQuery(options);
+	const existingTags = useExistingTags();
+	const deleteTag = useDeleteTag();
 
 	const toggleTask = async (completed: boolean) => {
 		queryClient.setQueryData(options.queryKey, (old) =>
@@ -78,6 +87,20 @@ function NodeDetailPage() {
 		}
 	};
 
+	const setTags = async (tags: string[]) => {
+		queryClient.setQueryData(options.queryKey, (old) =>
+			old ? { ...old, tags } : old,
+		);
+		try {
+			await client.nodes.setTags({ id: nodeId, tags });
+			queryClient.invalidateQueries({
+				queryKey: existingTagsOptions().queryKey,
+			});
+		} catch {
+			queryClient.invalidateQueries({ queryKey: options.queryKey });
+		}
+	};
+
 	// SSR hydration round-trips the query cache through JSON, which leaves
 	// dueDate as an ISO string instead of a Date; normalize it here so
 	// NodeDueDatePill always gets a real Date | null (see virtual-tree-row.tsx).
@@ -95,7 +118,7 @@ function NodeDetailPage() {
 						<Breadcrumbs nodeId={nodeId} />
 						<div
 							style={{ viewTransitionName: `node-${nodeId}` }}
-							className="text-2xl mb-8 flex items-center gap-3"
+							className="group/node text-2xl mb-8 flex items-center gap-3"
 						>
 							{node.type === "task" && (
 								<NodeCheckbox metadata={node.metadata} onToggle={toggleTask} />
@@ -108,15 +131,33 @@ function NodeDetailPage() {
 									onChange={setDueDate}
 								/>
 							)}
+							<NodeTagsControl
+								tags={node.tags}
+								existingTags={existingTags}
+								onChange={setTags}
+								onDeleteTag={deleteTag}
+							/>
 						</div>
 					</>
 				}
+				existingTags={existingTags}
+				onDeleteTag={deleteTag}
 			/>
 		</Suspense>
 	);
 }
 
-function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
+function NodeTree({
+	nodeId,
+	header,
+	existingTags,
+	onDeleteTag,
+}: {
+	nodeId: string;
+	header: ReactNode;
+	existingTags: string[];
+	onDeleteTag: (name: string) => void | Promise<void>;
+}) {
 	const tree = useVisibleTree(nodeId);
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
@@ -138,6 +179,8 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
+			existingTags={existingTags}
+			onDeleteTag={onDeleteTag}
 		/>
 	);
 }

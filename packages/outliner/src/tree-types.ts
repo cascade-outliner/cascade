@@ -22,6 +22,7 @@ export interface VisibleTree {
 	) => void | Promise<void>;
 	setType: (id: string, typed: TypedMetadata) => void | Promise<void>;
 	setDueDate: (id: string, dueDate: Date | null) => void | Promise<void>;
+	setTags: (id: string, tags: string[]) => void | Promise<void>;
 	add: (options?: AddNodeOptions) => Promise<string>;
 	addAfter: (afterId: string, options?: AddNodeOptions) => Promise<string>;
 	loadMore: () => void | Promise<void>;
