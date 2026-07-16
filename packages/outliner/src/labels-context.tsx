@@ -18,6 +18,15 @@ export interface OutlinerLabels {
 	dueToday: string;
 	dueTomorrow: string;
 	dueYesterday: string;
+	addTag: string;
+	manageTags: string;
+	tagsInputPlaceholder: string;
+	tagHintNavigate: string;
+	tagHintToggle: string;
+	createTag: string;
+	deleteTagAria: string;
+	deleteTagConfirmBody: string;
+	cancel: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
@@ -43,6 +52,16 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	dueToday: "Today",
 	dueTomorrow: "Tomorrow",
 	dueYesterday: "Yesterday",
+	addTag: "Add tag",
+	manageTags: "Manage tags",
+	tagsInputPlaceholder: "Add tag…",
+	tagHintNavigate: "navigate",
+	tagHintToggle: "toggle",
+	createTag: "Create",
+	deleteTagAria: "Delete tag",
+	deleteTagConfirmBody:
+		"This removes it from every node it's on. This can't be undone.",
+	cancel: "Cancel",
 	nodeTypeLabels: Object.fromEntries(
 		nodeTypeNames.map((type) => [type, nodeTypeDefs[type].label]),
 	) as Record<NodeTypeName, string>,

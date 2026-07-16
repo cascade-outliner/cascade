@@ -46,6 +46,7 @@ function toRow(
 		expanded: node.expanded ?? true,
 		order: String(order),
 		dueDate: node.dueDate ?? null,
+		tags: [],
 		depth,
 		path: [],
 		hasChildren: (node.children?.length ?? 0) > 0,

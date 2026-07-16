@@ -6,6 +6,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { NodeLink } from "@/ui/nodes/node-link";
+import {
+	existingTagsOptions,
+	useDeleteTag,
+	useExistingTags,
+} from "@/ui/nodes/use-existing-tags";
 import { useNodeFilters } from "@/ui/nodes/use-node-filters";
 import {
 	useVisibleTree,
@@ -16,6 +21,7 @@ import { useSettings } from "@/ui/settings-context";
 export const Route = createFileRoute("/")({
 	loader: ({ context: { queryClient } }) => {
 		queryClient.prefetchQuery(visibleTreeOptions(null));
+		queryClient.prefetchQuery(existingTagsOptions());
 	},
 	errorComponent: GenericErrorComponent,
 	component: () => (
@@ -30,6 +36,8 @@ function RootTree() {
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
 	const visibility = getRowVisibility(tree.rows, filters);
+	const existingTags = useExistingTags();
+	const deleteTag = useDeleteTag();
 
 	return (
 		<VirtualTree
@@ -43,6 +51,8 @@ function RootTree() {
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
+			existingTags={existingTags}
+			onDeleteTag={deleteTag}
 		/>
 	);
 }

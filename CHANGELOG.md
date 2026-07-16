@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-16
+- Nodes can now be tagged: add or create tags from the row's context menu or the node page, and delete a tag everywhere in one step. [#78](https://github.com/Patrickroelofs/cascade/issues/78)
+
 ## 2026-07-14
 - Improve slug generation for nodes, ensuring uniqueness and better readability. [#182](https://github.com/Patrickroelofs/cascade/pull/182)
 - Filter on due date `today`. [#174](https://github.com/Patrickroelofs/cascade/pull/174)
