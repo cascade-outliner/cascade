@@ -283,6 +283,15 @@ export const setNodeDueDate = authed
 			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)));
 	});
 
+export const listTagNames = authed.handler(async ({ context }) => {
+	const rows = await db
+		.select({ name: tagsTable.name })
+		.from(tagsTable)
+		.where(eq(tagsTable.userId, context.user.id))
+		.orderBy(asc(tagsTable.name));
+	return rows.map((r) => r.name);
+});
+
 export const setNodeTags = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },

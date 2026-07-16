@@ -6,6 +6,7 @@ import { NodeTagsEditor } from "./node-tags-editor";
 
 interface NodeTagsControlProps {
 	tags: string[];
+	existingTags: string[];
 	onChange: (tags: string[]) => void;
 }
 
@@ -39,8 +40,48 @@ const overflowTrigger = cva({
 	],
 });
 
-/** Tag pills for a node, plus a hover-revealed "+" that opens the tag editor. */
-export function NodeTagsControl({ tags, onChange }: NodeTagsControlProps) {
+const overflowLabel = cva({
+	base: [
+		"inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11.5px] font-medium tabular-nums",
+		"border-dark-grey/15 bg-transparent text-graphite dark:border-ginger/15 dark:text-ginger/60",
+	],
+});
+
+/**
+ * Read-only tag pills for a tree row; adding/removing tags happens via the
+ * row's right-click "Tags" menu, not here.
+ */
+export function NodeTagPills({ tags }: { tags: string[] }) {
+	const visible = tags.slice(0, MAX_VISIBLE_TAGS);
+	const hidden = tags.slice(MAX_VISIBLE_TAGS);
+	if (visible.length === 0) return null;
+
+	return (
+		<span className="inline-flex shrink-0 flex-wrap items-center gap-1">
+			{visible.map((tag) => (
+				<span key={tag} className={pill()}>
+					<TagIcon size={11} weight="bold" />
+					{tag}
+				</span>
+			))}
+			{hidden.length > 0 && (
+				<span className={overflowLabel()} title={hidden.join(", ")}>
+					+{hidden.length}
+				</span>
+			)}
+		</span>
+	);
+}
+
+/**
+ * Tag pills plus a hover-revealed "+" that opens the tag editor directly
+ * (used where there's no right-click menu to host it, e.g. the detail page).
+ */
+export function NodeTagsControl({
+	tags,
+	existingTags,
+	onChange,
+}: NodeTagsControlProps) {
 	const labels = useOutlinerLabels();
 	const visible = tags.slice(0, MAX_VISIBLE_TAGS);
 	const hiddenCount = tags.length - visible.length;
@@ -73,7 +114,11 @@ export function NodeTagsControl({ tags, onChange }: NodeTagsControlProps) {
 				)}
 			</span>
 			<PopoverContent>
-				<NodeTagsEditor tags={tags} onChange={onChange} />
+				<NodeTagsEditor
+					tags={tags}
+					existingTags={existingTags}
+					onChange={onChange}
+				/>
 			</PopoverContent>
 		</Popover>
 	);

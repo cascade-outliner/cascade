@@ -67,6 +67,8 @@
 	"outliner_manage_tags": "Manage tags",
 	"outliner_tags_input_placeholder": "Add tag…",
 	"outliner_remove_tag_aria": "Remove tag",
+	"outliner_tag_suggestions": "Suggestions",
+	"outliner_create_tag": "Create",
 	"filters_bar_trigger": "Filter",
 	"filters_bar_due_date_group": "Due date",
 	"filters_bar_due_today": "Due today",

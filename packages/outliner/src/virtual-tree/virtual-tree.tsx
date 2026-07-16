@@ -31,6 +31,7 @@ export function VirtualTree({
 	hiddenRowIds,
 	contextRowIds,
 	newNodeDueDate,
+	existingTags = [],
 }: {
 	tree: VisibleTree;
 	indentSize?: number;
@@ -49,6 +50,8 @@ export function VirtualTree({
 	/** Stamped onto nodes created here, e.g. so a node added under an active
 	 * "Due today" filter matches it instead of immediately being hidden. */
 	newNodeDueDate?: Date | null;
+	/** This user's other tag names, for the tag editor's suggestion list. */
+	existingTags?: string[];
 }) {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
@@ -170,6 +173,7 @@ export function VirtualTree({
 									indentSize={indentSize}
 									renderNodeLink={renderNodeLink}
 									measureElement={virtualizer.measureElement}
+									existingTags={existingTags}
 									isHidden={hiddenRowIds?.has(row.id) ?? false}
 									isContext={contextRowIds?.has(row.id) ?? false}
 									editing={editingNodeId === row.id}

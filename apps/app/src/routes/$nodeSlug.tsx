@@ -17,6 +17,10 @@ import { GenericErrorComponent } from "#/ui/error/generic-error";
 import { Breadcrumbs } from "#/ui/nodes/breadcrumbs";
 import { NodeLink } from "#/ui/nodes/node-link";
 import { splitNodeSlug } from "#/ui/nodes/node-slug";
+import {
+	existingTagsOptions,
+	useExistingTags,
+} from "#/ui/nodes/use-existing-tags";
 import { useNodeFilters } from "#/ui/nodes/use-node-filters";
 import {
 	useVisibleTree,
@@ -31,6 +35,7 @@ export const Route = createFileRoute("/$nodeSlug")({
 			orpc.nodes.resolveSlug.queryOptions({ input: { slugId, slugText } }),
 		);
 		queryClient.prefetchQuery(visibleTreeOptions(nodeId));
+		queryClient.prefetchQuery(existingTagsOptions());
 		await Promise.all([
 			queryClient.ensureQueryData(
 				orpc.nodes.get.queryOptions({ input: { id: nodeId } }),
@@ -52,6 +57,7 @@ function NodeDetailPage() {
 	const queryClient = useQueryClient();
 	const options = orpc.nodes.get.queryOptions({ input: { id: nodeId } });
 	const { data: node } = useSuspenseQuery(options);
+	const existingTags = useExistingTags();
 
 	const toggleTask = async (completed: boolean) => {
 		queryClient.setQueryData(options.queryKey, (old) =>
@@ -120,16 +126,29 @@ function NodeDetailPage() {
 									onChange={setDueDate}
 								/>
 							)}
-							<NodeTagsControl tags={node.tags} onChange={setTags} />
+							<NodeTagsControl
+								tags={node.tags}
+								existingTags={existingTags}
+								onChange={setTags}
+							/>
 						</div>
 					</>
 				}
+				existingTags={existingTags}
 			/>
 		</Suspense>
 	);
 }
 
-function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
+function NodeTree({
+	nodeId,
+	header,
+	existingTags,
+}: {
+	nodeId: string;
+	header: ReactNode;
+	existingTags: string[];
+}) {
 	const tree = useVisibleTree(nodeId);
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
@@ -151,6 +170,7 @@ function NodeTree({ nodeId, header }: { nodeId: string; header: ReactNode }) {
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
+			existingTags={existingTags}
 		/>
 	);
 }

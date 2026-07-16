@@ -8,7 +8,7 @@ import { NodeCheckbox } from "../node-checkbox";
 import { NodeDueDatePill } from "../node-due-date-pill";
 import { type FocusPoint, NodeEditor } from "../node-editor";
 import { DefaultNodeLink } from "../node-link-slot";
-import { NodeTagsControl } from "../node-tags-pills";
+import { NodeTagPills } from "../node-tags-pills";
 import { NodeToggle } from "../node-toggle";
 import type { NodeTypeName, VisibleNodeRow } from "../node-types";
 import { RowDragAndDrop } from "./row-drag-drop";
@@ -22,6 +22,8 @@ export interface VirtualTreeRowProps {
 	indentSize: number;
 	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
+	/** This user's other tag names, for the tag editor's suggestion list. */
+	existingTags: string[];
 	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
 	isHidden: boolean;
 	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
@@ -76,8 +78,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 				<NodeActions
 					nodeType={row.type}
 					dueDate={dueDate}
+					tags={row.tags}
+					existingTags={props.existingTags}
 					onConvert={props.onConvert}
 					onSetDueDate={props.onSetDueDate}
+					onSetTags={props.onSetTags}
 					onDelete={props.onDelete}
 					viewTransitionName={`node-${row.id}`}
 				>
@@ -122,7 +127,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							onChange={props.onSetDueDate}
 						/>
 					)}
-					<NodeTagsControl tags={row.tags} onChange={props.onSetTags} />
+					<NodeTagPills tags={row.tags} />
 				</NodeActions>
 			</RowDragAndDrop>
 		</div>

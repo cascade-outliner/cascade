@@ -67,6 +67,8 @@
 	"outliner_manage_tags": "Labels beheren",
 	"outliner_tags_input_placeholder": "Label toevoegen…",
 	"outliner_remove_tag_aria": "Label verwijderen",
+	"outliner_tag_suggestions": "Suggesties",
+	"outliner_create_tag": "Aanmaken",
 	"filters_bar_trigger": "Filter",
 	"filters_bar_due_date_group": "Vervaldatum",
 	"filters_bar_due_today": "Vervalt vandaag",

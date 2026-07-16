@@ -132,6 +132,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 								manageTags: m.outliner_manage_tags(),
 								tagsInputPlaceholder: m.outliner_tags_input_placeholder(),
 								removeTagAria: m.outliner_remove_tag_aria(),
+								tagSuggestions: m.outliner_tag_suggestions(),
+								createTag: m.outliner_create_tag(),
 								nodeTypeLabels: {
 									text: m.outliner_type_text(),
 									task: m.outliner_type_task(),
