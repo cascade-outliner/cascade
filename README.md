@@ -1,95 +1,115 @@
 # Cascade
 
-A self-hosted outliner.
+Cascade is a fast, tree-based outliner for organizing ideas, notes, and structured work in deeply nested hierarchies. It combines smooth editing with virtualized rendering for large trees, giving you responsive navigation and stable node URLs as your workspace grows.
+
+## What it includes
+
+- `apps/app` - outliner app (`localhost:3001`)
+- `apps/web` - marketing + auth pages (`localhost:3000`)
+- Shared packages for auth, UI, theme, outliner UI, and HTTP helpers
 
 ## Features
 
-- Tree-based outliner with infinitely nestable nodes, virtualized for large trees
-- Self-hosted on your own infrastructure with a PostgreSQL database
-- Type-safe throughout - RPC, database queries, and routing
+- Infinitely nestable tree with virtualization for large datasets
+- PostgreSQL-backed data model for durable, scalable storage
+- Type-safe stack (oRPC, Drizzle, TanStack Start/Router)
 
-## Getting started
+## Self-hosting status
 
-**Prerequisites:** Node.js 22+, pnpm, PostgreSQL (or Docker)
+Cascade can be self-hosted, and the architecture supports running it on your own infrastructure. That said, self-hosting setup and docs are not the current project focus.
+
+## Quick start
+
+**Prerequisites:** Node.js 22+, pnpm, Docker (or local PostgreSQL)
 
 ```bash
 git clone https://github.com/patrickroelofs/cascade
 cd cascade
 pnpm install
-```
-
-Copy `.env.local.example` to `.env.local` and set:
-
-```env
-DATABASE_URL=postgres://user:password@localhost:5432/cascade
-```
-
-Start a local database:
-
-```bash
 docker compose up -d
 ```
 
-Apply the schema and seed:
+Create env files:
 
 ```bash
-pnpm db:push
-pnpm db:seed
+cp apps/app/.env.local.example apps/app/.env.local
+cp apps/web/.env.local.example apps/web/.env.local
 ```
 
-Start the dev server:
+Set `BETTER_AUTH_SECRET` to the same value in both env files.
+
+Prepare the database and start both apps:
 
 ```bash
+pnpm db:push:app
+pnpm db:seed:app
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open:
 
-## Building for production
+- Web: [http://localhost:3000](http://localhost:3000)
+- App: [http://localhost:3001](http://localhost:3001)
 
-```bash
-pnpm build
-pnpm start
-```
-
-## Development
+## Common commands
 
 ```bash
-pnpm dev          # Start dev server
-pnpm test         # Run tests
-pnpm check        # Lint + format
+# Development
+pnpm dev
+pnpm dev:app
+pnpm dev:web
 
-pnpm db:push      # Apply schema changes to the database
-pnpm db:studio    # Open Drizzle Studio
+# Build
+pnpm build:app
+pnpm build:web
+
+# Tests
+pnpm test:app
+pnpm test:web
+pnpm test:e2e:app
+
+# Code quality
+pnpm check
+pnpm lint
+pnpm format:write
+
+# Database (apps/app)
+pnpm db:push:app
+pnpm db:generate:app
+pnpm db:migrate:app
+pnpm db:seed:app
+pnpm db:studio:app
 ```
 
-### Node URL slugs
+## Node URL slugs
 
-Node detail URLs use the node text plus a short stable node id suffix:
-`/<slug-from-content>-<uuid-first-block>`.
+Node URLs use:
 
-The content-derived slug is lowercased, strips special characters, and replaces
-spaces/punctuation with hyphens, then is capped to a practical max length.
-The `-<uuid-first-block>` suffix keeps duplicate node titles unambiguous while
-keeping links stable and directly resolvable.
+`/<slug-from-content>-<uuid-first-block>`
 
-### End-to-end tests
+The text part is normalized (lowercase, punctuation stripped, spaces collapsed to `-`, length-capped). The UUID prefix keeps duplicate titles resolvable while preserving stable links.
 
-`apps/app` has a Playwright suite under `apps/app/e2e`. It needs a running
-database (`docker compose up -d`, `pnpm db:push:app`, plus the `COLLATE "C"`
-fix above on a fresh database) and builds+starts the app itself, so no dev
-server needs to be running first:
+## End-to-end tests
+
+Playwright tests live in `apps/app/e2e`.
+
+Requirements:
+
+- running database
+- `pnpm db:push:app`
+
+Then run:
 
 ```bash
 pnpm test:e2e:app
 ```
 
-The suite authenticates once (`e2e/auth.setup.ts`, creating/reusing a
-dedicated `e2e@cascadelist.com` user) and reuses that session across tests.
-Each test gets its own throwaway node via the real API
-(`e2e/support/fixtures.ts`'s `scratchNode` fixture) so tests never touch the
-dev seed data and can run in parallel safely.
+Tests authenticate once, reuse that session, and create throwaway nodes per test so they can run in parallel without touching seeded dev data.
 
 ## AI usage
 
-This project is developed with AI assistance as a convenience. The rule is simple: use AI when you already know the solution and want to move faster; use your own brain when you don't. AI is a execution accelerator, not a thinking replacement. Reaching for it to figure out what to build, or to paper over a gap in understanding, produces code nobody truly understands and nobody can confidently maintain. Know the problem, know the solution, then let AI write the boilerplate.
+Use AI to accelerate implementation when the problem and solution are already understood. Do not use AI as a substitute for product/design thinking or core technical understanding.
+
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=patrickroelofs/cascade)](https://github.com/patrickroelofs/cascade/graphs/contributors)
