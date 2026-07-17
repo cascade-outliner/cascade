@@ -12,6 +12,8 @@ test("dark mode persists to the account and applies on a device with no local st
 		await page.getByRole("button", { name: "User menu" }).click();
 		await page.getByRole("menuitem", { name: "Settings" }).click();
 		await page.getByRole("switch", { name: "Dark mode" }).click();
+		// Closing the dialog is what saves the changes to the account.
+		await page.getByRole("button", { name: "Close settings" }).click();
 
 		// The change lands server-side, not just in this tab.
 		await expect

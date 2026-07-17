@@ -1,11 +1,11 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, use, useEffect, useRef, useState } from "react";
 import {
 	type Settings,
 	type SettingsPatch,
 	settingsPatchSchema,
 } from "@/core/settings/settings-patch-schema";
-import { client, orpc } from "@/orpc/client";
+import { orpc } from "@/orpc/client";
 
 export {
 	MAX_INDENT_SIZE,
@@ -45,11 +45,14 @@ function writeLocal(stored: SettingsPatch) {
 const SettingsContext = createContext<{
 	settings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+	saveSettings: () => void;
 } | null>(null);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	const [stored, setStored] = useState<SettingsPatch>(readLocal);
-	const pendingWrites = useRef(0);
+	// Changes made since the last save; flushed to the server by
+	// `saveSettings` (called when the settings dialog closes).
+	const unsaved = useRef<SettingsPatch>({});
 	const seededServer = useRef(false);
 	const queryClient = useQueryClient();
 
@@ -57,23 +60,45 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	// changes made on another device are picked up when returning to the tab.
 	const { data: remote } = useQuery(orpc.settings.get.queryOptions());
 
+	const updateSettings = useMutation(
+		orpc.settings.update.mutationOptions({
+			onSuccess: (merged) => {
+				// The server returns the merged row (which may include keys written
+				// by other devices); adopt it as the new baseline unless more
+				// changes accumulated while the save was in flight.
+				if (Object.keys(unsaved.current).length > 0) return;
+				queryClient.setQueryData(
+					orpc.settings.get.queryOptions().queryKey,
+					merged,
+				);
+			},
+			onError: (_error, patch) => {
+				// Offline or transient failure: the change still applies locally.
+				// Put the patch back so the next save retries it; keys changed
+				// again since take precedence.
+				unsaved.current = { ...patch, ...unsaved.current };
+			},
+		}),
+	);
+	const { isPending, mutate } = updateSettings;
+
 	useEffect(() => {
 		if (remote === undefined) return;
-		// Don't clobber an optimistic local change with a stale server response.
-		if (pendingWrites.current > 0) return;
+		// Unsaved local changes take precedence until they're flushed.
+		if (isPending || Object.keys(unsaved.current).length > 0) return;
 		if (Object.keys(remote).length === 0) {
 			// Nothing stored server-side yet: seed it from this device's
 			// pre-existing local settings instead of wiping them.
 			const local = readLocal();
 			if (!seededServer.current && Object.keys(local).length > 0) {
 				seededServer.current = true;
-				client.settings.update(local).catch(() => {});
+				mutate(local);
 			}
 			return;
 		}
 		setStored(remote);
 		writeLocal(remote);
-	}, [remote]);
+	}, [remote, isPending, mutate]);
 
 	const settings: Settings = { ...defaults(), ...stored };
 
@@ -85,24 +110,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 		const next = { ...stored, [key]: value };
 		setStored(next);
 		writeLocal(next);
-		// Keep the query cache in step with the optimistic write; otherwise a
-		// focus refetch whose result deep-equals the stale cache keeps the same
-		// object reference (structural sharing) and the apply effect never runs.
-		queryClient.setQueryData(orpc.settings.get.queryOptions().queryKey, next);
-		pendingWrites.current += 1;
-		client.settings
-			.update({ [key]: value })
-			.catch(() => {
-				// Offline or transient failure: the change still applies locally
-				// and will be re-sent the next time this setting changes.
-			})
-			.finally(() => {
-				pendingWrites.current -= 1;
-			});
+		unsaved.current = { ...unsaved.current, [key]: value };
+	}
+
+	function saveSettings() {
+		const patch = unsaved.current;
+		if (Object.keys(patch).length === 0) return;
+		unsaved.current = {};
+		mutate(patch);
 	}
 
 	return (
-		<SettingsContext value={{ settings, setSetting }}>
+		<SettingsContext value={{ settings, setSetting, saveSettings }}>
 			{children}
 		</SettingsContext>
 	);
