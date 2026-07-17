@@ -1,5 +1,5 @@
 import type { TagSummary } from "@cascade/outliner/node-tags";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client, orpc } from "@/orpc/client";
 
 export function existingTagsOptions() {
@@ -16,14 +16,18 @@ export function useExistingTags(): TagSummary[] {
  * the tag list and any currently-loaded trees/nodes. */
 export function useDeleteTag(): (name: string) => Promise<void> {
 	const queryClient = useQueryClient();
-	return async (name: string) => {
-		await client.nodes.deleteTag({ name });
-		await Promise.all([
-			queryClient.invalidateQueries({
-				queryKey: existingTagsOptions().queryKey,
-			}),
-			queryClient.invalidateQueries({ queryKey: orpc.nodes.visibleTree.key() }),
-			queryClient.invalidateQueries({ queryKey: orpc.nodes.get.key() }),
-		]);
-	};
+	const mutation = useMutation({
+		mutationFn: (name: string) => client.nodes.deleteTag({ name }),
+		onSuccess: () =>
+			Promise.all([
+				queryClient.invalidateQueries({
+					queryKey: existingTagsOptions().queryKey,
+				}),
+				queryClient.invalidateQueries({
+					queryKey: orpc.nodes.visibleTree.key(),
+				}),
+				queryClient.invalidateQueries({ queryKey: orpc.nodes.get.key() }),
+			]),
+	});
+	return (name: string) => mutation.mutateAsync(name);
 }

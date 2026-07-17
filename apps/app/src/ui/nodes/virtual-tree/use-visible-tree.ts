@@ -14,8 +14,11 @@ import {
 	removeSubtree,
 } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
 import { existingTagsOptions } from "@/ui/nodes/use-existing-tags";
@@ -31,14 +34,14 @@ export function visibleTreeOptions(rootId: string | null) {
 
 /**
  * Single owner of the flat visible-tree cache entry and every mutation that
- * touches it. All mutations splice the flat array optimistically, then persist
- * and reconcile with the server (whose fractional order is authoritative).
+ * touches it. Each mutation is a `useMutation` that patches the flat array
+ * optimistically in `onMutate`, then persists and reconciles with the server
+ * (whose fractional order is authoritative) in `onError`/`onSuccess`.
  */
 export function useVisibleTree(rootId: string | null): VisibleTree {
 	const queryClient = useQueryClient();
 	const options = visibleTreeOptions(rootId);
 	const { data } = useSuspenseQuery(options);
-	const loadingMore = useRef(false);
 
 	const setRows = (fn: (rows: VisibleNodeRow[]) => VisibleNodeRow[]) => {
 		queryClient.setQueryData(
@@ -51,39 +54,46 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 	const invalidate = () =>
 		queryClient.invalidateQueries({ queryKey: options.queryKey });
 
-	const toggle = async (id: string, expanded: boolean) => {
-		if (expanded) {
-			setRows((rows) => patchRow(rows, id, { expanded: true }));
-			try {
+	// The VisibleTree contract is fire-and-forget (`void | Promise<void>`);
+	// failures are already surfaced via each mutation's onError (toast/invalidate).
+	const swallow = async (promise: Promise<unknown>) => {
+		try {
+			await promise;
+		} catch {}
+	};
+
+	const toggleMutation = useMutation({
+		mutationFn: async ({ id, expanded }: { id: string; expanded: boolean }) => {
+			if (expanded) {
 				const subtree = await client.nodes.visibleTree({ rootId: id });
 				setRows((rows) => expandNode(rows, id, subtree.rows));
 				await client.nodes.toggleExpanded({ id, expanded: true });
-			} catch {
-				invalidate();
-			}
-		} else {
-			setRows((rows) => collapseNode(rows, id));
-			try {
+			} else {
 				await client.nodes.toggleExpanded({ id, expanded: false });
-			} catch {
-				invalidate();
 			}
-		}
-	};
+		},
+		onMutate: ({ id, expanded }) => {
+			setRows((rows) =>
+				expanded
+					? patchRow(rows, id, { expanded: true })
+					: collapseNode(rows, id),
+			);
+		},
+		onError: () => invalidate(),
+	});
+	const toggle = (id: string, expanded: boolean) =>
+		swallow(toggleMutation.mutateAsync({ id, expanded }));
 
-	const move = async (
-		id: string,
-		target: MoveTarget,
-		options: { expandParentId?: string } = {},
-	) => {
-		const { expandParentId } = options;
-		setRows((rows) => {
-			const expanded = expandParentId
-				? patchRow(rows, expandParentId, { expanded: true })
-				: rows;
-			return moveSubtree(expanded, id, target);
-		});
-		try {
+	const moveMutation = useMutation({
+		mutationFn: async ({
+			id,
+			target,
+			expandParentId,
+		}: {
+			id: string;
+			target: MoveTarget;
+			expandParentId?: string;
+		}) => {
 			await Promise.all([
 				client.nodes.move(
 					target.position === "append"
@@ -99,17 +109,36 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 					? client.nodes.toggleExpanded({ id: expandParentId, expanded: true })
 					: null,
 			]);
-		} finally {
+		},
+		onMutate: ({ id, target, expandParentId }) => {
+			setRows((rows) => {
+				const expanded = expandParentId
+					? patchRow(rows, expandParentId, { expanded: true })
+					: rows;
+				return moveSubtree(expanded, id, target);
+			});
+		},
+		onSettled: () => {
 			// Server-computed fractional order is authoritative; positions match,
 			// so this reconciliation is invisible unless a concurrent edit raced us.
 			invalidate();
-		}
-	};
+		},
+	});
+	const move = (
+		id: string,
+		target: MoveTarget,
+		moveOptions: { expandParentId?: string } = {},
+	) =>
+		moveMutation.mutateAsync({
+			id,
+			target,
+			expandParentId: moveOptions.expandParentId,
+		});
 
-	const remove = async (id: string) => {
-		setRows((rows) => removeSubtree(rows, id));
-		try {
-			const { childrenDeleted } = await client.nodes.delete({ id });
+	const removeMutation = useMutation({
+		mutationFn: (vars: { id: string }) => client.nodes.delete(vars),
+		onMutate: ({ id }) => setRows((rows) => removeSubtree(rows, id)),
+		onSuccess: ({ childrenDeleted }) => {
 			toast.success(
 				childrenDeleted > 64
 					? m.node_deleted_with_many_children()
@@ -117,16 +146,17 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 						? m.node_deleted_with_children({ count: childrenDeleted })
 						: m.node_deleted(),
 			);
-		} catch {
-			invalidate();
-		}
-	};
+		},
+		onError: () => invalidate(),
+	});
+	const remove = (id: string) => swallow(removeMutation.mutateAsync({ id }));
 
-	const updateContent = async (id: string, content: { root: unknown }) => {
-		setRows((rows) => patchRow(rows, id, { content }));
-		try {
-			await client.nodes.updateContent({ id, content });
-
+	const updateContentMutation = useMutation({
+		mutationFn: (vars: { id: string; content: { root: unknown } }) =>
+			client.nodes.updateContent(vars),
+		onMutate: ({ id, content }) =>
+			setRows((rows) => patchRow(rows, id, { content })),
+		onSuccess: (_data, { id }) => {
 			// Bust breadcrumbs, but only for chains the edited node is actually
 			// part of, rather than every ancestors cache entry.
 			queryClient.invalidateQueries({
@@ -136,50 +166,68 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 					return chain?.some((ancestor) => ancestor.id === id) ?? false;
 				},
 			});
-		} catch {
+		},
+		onError: () => {
 			toast.error(m.node_save_failed());
 			invalidate();
-		}
-	};
+		},
+	});
+	const updateContent = (id: string, content: { root: unknown }) =>
+		swallow(updateContentMutation.mutateAsync({ id, content }));
 
 	/** Convert a node's type or update its per-type metadata (e.g. task completion). */
-	const setType = async (id: string, typed: TypedMetadata) => {
-		setRows((rows) =>
-			patchRow(rows, id, { type: typed.type, metadata: typed.metadata }),
-		);
-		try {
-			await client.nodes.setType({ id, ...typed });
-		} catch {
-			invalidate();
-		}
-	};
+	const setTypeMutation = useMutation({
+		mutationFn: (vars: { id: string } & TypedMetadata) =>
+			client.nodes.setType(vars),
+		onMutate: (vars) =>
+			setRows((rows) =>
+				patchRow(rows, vars.id, { type: vars.type, metadata: vars.metadata }),
+			),
+		onError: () => invalidate(),
+	});
+	const setType = (id: string, typed: TypedMetadata) =>
+		swallow(setTypeMutation.mutateAsync({ id, ...typed }));
 
-	const setDueDate = async (id: string, dueDate: Date | null) => {
-		setRows((rows) => patchRow(rows, id, { dueDate }));
-		try {
-			await client.nodes.setDueDate({ id, dueDate });
-		} catch {
-			invalidate();
-		}
-	};
+	const setDueDateMutation = useMutation({
+		mutationFn: (vars: { id: string; dueDate: Date | null }) =>
+			client.nodes.setDueDate(vars),
+		onMutate: ({ id, dueDate }) =>
+			setRows((rows) => patchRow(rows, id, { dueDate })),
+		onError: () => invalidate(),
+	});
+	const setDueDate = (id: string, dueDate: Date | null) =>
+		swallow(setDueDateMutation.mutateAsync({ id, dueDate }));
 
-	const setTags = async (id: string, tags: string[]) => {
-		setRows((rows) => patchRow(rows, id, { tags }));
-		try {
-			await client.nodes.setTags({ id, tags });
+	const setTagsMutation = useMutation({
+		mutationFn: (vars: { id: string; tags: string[] }) =>
+			client.nodes.setTags(vars),
+		onMutate: ({ id, tags }) => setRows((rows) => patchRow(rows, id, { tags })),
+		onSuccess: () => {
 			// A brand-new tag name may have just been created; refresh the
 			// suggestion list so it's offered elsewhere without a reload.
 			queryClient.invalidateQueries({
 				queryKey: existingTagsOptions().queryKey,
 			});
-		} catch {
-			invalidate();
-		}
-	};
+		},
+		onError: () => invalidate(),
+	});
+	const setTags = (id: string, tags: string[]) =>
+		swallow(setTagsMutation.mutateAsync({ id, tags }));
+
+	const createMutation = useMutation({
+		mutationFn: (vars: {
+			parentId: string | null;
+			afterId?: string;
+			dueDate?: Date | null;
+		}) => client.nodes.create(vars),
+	});
 
 	/** Create and append a new node as the last child of this view's root. */
 	const add = async ({ dueDate = null }: AddNodeOptions = {}) => {
-		const created = await client.nodes.create({ parentId: rootId, dueDate });
+		const created = await createMutation.mutateAsync({
+			parentId: rootId,
+			dueDate,
+		});
 		setRows((rows) =>
 			appendRow(rows, {
 				id: created.id,
@@ -201,11 +249,11 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 	};
 
 	/** Create a new node as the next sibling right after `afterId`. */
-	const addAfter = async (afterId: string, options: AddNodeOptions = {}) => {
-		const { dueDate = null } = options;
+	const addAfter = async (afterId: string, addOptions: AddNodeOptions = {}) => {
+		const { dueDate = null } = addOptions;
 		const sibling = data.rows.find((r) => r.id === afterId);
-		if (!sibling) return add(options);
-		const created = await client.nodes.create({
+		if (!sibling) return add(addOptions);
+		const created = await createMutation.mutateAsync({
 			parentId: sibling.parentId,
 			afterId,
 			dueDate,
@@ -230,14 +278,10 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 		return created.id;
 	};
 
-	const loadMore = async () => {
-		if (loadingMore.current || !data.nextCursor) return;
-		loadingMore.current = true;
-		try {
-			const next = await client.nodes.visibleTree({
-				rootId,
-				cursor: data.nextCursor,
-			});
+	const loadMoreMutation = useMutation({
+		mutationFn: () =>
+			client.nodes.visibleTree({ rootId, cursor: data.nextCursor }),
+		onSuccess: (next) => {
 			queryClient.setQueryData(
 				options.queryKey,
 				(old: VisibleTreeData | undefined) =>
@@ -245,9 +289,11 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 						? { rows: [...old.rows, ...next.rows], nextCursor: next.nextCursor }
 						: old,
 			);
-		} finally {
-			loadingMore.current = false;
-		}
+		},
+	});
+	const loadMore = async () => {
+		if (loadMoreMutation.isPending || !data.nextCursor) return;
+		await loadMoreMutation.mutateAsync();
 	};
 
 	return {

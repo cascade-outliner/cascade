@@ -8,7 +8,11 @@ import { NodeTagsControl } from "@cascade/outliner/node-tags-pills";
 import type { NodeMetadataOf } from "@cascade/outliner/node-types";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
@@ -61,45 +65,59 @@ function NodeDetailPage() {
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 
-	const toggleTask = async (completed: boolean) => {
-		queryClient.setQueryData(options.queryKey, (old) =>
-			old ? { ...old, metadata: { completed } } : old,
-		);
+	const invalidateNode = () =>
+		queryClient.invalidateQueries({ queryKey: options.queryKey });
+
+	// These callbacks are fire-and-forget; failures are already surfaced via
+	// each mutation's onError (which invalidates the node-detail query).
+	const swallow = async (promise: Promise<unknown>) => {
 		try {
-			await client.nodes.setType({
+			await promise;
+		} catch {}
+	};
+
+	const toggleTaskMutation = useMutation({
+		mutationFn: (completed: boolean) =>
+			client.nodes.setType({
 				id: nodeId,
 				type: "task",
 				metadata: { completed },
-			});
-		} catch {
-			queryClient.invalidateQueries({ queryKey: options.queryKey });
-		}
-	};
+			}),
+		onMutate: (completed) =>
+			queryClient.setQueryData(options.queryKey, (old) =>
+				old ? { ...old, metadata: { completed } } : old,
+			),
+		onError: invalidateNode,
+	});
+	const toggleTask = (completed: boolean) =>
+		swallow(toggleTaskMutation.mutateAsync(completed));
 
-	const setDueDate = async (dueDate: Date | null) => {
-		queryClient.setQueryData(options.queryKey, (old) =>
-			old ? { ...old, dueDate } : old,
-		);
-		try {
-			await client.nodes.setDueDate({ id: nodeId, dueDate });
-		} catch {
-			queryClient.invalidateQueries({ queryKey: options.queryKey });
-		}
-	};
+	const setDueDateMutation = useMutation({
+		mutationFn: (dueDate: Date | null) =>
+			client.nodes.setDueDate({ id: nodeId, dueDate }),
+		onMutate: (dueDate) =>
+			queryClient.setQueryData(options.queryKey, (old) =>
+				old ? { ...old, dueDate } : old,
+			),
+		onError: invalidateNode,
+	});
+	const setDueDate = (dueDate: Date | null) =>
+		swallow(setDueDateMutation.mutateAsync(dueDate));
 
-	const setTags = async (tags: string[]) => {
-		queryClient.setQueryData(options.queryKey, (old) =>
-			old ? { ...old, tags } : old,
-		);
-		try {
-			await client.nodes.setTags({ id: nodeId, tags });
+	const setTagsMutation = useMutation({
+		mutationFn: (tags: string[]) => client.nodes.setTags({ id: nodeId, tags }),
+		onMutate: (tags) =>
+			queryClient.setQueryData(options.queryKey, (old) =>
+				old ? { ...old, tags } : old,
+			),
+		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: existingTagsOptions().queryKey,
-			});
-		} catch {
-			queryClient.invalidateQueries({ queryKey: options.queryKey });
-		}
-	};
+			}),
+		onError: invalidateNode,
+	});
+	const setTags = (tags: string[]) =>
+		swallow(setTagsMutation.mutateAsync(tags));
 
 	// SSR hydration round-trips the query cache through JSON, which leaves
 	// dueDate as an ISO string instead of a Date; normalize it here so
