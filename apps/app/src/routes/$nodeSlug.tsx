@@ -126,25 +126,33 @@ function NodeDetailPage() {
 						<Breadcrumbs nodeId={nodeId} />
 						<div
 							style={{ viewTransitionName: `node-${nodeId}` }}
-							className="group/node text-2xl mb-8 flex gap-3 flex-col"
+							className="group/node text-2xl mb-8 flex flex-col gap-3"
 						>
-							{node.type === "task" && (
-								<NodeCheckbox metadata={node.metadata} onToggle={toggleTask} />
-							)}
-							<LexicalReadView content={toLexicalContent(node.content)} />
-							{dueDate && (
-								<NodeDueDatePill
-									dueDate={dueDate}
-									completed={completed}
-									onChange={setDueDate}
+							<div className="flex gap-3 items-center">
+								{node.type === "task" && (
+									<NodeCheckbox
+										metadata={node.metadata}
+										onToggle={toggleTask}
+									/>
+								)}
+								<LexicalReadView content={toLexicalContent(node.content)} />
+							</div>
+
+							<div className="flex items-start gap-1">
+								{dueDate && (
+									<NodeDueDatePill
+										dueDate={dueDate}
+										completed={completed}
+										onChange={setDueDate}
+									/>
+								)}
+								<NodeTagsControl
+									tags={node.tags}
+									existingTags={existingTags}
+									onChange={setTags}
+									onDeleteTag={deleteTag}
 								/>
-							)}
-							<NodeTagsControl
-								tags={node.tags}
-								existingTags={existingTags}
-								onChange={setTags}
-								onDeleteTag={deleteTag}
-							/>
+							</div>
 						</div>
 					</>
 				}
