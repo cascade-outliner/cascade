@@ -3,7 +3,13 @@ import {
 	AutoLinkNode,
 	createLinkMatcherWithRegExp,
 } from "@lexical/link";
-import { $createTextNode, $nodesOfType, type LexicalEditor } from "lexical";
+import {
+	$createTextNode,
+	$getSelection,
+	$isRangeSelection,
+	$nodesOfType,
+	type LexicalEditor,
+} from "lexical";
 import { tidyLinkLabel } from "./link-paste-utils";
 
 // Requires an explicit http(s) protocol, matching extractPastedUrl, so bare
@@ -22,14 +28,30 @@ export const urlLinkMatcher = createLinkMatcherWithRegExp(URL_REGEX);
 export function finalizePendingAutoLinks(editor: LexicalEditor): void {
 	editor.update(
 		() => {
+			const selection = $getSelection();
+			const selectedKeys = $isRangeSelection(selection)
+				? new Set([selection.anchor.key, selection.focus.key])
+				: null;
+
 			for (const node of $nodesOfType(AutoLinkNode)) {
 				// An autolink the user has since edited away from a valid url is
 				// left as-is; it no longer has a meaningful url to finalize.
 				if (node.getIsUnlinked()) continue;
+
+				// Replacing the node drops its old text child (and the selection
+				// pointing at it, if any) — Lexical requires selection to land
+				// somewhere valid within the same update, or it throws.
+				const hadSelection = node
+					.getChildren()
+					.some((child) => selectedKeys?.has(child.getKey()));
+
 				const url = node.getURL();
 				const linkNode = $createLinkNode(url, { title: url });
-				linkNode.append($createTextNode(tidyLinkLabel(url)));
+				const textNode = $createTextNode(tidyLinkLabel(url));
+				linkNode.append(textNode);
 				node.replace(linkNode);
+
+				if (hadSelection) textNode.select();
 			}
 		},
 		{ discrete: true },

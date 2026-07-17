@@ -78,6 +78,45 @@ describe("finalizePendingAutoLinks", () => {
 		});
 	});
 
+	// Regression test: right after typing a url (before a trailing separator
+	// moves the cursor past it, or on blur/unmount while still inside it),
+	// the selection sits in the autolink's text child. Replacing that child
+	// without moving selection somewhere valid made Lexical throw and abort
+	// the whole update, leaving the untidied (and schema-rejected) autolink
+	// node in what got saved.
+	it("preserves selection that was inside the autolink being replaced", () => {
+		const editor = createLinkEditor();
+		editor.update(
+			() => {
+				const paragraph = $createParagraphNode();
+				const autoLink = $createAutoLinkNode("https://example.com/docs");
+				const text = $createTextNode("https://example.com/docs");
+				autoLink.append(text);
+				paragraph.append(autoLink);
+				$getRoot().append(paragraph);
+				text.select();
+			},
+			{ discrete: true },
+		);
+
+		expect(() => finalizePendingAutoLinks(editor)).not.toThrow();
+
+		editor.getEditorState().read(() => {
+			const paragraph = asElement($getRoot().getFirstChildOrThrow());
+			const link = paragraph.getFirstChildOrThrow();
+			expect(link.getType()).toBe("link");
+			expect(link.getTextContent()).toBe("example.com/docs");
+
+			const selection = $getSelection();
+			expect($isRangeSelection(selection)).toBe(true);
+			if ($isRangeSelection(selection)) {
+				expect(selection.anchor.getNode().getParent()?.getKey()).toBe(
+					link.getKey(),
+				);
+			}
+		});
+	});
+
 	it("leaves an unlinked autolink untouched", () => {
 		const editor = createLinkEditor();
 		editor.update(
