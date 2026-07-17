@@ -60,8 +60,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 		],
 		scripts: [
-			// The account's theme is SSR'd onto <html> (see RootDocument); this
-			// pre-hydration fallback only covers users who never picked one.
 			...(loaderData?.settings.dark === undefined
 				? [
 						{
