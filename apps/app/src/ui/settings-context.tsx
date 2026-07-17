@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, use, useEffect, useRef, useState } from "react";
+import { createContext, use, useEffect, useMemo, useState } from "react";
 import {
 	type Settings,
 	type SettingsPatch,
 	settingsPatchSchema,
 } from "@/core/settings/settings-patch-schema";
-import { orpc } from "@/orpc/client";
+import { client, orpc } from "@/orpc/client";
 
 export {
 	MAX_INDENT_SIZE,
@@ -23,7 +23,7 @@ function defaults(): Settings {
 	};
 }
 
-/** localStorage keeps a copy of the stored patch so settings apply instantly
+/** localStorage keeps a copy of the settings patch so they apply instantly
  * on boot (before the server round-trip) and the dark-mode script in
  * `__root.tsx` can read it pre-hydration. */
 function readLocal(): SettingsPatch {
@@ -38,10 +38,6 @@ function readLocal(): SettingsPatch {
 	}
 }
 
-function writeLocal(stored: SettingsPatch) {
-	localStorage.settings = JSON.stringify(stored);
-}
-
 const SettingsContext = createContext<{
 	settings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
@@ -49,75 +45,77 @@ const SettingsContext = createContext<{
 } | null>(null);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-	const [stored, setStored] = useState<SettingsPatch>(readLocal);
-	// Changes made since the last save; flushed to the server by
-	// `saveSettings` (called when the settings dialog closes).
-	const unsaved = useRef<SettingsPatch>({});
-	const seededServer = useRef(false);
+	// What localStorage held when the app booted; the fallback until (and in
+	// case) the server responds.
+	const [boot] = useState(readLocal);
+	// Changes made since the last successful save; flushed by `saveSettings`
+	// (called when the settings dialog closes).
+	const [unsaved, setUnsaved] = useState<SettingsPatch>({});
 	const queryClient = useQueryClient();
 
-	// Fetched on load and refetched on window focus (the query default), so
-	// changes made on another device are picked up when returning to the tab.
-	const { data: remote } = useQuery(orpc.settings.get.queryOptions());
+	const queryOptions = orpc.settings.get.queryOptions();
+	// Refetched on window focus (the query default), so changes made on
+	// another device are picked up when returning to the tab. When the account
+	// has no stored settings yet, the fetch seeds it from this device's
+	// pre-existing local settings instead of wiping them.
+	const { data: remote } = useQuery({
+		...queryOptions,
+		queryFn: async (): Promise<SettingsPatch> => {
+			const stored = await client.settings.get();
+			if (Object.keys(stored).length > 0) return stored;
+			const local = readLocal();
+			if (Object.keys(local).length === 0) return stored;
+			return client.settings.update(local);
+		},
+	});
 
-	const updateSettings = useMutation(
+	const { mutate } = useMutation(
 		orpc.settings.update.mutationOptions({
-			onSuccess: (merged) => {
+			onSuccess: (merged, patch) => {
 				// The server returns the merged row (which may include keys written
-				// by other devices); adopt it as the new baseline unless more
-				// changes accumulated while the save was in flight.
-				if (Object.keys(unsaved.current).length > 0) return;
-				queryClient.setQueryData(
-					orpc.settings.get.queryOptions().queryKey,
-					merged,
+				// by other devices); make it the new baseline and drop the unsaved
+				// keys it covers. A key re-changed while the save was in flight
+				// keeps its newer value and goes out with the next save.
+				queryClient.setQueryData(queryOptions.queryKey, merged);
+				setUnsaved(
+					(prev) =>
+						Object.fromEntries(
+							Object.entries(prev).filter(
+								([key, value]) => patch[key as keyof SettingsPatch] !== value,
+							),
+						) as SettingsPatch,
 				);
 			},
-			onError: (_error, patch) => {
-				// Offline or transient failure: the change still applies locally.
-				// Put the patch back so the next save retries it; keys changed
-				// again since take precedence.
-				unsaved.current = { ...patch, ...unsaved.current };
-			},
+			// On error the patch simply stays in `unsaved`: the change keeps
+			// applying locally and the next save retries it.
 		}),
 	);
-	const { isPending, mutate } = updateSettings;
 
-	useEffect(() => {
-		if (remote === undefined) return;
-		// Unsaved local changes take precedence until they're flushed.
-		if (isPending || Object.keys(unsaved.current).length > 0) return;
-		if (Object.keys(remote).length === 0) {
-			// Nothing stored server-side yet: seed it from this device's
-			// pre-existing local settings instead of wiping them.
-			const local = readLocal();
-			if (!seededServer.current && Object.keys(local).length > 0) {
-				seededServer.current = true;
-				mutate(local);
-			}
-			return;
-		}
-		setStored(remote);
-		writeLocal(remote);
-	}, [remote, isPending, mutate]);
-
+	// Derived, never synced: server state over the boot cache, unsaved edits
+	// on top. A focus refetch can update `remote` mid-edit without ever
+	// clobbering what the user is doing.
+	const stored = useMemo<SettingsPatch>(
+		() => ({ ...boot, ...remote, ...unsaved }),
+		[boot, remote, unsaved],
+	);
 	const settings: Settings = { ...defaults(), ...stored };
 
+	// The `dark` class lives on <html> — outside this component's tree — and
+	// localStorage feeds the pre-hydration dark-mode script in `__root.tsx`.
+	// Both are external systems, so syncing them is the one legitimate effect
+	// here.
 	useEffect(() => {
 		document.documentElement.classList.toggle("dark", settings.dark);
-	}, [settings.dark]);
+		localStorage.settings = JSON.stringify(stored);
+	}, [settings.dark, stored]);
 
 	function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
-		const next = { ...stored, [key]: value };
-		setStored(next);
-		writeLocal(next);
-		unsaved.current = { ...unsaved.current, [key]: value };
+		setUnsaved((prev) => ({ ...prev, [key]: value }));
 	}
 
 	function saveSettings() {
-		const patch = unsaved.current;
-		if (Object.keys(patch).length === 0) return;
-		unsaved.current = {};
-		mutate(patch);
+		if (Object.keys(unsaved).length === 0) return;
+		mutate(unsaved);
 	}
 
 	return (
