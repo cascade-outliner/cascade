@@ -15,6 +15,10 @@ import {
 	updateNodeContent,
 	visibleTree,
 } from "@/core/nodes/node.procedures";
+import {
+	getSettings,
+	updateSettings,
+} from "@/core/settings/settings.procedures";
 
 export default {
 	nodes: {
@@ -33,5 +37,9 @@ export default {
 		setTags: setNodeTags,
 		listTags,
 		deleteTag,
+	},
+	settings: {
+		get: getSettings,
+		update: updateSettings,
 	},
 };
