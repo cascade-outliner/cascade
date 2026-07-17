@@ -147,6 +147,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 								filtersRemoveDueToday: m.filters_bar_remove_due_today(),
 								filtersDueThisWeek: m.filters_bar_due_this_week(),
 								filtersRemoveDueThisWeek: m.filters_bar_remove_due_this_week(),
+								filtersTasksGroup: m.filters_bar_tasks_group(),
+								filtersHideCompleted: m.filters_bar_hide_completed(),
+								filtersRemoveHideCompleted:
+									m.filters_bar_remove_hide_completed(),
 								filtersClear: m.filters_bar_clear(),
 							}}
 						>
