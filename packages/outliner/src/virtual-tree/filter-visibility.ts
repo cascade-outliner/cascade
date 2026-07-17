@@ -21,6 +21,11 @@ const emptyVisibility: RowVisibility = {
  * their original depth, so indent, outdent, and drag-and-drop keep
  * operating on the same contiguous rows they always have; only rendering
  * treats hidden/context rows differently.
+ *
+ * "Hide completed" is an exclusion rather than a match: completed tasks and
+ * their entire subtrees are dropped up front, and any due-date filters then
+ * match over what remains. On its own it dims nothing — every surviving row
+ * stays fully visible.
  */
 export function getRowVisibility(
 	rows: VisibleNodeRow[],
@@ -28,9 +33,23 @@ export function getRowVisibility(
 ): RowVisibility {
 	if (!hasActiveFilters(filters)) return emptyVisibility;
 
-	const parentById = new Map(rows.map((row) => [row.id, row.parentId]));
+	const excludedIds = filters.hideCompleted
+		? getCompletedSubtreeIds(rows)
+		: new Set<string>();
+
+	if (!filters.dueToday && !filters.dueThisWeek) {
+		return { hiddenIds: excludedIds, contextIds: new Set() };
+	}
+
+	// Excluded subtrees never surface again, not even as dimmed context, so
+	// the due-date filters only consider the remaining rows. An excluded row
+	// can't be a candidate's ancestor: exclusion always covers whole subtrees.
+	const candidates = rows.filter((row) => !excludedIds.has(row.id));
+	const parentById = new Map(candidates.map((row) => [row.id, row.parentId]));
 	const matchIds = new Set(
-		rows.filter((row) => rowMatchesFilters(row, filters)).map((row) => row.id),
+		candidates
+			.filter((row) => rowMatchesFilters(row, filters))
+			.map((row) => row.id),
 	);
 
 	const contextIds = new Set<string>();
@@ -51,7 +70,9 @@ export function getRowVisibility(
 		if (range) {
 			for (let i = range.start + 1; i < range.end; i++) {
 				const descendantId = rows[i].id;
-				if (!matchIds.has(descendantId)) contextIds.add(descendantId);
+				if (!matchIds.has(descendantId) && !excludedIds.has(descendantId)) {
+					contextIds.add(descendantId);
+				}
 			}
 		}
 	}
@@ -65,10 +86,27 @@ export function getRowVisibility(
 	return { hiddenIds, contextIds };
 }
 
+/** A completed task hides its whole subtree with it. */
+function getCompletedSubtreeIds(rows: VisibleNodeRow[]): Set<string> {
+	const excluded = new Set<string>();
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i];
+		if (excluded.has(row.id) || !isCompletedTask(row)) continue;
+		let end = i + 1;
+		while (end < rows.length && rows[end].depth > row.depth) end++;
+		for (let j = i; j < end; j++) excluded.add(rows[j].id);
+	}
+	return excluded;
+}
+
+function isCompletedTask(row: VisibleNodeRow): boolean {
+	return row.type === "task" && (row.metadata?.completed ?? false);
+}
+
 /** A row matches when it satisfies every active due-date filter. */
 function rowMatchesFilters(row: VisibleNodeRow, filters: NodeFilters): boolean {
 	if (!row.dueDate) return false;
-	const completed = row.type === "task" && (row.metadata?.completed ?? false);
+	const completed = isCompletedTask(row);
 	if (
 		filters.dueToday &&
 		dueBucket(new Date(row.dueDate), completed) !== "today"

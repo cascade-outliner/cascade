@@ -132,9 +132,89 @@ describe("getRowVisibility with dueThisWeek", () => {
 			row("due-friday", null, 0, friday),
 		];
 		const visibility = getRowVisibility(rows, {
+			...noFilters,
 			dueToday: true,
 			dueThisWeek: true,
 		});
 		expect(visibility.hiddenIds).toEqual(new Set(["due-friday"]));
+	});
+});
+
+describe("getRowVisibility with hideCompleted", () => {
+	const friday = new Date(2026, 6, 17);
+
+	it("hides completed tasks and keeps everything else fully visible", () => {
+		const rows = [
+			row("open", null, 0, null),
+			row("done", null, 0, null, { completed: true }),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			hideCompleted: true,
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["done"]));
+		expect(visibility.contextIds.size).toBe(0);
+	});
+
+	it("hides a completed task's entire subtree, even incomplete children", () => {
+		const rows = [
+			row("done-parent", null, 0, null, { completed: true }),
+			row("open-child", "done-parent", 1, null),
+			row("done-grandchild", "open-child", 2, null, { completed: true }),
+			row("sibling", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			hideCompleted: true,
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["done-parent", "open-child", "done-grandchild"]),
+		);
+	});
+
+	it("leaves non-task nodes untouched even with completed metadata", () => {
+		const rows = [
+			{ ...row("text-node", null, 0, null, { completed: true }), type: "text" },
+			row("open-task", null, 0, null),
+		] satisfies VisibleNodeRow[];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			hideCompleted: true,
+		});
+		expect(visibility.hiddenIds.size).toBe(0);
+	});
+
+	it("keeps a match's completed descendants hidden when combined with a due-date filter", () => {
+		const rows = [
+			row("due-friday", null, 0, friday),
+			row("done-child", "due-friday", 1, null, { completed: true }),
+			row("open-child", "due-friday", 1, null),
+			row("due-next-week", null, 0, new Date(2026, 6, 20)),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueThisWeek: true,
+			hideCompleted: true,
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["done-child", "due-next-week"]),
+		);
+		expect(visibility.contextIds).toEqual(new Set(["open-child"]));
+	});
+
+	it("never surfaces an excluded subtree as ancestor context of a match", () => {
+		// A completed parent with a child due this week: exclusion wins, so the
+		// whole subtree stays hidden instead of the child matching.
+		const rows = [
+			row("done-parent", null, 0, null, { completed: true }),
+			row("due-child", "done-parent", 1, friday),
+			row("due-sibling", null, 0, friday),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueThisWeek: true,
+			hideCompleted: true,
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["done-parent", "due-child"]));
 	});
 });

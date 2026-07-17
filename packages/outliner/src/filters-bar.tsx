@@ -3,6 +3,7 @@ import { cva } from "@cascade/ui/cva.config";
 import {
 	CalendarIcon,
 	CheckIcon,
+	CheckSquareIcon,
 	FunnelIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
@@ -52,11 +53,23 @@ const chip = cva({
 	],
 });
 
+// Same visual as the tag editor's option checkboxes, so toggles look the
+// same wherever they appear.
+const checkbox = cva({
+	base: "flex size-4 shrink-0 items-center justify-center rounded border",
+	variants: {
+		checked: {
+			true: "border-redleather bg-redleather text-super-ginger",
+			false: "border-dark-grey/30 dark:border-ginger/30",
+		},
+	},
+});
+
 /**
  * Entry point for outliner filters: a Filter menu grouped by field, active
  * filters rendered as removable chips, and a match count once something is
- * active. Only the due-date filters are wired up today; the rest of the menu
- * previews where this is headed without shipping half-built filters.
+ * active. The due-date filters are mutually exclusive; "Hide completed"
+ * stacks on top of either of them.
  */
 export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
@@ -115,6 +128,28 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 										</Menu.CheckboxItem>
 									))}
 								</Menu.Group>
+								<Menu.Group>
+									<Menu.GroupLabel className={groupLabel()}>
+										{labels.filtersTasksGroup}
+									</Menu.GroupLabel>
+									<Menu.CheckboxItem
+										className={menuItem()}
+										checked={filters.hideCompleted}
+										closeOnClick
+										onCheckedChange={(checked) =>
+											onFiltersChange({ ...filters, hideCompleted: checked })
+										}
+									>
+										<span
+											className={checkbox({ checked: filters.hideCompleted })}
+										>
+											{filters.hideCompleted && (
+												<CheckIcon size={10} weight="bold" />
+											)}
+										</span>
+										{labels.filtersHideCompleted}
+									</Menu.CheckboxItem>
+								</Menu.Group>
 							</Menu.Popup>
 						</Menu.Positioner>
 					</Menu.Portal>
@@ -138,6 +173,23 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 								</button>
 							</span>
 						),
+				)}
+
+				{filters.hideCompleted && (
+					<span className={chip()}>
+						<CheckSquareIcon size={11} weight="bold" />
+						{labels.filtersHideCompleted}
+						<button
+							type="button"
+							aria-label={labels.filtersRemoveHideCompleted}
+							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+							onClick={() =>
+								onFiltersChange({ ...filters, hideCompleted: false })
+							}
+						>
+							<XIcon size={9} weight="bold" />
+						</button>
+					</span>
 				)}
 			</div>
 
