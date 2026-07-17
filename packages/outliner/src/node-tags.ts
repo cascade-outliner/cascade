@@ -4,6 +4,36 @@ export interface TagSummary {
 	count: number;
 }
 
+/** Small set of hues tag pills can be tinted with; each needs a hand-tuned
+ * dark-mode variant, so keep this list in sync with the `hue` cva variant in
+ * node-tags-pills.tsx. */
+export const TAG_HUES = [
+	"amber",
+	"emerald",
+	"sky",
+	"violet",
+	"rose",
+	"teal",
+] as const;
+
+export type TagHue = (typeof TAG_HUES)[number];
+
+/**
+ * Deterministic recognition color for a tag name: the same name always maps
+ * to the same hue (case-insensitive), so every "urgent" pill looks the same
+ * without a schema change or a color picker. Collisions are expected once a
+ * user has more tags than hues — color is a recognition aid, not an
+ * identifier.
+ */
+export function tagHue(name: string): TagHue {
+	const lower = name.toLowerCase();
+	let hash = 0;
+	for (let i = 0; i < lower.length; i++) {
+		hash = (hash * 31 + lower.charCodeAt(i)) | 0;
+	}
+	return TAG_HUES[Math.abs(hash) % TAG_HUES.length];
+}
+
 /** Trims, drops empties, and dedupes case-insensitively (keeping first-seen casing). */
 export function normalizeTags(tags: string[]): string[] {
 	const seen = new Set<string>();

@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
 import { PlusIcon, TagIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
-import type { TagSummary } from "./node-tags";
+import { type TagSummary, tagHue } from "./node-tags";
 import { NodeTagsEditor } from "./node-tags-editor";
 
 interface NodeTagsControlProps {
@@ -16,11 +16,24 @@ interface NodeTagsControlProps {
 const MAX_VISIBLE_TAGS = 4;
 
 const pill = cva({
-	base: [
-		"inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap",
-		"border-dark-grey/15 bg-transparent text-graphite dark:border-ginger/15 dark:text-ginger/60",
-	],
+	base: "inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap",
 	variants: {
+		// Low-alpha border/background, full-strength text — the due-date
+		// pill's tint recipe. Each hue's dark variant is hand-tuned (shifted a
+		// shade lighter, not just inverted) for contrast on dark-grey.
+		hue: {
+			neutral:
+				"border-dark-grey/15 bg-transparent text-graphite dark:border-ginger/15 dark:text-ginger/60",
+			amber:
+				"border-amber-600/30 bg-amber-600/10 text-amber-700 dark:border-amber-400/35 dark:bg-amber-400/15 dark:text-amber-300",
+			emerald:
+				"border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400/35 dark:bg-emerald-400/15 dark:text-emerald-300",
+			sky: "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-400/35 dark:bg-sky-400/15 dark:text-sky-300",
+			violet:
+				"border-violet-600/30 bg-violet-600/10 text-violet-700 dark:border-violet-400/35 dark:bg-violet-400/15 dark:text-violet-300",
+			rose: "border-rose-600/30 bg-rose-600/10 text-rose-700 dark:border-rose-400/35 dark:bg-rose-400/15 dark:text-rose-300",
+			teal: "border-teal-600/30 bg-teal-600/10 text-teal-700 dark:border-teal-400/35 dark:bg-teal-400/15 dark:text-teal-300",
+		},
 		interactive: {
 			true: [
 				"outline-none hover:border-redleather/50 hover:text-redleather",
@@ -28,6 +41,9 @@ const pill = cva({
 				"dark:hover:border-redleather/40 dark:hover:text-redleather",
 			],
 		},
+	},
+	defaultVariants: {
+		hue: "neutral",
 	},
 });
 
@@ -54,7 +70,7 @@ function TagPillRow({
 	return (
 		<span className="inline-flex min-w-0 max-w-full items-center gap-1 overflow-hidden">
 			{tags.slice(0, MAX_VISIBLE_TAGS).map((tag) => (
-				<span key={tag} className={pill()}>
+				<span key={tag} className={pill({ hue: tagHue(tag) })}>
 					<TagIcon size={11} weight="bold" />
 					<span className="max-w-28 truncate">{tag}</span>
 				</span>
