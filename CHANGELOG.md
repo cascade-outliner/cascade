@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-17
+- Pasting a raw URL into node content now auto-converts it into a link, showing a tidy label (e.g. the hostname) while the full URL stays available on hover. [#183](https://github.com/Patrickroelofs/cascade/issues/183)
 - Fixed completed tasks disappearing from a due-date filter (e.g. `Due this week`) even when `Hide completed` was off. [#243](https://github.com/Patrickroelofs/cascade/issues/243)
 - Filter on a specific due date: pick any day from a calendar in the filter menu to see everything due that day. [#216](https://github.com/Patrickroelofs/cascade/issues/216)
 - Fixed a race where creating nodes quickly (e.g. rapid Enter presses or two open tabs) could give two siblings the same position, making rows jump around unpredictably. [#187](https://github.com/Patrickroelofs/cascade/issues/187)

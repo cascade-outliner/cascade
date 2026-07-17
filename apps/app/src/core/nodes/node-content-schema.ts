@@ -6,9 +6,10 @@ export const MAX_LEXICAL_DEPTH = 8;
 export const MAX_CHILDREN_PER_NODE = 500;
 export const MAX_TEXT_LENGTH = 20_000;
 export const MAX_CONTENT_BYTES = 256 * 1024;
+export const MAX_URL_LENGTH = 2048;
 
 // Explicit allowlist of the fields Lexical's built-in nodes (root, paragraph,
-// text, tab, linebreak) actually serialize, instead of `.passthrough()`.
+// text, tab, linebreak, link) actually serialize, instead of `.passthrough()`.
 export interface LexicalSchemaNode {
 	type: string;
 	text?: string;
@@ -21,6 +22,11 @@ export interface LexicalSchemaNode {
 	version?: number;
 	textFormat?: number;
 	textStyle?: string;
+	// LinkNode fields (@lexical/link); absent on every other node type.
+	url?: string;
+	rel?: string | null;
+	target?: string | null;
+	title?: string | null;
 	children?: LexicalSchemaNode[];
 }
 
@@ -40,6 +46,10 @@ function lexicalNodeSchema(depth: number): z.ZodType<LexicalSchemaNode> {
 			// these two alongside `format`/`children`.
 			textFormat: z.number().optional(),
 			textStyle: z.string().optional(),
+			url: z.string().max(MAX_URL_LENGTH).optional(),
+			rel: z.string().nullable().optional(),
+			target: z.string().nullable().optional(),
+			title: z.string().nullable().optional(),
 			children:
 				depth >= MAX_LEXICAL_DEPTH
 					? z.array(z.never()).max(0).optional()

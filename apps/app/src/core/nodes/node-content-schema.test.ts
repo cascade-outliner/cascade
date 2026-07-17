@@ -1,3 +1,4 @@
+import { $createLinkNode, LinkNode } from "@lexical/link";
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -9,6 +10,7 @@ import {
 	MAX_CHILDREN_PER_NODE,
 	MAX_LEXICAL_DEPTH,
 	MAX_TEXT_LENGTH,
+	MAX_URL_LENGTH,
 	updateNodeContentInputSchema,
 } from "@/core/nodes/node-content-schema";
 
@@ -182,5 +184,49 @@ describe("updateNodeContentInputSchema", () => {
 			content,
 		});
 		expect(result.success).toBe(true);
+	});
+
+	// Regression test mirroring the one above: a hand-rolled link fixture
+	// wouldn't catch the schema drifting from what @lexical/link actually
+	// serializes (rel/target/title/url), so build it with the real node.
+	it("accepts a link node produced by the real @lexical/link LinkNode", () => {
+		const editor = createEditor({ nodes: [LinkNode] });
+		editor.update(
+			() => {
+				const root = $getRoot();
+				const paragraph = $createParagraphNode();
+				const link = $createLinkNode("https://example.com/some/path", {
+					title: "https://example.com/some/path",
+				});
+				link.append($createTextNode("example.com/some/path"));
+				paragraph.append(link);
+				root.append(paragraph);
+			},
+			{ discrete: true },
+		);
+
+		const content = editor.getEditorState().toJSON();
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects a url longer than the max length", () => {
+		const result = updateNodeContentInputSchema.safeParse(
+			buildInput(
+				root([
+					paragraph([
+						{
+							type: "link",
+							url: `https://example.com/${"a".repeat(MAX_URL_LENGTH)}`,
+							children: [textNode("example.com")],
+						},
+					]),
+				]),
+			),
+		);
+		expect(result.success).toBe(false);
 	});
 });

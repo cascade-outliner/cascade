@@ -16,6 +16,10 @@ function paragraph(children: unknown[]) {
 	return { type: "paragraph", children } as never;
 }
 
+function link(url: string, children: unknown[], title?: string | null) {
+	return { type: "link", url, title, children } as never;
+}
+
 function buildDeeplyNested(levels: number) {
 	let node: unknown = textNode("leaf");
 	for (let i = 0; i < levels; i++) {
@@ -46,6 +50,35 @@ describe("renderNode", () => {
 		} finally {
 			consoleErrorSpy.mockRestore();
 		}
+	});
+
+	it("renders a link node as an anchor with the full url as its title", () => {
+		const { container } = render(
+			renderNode(
+				link("https://example.com/some/long/path", [
+					textNode("example.com/some/long/path"),
+				]),
+				0,
+			),
+		);
+		const anchor = container.querySelector("a");
+		expect(anchor).not.toBeNull();
+		expect(anchor?.getAttribute("href")).toBe(
+			"https://example.com/some/long/path",
+		);
+		expect(anchor?.getAttribute("title")).toBe(
+			"https://example.com/some/long/path",
+		);
+		expect(anchor?.textContent).toBe("example.com/some/long/path");
+	});
+
+	it("falls back to the url for the title when no title is set", () => {
+		const { container } = render(
+			renderNode(link("https://example.com", [textNode("example.com")]), 0),
+		);
+		expect(container.querySelector("a")?.getAttribute("title")).toBe(
+			"https://example.com",
+		);
 	});
 
 	it("stops recursing once the render depth cap is exceeded", () => {

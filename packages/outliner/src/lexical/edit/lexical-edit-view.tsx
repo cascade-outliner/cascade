@@ -1,3 +1,4 @@
+import { LinkNode } from "@lexical/link";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import type { FocusPoint } from "../../node-editor";
 import type { LexicalElementNode } from "../read/lexical-read-view";
@@ -36,6 +37,7 @@ export function LexicalEditView({
 				namespace: `node-editor-${id}`,
 				onError: (error) => console.error("lexical error", error),
 				editorState: content ? JSON.stringify(content) : null,
+				nodes: [LinkNode],
 			}}
 		>
 			<EditableContent

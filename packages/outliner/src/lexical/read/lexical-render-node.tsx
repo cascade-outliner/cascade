@@ -26,6 +26,25 @@ export function renderNode(
 			return <p key={key}>{children}</p>;
 		}
 
+		case "link": {
+			const children =
+				node.children?.map((child, index) =>
+					renderNode(child, index, depth + 1),
+				) ?? null;
+
+			return (
+				<a
+					key={key}
+					href={node.url}
+					title={node.title || node.url}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{children}
+				</a>
+			);
+		}
+
 		default: {
 			// Unknown node types degrade to their text content instead of
 			// crashing the read view; the editor remains the source of truth.
