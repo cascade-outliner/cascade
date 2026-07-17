@@ -53,6 +53,18 @@ const chip = cva({
 	],
 });
 
+// Same visual as the tag editor's option checkboxes, so toggles look the
+// same wherever they appear.
+const checkbox = cva({
+	base: "flex size-4 shrink-0 items-center justify-center rounded border",
+	variants: {
+		checked: {
+			true: "border-redleather bg-redleather text-super-ginger",
+			false: "border-dark-grey/30 dark:border-ginger/30",
+		},
+	},
+});
+
 /**
  * Entry point for outliner filters: a Filter menu grouped by field, active
  * filters rendered as removable chips, and a match count once something is
@@ -128,11 +140,14 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 											onFiltersChange({ ...filters, hideCompleted: checked })
 										}
 									>
-										<CheckSquareIcon size={13} weight="bold" />
+										<span
+											className={checkbox({ checked: filters.hideCompleted })}
+										>
+											{filters.hideCompleted && (
+												<CheckIcon size={10} weight="bold" />
+											)}
+										</span>
 										{labels.filtersHideCompleted}
-										<Menu.CheckboxItemIndicator className="ml-auto">
-											<CheckIcon size={13} weight="bold" />
-										</Menu.CheckboxItemIndicator>
 									</Menu.CheckboxItem>
 								</Menu.Group>
 							</Menu.Popup>
