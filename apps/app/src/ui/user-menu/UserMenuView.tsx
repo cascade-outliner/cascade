@@ -6,10 +6,7 @@ import {
 	Switch,
 	Tabs,
 } from "@base-ui/react";
-import { authClient } from "@cascade/auth/client";
-import { cva } from "@cascade/ui/cva.config";
 import { LanguageSwitcher } from "@cascade/ui/language-switcher";
-import { toast } from "@cascade/ui/toast";
 import {
 	GearIcon,
 	MinusIcon,
@@ -18,8 +15,6 @@ import {
 	TrashIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
-import { useRouteContext } from "@tanstack/react-router";
-import { useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import {
 	getLocale,
@@ -27,43 +22,23 @@ import {
 	locales,
 	setLocale,
 } from "#/paraglide/runtime.js";
-import { changelogEntries, latestChangelogId } from "@/changelog";
+import { changelogEntries } from "@/changelog";
+import type { Settings } from "@/core/settings/settings-patch-schema";
+import { MAX_INDENT_SIZE, MIN_INDENT_SIZE } from "@/ui/settings-context";
 import {
-	MAX_INDENT_SIZE,
-	MIN_INDENT_SIZE,
-	useSettings,
-} from "@/ui/settings-context";
-
-const stepperButton = cva({
-	base: [
-		"flex size-6 cursor-pointer items-center justify-center rounded-md text-dark-grey outline-none",
-		"hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40",
-		"dark:text-ginger dark:hover:bg-ginger/20",
-	],
-});
-
-const popup = cva({
-	base: [
-		"min-w-40 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger",
-		"shadow-lg shadow-dark-grey/15",
-		"outline-none",
-	],
-});
-
-const item = cva({
-	base: [
-		"flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-ginger/70 data-disabled:cursor-default data-disabled:opacity-40 dark:data-highlighted:bg-ginger/20",
-	],
-});
-
-const tabTrigger = cva({
-	base: [
-		"cursor-pointer border-b-2 border-transparent px-1 pb-2 text-sm text-dark-grey/60 outline-none",
-		"hover:text-dark-grey data-active:border-redleather data-active:text-dark-grey",
-		"dark:text-ginger/60 dark:hover:text-ginger dark:data-active:text-ginger",
-	],
-});
+	alertPopup,
+	avatarTrigger,
+	dangerMenuItem,
+	destructiveButton,
+	iconButton,
+	menuItem,
+	menuPopup,
+	secondaryButton,
+	settingsDialogPopup,
+	stepperButton,
+	tabTrigger,
+} from "./styles";
+import type { UserMenuUser } from "./types";
 
 function initials(name: string, email: string): string {
 	const source = name.trim() || email;
@@ -78,7 +53,7 @@ function Avatar({
 	user,
 	className,
 }: {
-	user: { name: string; email: string; image?: string | null };
+	user: UserMenuUser;
 	className?: string;
 }) {
 	if (user.image) {
@@ -101,38 +76,45 @@ function Avatar({
 	);
 }
 
-const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
+export interface UserMenuViewProps {
+	user: UserMenuUser;
+	settings: Settings;
+	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+	hasUnseenChangelog: boolean;
+	settingsOpen: boolean;
+	onSettingsOpenChange: (open: boolean) => void;
+	onOpenSettings: () => void;
+	onTabChange: (value: string) => void;
+	deleteDialogOpen: boolean;
+	onDeleteDialogOpenChange: (open: boolean) => void;
+	onOpenDeleteDialog: () => void;
+	onSignOut: () => void;
+	onDeleteAccount: () => void;
+	isDeleting: boolean;
+}
 
-export function UserMenu() {
-	const [settingsOpen, setSettingsOpen] = useState(false);
-	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-	const [isDeleting, setIsDeleting] = useState(false);
-	const { settings, setSetting, saveSettings } = useSettings();
-	const { user } = useRouteContext({ from: "__root__" });
-	const hasUnseenChangelog = settings.lastSeenChangelogId !== latestChangelogId;
-
-	async function handleSignOut() {
-		await authClient.signOut();
-		window.location.href = `${webUrl}/login`;
-	}
-
-	async function handleDeleteAccount() {
-		setIsDeleting(true);
-		const { error } = await authClient.deleteUser();
-		setIsDeleting(false);
-		if (error) {
-			toast.error(error.message ?? m.user_menu_delete_failed());
-			return;
-		}
-		window.location.href = `${webUrl}/login`;
-	}
-
+export function UserMenuView({
+	user,
+	settings,
+	setSetting,
+	hasUnseenChangelog,
+	settingsOpen,
+	onSettingsOpenChange,
+	onOpenSettings,
+	onTabChange,
+	deleteDialogOpen,
+	onDeleteDialogOpenChange,
+	onOpenDeleteDialog,
+	onSignOut,
+	onDeleteAccount,
+	isDeleting,
+}: UserMenuViewProps) {
 	return (
 		<div className="fixed top-4 right-8 z-50">
 			<Menu.Root>
 				<Menu.Trigger
 					aria-label={m.user_menu_trigger_label()}
-					className="flex size-12 cursor-pointer items-center justify-center rounded-full border border-dark-grey/10 bg-white text-dark-grey shadow-md shadow-dark-grey/15 outline-none select-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:bg-ginger/70 dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger dark:hover:bg-dark-grey dark:data-popup-open:bg-dark-grey"
+					className={avatarTrigger()}
 				>
 					<Avatar user={user} className="size-10" />
 				</Menu.Trigger>
@@ -142,11 +124,8 @@ export function UserMenu() {
 						align="end"
 						sideOffset={6}
 					>
-						<Menu.Popup className={popup()}>
-							<Menu.Item
-								className={item()}
-								onClick={() => setSettingsOpen(true)}
-							>
+						<Menu.Popup className={menuPopup()}>
+							<Menu.Item className={menuItem()} onClick={onOpenSettings}>
 								<GearIcon size={14} weight="bold" />
 								{m.user_menu_settings()}
 								{hasUnseenChangelog && (
@@ -156,7 +135,7 @@ export function UserMenu() {
 									/>
 								)}
 							</Menu.Item>
-							<Menu.Item className={item()} onClick={handleSignOut}>
+							<Menu.Item className={menuItem()} onClick={onSignOut}>
 								<SignOutIcon size={14} weight="bold" />
 								{m.user_menu_sign_out()}
 							</Menu.Item>
@@ -165,35 +144,22 @@ export function UserMenu() {
 				</Menu.Portal>
 			</Menu.Root>
 
-			<Dialog.Root
-				open={settingsOpen}
-				onOpenChange={(open) => {
-					setSettingsOpen(open);
-					if (!open) saveSettings();
-				}}
-			>
+			<Dialog.Root open={settingsOpen} onOpenChange={onSettingsOpenChange}>
 				<Dialog.Portal>
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm" />
-					<Dialog.Popup className="fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-0 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 outline-none sm:right-auto sm:bottom-auto sm:h-auto sm:rounded-lg sm:border sm:border-dark-grey/10 dark:bg-dark-grey dark:text-ginger sm:dark:border-ginger/15">
+					<Dialog.Popup className={settingsDialogPopup()}>
 						<div className="mb-4 flex items-center justify-between">
 							<Dialog.Title className="text-lg font-semibold">
 								{m.user_menu_settings()}
 							</Dialog.Title>
 							<Dialog.Close
 								aria-label={m.user_menu_close_settings()}
-								className="cursor-pointer rounded-md p-1 outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+								className={iconButton()}
 							>
 								<XIcon size={16} weight="bold" />
 							</Dialog.Close>
 						</div>
-						<Tabs.Root
-							defaultValue="general"
-							onValueChange={(value) => {
-								if (value === "changelog") {
-									setSetting("lastSeenChangelogId", latestChangelogId);
-								}
-							}}
-						>
+						<Tabs.Root defaultValue="general" onValueChange={onTabChange}>
 							<Tabs.List className="mb-4 flex gap-4 border-b border-dark-grey/10 dark:border-ginger/15">
 								<Tabs.Tab value="general" className={tabTrigger()}>
 									{m.user_menu_general_tab()}
@@ -280,16 +246,16 @@ export function UserMenu() {
 								</div>
 								<button
 									type="button"
-									onClick={handleSignOut}
-									className="mt-4 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm text-redleather outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+									onClick={onSignOut}
+									className={dangerMenuItem({ spacing: "loose" })}
 								>
 									<SignOutIcon size={14} weight="bold" />
 									{m.user_menu_sign_out()}
 								</button>
 								<button
 									type="button"
-									onClick={() => setDeleteDialogOpen(true)}
-									className="mt-1 flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm text-redleather outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+									onClick={onOpenDeleteDialog}
+									className={dangerMenuItem({ spacing: "tight" })}
 								>
 									<TrashIcon size={14} weight="bold" />
 									{m.user_menu_delete_account()}
@@ -319,11 +285,11 @@ export function UserMenu() {
 
 			<AlertDialog.Root
 				open={deleteDialogOpen}
-				onOpenChange={setDeleteDialogOpen}
+				onOpenChange={onDeleteDialogOpenChange}
 			>
 				<AlertDialog.Portal>
 					<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm" />
-					<AlertDialog.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border border-dark-grey/10 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 outline-none dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger">
+					<AlertDialog.Popup className={alertPopup()}>
 						<AlertDialog.Title className="text-lg font-semibold">
 							{m.user_menu_delete_account()}
 						</AlertDialog.Title>
@@ -336,15 +302,15 @@ export function UserMenu() {
 						<div className="mt-6 flex justify-end gap-2">
 							<AlertDialog.Close
 								disabled={isDeleting}
-								className="cursor-pointer rounded-md px-3 py-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40 dark:hover:bg-ginger/20"
+								className={secondaryButton()}
 							>
 								{m.user_menu_cancel()}
 							</AlertDialog.Close>
 							<button
 								type="button"
-								onClick={handleDeleteAccount}
+								onClick={onDeleteAccount}
 								disabled={isDeleting}
-								className="cursor-pointer rounded-md bg-redleather px-3 py-1.5 text-sm text-super-ginger outline-none hover:bg-redleather/90 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40"
+								className={destructiveButton()}
 							>
 								{isDeleting
 									? m.user_menu_deleting()
