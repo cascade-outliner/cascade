@@ -11,6 +11,7 @@ import {
 	primaryKey,
 	text,
 	timestamp,
+	unique,
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -49,6 +50,9 @@ export const nodes = pgTable(
 		index("nodes_parent_order_idx").on(t.parentId, t.order),
 		index("nodes_user_id_idx").on(t.userId),
 		index("nodes_user_due_date_idx").on(t.userId, t.dueDate),
+		unique("nodes_user_parent_order_unique")
+			.on(t.userId, t.parentId, t.order)
+			.nullsNotDistinct(),
 	],
 );
 
