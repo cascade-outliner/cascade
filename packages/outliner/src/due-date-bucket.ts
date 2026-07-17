@@ -20,6 +20,15 @@ export function isDueThisWeek(dueDate: Date, completed: boolean): boolean {
 	return due >= weekStart && due < weekEnd;
 }
 
+export function isDueOnDate(
+	dueDate: Date,
+	selected: Date,
+	completed: boolean,
+): boolean {
+	if (completed) return false;
+	return startOfDay(dueDate).getTime() === startOfDay(selected).getTime();
+}
+
 export function dueBucket(dueDate: Date, completed: boolean): DueBucket {
 	if (completed) return "completed";
 	const diffDays = Math.round(

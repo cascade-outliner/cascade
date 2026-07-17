@@ -1,4 +1,4 @@
-import { dueBucket, isDueThisWeek } from "../due-date-bucket";
+import { dueBucket, isDueOnDate, isDueThisWeek } from "../due-date-bucket";
 import { hasActiveFilters, type NodeFilters } from "../node-filters";
 import type { VisibleNodeRow } from "../node-types";
 import { subtreeRange } from "./visible-rows";
@@ -37,7 +37,7 @@ export function getRowVisibility(
 		? getCompletedSubtreeIds(rows)
 		: new Set<string>();
 
-	if (!filters.dueToday && !filters.dueThisWeek) {
+	if (!filters.dueToday && !filters.dueThisWeek && !filters.dueOnDate) {
 		return { hiddenIds: excludedIds, contextIds: new Set() };
 	}
 
@@ -114,6 +114,12 @@ function rowMatchesFilters(row: VisibleNodeRow, filters: NodeFilters): boolean {
 		return false;
 	}
 	if (filters.dueThisWeek && !isDueThisWeek(new Date(row.dueDate), completed)) {
+		return false;
+	}
+	if (
+		filters.dueOnDate &&
+		!isDueOnDate(new Date(row.dueDate), filters.dueOnDate, completed)
+	) {
 		return false;
 	}
 	return true;

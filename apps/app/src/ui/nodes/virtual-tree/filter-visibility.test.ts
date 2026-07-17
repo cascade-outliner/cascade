@@ -1,4 +1,8 @@
-import { isDueThisWeek, startOfWeek } from "@cascade/outliner/due-date-bucket";
+import {
+	isDueOnDate,
+	isDueThisWeek,
+	startOfWeek,
+} from "@cascade/outliner/due-date-bucket";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { noFilters } from "@cascade/outliner/node-filters";
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
@@ -137,6 +141,67 @@ describe("getRowVisibility with dueThisWeek", () => {
 			dueThisWeek: true,
 		});
 		expect(visibility.hiddenIds).toEqual(new Set(["due-friday"]));
+	});
+});
+
+describe("isDueOnDate", () => {
+	const friday = new Date(2026, 6, 17);
+
+	it("matches only the selected calendar day, ignoring the time of day", () => {
+		expect(isDueOnDate(new Date(2026, 6, 17, 23, 30), friday, false)).toBe(
+			true,
+		);
+		expect(isDueOnDate(new Date(2026, 6, 16), friday, false)).toBe(false);
+		expect(isDueOnDate(new Date(2026, 6, 18), friday, false)).toBe(false);
+	});
+
+	it("rejects completed tasks", () => {
+		expect(isDueOnDate(friday, friday, true)).toBe(false);
+	});
+});
+
+describe("getRowVisibility with dueOnDate", () => {
+	const friday = new Date(2026, 6, 17);
+
+	it("keeps rows due on the selected date and hides the rest", () => {
+		const rows = [
+			row("due-friday", null, 0, friday),
+			row("due-saturday", null, 0, new Date(2026, 6, 18)),
+			row("no-due-date", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueOnDate: friday,
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["due-saturday", "no-due-date"]),
+		);
+	});
+
+	it("keeps ancestors of a match visible as context", () => {
+		const rows = [
+			row("parent", null, 0, null),
+			row("child", "parent", 1, friday),
+			row("other", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueOnDate: friday,
+		});
+		expect(visibility.contextIds).toEqual(new Set(["parent"]));
+		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
+	});
+
+	it("hides completed tasks due on the selected date", () => {
+		const rows = [
+			row("open", null, 0, friday),
+			row("done", null, 0, friday, { completed: true }),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueOnDate: friday,
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["done"]));
 	});
 });
 

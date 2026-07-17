@@ -1,12 +1,15 @@
 import { Menu } from "@base-ui/react";
+import { Calendar } from "@cascade/ui/calendar";
 import { cva } from "@cascade/ui/cva.config";
 import {
 	CalendarIcon,
+	CaretRightIcon,
 	CheckIcon,
 	CheckSquareIcon,
 	FunnelIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
+import { useState } from "react";
 import { useOutlinerLabels } from "./labels-context";
 import { hasActiveFilters, type NodeFilters, noFilters } from "./node-filters";
 
@@ -46,6 +49,14 @@ const menuItem = cva({
 	],
 });
 
+const calendarPopup = cva({
+	base: [
+		"rounded-lg border border-dark-grey/10 bg-white p-3 text-dark-grey",
+		"shadow-lg shadow-dark-grey/15 outline-none",
+		"dark:border-ginger/10 dark:bg-dark-grey dark:text-ginger",
+	],
+});
+
 const chip = cva({
 	base: [
 		"inline-flex shrink-0 items-center gap-1.5 rounded-full border py-1 pl-2.5 pr-1 text-[11.5px] font-medium tabular-nums",
@@ -69,11 +80,30 @@ const checkbox = cva({
  * Entry point for outliner filters: a Filter menu grouped by field, active
  * filters rendered as removable chips, and a match count once something is
  * active. The due-date filters are mutually exclusive; "Hide completed"
- * stacks on top of either of them.
+ * stacks on top of any of them.
  */
+const dueOnDateFormatter = new Intl.DateTimeFormat(undefined, {
+	day: "numeric",
+	month: "short",
+});
+const dueOnDateWithYearFormatter = new Intl.DateTimeFormat(undefined, {
+	day: "numeric",
+	month: "short",
+	year: "numeric",
+});
+
+function formatDueOnDate(date: Date): string {
+	return date.getFullYear() === new Date().getFullYear()
+		? dueOnDateFormatter.format(date)
+		: dueOnDateWithYearFormatter.format(date);
+}
+
 export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 	const active = hasActiveFilters(filters);
+	// Controlled so picking a calendar date can close the menu; plain buttons
+	// inside the popup don't close it the way Menu.CheckboxItem does.
+	const [menuOpen, setMenuOpen] = useState(false);
 
 	const dueDateFilters = [
 		{
@@ -91,7 +121,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 	return (
 		<div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-dark-grey/10 pb-3 dark:border-ginger/10">
 			<div className="flex flex-wrap items-center gap-1.5">
-				<Menu.Root>
+				<Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
 					<Menu.Trigger className={trigger()}>
 						<FunnelIcon size={12} weight="bold" />
 						{labels.filtersTrigger}
@@ -116,6 +146,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 													...filters,
 													dueToday: false,
 													dueThisWeek: false,
+													dueOnDate: null,
 													[filter.key]: checked,
 												})
 											}
@@ -127,6 +158,40 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 											</Menu.CheckboxItemIndicator>
 										</Menu.CheckboxItem>
 									))}
+									<Menu.SubmenuRoot>
+										<Menu.SubmenuTrigger className={menuItem()}>
+											<CalendarIcon size={13} weight="bold" />
+											{labels.filtersDueOnDate}
+											<CaretRightIcon
+												size={13}
+												weight="bold"
+												className="ml-auto"
+											/>
+										</Menu.SubmenuTrigger>
+										<Menu.Portal>
+											<Menu.Positioner
+												className="z-50 outline-none"
+												sideOffset={6}
+											>
+												<Menu.Popup className={calendarPopup()}>
+													<Calendar
+														value={filters.dueOnDate}
+														onSelect={(date) => {
+															// Mutually exclusive with the other due-date
+															// filters, same as the checkbox items above.
+															onFiltersChange({
+																...filters,
+																dueToday: false,
+																dueThisWeek: false,
+																dueOnDate: date,
+															});
+															setMenuOpen(false);
+														}}
+													/>
+												</Menu.Popup>
+											</Menu.Positioner>
+										</Menu.Portal>
+									</Menu.SubmenuRoot>
 								</Menu.Group>
 								<Menu.Group>
 									<Menu.GroupLabel className={groupLabel()}>
@@ -173,6 +238,21 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 								</button>
 							</span>
 						),
+				)}
+
+				{filters.dueOnDate && (
+					<span className={chip()}>
+						<CalendarIcon size={11} weight="bold" />
+						{labels.filtersDueOn} {formatDueOnDate(filters.dueOnDate)}
+						<button
+							type="button"
+							aria-label={labels.filtersRemoveDueOnDate}
+							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+							onClick={() => onFiltersChange({ ...filters, dueOnDate: null })}
+						>
+							<XIcon size={9} weight="bold" />
+						</button>
+					</span>
 				)}
 
 				{filters.hideCompleted && (

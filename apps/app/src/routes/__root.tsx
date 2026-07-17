@@ -164,6 +164,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 								filtersRemoveDueToday: m.filters_bar_remove_due_today(),
 								filtersDueThisWeek: m.filters_bar_due_this_week(),
 								filtersRemoveDueThisWeek: m.filters_bar_remove_due_this_week(),
+								filtersDueOnDate: m.filters_bar_due_on_date(),
+								filtersDueOn: m.filters_bar_due_on(),
+								filtersRemoveDueOnDate: m.filters_bar_remove_due_on_date(),
 								filtersTasksGroup: m.filters_bar_tasks_group(),
 								filtersHideCompleted: m.filters_bar_hide_completed(),
 								filtersRemoveHideCompleted:
