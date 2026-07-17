@@ -151,9 +151,6 @@ export const createNode = authed
 				: eq(nodes.parentId, input.parentId),
 		);
 
-		// The same per-user advisory lock as moveNode: concurrent creates (two
-		// rapid Enter presses, two tabs) would otherwise read the same sibling
-		// order and compute identical fractional indexes.
 		return await db.transaction(async (tx) => {
 			await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
 
