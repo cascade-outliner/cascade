@@ -8,11 +8,7 @@ import { NodeTagsControl } from "@cascade/outliner/node-tags-pills";
 import type { NodeMetadataOf } from "@cascade/outliner/node-types";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
@@ -27,6 +23,7 @@ import {
 	useExistingTags,
 } from "#/ui/nodes/use-existing-tags";
 import { useNodeFilters } from "#/ui/nodes/use-node-filters";
+import { useOptimisticNodeMutation } from "#/ui/nodes/use-optimistic-node-mutation";
 import {
 	useVisibleTree,
 	visibleTreeOptions,
@@ -57,6 +54,8 @@ export const Route = createFileRoute("/$nodeSlug")({
 	component: NodeDetailPage,
 });
 
+type NodeDetailData = Awaited<ReturnType<typeof client.nodes.get>>;
+
 function NodeDetailPage() {
 	const { nodeId } = Route.useLoaderData();
 	const queryClient = useQueryClient();
@@ -65,48 +64,48 @@ function NodeDetailPage() {
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 
-	const invalidateNode = () =>
-		queryClient.invalidateQueries({ queryKey: options.queryKey });
-
-	const toggleTaskMutation = useMutation({
-		mutationFn: (completed: boolean) =>
+	const toggleTaskMutation = useOptimisticNodeMutation<
+		boolean,
+		void,
+		NodeDetailData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (completed) =>
 			client.nodes.setType({
 				id: nodeId,
 				type: "task",
 				metadata: { completed },
 			}),
-		onMutate: (completed) =>
-			queryClient.setQueryData(options.queryKey, (old) =>
-				old ? { ...old, metadata: { completed } } : old,
-			),
-		onError: invalidateNode,
+		patch: (old, completed) =>
+			old ? { ...old, metadata: { completed } } : old,
 	});
 	const toggleTask = (completed: boolean) =>
 		toggleTaskMutation.mutate(completed);
 
-	const setDueDateMutation = useMutation({
-		mutationFn: (dueDate: Date | null) =>
-			client.nodes.setDueDate({ id: nodeId, dueDate }),
-		onMutate: (dueDate) =>
-			queryClient.setQueryData(options.queryKey, (old) =>
-				old ? { ...old, dueDate } : old,
-			),
-		onError: invalidateNode,
+	const setDueDateMutation = useOptimisticNodeMutation<
+		Date | null,
+		void,
+		NodeDetailData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (dueDate) => client.nodes.setDueDate({ id: nodeId, dueDate }),
+		patch: (old, dueDate) => (old ? { ...old, dueDate } : old),
 	});
 	const setDueDate = (dueDate: Date | null) =>
 		setDueDateMutation.mutate(dueDate);
 
-	const setTagsMutation = useMutation({
-		mutationFn: (tags: string[]) => client.nodes.setTags({ id: nodeId, tags }),
-		onMutate: (tags) =>
-			queryClient.setQueryData(options.queryKey, (old) =>
-				old ? { ...old, tags } : old,
-			),
+	const setTagsMutation = useOptimisticNodeMutation<
+		string[],
+		void,
+		NodeDetailData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (tags) => client.nodes.setTags({ id: nodeId, tags }),
+		patch: (old, tags) => (old ? { ...old, tags } : old),
 		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: existingTagsOptions().queryKey,
 			}),
-		onError: invalidateNode,
 	});
 	const setTags = (tags: string[]) => setTagsMutation.mutate(tags);
 

@@ -22,6 +22,7 @@ import {
 import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
 import { existingTagsOptions } from "@/ui/nodes/use-existing-tags";
+import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
 
 interface VisibleTreeData {
 	rows: VisibleNodeRow[];
@@ -31,6 +32,11 @@ interface VisibleTreeData {
 export function visibleTreeOptions(rootId: string | null) {
 	return orpc.nodes.visibleTree.queryOptions({ input: { rootId } });
 }
+
+const patchRows = (
+	fn: (rows: VisibleNodeRow[]) => VisibleNodeRow[],
+	old: VisibleTreeData | undefined,
+) => (old ? { ...old, rows: fn(old.rows) } : old);
 
 /**
  * Single owner of the flat visible-tree cache entry and every mutation that
@@ -46,16 +52,20 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 	const setRows = (fn: (rows: VisibleNodeRow[]) => VisibleNodeRow[]) => {
 		queryClient.setQueryData(
 			options.queryKey,
-			(old: VisibleTreeData | undefined) =>
-				old ? { ...old, rows: fn(old.rows) } : old,
+			(old: VisibleTreeData | undefined) => patchRows(fn, old),
 		);
 	};
 
 	const invalidate = () =>
 		queryClient.invalidateQueries({ queryKey: options.queryKey });
 
-	const toggleMutation = useMutation({
-		mutationFn: async ({ id, expanded }: { id: string; expanded: boolean }) => {
+	const toggleMutation = useOptimisticNodeMutation<
+		{ id: string; expanded: boolean },
+		void,
+		VisibleTreeData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: async ({ id, expanded }) => {
 			if (expanded) {
 				const subtree = await client.nodes.visibleTree({ rootId: id });
 				setRows((rows) => expandNode(rows, id, subtree.rows));
@@ -64,14 +74,14 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 				await client.nodes.toggleExpanded({ id, expanded: false });
 			}
 		},
-		onMutate: ({ id, expanded }) => {
-			setRows((rows) =>
-				expanded
-					? patchRow(rows, id, { expanded: true })
-					: collapseNode(rows, id),
-			);
-		},
-		onError: () => invalidate(),
+		patch: (old, { id, expanded }) =>
+			patchRows(
+				(rows) =>
+					expanded
+						? patchRow(rows, id, { expanded: true })
+						: collapseNode(rows, id),
+				old,
+			),
 	});
 	const toggle = (id: string, expanded: boolean) =>
 		toggleMutation.mutate({ id, expanded });
@@ -102,7 +112,8 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 					: null,
 			]);
 		},
-		onMutate: ({ id, target, expandParentId }) => {
+		onMutate: async ({ id, target, expandParentId }) => {
+			await queryClient.cancelQueries({ queryKey: options.queryKey });
 			setRows((rows) => {
 				const expanded = expandParentId
 					? patchRow(rows, expandParentId, { expanded: true })
@@ -127,9 +138,14 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 			expandParentId: moveOptions.expandParentId,
 		});
 
-	const removeMutation = useMutation({
-		mutationFn: (vars: { id: string }) => client.nodes.delete(vars),
-		onMutate: ({ id }) => setRows((rows) => removeSubtree(rows, id)),
+	const removeMutation = useOptimisticNodeMutation<
+		{ id: string },
+		{ childrenDeleted: number },
+		VisibleTreeData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (vars) => client.nodes.delete(vars),
+		patch: (old, { id }) => patchRows((rows) => removeSubtree(rows, id), old),
 		onSuccess: ({ childrenDeleted }) => {
 			toast.success(
 				childrenDeleted > 64
@@ -139,15 +155,18 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 						: m.node_deleted(),
 			);
 		},
-		onError: () => invalidate(),
 	});
 	const remove = (id: string) => removeMutation.mutate({ id });
 
-	const updateContentMutation = useMutation({
-		mutationFn: (vars: { id: string; content: { root: unknown } }) =>
-			client.nodes.updateContent(vars),
-		onMutate: ({ id, content }) =>
-			setRows((rows) => patchRow(rows, id, { content })),
+	const updateContentMutation = useOptimisticNodeMutation<
+		{ id: string; content: { root: unknown } },
+		void,
+		VisibleTreeData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (vars) => client.nodes.updateContent(vars),
+		patch: (old, { id, content }) =>
+			patchRows((rows) => patchRow(rows, id, { content }), old),
 		onSuccess: (_data, { id }) => {
 			// Bust breadcrumbs, but only for chains the edited node is actually
 			// part of, rather than every ancestors cache entry.
@@ -168,32 +187,45 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 		updateContentMutation.mutate({ id, content });
 
 	/** Convert a node's type or update its per-type metadata (e.g. task completion). */
-	const setTypeMutation = useMutation({
-		mutationFn: (vars: { id: string } & TypedMetadata) =>
-			client.nodes.setType(vars),
-		onMutate: (vars) =>
-			setRows((rows) =>
-				patchRow(rows, vars.id, { type: vars.type, metadata: vars.metadata }),
+	const setTypeMutation = useOptimisticNodeMutation<
+		{ id: string } & TypedMetadata,
+		void,
+		VisibleTreeData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (vars) => client.nodes.setType(vars),
+		patch: (old, vars) =>
+			patchRows(
+				(rows) =>
+					patchRow(rows, vars.id, { type: vars.type, metadata: vars.metadata }),
+				old,
 			),
-		onError: () => invalidate(),
 	});
 	const setType = (id: string, typed: TypedMetadata) =>
 		setTypeMutation.mutate({ id, ...typed });
 
-	const setDueDateMutation = useMutation({
-		mutationFn: (vars: { id: string; dueDate: Date | null }) =>
-			client.nodes.setDueDate(vars),
-		onMutate: ({ id, dueDate }) =>
-			setRows((rows) => patchRow(rows, id, { dueDate })),
-		onError: () => invalidate(),
+	const setDueDateMutation = useOptimisticNodeMutation<
+		{ id: string; dueDate: Date | null },
+		void,
+		VisibleTreeData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (vars) => client.nodes.setDueDate(vars),
+		patch: (old, { id, dueDate }) =>
+			patchRows((rows) => patchRow(rows, id, { dueDate }), old),
 	});
 	const setDueDate = (id: string, dueDate: Date | null) =>
 		setDueDateMutation.mutate({ id, dueDate });
 
-	const setTagsMutation = useMutation({
-		mutationFn: (vars: { id: string; tags: string[] }) =>
-			client.nodes.setTags(vars),
-		onMutate: ({ id, tags }) => setRows((rows) => patchRow(rows, id, { tags })),
+	const setTagsMutation = useOptimisticNodeMutation<
+		{ id: string; tags: string[] },
+		void,
+		VisibleTreeData
+	>({
+		queryKey: options.queryKey,
+		mutationFn: (vars) => client.nodes.setTags(vars),
+		patch: (old, { id, tags }) =>
+			patchRows((rows) => patchRow(rows, id, { tags }), old),
 		onSuccess: () => {
 			// A brand-new tag name may have just been created; refresh the
 			// suggestion list so it's offered elsewhere without a reload.
@@ -201,7 +233,6 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 				queryKey: existingTagsOptions().queryKey,
 			});
 		},
-		onError: () => invalidate(),
 	});
 	const setTags = (id: string, tags: string[]) =>
 		setTagsMutation.mutate({ id, tags });
