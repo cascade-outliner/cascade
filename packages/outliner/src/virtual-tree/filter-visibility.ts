@@ -1,4 +1,4 @@
-import { dueBucket, isDueOnDate, isDueThisWeek } from "../due-date-bucket";
+import { isDueOnDate, isDueThisWeek, isDueToday } from "../due-date-bucket";
 import { hasActiveFilters, type NodeFilters } from "../node-filters";
 import type { VisibleNodeRow } from "../node-types";
 import { subtreeRange } from "./visible-rows";
@@ -103,23 +103,21 @@ function isCompletedTask(row: VisibleNodeRow): boolean {
 	return row.type === "task" && (row.metadata?.completed ?? false);
 }
 
-/** A row matches when it satisfies every active due-date filter. */
+/**
+ * A row matches when it satisfies every active due-date filter, regardless
+ * of completion status — "Hide completed" is the only filter that excludes
+ * completed tasks, so a due-date filter must still match one that's done.
+ */
 function rowMatchesFilters(row: VisibleNodeRow, filters: NodeFilters): boolean {
 	if (!row.dueDate) return false;
-	const completed = isCompletedTask(row);
-	if (
-		filters.dueToday &&
-		dueBucket(new Date(row.dueDate), completed) !== "today"
-	) {
+	const dueDate = new Date(row.dueDate);
+	if (filters.dueToday && !isDueToday(dueDate)) {
 		return false;
 	}
-	if (filters.dueThisWeek && !isDueThisWeek(new Date(row.dueDate), completed)) {
+	if (filters.dueThisWeek && !isDueThisWeek(dueDate)) {
 		return false;
 	}
-	if (
-		filters.dueOnDate &&
-		!isDueOnDate(new Date(row.dueDate), filters.dueOnDate, completed)
-	) {
+	if (filters.dueOnDate && !isDueOnDate(dueDate, filters.dueOnDate)) {
 		return false;
 	}
 	return true;

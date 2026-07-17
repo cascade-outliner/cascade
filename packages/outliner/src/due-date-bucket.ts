@@ -11,8 +11,20 @@ export function startOfWeek(date: Date): Date {
 	return start;
 }
 
-export function isDueThisWeek(dueDate: Date, completed: boolean): boolean {
-	if (completed) return false;
+function diffDaysFromToday(date: Date): number {
+	return Math.round(
+		(startOfDay(date).getTime() - startOfDay(new Date()).getTime()) /
+			86_400_000,
+	);
+}
+
+/** Whether `dueDate` falls today, independent of completion status. */
+export function isDueToday(dueDate: Date): boolean {
+	return diffDaysFromToday(dueDate) === 0;
+}
+
+/** Whether `dueDate` falls in the current week, independent of completion status. */
+export function isDueThisWeek(dueDate: Date): boolean {
 	const weekStart = startOfWeek(new Date());
 	const weekEnd = new Date(weekStart);
 	weekEnd.setDate(weekEnd.getDate() + 7);
@@ -20,21 +32,14 @@ export function isDueThisWeek(dueDate: Date, completed: boolean): boolean {
 	return due >= weekStart && due < weekEnd;
 }
 
-export function isDueOnDate(
-	dueDate: Date,
-	selected: Date,
-	completed: boolean,
-): boolean {
-	if (completed) return false;
+/** Whether `dueDate` falls on `selected`, independent of completion status. */
+export function isDueOnDate(dueDate: Date, selected: Date): boolean {
 	return startOfDay(dueDate).getTime() === startOfDay(selected).getTime();
 }
 
 export function dueBucket(dueDate: Date, completed: boolean): DueBucket {
 	if (completed) return "completed";
-	const diffDays = Math.round(
-		(startOfDay(dueDate).getTime() - startOfDay(new Date()).getTime()) /
-			86_400_000,
-	);
+	const diffDays = diffDaysFromToday(dueDate);
 	if (diffDays < 0) return "overdue";
 	if (diffDays === 0) return "today";
 	return "upcoming";

@@ -61,18 +61,14 @@ describe("startOfWeek", () => {
 
 describe("isDueThisWeek", () => {
 	it("matches dates from Monday through Sunday of the current week", () => {
-		expect(isDueThisWeek(new Date(2026, 6, 13), false)).toBe(true);
-		expect(isDueThisWeek(new Date(2026, 6, 15), false)).toBe(true);
-		expect(isDueThisWeek(new Date(2026, 6, 19, 23, 59), false)).toBe(true);
+		expect(isDueThisWeek(new Date(2026, 6, 13))).toBe(true);
+		expect(isDueThisWeek(new Date(2026, 6, 15))).toBe(true);
+		expect(isDueThisWeek(new Date(2026, 6, 19, 23, 59))).toBe(true);
 	});
 
 	it("rejects dates outside the current week", () => {
-		expect(isDueThisWeek(new Date(2026, 6, 12), false)).toBe(false);
-		expect(isDueThisWeek(new Date(2026, 6, 20), false)).toBe(false);
-	});
-
-	it("rejects completed tasks", () => {
-		expect(isDueThisWeek(new Date(2026, 6, 15), true)).toBe(false);
+		expect(isDueThisWeek(new Date(2026, 6, 12))).toBe(false);
+		expect(isDueThisWeek(new Date(2026, 6, 20))).toBe(false);
 	});
 });
 
@@ -116,7 +112,7 @@ describe("getRowVisibility with dueThisWeek", () => {
 		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
 	});
 
-	it("hides completed tasks due this week", () => {
+	it("keeps completed tasks due this week visible when hideCompleted is off", () => {
 		const rows = [
 			row("open", null, 0, friday),
 			row("done", null, 0, friday, { completed: true }),
@@ -125,7 +121,7 @@ describe("getRowVisibility with dueThisWeek", () => {
 			...noFilters,
 			dueThisWeek: true,
 		});
-		expect(visibility.hiddenIds).toEqual(new Set(["done"]));
+		expect(visibility.hiddenIds.size).toBe(0);
 	});
 
 	// The UI keeps due-date filters mutually exclusive; if both are ever
@@ -144,19 +140,40 @@ describe("getRowVisibility with dueThisWeek", () => {
 	});
 });
 
+describe("getRowVisibility with dueToday", () => {
+	it("keeps a completed task due today visible when hideCompleted is off", () => {
+		const rows = [
+			row("open", null, 0, wednesday),
+			row("done", null, 0, wednesday, { completed: true }),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueToday: true,
+		});
+		expect(visibility.hiddenIds.size).toBe(0);
+	});
+
+	it("still hides a completed task due today when hideCompleted is on", () => {
+		const rows = [
+			row("open", null, 0, wednesday),
+			row("done", null, 0, wednesday, { completed: true }),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueToday: true,
+			hideCompleted: true,
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["done"]));
+	});
+});
+
 describe("isDueOnDate", () => {
 	const friday = new Date(2026, 6, 17);
 
 	it("matches only the selected calendar day, ignoring the time of day", () => {
-		expect(isDueOnDate(new Date(2026, 6, 17, 23, 30), friday, false)).toBe(
-			true,
-		);
-		expect(isDueOnDate(new Date(2026, 6, 16), friday, false)).toBe(false);
-		expect(isDueOnDate(new Date(2026, 6, 18), friday, false)).toBe(false);
-	});
-
-	it("rejects completed tasks", () => {
-		expect(isDueOnDate(friday, friday, true)).toBe(false);
+		expect(isDueOnDate(new Date(2026, 6, 17, 23, 30), friday)).toBe(true);
+		expect(isDueOnDate(new Date(2026, 6, 16), friday)).toBe(false);
+		expect(isDueOnDate(new Date(2026, 6, 18), friday)).toBe(false);
 	});
 });
 
@@ -192,7 +209,7 @@ describe("getRowVisibility with dueOnDate", () => {
 		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
 	});
 
-	it("hides completed tasks due on the selected date", () => {
+	it("keeps completed tasks due on the selected date visible when hideCompleted is off", () => {
 		const rows = [
 			row("open", null, 0, friday),
 			row("done", null, 0, friday, { completed: true }),
@@ -201,7 +218,7 @@ describe("getRowVisibility with dueOnDate", () => {
 			...noFilters,
 			dueOnDate: friday,
 		});
-		expect(visibility.hiddenIds).toEqual(new Set(["done"]));
+		expect(visibility.hiddenIds.size).toBe(0);
 	});
 });
 
