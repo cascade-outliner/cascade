@@ -1,0 +1,1 @@
+ALTER TABLE "nodes" ADD CONSTRAINT "nodes_user_parent_order_unique" UNIQUE NULLS NOT DISTINCT("user_id","parent_id","order");

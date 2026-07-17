@@ -151,41 +151,48 @@ export const createNode = authed
 				: eq(nodes.parentId, input.parentId),
 		);
 
-		let order: string;
-		if (input.afterId) {
-			const [after] = await db
-				.select({ order: nodes.order })
-				.from(nodes)
-				.where(and(eq(nodes.id, input.afterId), eq(nodes.userId, userId)))
-				.limit(1);
-			if (!after) throw errors.NOT_FOUND();
-			const [next] = await db
-				.select({ order: nodes.order })
-				.from(nodes)
-				.where(and(parentFilter, gt(nodes.order, after.order)))
-				.orderBy(asc(nodes.order))
-				.limit(1);
-			order = generateKeyBetween(after.order, next?.order ?? null);
-		} else {
-			const [last] = await db
-				.select({ order: nodes.order })
-				.from(nodes)
-				.where(parentFilter)
-				.orderBy(desc(nodes.order))
-				.limit(1);
-			order = generateKeyBetween(last?.order ?? null, null);
-		}
+		// The same per-user advisory lock as moveNode: concurrent creates (two
+		// rapid Enter presses, two tabs) would otherwise read the same sibling
+		// order and compute identical fractional indexes.
+		return await db.transaction(async (tx) => {
+			await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
 
-		const [created] = await db
-			.insert(nodes)
-			.values({
-				parentId: input.parentId,
-				order,
-				userId,
-				dueDate: input.dueDate ?? null,
-			})
-			.returning(nodeColumns(userId));
-		return created;
+			let order: string;
+			if (input.afterId) {
+				const [after] = await tx
+					.select({ order: nodes.order })
+					.from(nodes)
+					.where(and(eq(nodes.id, input.afterId), eq(nodes.userId, userId)))
+					.limit(1);
+				if (!after) throw errors.NOT_FOUND();
+				const [next] = await tx
+					.select({ order: nodes.order })
+					.from(nodes)
+					.where(and(parentFilter, gt(nodes.order, after.order)))
+					.orderBy(asc(nodes.order))
+					.limit(1);
+				order = generateKeyBetween(after.order, next?.order ?? null);
+			} else {
+				const [last] = await tx
+					.select({ order: nodes.order })
+					.from(nodes)
+					.where(parentFilter)
+					.orderBy(desc(nodes.order))
+					.limit(1);
+				order = generateKeyBetween(last?.order ?? null, null);
+			}
+
+			const [created] = await tx
+				.insert(nodes)
+				.values({
+					parentId: input.parentId,
+					order,
+					userId,
+					dueDate: input.dueDate ?? null,
+				})
+				.returning(nodeColumns(userId));
+			return created;
+		});
 	});
 
 export const getNode = authed

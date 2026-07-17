@@ -11,6 +11,7 @@ import {
 	primaryKey,
 	text,
 	timestamp,
+	unique,
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -49,6 +50,13 @@ export const nodes = pgTable(
 		index("nodes_parent_order_idx").on(t.parentId, t.order),
 		index("nodes_user_id_idx").on(t.userId),
 		index("nodes_user_due_date_idx").on(t.userId, t.dueDate),
+		// Backstop against concurrent inserts computing the same fractional
+		// index: a race now fails loudly instead of silently corrupting sibling
+		// order. NULLS NOT DISTINCT so root nodes (parent_id IS NULL) are
+		// covered too; user_id keeps different users' roots from colliding.
+		unique("nodes_user_parent_order_unique")
+			.on(t.userId, t.parentId, t.order)
+			.nullsNotDistinct(),
 	],
 );
 
