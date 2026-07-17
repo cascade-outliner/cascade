@@ -1,7 +1,6 @@
 # Changelog
 
 ## 2026-07-17
-- Node edits (content, tags, due dates, moves, etc.) now go through TanStack Query mutations, giving more consistent loading states and reverting cleanly if a save fails. [#237](https://github.com/Patrickroelofs/cascade/issues/237)
 - New `Hide completed` filter tucks away completed tasks (and their subtrees) to declutter the outline; it combines with the due-date filters. [#138](https://github.com/Patrickroelofs/cascade/issues/138)
 - Filter on due date `this week`, showing everything due between Monday and Sunday of the current week; selecting it replaces the `today` filter and vice versa. [#215](https://github.com/Patrickroelofs/cascade/issues/215)
 
