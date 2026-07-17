@@ -37,9 +37,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		return { user: session.user };
 	},
 	loader: async ({ context: { queryClient } }) => {
-		// SSR the user's settings so the first paint already has them (e.g. the
-		// dark class on <html>). A failed fetch falls back to defaults rather
-		// than blocking the app.
 		const settings = await queryClient
 			.ensureQueryData(orpc.settings.get.queryOptions())
 			.catch((): SettingsPatch => ({}));
