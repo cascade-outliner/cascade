@@ -38,7 +38,9 @@ export function useToggleMutation(
 		},
 		patch: (old, { id, expanded }) =>
 			patchRows((rows) => {
-				if (includeCollapsedDescendants) return rows;
+				if (includeCollapsedDescendants) {
+					return patchRow(rows, id, { expanded });
+				}
 				return expanded
 					? patchRow(rows, id, { expanded: true })
 					: collapseNode(rows, id);

@@ -118,7 +118,7 @@ export const visibleTree = authed
 			content: r.content,
 			type: r.type,
 			metadata: r.metadata as NodeMetadata,
-			expanded: includeCollapsedDescendants ? r.has_children : r.expanded,
+			expanded: r.expanded,
 			order: r.order,
 			dueDate: r.due_date,
 			tags: r.tags,

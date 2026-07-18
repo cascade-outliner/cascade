@@ -1,7 +1,6 @@
 import { isDueOnDate, isDueThisWeek, isDueToday } from "../due-date-bucket";
 import { hasActiveFilters, type NodeFilters } from "../node-filters";
 import type { VisibleNodeRow } from "../node-types";
-import { subtreeRange } from "./visible-rows";
 
 export interface RowVisibility {
 	/** Row ids to hide entirely: not a match, and not on the path to one. */
@@ -16,11 +15,10 @@ const emptyVisibility: RowVisibility = {
 };
 
 /**
- * Resolves which rows an active filter set hides. Matches, their full
- * ancestor chain, and their full descendant subtree stay in the array at
- * their original depth, so indent, outdent, and drag-and-drop keep
- * operating on the same contiguous rows they always have; only rendering
- * treats hidden/context rows differently.
+ * Resolves which rows an active filter set hides. Matches and their ancestor
+ * chain stay in the array at their original depth, so indent, outdent, and
+ * drag-and-drop keep operating on the same contiguous rows they always have;
+ * only rendering treats hidden/context rows differently.
  *
  * "Hide completed" is an exclusion rather than a match: completed tasks and
  * their entire subtrees are dropped up front, and any due-date filters then
@@ -51,6 +49,7 @@ export function getRowVisibility(
 			.filter((row) => rowMatchesFilters(row, filters))
 			.map((row) => row.id),
 	);
+	const collapsedIds = getCollapsedDescendantIds(candidates);
 
 	const contextIds = new Set<string>();
 	for (const id of matchIds) {
@@ -63,23 +62,15 @@ export function getRowVisibility(
 			contextIds.add(parentId);
 			parentId = parentById.get(parentId) ?? null;
 		}
-
-		// A matched node's own descendants stay visible too, even if they
-		// don't individually match, so its subtree isn't cut off mid-tree.
-		const range = subtreeRange(rows, id);
-		if (range) {
-			for (let i = range.start + 1; i < range.end; i++) {
-				const descendantId = rows[i].id;
-				if (!matchIds.has(descendantId) && !excludedIds.has(descendantId)) {
-					contextIds.add(descendantId);
-				}
-			}
-		}
 	}
 
 	const hiddenIds = new Set(
 		rows
-			.filter((row) => !matchIds.has(row.id) && !contextIds.has(row.id))
+			.filter(
+				(row) =>
+					collapsedIds.has(row.id) ||
+					(!matchIds.has(row.id) && !contextIds.has(row.id)),
+			)
 			.map((row) => row.id),
 	);
 
@@ -101,6 +92,19 @@ function getCompletedSubtreeIds(rows: VisibleNodeRow[]): Set<string> {
 
 function isCompletedTask(row: VisibleNodeRow): boolean {
 	return row.type === "task" && (row.metadata?.completed ?? false);
+}
+
+/** Descendants of a collapsed node stay hidden, even if they match a filter. */
+function getCollapsedDescendantIds(rows: VisibleNodeRow[]): Set<string> {
+	const hidden = new Set<string>();
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i];
+		if (row.expanded || !row.hasChildren) continue;
+		let end = i + 1;
+		while (end < rows.length && rows[end].depth > row.depth) end++;
+		for (let j = i + 1; j < end; j++) hidden.add(rows[j].id);
+	}
+	return hidden;
 }
 
 /**

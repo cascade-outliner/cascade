@@ -12,6 +12,7 @@ vi.mock("@/orpc/client", () => ({
 	client: {
 		nodes: {
 			updateContent: vi.fn(),
+			toggleExpanded: vi.fn(),
 		},
 	},
 	orpc: {
@@ -117,6 +118,28 @@ describe("useVisibleTree.updateContent", () => {
 
 		expect(orpc.nodes.visibleTree.queryOptions).toHaveBeenCalledWith({
 			input: { rootId: null, includeCollapsedDescendants: true },
+		});
+	});
+
+	it("patches expanded state locally when toggling in filtered mode", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null, true).queryKey, {
+			rows: [{ ...row, expanded: true, hasChildren: true }],
+			nextCursor: null,
+		});
+		vi.mocked(client.nodes.toggleExpanded).mockResolvedValueOnce(undefined);
+
+		const { result } = renderVisibleTree(queryClient, true);
+
+		result.current.toggle("node-1", false);
+
+		await waitFor(() => {
+			expect(
+				queryClient.getQueryData(visibleTreeOptions(null, true).queryKey),
+			).toEqual({
+				rows: [{ ...row, expanded: false, hasChildren: true }],
+				nextCursor: null,
+			});
 		});
 	});
 });

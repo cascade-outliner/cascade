@@ -112,6 +112,19 @@ describe("getRowVisibility with dueThisWeek", () => {
 		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
 	});
 
+	it("hides non-matching children of a matching row", () => {
+		const rows = [
+			{ ...row("parent", null, 0, friday), hasChildren: true },
+			row("child", "parent", 1, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueThisWeek: true,
+		});
+		expect(visibility.contextIds.size).toBe(0);
+		expect(visibility.hiddenIds).toEqual(new Set(["child"]));
+	});
+
 	it("keeps completed tasks due this week visible when hideCompleted is off", () => {
 		const rows = [
 			row("open", null, 0, friday),
@@ -164,6 +177,20 @@ describe("getRowVisibility with dueToday", () => {
 			hideCompleted: true,
 		});
 		expect(visibility.hiddenIds).toEqual(new Set(["done"]));
+	});
+
+	it("keeps a collapsed ancestor visible when one of its hidden descendants matches", () => {
+		const rows = [
+			{ ...row("parent", null, 0, null), expanded: false, hasChildren: true },
+			row("matching-child", "parent", 1, wednesday),
+			row("other", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueToday: true,
+		});
+		expect(visibility.contextIds).toEqual(new Set(["parent"]));
+		expect(visibility.hiddenIds).toEqual(new Set(["matching-child", "other"]));
 	});
 });
 
@@ -279,9 +306,9 @@ describe("getRowVisibility with hideCompleted", () => {
 			hideCompleted: true,
 		});
 		expect(visibility.hiddenIds).toEqual(
-			new Set(["done-child", "due-next-week"]),
+			new Set(["done-child", "open-child", "due-next-week"]),
 		);
-		expect(visibility.contextIds).toEqual(new Set(["open-child"]));
+		expect(visibility.contextIds.size).toBe(0);
 	});
 
 	it("never surfaces an excluded subtree as ancestor context of a match", () => {
