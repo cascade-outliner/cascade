@@ -4,7 +4,7 @@ import { useUiLabels } from "./labels-context";
 export function CascadeLoader() {
 	const labels = useUiLabels();
 	return (
-		<div className="flex h-screen w-screen items-center justify-center">
+		<div className="flex h-full w-full items-center justify-center">
 			<CircleNotchIcon
 				size={48}
 				className="animate-spin text-redleather dark:text-peach"

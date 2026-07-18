@@ -15,8 +15,8 @@ import type { SettingsPatch } from "@/core/settings/settings-patch-schema";
 import { AppLabelsProvider } from "@/lib/labels-provider";
 import { orpc } from "@/orpc/client";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
+import { AppHeader } from "@/ui/header/AppHeader";
 import { SettingsProvider } from "@/ui/settings-context";
-import { UserMenu } from "@/ui/user-menu";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
@@ -110,13 +110,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
+			<body className="flex h-dvh flex-col overflow-hidden bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
 				<NuqsAdapter>
 					<AppLabelsProvider>
 						<SettingsProvider>
 							<Toaster>
-								{children}
-								<UserMenu />
+								<AppHeader />
+								<div className="min-h-0 flex-1 overflow-hidden">{children}</div>
 							</Toaster>
 						</SettingsProvider>
 					</AppLabelsProvider>

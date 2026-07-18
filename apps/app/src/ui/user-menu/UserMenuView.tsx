@@ -110,7 +110,7 @@ export function UserMenuView({
 	isDeleting,
 }: UserMenuViewProps) {
 	return (
-		<div className="fixed top-4 right-8 z-50">
+		<>
 			<Menu.Root>
 				<Menu.Trigger
 					aria-label={m.user_menu_trigger_label()}
@@ -320,6 +320,6 @@ export function UserMenuView({
 					</AlertDialog.Popup>
 				</AlertDialog.Portal>
 			</AlertDialog.Root>
-		</div>
+		</>
 	);
 }

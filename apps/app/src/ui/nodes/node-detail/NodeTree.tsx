@@ -26,6 +26,7 @@ export function NodeTree({
 	return (
 		<VirtualTree
 			tree={tree}
+			className="h-full"
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
