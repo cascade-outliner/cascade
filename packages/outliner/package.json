@@ -13,6 +13,8 @@
     "./node-filters": "./src/node-filters.ts",
     "./due-date-bucket": "./src/due-date-bucket.ts",
     "./lexical-content": "./src/lexical/lexical-content.ts",
+    "./lexical/link-url": "./src/lexical/link-url.ts",
+    "./lexical/link-content": "./src/lexical/link-content.ts",
     "./*": "./src/*.tsx"
   },
   "peerDependencies": {
@@ -26,6 +28,7 @@
     "@base-ui/react": "^1.6.0",
     "@cascade/ui": "workspace:*",
     "@lexical/history": "^0.46.0",
+    "@lexical/link": "^0.46.0",
     "@lexical/react": "^0.46.0",
     "@lexical/rich-text": "^0.46.0",
     "@phosphor-icons/react": "^2.1.10",

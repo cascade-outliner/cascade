@@ -1,29 +1,65 @@
 import type { ReactNode } from "react";
+import { linkTextContent, type SerializedLinkNode } from "../link-content";
+import { isHttpUrl } from "../link-url";
 import type { LexicalElementNode } from "./lexical-read-view";
+import { NodeLinkView, type OnSaveLink } from "./node-link-view";
 import { type LexicalTextNode, renderTextNode } from "./render-text-nodes";
 
 // Defense in depth against pathologically nested content (e.g. pre-existing
 // rows written before size/depth limits were enforced on write).
 const MAX_RENDER_DEPTH = 64;
 
+export interface RenderNodeOptions {
+	/** When set, links render with a click-to-edit popover; `path` is the chain of child indexes from the root. */
+	onSaveLink?: OnSaveLink;
+	path?: number[];
+}
+
 export function renderNode(
 	node: LexicalTextNode | LexicalElementNode,
 	key: number,
 	depth = 0,
+	options?: RenderNodeOptions,
 ): ReactNode {
 	if (depth > MAX_RENDER_DEPTH) return null;
+
+	const path = options?.path ?? [];
+	const renderChildren = (children: LexicalElementNode["children"]) =>
+		children?.map((child, index) =>
+			renderNode(
+				child,
+				index,
+				depth + 1,
+				options && { ...options, path: [...path, index] },
+			),
+		) ?? null;
 
 	switch (node.type) {
 		case "text":
 			return renderTextNode(node as LexicalTextNode, key);
 
 		case "paragraph": {
-			const children =
-				node.children?.map((child, index) =>
-					renderNode(child, index, depth + 1),
-				) ?? null;
+			return <p key={key}>{renderChildren(node.children)}</p>;
+		}
 
-			return <p key={key}>{children}</p>;
+		case "link": {
+			const link = node as SerializedLinkNode;
+			const children = renderChildren(link.children);
+			// Never give a non-http(s) URL an href; degrade to plain text.
+			if (typeof link.url !== "string" || !isHttpUrl(link.url)) {
+				return <span key={key}>{children}</span>;
+			}
+			return (
+				<NodeLinkView
+					key={key}
+					url={link.url}
+					text={linkTextContent(link)}
+					path={path}
+					onSaveLink={options?.onSaveLink}
+				>
+					{children}
+				</NodeLinkView>
+			);
 		}
 
 		default: {
@@ -31,9 +67,7 @@ export function renderNode(
 			// crashing the read view; the editor remains the source of truth.
 			const children =
 				"children" in node && node.children
-					? node.children.map((child, index) =>
-							renderNode(child, index, depth + 1),
-						)
+					? renderChildren(node.children)
 					: null;
 			return <span key={key}>{children}</span>;
 		}

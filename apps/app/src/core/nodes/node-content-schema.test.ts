@@ -1,3 +1,4 @@
+import { $createLinkNode, LinkNode } from "@lexical/link";
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -182,5 +183,50 @@ describe("updateNodeContentInputSchema", () => {
 			content,
 		});
 		expect(result.success).toBe(true);
+	});
+
+	// Same drift guard as above, for @lexical/link: build the link with the
+	// real LinkNode so the allowlist can't silently fall out of sync with the
+	// fields it serializes (url, rel, target, title).
+	it("accepts a link node produced by a real Lexical editor", () => {
+		const editor = createEditor({ nodes: [LinkNode] });
+		editor.update(
+			() => {
+				const paragraph = $createParagraphNode();
+				const link = $createLinkNode(
+					"https://example.com/some/very/long/path?query=1",
+				);
+				link.append($createTextNode("example.com/some/very/…"));
+				paragraph.append($createTextNode("see "), link);
+				$getRoot().append(paragraph);
+			},
+			{ discrete: true },
+		);
+
+		const content = editor.getEditorState().toJSON();
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it("rejects a link whose url is not http(s)", () => {
+		const link = {
+			type: "link",
+			version: 1,
+			direction: "ltr" as const,
+			format: "",
+			indent: 0,
+			url: "javascript:alert(1)",
+			rel: null,
+			target: null,
+			title: null,
+			children: [textNode("click me")],
+		};
+		const result = updateNodeContentInputSchema.safeParse(
+			buildInput(root([paragraph([link])])),
+		);
+		expect(result.success).toBe(false);
 	});
 });

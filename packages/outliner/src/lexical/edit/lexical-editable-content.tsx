@@ -1,18 +1,24 @@
+import { $createLinkNode } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
+	$createTextNode,
 	$getRoot,
+	$getSelection,
+	$isRangeSelection,
 	COMMAND_PRIORITY_HIGH,
 	KEY_ARROW_DOWN_COMMAND,
 	KEY_ARROW_UP_COMMAND,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
 	KEY_TAB_COMMAND,
+	PASTE_COMMAND,
 } from "lexical";
 import { useEffect, useRef } from "react";
 import type { FocusPoint } from "../../node-editor";
+import { isHttpUrl, tidyUrlLabel } from "../link-url";
 import type { LexicalElementNode } from "../read/lexical-read-view";
 
 interface EditableContentProps {
@@ -91,6 +97,25 @@ export function EditableContent({
 				if (!handler) return false;
 				event.preventDefault();
 				handler();
+				return true;
+			},
+			COMMAND_PRIORITY_HIGH,
+		);
+	}, [editor]);
+
+	useEffect(() => {
+		return editor.registerCommand(
+			PASTE_COMMAND,
+			(event) => {
+				if (!(event instanceof ClipboardEvent)) return false;
+				const pasted = event.clipboardData?.getData("text/plain").trim() ?? "";
+				if (!isHttpUrl(pasted)) return false;
+				const selection = $getSelection();
+				if (!$isRangeSelection(selection)) return false;
+				event.preventDefault();
+				const link = $createLinkNode(pasted);
+				link.append($createTextNode(tidyUrlLabel(pasted)));
+				selection.insertNodes([link]);
 				return true;
 			},
 			COMMAND_PRIORITY_HIGH,

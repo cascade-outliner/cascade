@@ -1,3 +1,4 @@
+import { MAX_URL_LENGTH } from "@cascade/outliner/lexical/link-url";
 import { z } from "zod";
 
 // Lexical content is ~3-4 levels deep in practice; these caps are generous
@@ -7,8 +8,9 @@ export const MAX_CHILDREN_PER_NODE = 500;
 export const MAX_TEXT_LENGTH = 20_000;
 export const MAX_CONTENT_BYTES = 256 * 1024;
 
-// Explicit allowlist of the fields Lexical's built-in nodes (root, paragraph,
-// text, tab, linebreak) actually serialize, instead of `.passthrough()`.
+// Explicit allowlist of the fields the registered Lexical nodes (root,
+// paragraph, text, tab, linebreak, and @lexical/link's LinkNode) actually
+// serialize, instead of `.passthrough()`.
 export interface LexicalSchemaNode {
 	type: string;
 	text?: string;
@@ -21,6 +23,10 @@ export interface LexicalSchemaNode {
 	version?: number;
 	textFormat?: number;
 	textStyle?: string;
+	url?: string;
+	rel?: string | null;
+	target?: string | null;
+	title?: string | null;
 	children?: LexicalSchemaNode[];
 }
 
@@ -40,6 +46,16 @@ function lexicalNodeSchema(depth: number): z.ZodType<LexicalSchemaNode> {
 			// these two alongside `format`/`children`.
 			textFormat: z.number().optional(),
 			textStyle: z.string().optional(),
+			// @lexical/link's LinkNode. Only http(s) URLs are accepted, so a
+			// stored `javascript:`/`data:` URL can never reach an href.
+			url: z
+				.string()
+				.max(MAX_URL_LENGTH)
+				.regex(/^https?:\/\//i)
+				.optional(),
+			rel: z.string().max(256).nullable().optional(),
+			target: z.string().max(64).nullable().optional(),
+			title: z.string().max(512).nullable().optional(),
 			children:
 				depth >= MAX_LEXICAL_DEPTH
 					? z.array(z.never()).max(0).optional()

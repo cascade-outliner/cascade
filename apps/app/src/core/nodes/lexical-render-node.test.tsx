@@ -55,4 +55,39 @@ describe("renderNode", () => {
 		const { container } = render(renderNode(deeplyNested, 0));
 		expect(container.textContent).not.toContain("leaf");
 	});
+
+	it("renders a link node as an anchor with the full URL on href and title", () => {
+		const link = {
+			type: "link",
+			url: "https://example.com/some/very/long/path?query=1",
+			children: [textNode("example.com/some/very/…")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		const anchor = container.querySelector("a");
+		expect(anchor?.getAttribute("href")).toBe(
+			"https://example.com/some/very/long/path?query=1",
+		);
+		expect(anchor?.getAttribute("title")).toBe(
+			"https://example.com/some/very/long/path?query=1",
+		);
+		expect(anchor?.textContent).toBe("example.com/some/very/…");
+	});
+
+	it("renders a link with a non-http(s) URL as plain text, never an anchor", () => {
+		const link = {
+			type: "link",
+			url: "javascript:alert(1)",
+			children: [textNode("click me")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		expect(container.querySelector("a")).toBe(null);
+		expect(container.textContent).toBe("click me");
+	});
+
+	it("renders a link with no url as plain text", () => {
+		const link = { type: "link", children: [textNode("label")] } as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		expect(container.querySelector("a")).toBe(null);
+		expect(container.textContent).toBe("label");
+	});
 });

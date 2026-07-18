@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-18
+- Pasting a URL into a node now turns it into a tidy link (e.g. `example.com/docs…`) instead of the full raw address. Click a link to see the full URL and edit its text or destination, or open it from there. [#183](https://github.com/Patrickroelofs/cascade/issues/183)
 - Tag names are now capped at 64 characters: the tags editor shows a character counter near the limit and blocks over-long names with a clear message, and the server rejects them too. [#242](https://github.com/Patrickroelofs/cascade/issues/242)
 
 ## 2026-07-17
