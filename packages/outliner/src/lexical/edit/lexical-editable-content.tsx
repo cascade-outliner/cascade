@@ -4,10 +4,14 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
+	$createRangeSelection,
 	$createTextNode,
+	$getNearestNodeFromDOMNode,
 	$getRoot,
 	$getSelection,
 	$isRangeSelection,
+	$isTextNode,
+	$setSelection,
 	COMMAND_PRIORITY_HIGH,
 	KEY_ARROW_DOWN_COMMAND,
 	KEY_ARROW_UP_COMMAND,
@@ -187,9 +191,22 @@ export function EditableContent({
 				? caretRangeFromPoint(focusPoint.x, focusPoint.y)
 				: null;
 		if (rootElement && range && rootElement.contains(range.startContainer)) {
-			const selection = window.getSelection();
-			selection?.removeAllRanges();
-			selection?.addRange(range);
+			// Place the caret through Lexical's own selection model, not a raw
+			// DOM range: plugins that register node transforms on mount (e.g.
+			// AutoLinkPlugin) schedule an update whose reconciliation discards
+			// any DOM selection Lexical doesn't own, which reset the caret to
+			// the start of the node.
+			editor.update(() => {
+				const node = $getNearestNodeFromDOMNode(range.startContainer);
+				if ($isTextNode(node)) {
+					const selection = $createRangeSelection();
+					selection.anchor.set(node.getKey(), range.startOffset, "text");
+					selection.focus.set(node.getKey(), range.startOffset, "text");
+					$setSelection(selection);
+				} else {
+					$getRoot().selectEnd();
+				}
+			});
 			rootElement.focus({ preventScroll: true });
 		} else if (rootElement) {
 			editor.update(() => {
