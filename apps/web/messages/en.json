@@ -107,6 +107,7 @@
 	"oauth_generic_error": "Something went wrong signing you in. Try again.",
 	"untitled_node": "Untitled",
 	"node_deleted": "Node deleted",
+	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Expand",
 	"outliner_toggle_collapse": "Collapse",
 	"outliner_task_completed": "Task completed",

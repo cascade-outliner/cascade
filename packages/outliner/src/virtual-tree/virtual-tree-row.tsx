@@ -1,54 +1,18 @@
 "use no memo";
 
-import type { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
-import type { LexicalElementNode } from "../lexical/read/lexical-read-view";
 import { NodeActions } from "../node-actions";
 import { NodeCheckbox } from "../node-checkbox";
 import { NodeDueDatePill } from "../node-due-date-pill";
-import { type FocusPoint, NodeEditor } from "../node-editor";
+import { NodeEditor } from "../node-editor";
 import { DefaultNodeLink } from "../node-link-slot";
-import type { TagSummary } from "../node-tags";
 import { NodeTagPills } from "../node-tags-pills";
 import { NodeToggle } from "../node-toggle";
-import type { NodeTypeName, VisibleNodeRow } from "../node-types";
 import { RowDragAndDrop } from "./row-drag-drop";
-import type { MoveTarget } from "./visible-rows";
+import type { VirtualTreeRowProps } from "./types";
+import { siblingPosition } from "./visible-rows";
 
-export interface VirtualTreeRowProps {
-	row: VisibleNodeRow;
-	rows: VisibleNodeRow[];
-	start: number;
-	index: number;
-	indentSize: number;
-	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
-	measureElement: (element: HTMLElement | null) => void;
-	/** All of this user's tags with usage counts, for the tag editor. */
-	existingTags: TagSummary[];
-	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
-	isHidden: boolean;
-	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
-	isContext: boolean;
-	editing: boolean;
-	focusPoint: FocusPoint | null;
-	onStartEdit: (point?: FocusPoint) => void;
-	onExitEdit: () => void;
-	onToggle: (expanded: boolean) => void;
-	onConvert: (type: NodeTypeName) => void;
-	onToggleTask: (completed: boolean) => void;
-	onSetDueDate: (date: Date | null) => void;
-	onSetTags: (tags: string[]) => void;
-	onDeleteTag?: (name: string) => void | Promise<void>;
-	onDelete: () => void;
-	onSaveContent: (content: { root: LexicalElementNode }) => void;
-	onCreateBelow: () => void;
-	onDeleteEmpty: () => void;
-	onIndent: () => void;
-	onOutdent: () => void;
-	onFocusNext: () => void;
-	onFocusPrevious: () => void;
-	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
-}
+export type { VirtualTreeRowProps } from "./types";
 
 export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const { row, start, index, measureElement } = props;
@@ -57,11 +21,21 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	// dueDate as an ISO string instead of a Date; normalize it here so every
 	// consumer below can rely on a real Date | null.
 	const dueDate = row.dueDate ? new Date(row.dueDate) : null;
+	const position = siblingPosition(props.rows, row.id);
 
 	return (
 		<div
 			ref={measureElement}
 			data-index={index}
+			role="treeitem"
+			// Focus lives on the nested node-text control (roving tabindex);
+			// the row itself is reachable via the tree, not the tab order.
+			tabIndex={-1}
+			aria-level={row.depth + 1}
+			aria-expanded={row.hasChildren ? row.expanded : undefined}
+			aria-selected={props.editing}
+			aria-posinset={position?.posInSet}
+			aria-setsize={position?.setSize}
 			className={twMerge(
 				"top-0 left-0 w-full absolute",
 				props.isHidden && "hidden",
@@ -119,6 +93,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							onDeleteEmpty={props.onDeleteEmpty}
 							onIndent={props.onIndent}
 							onOutdent={props.onOutdent}
+							onMoveUp={props.onMoveUp}
+							onMoveDown={props.onMoveDown}
 							onFocusNext={props.onFocusNext}
 							onFocusPrevious={props.onFocusPrevious}
 						/>

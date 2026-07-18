@@ -22,6 +22,8 @@ interface NodeEditorProps {
 	onDeleteEmpty?: () => void;
 	onIndent?: () => void;
 	onOutdent?: () => void;
+	onMoveUp?: () => void;
+	onMoveDown?: () => void;
 	onFocusNext?: () => void;
 	onFocusPrevious?: () => void;
 }
@@ -39,6 +41,8 @@ export function NodeEditor({
 	onDeleteEmpty,
 	onIndent,
 	onOutdent,
+	onMoveUp,
+	onMoveDown,
 	onFocusNext,
 	onFocusPrevious,
 }: NodeEditorProps) {
@@ -74,6 +78,18 @@ export function NodeEditor({
 				if (event.key === "Enter" || event.key === " ") {
 					event.preventDefault();
 					onStartEdit();
+					return;
+				}
+				// Keyboard equivalent of dragging a row past its sibling — the
+				// pointer-only reorder path in row-drag-drop.tsx.
+				if (event.altKey && event.shiftKey) {
+					if (event.key === "ArrowDown") {
+						event.preventDefault();
+						onMoveDown?.();
+					} else if (event.key === "ArrowUp") {
+						event.preventDefault();
+						onMoveUp?.();
+					}
 					return;
 				}
 				if (!event.shiftKey) return;

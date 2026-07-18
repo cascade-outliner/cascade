@@ -46,6 +46,7 @@
 		}
 	],
 	"node_deleted_with_many_children": "Node verwijderd samen met veel onderliggende nodes",
+	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Uitklappen",
 	"outliner_toggle_collapse": "Inklappen",
 	"outliner_task_completed": "Taak voltooid",

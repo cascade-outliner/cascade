@@ -46,6 +46,7 @@
 		}
 	],
 	"node_deleted_with_many_children": "Node deleted along with many child nodes",
+	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Expand",
 	"outliner_toggle_collapse": "Collapse",
 	"outliner_task_completed": "Task completed",

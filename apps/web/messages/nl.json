@@ -107,6 +107,7 @@
 	"oauth_generic_error": "Er is iets misgegaan bij het inloggen. Probeer het opnieuw.",
 	"untitled_node": "Naamloos",
 	"node_deleted": "Node verwijderd",
+	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Uitklappen",
 	"outliner_toggle_collapse": "Inklappen",
 	"outliner_task_completed": "Taak voltooid",
