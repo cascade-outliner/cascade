@@ -160,6 +160,9 @@ export function UserMenuView({
 								<Tabs.Tab value="user" className={tabTrigger()}>
 									{m.user_menu_user_tab()}
 								</Tabs.Tab>
+								<Tabs.Tab value="links" className={tabTrigger()}>
+									{m.user_menu_quick_links()}
+								</Tabs.Tab>
 							</Tabs.List>
 							<Tabs.Panel value="general">
 								<div className="flex items-center justify-between text-sm">
@@ -215,20 +218,17 @@ export function UserMenuView({
 										onSelect={(locale) => setLocale(locale as Locale)}
 									/>
 								</div>
-								<div className="mt-4 border-t border-dark-grey/10 pt-3 dark:border-ginger/15">
-									<h3 className="mb-1 px-3 text-xs font-semibold text-dark-grey/60 dark:text-ginger/60">
-										{m.user_menu_quick_links()}
-									</h3>
-									<a
-										href={`${webUrl}/changelog`}
-										target="_blank"
-										rel="noreferrer"
-										className={quickLinkItem()}
-									>
-										<ArrowSquareOutIcon size={14} weight="bold" />
-										{m.user_menu_changelog_link()}
-									</a>
-								</div>
+							</Tabs.Panel>
+							<Tabs.Panel value="links">
+								<a
+									href={`${webUrl}/changelog`}
+									target="_blank"
+									rel="noreferrer"
+									className={quickLinkItem()}
+								>
+									<ArrowSquareOutIcon size={14} weight="bold" />
+									{m.user_menu_changelog_link()}
+								</a>
 							</Tabs.Panel>
 							<Tabs.Panel value="user">
 								<div className="flex items-center gap-3">
