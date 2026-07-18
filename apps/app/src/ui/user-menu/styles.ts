@@ -78,3 +78,11 @@ export const secondaryButton = cva({
 export const destructiveButton = cva({
 	base: "cursor-pointer rounded-md bg-redleather px-3 py-1.5 text-sm text-super-ginger outline-none hover:bg-redleather/90 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40",
 });
+
+export const settingsSwitch = cva({
+	base: "h-5 w-9 cursor-pointer rounded-full bg-dark-grey/20 p-0.5 outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 data-checked:bg-redleather dark:bg-ginger/20",
+});
+
+export const indentSizeInput = cva({
+	base: "w-8 rounded-md bg-dark-grey/10 py-0.5 text-center outline-none focus-visible:ring-2 focus-visible:ring-redleather/50 dark:bg-ginger/10",
+});
