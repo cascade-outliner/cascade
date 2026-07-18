@@ -3,6 +3,8 @@ import { MAX_TAG_LENGTH } from "./node-tags";
 import { type NodeTypeName, nodeTypeDefs, nodeTypeNames } from "./node-types";
 
 export interface OutlinerLabels {
+	/** Accessible name for the tree's `role="tree"` container. */
+	treeLabel: string;
 	toggleExpand: string;
 	toggleCollapse: string;
 	taskCompleted: string;
@@ -46,6 +48,7 @@ export interface OutlinerLabels {
 }
 
 export const defaultOutlinerLabels: OutlinerLabels = {
+	treeLabel: "Nodes",
 	toggleExpand: "Expand",
 	toggleCollapse: "Collapse",
 	taskCompleted: "Task completed",

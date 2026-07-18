@@ -164,6 +164,76 @@ export function findOutdentTarget(
 }
 
 /**
+ * Move-up target: swap places with the previous sibling, if any. This is the
+ * keyboard equivalent of dragging a row above its previous sibling — the
+ * pointer-only "reorder-above" drop instruction in row-drag-drop.tsx.
+ */
+export function findMoveUpTarget(
+	rows: VisibleNodeRow[],
+	id: string,
+): MoveTarget | null {
+	const index = rows.findIndex((r) => r.id === id);
+	if (index === -1) return null;
+	const row = rows[index];
+	for (let i = index - 1; i >= 0; i--) {
+		if (rows[i].depth < row.depth) return null;
+		if (rows[i].depth === row.depth) {
+			return rows[i].parentId === row.parentId
+				? { position: "before", targetId: rows[i].id, parentId: row.parentId }
+				: null;
+		}
+	}
+	return null;
+}
+
+/**
+ * Move-down target: swap places with the next sibling, if any. Keyboard
+ * equivalent of dragging a row below its next sibling.
+ */
+export function findMoveDownTarget(
+	rows: VisibleNodeRow[],
+	id: string,
+): MoveTarget | null {
+	const range = subtreeRange(rows, id);
+	if (!range) return null;
+	const row = rows[range.start];
+	const next = rows[range.end];
+	if (!next || next.depth !== row.depth || next.parentId !== row.parentId) {
+		return null;
+	}
+	return { position: "after", targetId: next.id, parentId: row.parentId };
+}
+
+/**
+ * 1-indexed position among visible siblings, for `aria-posinset`/`aria-setsize`.
+ * Scans only the local run of rows deeper than this row's siblings, not the
+ * whole tree.
+ */
+export function siblingPosition(
+	rows: VisibleNodeRow[],
+	id: string,
+): { posInSet: number; setSize: number } | null {
+	const index = rows.findIndex((r) => r.id === id);
+	if (index === -1) return null;
+	const row = rows[index];
+	let posInSet = 1;
+	for (let i = index - 1; i >= 0; i--) {
+		if (rows[i].depth < row.depth) break;
+		if (rows[i].depth === row.depth && rows[i].parentId === row.parentId) {
+			posInSet++;
+		}
+	}
+	let setSize = posInSet;
+	for (let i = index + 1; i < rows.length; i++) {
+		if (rows[i].depth < row.depth) break;
+		if (rows[i].depth === row.depth && rows[i].parentId === row.parentId) {
+			setSize++;
+		}
+	}
+	return { posInSet, setSize };
+}
+
+/**
  * Move a node (and its visible descendants) to a new location, re-depthing
  * the slice and repairing parent flags. Mirrors the server's moveNode
  * semantics so the optimistic result matches the refetched truth.

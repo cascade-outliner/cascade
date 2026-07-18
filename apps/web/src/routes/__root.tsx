@@ -72,6 +72,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				>
 					<OutlinerLabelsProvider
 						labels={{
+							treeLabel: m.outliner_tree_label(),
 							toggleExpand: m.outliner_toggle_expand(),
 							toggleCollapse: m.outliner_toggle_collapse(),
 							taskCompleted: m.outliner_task_completed(),
