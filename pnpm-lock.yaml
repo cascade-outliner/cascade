@@ -35,6 +35,9 @@ importers:
       '@cascade/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@fontsource-variable/bitter':
+        specifier: ^5.2.10
+        version: 5.2.10
       '@inlang/paraglide-js':
         specifier: 2.21.0
         version: 2.21.0(typescript@7.0.2)

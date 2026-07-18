@@ -26,6 +26,7 @@
     "@cascade/outliner": "workspace:*",
     "@cascade/theme": "workspace:*",
     "@cascade/ui": "workspace:*",
+    "@fontsource-variable/bitter": "^5.2.10",
     "@inlang/paraglide-js": "2.21.0",
     "@orpc/client": "^1.14.7",
     "@orpc/json-schema": "^1.14.7",

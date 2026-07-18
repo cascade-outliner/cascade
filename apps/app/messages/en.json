@@ -3,6 +3,7 @@
 	"error_generic_heading": "Something went wrong",
 	"error_generic_body": "An unexpected error occurred. Try again, and if it keeps happening, reload the page.",
 	"error_generic_retry": "Try again",
+	"header_logo_alt": "Cascade Logo",
 	"user_menu_trigger_label": "User menu",
 	"user_menu_settings": "Settings",
 	"user_menu_close_settings": "Close settings",
