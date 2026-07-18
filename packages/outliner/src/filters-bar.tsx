@@ -206,7 +206,6 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 																dueOnDate: date,
 																dueDateRange: null,
 															});
-															setMenuOpen(false);
 														}}
 														onSelect={(range) => {
 															onFiltersChange({

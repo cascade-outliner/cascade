@@ -133,10 +133,12 @@ const quick = cva({
 	defaultVariants: { variant: "default" },
 });
 
-/** Two-step date-range picker. First click sets the start date, second sets the end.
- * When `onSelectSingle` is provided the picker also handles single-date selection:
- * clicking the same day twice (or pressing a quick shortcut) calls `onSelectSingle`
- * instead of `onSelect`. */
+/** Unified date / date-range picker.
+ * - First click (or quick shortcut): immediately calls `onSelectSingle` and marks
+ *   that date as the range start so the user can optionally click a second date to
+ *   extend the selection into a range (which calls `onSelect`).
+ * - Without `onSelectSingle`: first click only sets the range start, second click
+ *   finalizes the range. */
 export function CalendarRange({
 	singleValue,
 	value,
@@ -158,18 +160,25 @@ export function CalendarRange({
 	function handleDayClick(date: Date) {
 		const d = startOfDay(date);
 		if (!pendingStart) {
-			// First click: set as tentative start
+			// First click: apply single-date filter immediately (if supported) and
+			// enter "pick end date" mode so the user can optionally extend to a range.
+			if (onSelectSingle) {
+				onSelectSingle(d);
+			}
 			setPendingStart(d);
-		} else if (sameDay(d, pendingStart) && onSelectSingle) {
-			// Same date clicked twice → single date selection
-			setPendingStart(null);
-			onSelectSingle(pendingStart);
 		} else {
-			// Different date → finalize range
+			// Second click on a different day: finalize range.
 			const start = pendingStart <= d ? pendingStart : d;
 			const end = pendingStart <= d ? d : pendingStart;
 			setPendingStart(null);
 			onSelect({ start, end });
+		}
+	}
+
+	function handleQuickSelect(date: Date) {
+		if (onSelectSingle) {
+			onSelectSingle(date);
+			setPendingStart(date);
 		}
 	}
 
@@ -185,7 +194,7 @@ export function CalendarRange({
 		);
 	}
 
-	/** Highlights the singleValue day when no range or pending selection is active. */
+	/** Highlights the singleValue day when the menu is open but no click has been made yet. */
 	function isSingleSelected(date: Date): boolean {
 		return (
 			!pendingStart &&
@@ -263,21 +272,21 @@ export function CalendarRange({
 						<button
 							type="button"
 							className={quick()}
-							onClick={() => onSelectSingle(today)}
+							onClick={() => handleQuickSelect(today)}
 						>
 							{labels.calendarToday}
 						</button>
 						<button
 							type="button"
 							className={quick()}
-							onClick={() => onSelectSingle(addDays(today, 1))}
+							onClick={() => handleQuickSelect(addDays(today, 1))}
 						>
 							{labels.calendarTomorrow}
 						</button>
 						<button
 							type="button"
 							className={quick()}
-							onClick={() => onSelectSingle(addDays(today, 7))}
+							onClick={() => handleQuickSelect(addDays(today, 7))}
 						>
 							{labels.calendarNextWeek}
 						</button>
