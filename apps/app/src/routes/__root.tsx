@@ -18,6 +18,8 @@ import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { AppHeader } from "@/ui/header/AppHeader";
 import { SettingsProvider } from "@/ui/settings-context";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
+
+import "@fontsource-variable/bitter/wght-italic.css";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
