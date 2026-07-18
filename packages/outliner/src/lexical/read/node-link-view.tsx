@@ -159,8 +159,9 @@ function EditableLink({
 								href={url}
 								target="_blank"
 								rel="noreferrer"
-								className="cursor-pointer rounded-md px-3 py-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+								className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
 							>
+								<ArrowSquareOutIcon size="1em" />
 								{labels.linkOpen}
 							</a>
 							<button
