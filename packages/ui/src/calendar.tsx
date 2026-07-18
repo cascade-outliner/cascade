@@ -72,17 +72,17 @@ const navButton = cva({
 	base: [
 		"flex size-[22px] items-center justify-center rounded-md text-graphite outline-none transition-colors",
 		"hover:bg-ginger/70 hover:text-dark-grey",
-		"dark:text-ginger/70 dark:hover:bg-ginger/10 dark:hover:text-ginger",
+		"dark:text-ginger/80 dark:hover:bg-ginger/20 dark:hover:text-ginger",
 	],
 });
 
 const day = cva({
 	base: [
 		"flex h-7 items-center justify-center rounded-md text-[12.5px] tabular-nums outline-none transition-colors",
-		"text-dark-grey hover:bg-ginger/70 dark:text-ginger dark:hover:bg-ginger/10",
+		"text-dark-grey hover:bg-ginger/70 dark:text-ginger dark:hover:bg-ginger/20",
 	],
 	variants: {
-		muted: { true: "opacity-35", false: "" },
+		muted: { true: "opacity-35 dark:opacity-50", false: "" },
 		today: { true: "font-semibold ring-1 ring-inset ring-peach", false: "" },
 		selected: {
 			true: "bg-redleather font-semibold text-super-ginger hover:bg-redleather dark:hover:bg-redleather",
@@ -95,7 +95,7 @@ const quick = cva({
 	base: [
 		"rounded-full border border-dark-grey/15 px-2.5 py-1 text-[11.5px] outline-none transition-colors",
 		"text-dark-grey hover:bg-ginger/70",
-		"dark:border-ginger/15 dark:text-ginger dark:hover:bg-ginger/10",
+		"dark:border-ginger/15 dark:text-ginger dark:hover:bg-ginger/20",
 	],
 	variants: {
 		variant: {
@@ -144,7 +144,7 @@ export function Calendar({ value, onSelect, onClear }: CalendarProps) {
 				{WEEKDAY_LABELS.map((label) => (
 					<div
 						key={label}
-						className="pb-1 text-center text-[10px] font-semibold text-graphite dark:text-ginger/60"
+						className="pb-1 text-center text-[10px] font-semibold text-graphite dark:text-ginger/70"
 					>
 						{label}
 					</div>
