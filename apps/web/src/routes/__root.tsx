@@ -1,10 +1,8 @@
-import { OutlinerLabelsProvider } from "@cascade/outliner/labels-context";
-import { MAX_TAG_LENGTH } from "@cascade/outliner/node-tags";
-import { defaultUiLabels, UiLabelsProvider } from "@cascade/ui/labels-context";
 import { PreAlphaBanner } from "@cascade/ui/pre-alpha-banner";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { AppLabelsProvider } from "#/lib/labels-provider";
 import { seoHead } from "#/lib/seo";
 import { m } from "#/paraglide/messages.js";
 import { getLocale, getTextDirection } from "#/paraglide/runtime.js";
@@ -56,74 +54,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="bg-super-ginger text-dark-grey">
-				<UiLabelsProvider
-					labels={{
-						...defaultUiLabels,
-						preAlphaBannerPrefix: m.ui_pre_alpha_prefix(),
-						preAlphaBannerEmphasis: m.ui_pre_alpha_emphasis(),
-						preAlphaBannerSuffix: m.ui_pre_alpha_suffix(),
-						calendarToday: m.ui_calendar_today(),
-						calendarTomorrow: m.ui_calendar_tomorrow(),
-						calendarNextWeek: m.ui_calendar_next_week(),
-						calendarClear: m.ui_calendar_clear(),
-						calendarPreviousMonth: m.ui_calendar_previous_month(),
-						calendarNextMonth: m.ui_calendar_next_month(),
-					}}
-				>
-					<OutlinerLabelsProvider
-						labels={{
-							treeLabel: m.outliner_tree_label(),
-							toggleExpand: m.outliner_toggle_expand(),
-							toggleCollapse: m.outliner_toggle_collapse(),
-							taskCompleted: m.outliner_task_completed(),
-							dragToReorder: m.outliner_drag_handle(),
-							editNodeText: m.outliner_edit_node_text(),
-							convertInto: m.outliner_convert_into(),
-							delete: m.outliner_delete(),
-							emptyTree: m.outliner_empty_tree(),
-							emptyFilterResults: m.outliner_empty_filter_results(),
-							addNode: m.outliner_add_node(),
-							setDueDate: m.outliner_set_due_date(),
-							changeDueDate: m.outliner_change_due_date(),
-							changeDueDateAria: m.outliner_change_due_date_aria(),
-							dueToday: m.outliner_due_today(),
-							dueTomorrow: m.outliner_due_tomorrow(),
-							dueYesterday: m.outliner_due_yesterday(),
-							addTag: m.outliner_add_tag(),
-							manageTags: m.outliner_manage_tags(),
-							tagsInputPlaceholder: m.outliner_tags_input_placeholder(),
-							tagHintNavigate: m.outliner_tag_hint_navigate(),
-							tagHintToggle: m.outliner_tag_hint_toggle(),
-							createTag: m.outliner_create_tag(),
-							tagNameTooLong: m.outliner_tag_name_too_long({
-								max: MAX_TAG_LENGTH,
-							}),
-							deleteTagAria: m.outliner_delete_tag_aria(),
-							deleteTagConfirmBody: m.outliner_delete_tag_confirm_body(),
-							cancel: m.outliner_cancel(),
-							nodeTypeLabels: {
-								text: m.outliner_type_text(),
-								task: m.outliner_type_task(),
-							},
-							filtersTrigger: m.filters_bar_trigger(),
-							filtersDueDateGroup: m.filters_bar_due_date_group(),
-							filtersDueToday: m.filters_bar_due_today(),
-							filtersRemoveDueToday: m.filters_bar_remove_due_today(),
-							filtersDueThisWeek: m.filters_bar_due_this_week(),
-							filtersRemoveDueThisWeek: m.filters_bar_remove_due_this_week(),
-							filtersDueOnDate: m.filters_bar_due_on_date(),
-							filtersDueOn: m.filters_bar_due_on(),
-							filtersRemoveDueOnDate: m.filters_bar_remove_due_on_date(),
-							filtersTasksGroup: m.filters_bar_tasks_group(),
-							filtersHideCompleted: m.filters_bar_hide_completed(),
-							filtersRemoveHideCompleted: m.filters_bar_remove_hide_completed(),
-							filtersClear: m.filters_bar_clear(),
-						}}
-					>
-						<PreAlphaBanner />
-						{children}
-					</OutlinerLabelsProvider>
-				</UiLabelsProvider>
+				<AppLabelsProvider>
+					<PreAlphaBanner />
+					{children}
+				</AppLabelsProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",
