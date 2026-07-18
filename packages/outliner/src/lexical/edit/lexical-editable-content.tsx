@@ -1,10 +1,9 @@
-import { $createLinkNode, registerAutoLink } from "@lexical/link";
+import { registerAutoLink } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
-	$createTextNode,
 	$getRoot,
 	$getSelection,
 	$isRangeSelection,
@@ -20,6 +19,8 @@ import { useEffect, useRef } from "react";
 import type { FocusPoint } from "../../node-editor";
 import type { LexicalElementNode } from "../read/lexical-read-view";
 import { finalizePendingAutoLinks, urlLinkMatcher } from "./autolink-utils";
+import { $createEditableLinkNode } from "./editable-link-node";
+import { LinkEditorContextProvider } from "./link-editor-context";
 import { extractPastedUrl, tidyLinkLabel } from "./link-paste-utils";
 
 interface EditableContentProps {
@@ -58,6 +59,7 @@ export function EditableContent({
 }: EditableContentProps) {
 	const [editor] = useLexicalComposerContext();
 	const lastSavedRef = useRef<string | null>(null);
+	const linkPopoverOpenRef = useRef(false);
 
 	const save = () => {
 		// A url the user typed (rather than pasted) is still showing as raw
@@ -170,9 +172,9 @@ export function EditableContent({
 				editor.update(() => {
 					const selection = $getSelection();
 					if (!$isRangeSelection(selection)) return;
-					const linkNode = $createLinkNode(url, { title: url });
-					linkNode.append($createTextNode(tidyLinkLabel(url)));
-					selection.insertNodes([linkNode]);
+					selection.insertNodes([
+						$createEditableLinkNode(url, tidyLinkLabel(url), url),
+					]);
 				});
 				return true;
 			},
@@ -218,17 +220,30 @@ export function EditableContent({
 	}, [editor, focusPoint]);
 
 	return (
-		<RichTextPlugin
-			contentEditable={
-				<ContentEditable
-					className="flex-1 outline-none w-full rr-block"
-					onBlur={() => {
-						save();
-						onExit?.();
-					}}
-				/>
-			}
-			ErrorBoundary={LexicalErrorBoundary}
-		/>
+		<LinkEditorContextProvider
+			value={{
+				setLinkPopoverOpen: (open) => {
+					linkPopoverOpenRef.current = open;
+				},
+				requestSave: () => saveRef.current(),
+			}}
+		>
+			<RichTextPlugin
+				contentEditable={
+					<ContentEditable
+						className="flex-1 outline-none w-full rr-block"
+						onBlur={() => {
+							// A link's edit popover steals DOM focus (it renders through a
+							// portal outside this element), which looks like the user is
+							// done with the row; skip exiting so the popover stays open.
+							if (linkPopoverOpenRef.current) return;
+							save();
+							onExit?.();
+						}}
+					/>
+				}
+				ErrorBoundary={LexicalErrorBoundary}
+			/>
+		</LinkEditorContextProvider>
 	);
 }

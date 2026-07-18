@@ -15,6 +15,7 @@
     "./lexical-content": "./src/lexical/lexical-content.ts",
     "./lexical-link-paste-utils": "./src/lexical/edit/link-paste-utils.ts",
     "./lexical-autolink-utils": "./src/lexical/edit/autolink-utils.ts",
+    "./lexical-editable-link-node": "./src/lexical/edit/editable-link-node.tsx",
     "./*": "./src/*.tsx"
   },
   "peerDependencies": {

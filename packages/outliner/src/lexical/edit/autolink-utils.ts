@@ -1,15 +1,11 @@
+import { AutoLinkNode, createLinkMatcherWithRegExp } from "@lexical/link";
 import {
-	$createLinkNode,
-	AutoLinkNode,
-	createLinkMatcherWithRegExp,
-} from "@lexical/link";
-import {
-	$createTextNode,
 	$getSelection,
 	$isRangeSelection,
 	$nodesOfType,
 	type LexicalEditor,
 } from "lexical";
+import { $createEditableLinkNode } from "./editable-link-node";
 import { tidyLinkLabel } from "./link-paste-utils";
 
 // Requires an explicit http(s) protocol, matching extractPastedUrl, so bare
@@ -46,12 +42,10 @@ export function finalizePendingAutoLinks(editor: LexicalEditor): void {
 					.some((child) => selectedKeys?.has(child.getKey()));
 
 				const url = node.getURL();
-				const linkNode = $createLinkNode(url, { title: url });
-				const textNode = $createTextNode(tidyLinkLabel(url));
-				linkNode.append(textNode);
+				const linkNode = $createEditableLinkNode(url, tidyLinkLabel(url), url);
 				node.replace(linkNode);
 
-				if (hadSelection) textNode.select();
+				if (hadSelection) linkNode.selectNext(0, 0);
 			}
 		},
 		{ discrete: true },

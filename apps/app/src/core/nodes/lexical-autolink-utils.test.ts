@@ -3,10 +3,12 @@ import {
 	urlLinkMatcher,
 } from "@cascade/outliner/lexical-autolink-utils";
 import {
+	$isEditableLinkNode,
+	EditableLinkNode,
+} from "@cascade/outliner/lexical-editable-link-node";
+import {
 	$createAutoLinkNode,
-	$isLinkNode,
 	AutoLinkNode,
-	LinkNode,
 	registerAutoLink,
 } from "@lexical/link";
 import {
@@ -45,7 +47,7 @@ describe("urlLinkMatcher", () => {
 });
 
 function createLinkEditor() {
-	return createEditor({ nodes: [AutoLinkNode, LinkNode] });
+	return createEditor({ nodes: [AutoLinkNode, EditableLinkNode] });
 }
 
 describe("finalizePendingAutoLinks", () => {
@@ -72,7 +74,7 @@ describe("finalizePendingAutoLinks", () => {
 			const paragraph = asElement($getRoot().getFirstChildOrThrow());
 			const link = paragraph.getFirstChildOrThrow();
 			expect(link.getType()).toBe("link");
-			if (!$isLinkNode(link)) throw new Error("expected a link node");
+			if (!$isEditableLinkNode(link)) throw new Error("expected a link node");
 			expect(link.getURL()).toBe("https://www.example.com/some/long/path");
 			expect(link.getTextContent()).toBe("example.com/some/long/path");
 		});
@@ -107,11 +109,16 @@ describe("finalizePendingAutoLinks", () => {
 			expect(link.getType()).toBe("link");
 			expect(link.getTextContent()).toBe("example.com/docs");
 
+			// The exact landing spot doesn't matter (the link is a leaf node, so
+			// there's no "inside" to select into) — just that it's some valid
+			// selection within the same paragraph, not a dangling reference to
+			// the removed autolink text node.
 			const selection = $getSelection();
 			expect($isRangeSelection(selection)).toBe(true);
 			if ($isRangeSelection(selection)) {
-				expect(selection.anchor.getNode().getParent()?.getKey()).toBe(
-					link.getKey(),
+				const anchorNode = selection.anchor.getNode();
+				expect([link.getKey(), paragraph.getKey()]).toContain(
+					anchorNode.getKey(),
 				);
 			}
 		});
@@ -187,7 +194,7 @@ describe("registerAutoLink + finalizePendingAutoLinks (end to end)", () => {
 				const paragraph = asElement($getRoot().getFirstChildOrThrow());
 				const link = paragraph
 					.getChildren()
-					.find((child) => $isLinkNode(child));
+					.find((child) => $isEditableLinkNode(child));
 				expect(link?.getType()).toBe("link");
 				expect(link?.getTextContent()).toBe("example.com/docs");
 			});

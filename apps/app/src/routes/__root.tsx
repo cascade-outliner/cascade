@@ -154,6 +154,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 								deleteTagAria: m.outliner_delete_tag_aria(),
 								deleteTagConfirmBody: m.outliner_delete_tag_confirm_body(),
 								cancel: m.outliner_cancel(),
+								linkEditAria: m.outliner_link_edit_aria(),
+								linkTitleLabel: m.outliner_link_title_label(),
+								linkUrlLabel: m.outliner_link_url_label(),
+								linkOpen: m.outliner_link_open(),
+								linkOpenAria: m.outliner_link_open_aria(),
 								nodeTypeLabels: {
 									text: m.outliner_type_text(),
 									task: m.outliner_type_task(),

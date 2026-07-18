@@ -1,3 +1,7 @@
+import {
+	$createEditableLinkNode,
+	EditableLinkNode,
+} from "@cascade/outliner/lexical-editable-link-node";
 import { $createLinkNode, LinkNode } from "@lexical/link";
 import {
 	$createParagraphNode,
@@ -199,6 +203,34 @@ describe("updateNodeContentInputSchema", () => {
 					title: "https://example.com/some/path",
 				});
 				link.append($createTextNode("example.com/some/path"));
+				paragraph.append(link);
+				root.append(paragraph);
+			},
+			{ discrete: true },
+		);
+
+		const content = editor.getEditorState().toJSON();
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	// The editable surface actually persists links via EditableLinkNode (a
+	// DecoratorNode), not @lexical/link's LinkNode above — its exportJSON is
+	// hand-written to match that same wire shape, so guard it the same way.
+	it("accepts a link node produced by the real EditableLinkNode", () => {
+		const editor = createEditor({ nodes: [EditableLinkNode] });
+		editor.update(
+			() => {
+				const root = $getRoot();
+				const paragraph = $createParagraphNode();
+				const link = $createEditableLinkNode(
+					"https://example.com/some/path",
+					"example.com/some/path",
+					"https://example.com/some/path",
+				);
 				paragraph.append(link);
 				root.append(paragraph);
 			},
