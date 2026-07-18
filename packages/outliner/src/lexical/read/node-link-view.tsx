@@ -1,5 +1,6 @@
 import { Input } from "@cascade/ui/input";
 import { Popover, PopoverContent } from "@cascade/ui/popover";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { type ReactNode, useRef, useState } from "react";
 import { useOutlinerLabels } from "../../labels-context";
 import { MAX_URL_LENGTH, normalizeHttpUrl } from "../link-url";
@@ -11,6 +12,23 @@ export type OnSaveLink = (
 
 const anchorClassName =
 	"text-redleather underline decoration-redleather/40 underline-offset-2 hover:decoration-redleather dark:text-peach dark:decoration-peach/40 dark:hover:decoration-peach";
+
+/** Small trailing icon that always opens the URL directly in a new tab. */
+function OpenLinkIcon({ url, label }: { url: string; label: string }) {
+	return (
+		<a
+			href={url}
+			target="_blank"
+			rel="noreferrer"
+			aria-label={label}
+			title={url}
+			className="inline-block align-[-0.1em] ml-0.5 text-redleather hover:text-redleather/70 dark:text-peach dark:hover:text-peach/70"
+			onClick={(event) => event.stopPropagation()}
+		>
+			<ArrowSquareOutIcon size="0.9em" />
+		</a>
+	);
+}
 
 interface NodeLinkViewProps {
 	url: string;
@@ -32,18 +50,22 @@ export function NodeLinkView({
 	onSaveLink,
 	children,
 }: NodeLinkViewProps) {
+	const labels = useOutlinerLabels();
 	if (!onSaveLink) {
 		return (
-			<a
-				href={url}
-				title={url}
-				target="_blank"
-				rel="noreferrer"
-				className={anchorClassName}
-				onClick={(event) => event.stopPropagation()}
-			>
-				{children}
-			</a>
+			<>
+				<a
+					href={url}
+					title={url}
+					target="_blank"
+					rel="noreferrer"
+					className={anchorClassName}
+					onClick={(event) => event.stopPropagation()}
+				>
+					{children}
+				</a>
+				<OpenLinkIcon url={url} label={labels.linkOpen} />
+			</>
 		);
 	}
 	return (
@@ -98,6 +120,7 @@ function EditableLink({
 			>
 				{children}
 			</a>
+			<OpenLinkIcon url={url} label={labels.linkOpen} />
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverContent
 					anchor={anchorRef}

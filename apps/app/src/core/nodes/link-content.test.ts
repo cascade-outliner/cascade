@@ -84,6 +84,28 @@ describe("updateLinkInContent", () => {
 		).toBe(null);
 	});
 
+	it("converts an autolink into a manual link so the editor can't rewrite the custom label", () => {
+		const before = content([
+			{
+				type: "autolink",
+				url: "https://example.com/typed",
+				isUnlinked: false,
+				children: [textNode("https://example.com/typed")],
+			},
+		]);
+		const after = updateLinkInContent(before, [0, 0], {
+			text: "typed docs",
+			url: "https://example.com/typed",
+		});
+		const paragraph = after?.root.children?.[0] as LexicalElementNode;
+		const link = paragraph.children?.[0] as {
+			type?: string;
+			isUnlinked?: boolean;
+		};
+		expect(link.type).toBe("link");
+		expect("isUnlinked" in link).toBe(false);
+	});
+
 	it("returns null when the path points at a non-link node", () => {
 		const before = content([textNode("plain")]);
 		expect(

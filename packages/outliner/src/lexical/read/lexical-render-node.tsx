@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { linkTextContent, type SerializedLinkNode } from "../link-content";
-import { isHttpUrl } from "../link-url";
+import { isHttpUrl, tidyUrlLabel } from "../link-url";
 import type { LexicalElementNode } from "./lexical-read-view";
 import { NodeLinkView, type OnSaveLink } from "./node-link-view";
 import { type LexicalTextNode, renderTextNode } from "./render-text-nodes";
@@ -42,22 +42,32 @@ export function renderNode(
 			return <p key={key}>{renderChildren(node.children)}</p>;
 		}
 
-		case "link": {
+		case "link":
+		case "autolink": {
 			const link = node as SerializedLinkNode;
-			const children = renderChildren(link.children);
-			// Never give a non-http(s) URL an href; degrade to plain text.
-			if (typeof link.url !== "string" || !isHttpUrl(link.url)) {
-				return <span key={key}>{children}</span>;
+			// Never give a non-http(s) URL an href, and honor an autolink the
+			// user explicitly unlinked; both degrade to plain text.
+			if (
+				link.isUnlinked === true ||
+				typeof link.url !== "string" ||
+				!isHttpUrl(link.url)
+			) {
+				return <span key={key}>{renderChildren(link.children)}</span>;
 			}
+			// Links whose text is just the URL (typed autolinks) display the
+			// tidy label; explicit labels are rendered as-is with formatting.
+			const text = linkTextContent(link);
+			const isRawUrlText = text === link.url || `https://${text}` === link.url;
+			const label = isRawUrlText ? tidyUrlLabel(link.url) : text;
 			return (
 				<NodeLinkView
 					key={key}
 					url={link.url}
-					text={linkTextContent(link)}
+					text={label}
 					path={path}
 					onSaveLink={options?.onSaveLink}
 				>
-					{children}
+					{isRawUrlText ? label : renderChildren(link.children)}
 				</NodeLinkView>
 			);
 		}

@@ -3,6 +3,8 @@ import type { LexicalTextNode } from "./read/render-text-nodes";
 
 export interface SerializedLinkNode extends LexicalElementNode {
 	url?: string;
+	/** AutoLinkNode only: true once the user has explicitly removed the link. */
+	isUnlinked?: boolean;
 }
 
 export interface LinkUpdate {
@@ -43,8 +45,12 @@ export function updateLinkInContent(
 		if (!next) return null;
 		node = next;
 	}
-	if (node.type !== "link") return null;
+	if (node.type !== "link" && node.type !== "autolink") return null;
 	const link = node as SerializedLinkNode;
+	// A popover edit makes the link intentional: store it as a manual link so
+	// the editor's AutoLink transform can't rewrite or unlink the custom label.
+	link.type = "link";
+	delete link.isUnlinked;
 	link.url = update.url;
 	const firstText = link.children?.find((child) => child.type === "text") as
 		| LexicalTextNode

@@ -90,4 +90,45 @@ describe("renderNode", () => {
 		expect(container.querySelector("a")).toBe(null);
 		expect(container.textContent).toBe("label");
 	});
+
+	it("displays the tidy label for a link whose text is just its URL (typed autolink)", () => {
+		const url = "https://www.example.com/some/very/long/path/segment?query=1";
+		const link = {
+			type: "autolink",
+			url,
+			children: [textNode(url)],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		const anchor = container.querySelector("a");
+		expect(anchor?.textContent).toBe(
+			"example.com/some/very/long/path/segment…",
+		);
+		expect(anchor?.getAttribute("href")).toBe(url);
+	});
+
+	it("renders an unlinked autolink as plain text", () => {
+		const link = {
+			type: "autolink",
+			url: "https://example.com",
+			isUnlinked: true,
+			children: [textNode("https://example.com")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		expect(container.querySelector("a")).toBe(null);
+	});
+
+	it("renders a trailing icon anchor that opens the URL directly", () => {
+		const link = {
+			type: "link",
+			url: "https://example.com/docs",
+			children: [textNode("docs")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		const anchors = container.querySelectorAll("a");
+		expect(anchors).toHaveLength(2);
+		const icon = anchors[1];
+		expect(icon.getAttribute("href")).toBe("https://example.com/docs");
+		expect(icon.getAttribute("target")).toBe("_blank");
+		expect(icon.getAttribute("aria-label")).toBe("Open link");
+	});
 });

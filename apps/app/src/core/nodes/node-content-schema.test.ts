@@ -1,4 +1,9 @@
-import { $createLinkNode, LinkNode } from "@lexical/link";
+import {
+	$createAutoLinkNode,
+	$createLinkNode,
+	AutoLinkNode,
+	LinkNode,
+} from "@lexical/link";
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -198,6 +203,29 @@ describe("updateNodeContentInputSchema", () => {
 				);
 				link.append($createTextNode("example.com/some/very/…"));
 				paragraph.append($createTextNode("see "), link);
+				$getRoot().append(paragraph);
+			},
+			{ discrete: true },
+		);
+
+		const content = editor.getEditorState().toJSON();
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	// Typed URLs are stored as AutoLinkNodes (the AutoLink plugin converts
+	// while typing), which additionally serialize `isUnlinked`.
+	it("accepts an autolink node produced by a real Lexical editor", () => {
+		const editor = createEditor({ nodes: [AutoLinkNode] });
+		editor.update(
+			() => {
+				const paragraph = $createParagraphNode();
+				const link = $createAutoLinkNode("https://example.com/typed");
+				link.append($createTextNode("https://example.com/typed"));
+				paragraph.append(link);
 				$getRoot().append(paragraph);
 			},
 			{ discrete: true },
