@@ -35,7 +35,12 @@ export function getRowVisibility(
 		? getCompletedSubtreeIds(rows)
 		: new Set<string>();
 
-	if (!filters.dueToday && !filters.dueThisWeek && !filters.dueOnDate) {
+	if (
+		!filters.dueToday &&
+		!filters.dueThisWeek &&
+		!filters.dueOnDate &&
+		!filters.dueDateRange
+	) {
 		return { hiddenIds: excludedIds, contextIds: new Set() };
 	}
 
@@ -123,6 +128,12 @@ function rowMatchesFilters(row: VisibleNodeRow, filters: NodeFilters): boolean {
 	}
 	if (filters.dueOnDate && !isDueOnDate(dueDate, filters.dueOnDate)) {
 		return false;
+	}
+	if (filters.dueDateRange) {
+		const { start, end } = filters.dueDateRange;
+		if (dueDate < start || dueDate > end) {
+			return false;
+		}
 	}
 	return true;
 }

@@ -12,6 +12,7 @@ export interface UiLabels {
 	calendarClear: string;
 	calendarPreviousMonth: string;
 	calendarNextMonth: string;
+	calendarRangeSelectEnd: string;
 }
 
 export const defaultUiLabels: UiLabels = {
@@ -26,6 +27,7 @@ export const defaultUiLabels: UiLabels = {
 	calendarClear: "Clear",
 	calendarPreviousMonth: "Previous month",
 	calendarNextMonth: "Next month",
+	calendarRangeSelectEnd: "Now select an end date",
 };
 
 const UiLabelsContext = createContext<UiLabels | null>(null);

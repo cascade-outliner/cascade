@@ -150,6 +150,7 @@
 	"filters_bar_due_on_date": "Due on date",
 	"filters_bar_due_on": "Due",
 	"filters_bar_remove_due_on_date": "Remove due date filter",
+	"filters_bar_remove_due_date_range": "Remove due date range filter",
 	"filters_bar_tasks_group": "Tasks",
 	"filters_bar_hide_completed": "Hide completed",
 	"filters_bar_remove_hide_completed": "Remove Hide completed filter",
@@ -163,5 +164,6 @@
 	"ui_calendar_next_week": "Next week",
 	"ui_calendar_clear": "Clear",
 	"ui_calendar_previous_month": "Previous month",
-	"ui_calendar_next_month": "Next month"
+	"ui_calendar_next_month": "Next month",
+	"ui_calendar_range_select_end": "Now select an end date"
 }

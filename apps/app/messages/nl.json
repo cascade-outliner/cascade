@@ -84,6 +84,7 @@
 	"filters_bar_due_on_date": "Vervalt op datum",
 	"filters_bar_due_on": "Vervalt",
 	"filters_bar_remove_due_on_date": "Filter 'Vervalt op datum' verwijderen",
+	"filters_bar_remove_due_date_range": "Filter 'Vervalt in periode' verwijderen",
 	"filters_bar_tasks_group": "Taken",
 	"filters_bar_hide_completed": "Voltooide taken verbergen",
 	"filters_bar_remove_hide_completed": "Filter 'Voltooide taken verbergen' verwijderen",
@@ -95,5 +96,6 @@
 	"ui_calendar_next_week": "Volgende week",
 	"ui_calendar_clear": "Wissen",
 	"ui_calendar_previous_month": "Vorige maand",
-	"ui_calendar_next_month": "Volgende maand"
+	"ui_calendar_next_month": "Volgende maand",
+	"ui_calendar_range_select_end": "Selecteer nu een einddatum"
 }

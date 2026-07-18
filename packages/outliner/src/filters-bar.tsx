@@ -1,5 +1,5 @@
 import { Menu } from "@base-ui/react";
-import { Calendar } from "@cascade/ui/calendar";
+import { CalendarRange } from "@cascade/ui/calendar-range";
 import { cva } from "@cascade/ui/cva.config";
 import {
 	CalendarDotIcon,
@@ -100,6 +100,24 @@ function formatDueOnDate(date: Date): string {
 		: dueOnDateWithYearFormatter.format(date);
 }
 
+function formatDueDateRange(start: Date, end: Date): string {
+	const currentYear = new Date().getFullYear();
+	const sameYear = start.getFullYear() === end.getFullYear();
+	// Only show the year on the end date if both are in the same non-current year,
+	// or if they span across years.
+	const startStr =
+		start.getFullYear() === currentYear
+			? dueOnDateFormatter.format(start)
+			: dueOnDateWithYearFormatter.format(start);
+	const endInCurrentYear = end.getFullYear() === currentYear;
+	const startAndEndSameYear = sameYear && start.getFullYear() === currentYear;
+	const endStr =
+		endInCurrentYear || startAndEndSameYear
+			? dueOnDateFormatter.format(end)
+			: dueOnDateWithYearFormatter.format(end);
+	return `${startStr}–${endStr}`;
+}
+
 export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 	const active = hasActiveFilters(filters);
@@ -149,6 +167,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 													dueToday: false,
 													dueThisWeek: false,
 													dueOnDate: null,
+													dueDateRange: null,
 													[filter.key]: checked,
 												})
 											}
@@ -176,17 +195,35 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 												sideOffset={6}
 											>
 												<Menu.Popup className={calendarPopup()}>
-													<Calendar
-														value={filters.dueOnDate}
-														onSelect={(date) => {
+													<CalendarRange
+														singleValue={filters.dueOnDate}
+														value={filters.dueDateRange}
+														onSelectSingle={(date) => {
 															onFiltersChange({
 																...filters,
 																dueToday: false,
 																dueThisWeek: false,
 																dueOnDate: date,
+																dueDateRange: null,
+															});
+														}}
+														onSelect={(range) => {
+															onFiltersChange({
+																...filters,
+																dueToday: false,
+																dueThisWeek: false,
+																dueOnDate: null,
+																dueDateRange: range,
 															});
 															setMenuOpen(false);
 														}}
+														onClear={() =>
+															onFiltersChange({
+																...filters,
+																dueOnDate: null,
+																dueDateRange: null,
+															})
+														}
 													/>
 												</Menu.Popup>
 											</Menu.Positioner>
@@ -249,6 +286,27 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 							aria-label={labels.filtersRemoveDueOnDate}
 							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
 							onClick={() => onFiltersChange({ ...filters, dueOnDate: null })}
+						>
+							<XIcon size={9} weight="bold" />
+						</button>
+					</span>
+				)}
+
+				{filters.dueDateRange && (
+					<span className={chip()}>
+						<CalendarIcon size={11} weight="bold" />
+						{labels.filtersDueOn}{" "}
+						{formatDueDateRange(
+							filters.dueDateRange.start,
+							filters.dueDateRange.end,
+						)}
+						<button
+							type="button"
+							aria-label={labels.filtersRemoveDueDateRange}
+							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+							onClick={() =>
+								onFiltersChange({ ...filters, dueDateRange: null })
+							}
 						>
 							<XIcon size={9} weight="bold" />
 						</button>

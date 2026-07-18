@@ -27,6 +27,8 @@ const parseAsLocalDate = createParser<Date>({
 const filterParsers = {
 	filter: parseAsStringLiteral(["today", "week"]),
 	due: parseAsLocalDate,
+	due_start: parseAsLocalDate,
+	due_end: parseAsLocalDate,
 	completed: parseAsStringLiteral(["hidden"]),
 };
 
@@ -35,14 +37,20 @@ export function useNodeFilters(): [
 	NodeFilters,
 	(filters: NodeFilters) => void,
 ] {
-	const [{ filter, due, completed }, setQueryFilters] =
+	const [{ filter, due, due_start, due_end, completed }, setQueryFilters] =
 		useQueryStates(filterParsers);
+
+	const dueDateRange =
+		due_start !== null && due_end !== null && due_start <= due_end
+			? { start: due_start, end: due_end }
+			: null;
 
 	return [
 		{
 			dueToday: filter === "today",
 			dueThisWeek: filter === "week",
 			dueOnDate: due,
+			dueDateRange,
 			hideCompleted: completed === "hidden",
 		},
 		(filters) =>
@@ -53,6 +61,8 @@ export function useNodeFilters(): [
 						? "week"
 						: null,
 				due: filters.dueOnDate,
+				due_start: filters.dueDateRange?.start ?? null,
+				due_end: filters.dueDateRange?.end ?? null,
 				completed: filters.hideCompleted ? "hidden" : null,
 			}),
 	];

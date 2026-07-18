@@ -23,6 +23,7 @@ function createUiLabels(): UiLabels {
 		calendarClear: m.ui_calendar_clear(),
 		calendarPreviousMonth: m.ui_calendar_previous_month(),
 		calendarNextMonth: m.ui_calendar_next_month(),
+		calendarRangeSelectEnd: m.ui_calendar_range_select_end(),
 	};
 }
 
@@ -72,6 +73,7 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersDueOnDate: m.filters_bar_due_on_date(),
 		filtersDueOn: m.filters_bar_due_on(),
 		filtersRemoveDueOnDate: m.filters_bar_remove_due_on_date(),
+		filtersRemoveDueDateRange: m.filters_bar_remove_due_date_range(),
 		filtersTasksGroup: m.filters_bar_tasks_group(),
 		filtersHideCompleted: m.filters_bar_hide_completed(),
 		filtersRemoveHideCompleted: m.filters_bar_remove_hide_completed(),

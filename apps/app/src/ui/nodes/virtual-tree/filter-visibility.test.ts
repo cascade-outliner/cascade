@@ -327,3 +327,80 @@ describe("getRowVisibility with hideCompleted", () => {
 		expect(visibility.hiddenIds).toEqual(new Set(["done-parent", "due-child"]));
 	});
 });
+
+describe("getRowVisibility with dueDateRange", () => {
+	const friday = new Date(2026, 6, 17);
+	const sunday = new Date(2026, 6, 19);
+
+	it("keeps rows whose due date falls within the range (inclusive) and hides the rest", () => {
+		const rows = [
+			row("due-friday", null, 0, friday),
+			row("due-saturday", null, 0, new Date(2026, 6, 18)),
+			row("due-sunday", null, 0, sunday),
+			row("due-monday", null, 0, new Date(2026, 6, 20)),
+			row("no-due-date", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueDateRange: { start: friday, end: sunday },
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["due-monday", "no-due-date"]),
+		);
+	});
+
+	it("includes rows due exactly on the start and end dates (inclusive boundaries)", () => {
+		const rows = [
+			row("start", null, 0, friday),
+			row("end", null, 0, sunday),
+			row("before", null, 0, new Date(2026, 6, 16)),
+			row("after", null, 0, new Date(2026, 6, 20)),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueDateRange: { start: friday, end: sunday },
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["before", "after"]));
+	});
+
+	it("keeps ancestors of a match visible as context", () => {
+		const rows = [
+			row("parent", null, 0, null),
+			row("child", "parent", 1, friday),
+			row("other", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueDateRange: { start: friday, end: sunday },
+		});
+		expect(visibility.contextIds).toEqual(new Set(["parent"]));
+		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
+	});
+
+	it("keeps completed tasks in range visible when hideCompleted is off", () => {
+		const rows = [
+			row("open", null, 0, friday),
+			row("done", null, 0, friday, { completed: true }),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueDateRange: { start: friday, end: sunday },
+		});
+		expect(visibility.hiddenIds.size).toBe(0);
+	});
+
+	it("hides everything when no rows have a due date in the range", () => {
+		const rows = [
+			row("before", null, 0, new Date(2026, 6, 16)),
+			row("after", null, 0, new Date(2026, 6, 20)),
+			row("no-due-date", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueDateRange: { start: friday, end: sunday },
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["before", "after", "no-due-date"]),
+		);
+	});
+});
