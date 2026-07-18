@@ -9,13 +9,28 @@ export interface DateRange {
 }
 
 export interface CalendarRangeProps {
+	/**
+	 * Currently-selected single date. When set (and no `value` range is active),
+	 * that day is highlighted as selected in the grid.
+	 */
+	singleValue?: Date | null;
 	value: DateRange | null;
+	/**
+	 * Called when the user confirms a single-date selection — either by clicking
+	 * the same day twice or by pressing one of the quick-pick shortcuts
+	 * (Today / Tomorrow / Next week). Only rendered when this prop is provided.
+	 */
+	onSelectSingle?: (date: Date) => void;
 	onSelect: (range: DateRange) => void;
 	onClear?: () => void;
 }
 
 function startOfDay(date: Date): Date {
 	return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addDays(date: Date, amount: number): Date {
+	return new Date(date.getFullYear(), date.getMonth(), date.getDate() + amount);
 }
 
 function sameDay(a: Date, b: Date): boolean {
@@ -118,15 +133,20 @@ const quick = cva({
 	defaultVariants: { variant: "default" },
 });
 
-/** Two-step date-range picker. First click sets the start date, second sets the end. */
+/** Two-step date-range picker. First click sets the start date, second sets the end.
+ * When `onSelectSingle` is provided the picker also handles single-date selection:
+ * clicking the same day twice (or pressing a quick shortcut) calls `onSelectSingle`
+ * instead of `onSelect`. */
 export function CalendarRange({
+	singleValue,
 	value,
+	onSelectSingle,
 	onSelect,
 	onClear,
 }: CalendarRangeProps) {
 	const labels = useUiLabels();
 	const [cursor, setCursor] = useState(() =>
-		startOfDay(value?.start ?? new Date()),
+		startOfDay(value?.start ?? singleValue ?? new Date()),
 	);
 	const [pendingStart, setPendingStart] = useState<Date | null>(null);
 	const today = startOfDay(new Date());
@@ -140,8 +160,12 @@ export function CalendarRange({
 		if (!pendingStart) {
 			// First click: set as tentative start
 			setPendingStart(d);
+		} else if (sameDay(d, pendingStart) && onSelectSingle) {
+			// Same date clicked twice → single date selection
+			setPendingStart(null);
+			onSelectSingle(pendingStart);
 		} else {
-			// Second click: finalize range
+			// Different date → finalize range
 			const start = pendingStart <= d ? pendingStart : d;
 			const end = pendingStart <= d ? d : pendingStart;
 			setPendingStart(null);
@@ -158,6 +182,16 @@ export function CalendarRange({
 		return (
 			(rangeStart !== null && sameDay(date, rangeStart)) ||
 			(rangeEnd !== null && sameDay(date, rangeEnd))
+		);
+	}
+
+	/** Highlights the singleValue day when no range or pending selection is active. */
+	function isSingleSelected(date: Date): boolean {
+		return (
+			!pendingStart &&
+			rangeStart === null &&
+			singleValue != null &&
+			sameDay(date, singleValue)
 		);
 	}
 
@@ -204,7 +238,7 @@ export function CalendarRange({
 				))}
 				{cells.map((cell) => {
 					const d = startOfDay(cell.date);
-					const selected = isRangeEndpoint(d);
+					const selected = isRangeEndpoint(d) || isSingleSelected(d);
 					const inRange = isInRange(d);
 					return (
 						<button
@@ -224,15 +258,42 @@ export function CalendarRange({
 				})}
 			</div>
 			<div className="mt-3 flex flex-wrap gap-1.5 border-t border-dark-grey/10 pt-3 dark:border-ginger/10">
-				{onClear && value !== null && !pendingStart && (
-					<button
-						type="button"
-						className={quick({ variant: "clear" })}
-						onClick={onClear}
-					>
-						{labels.calendarClear}
-					</button>
+				{onSelectSingle && !pendingStart && (
+					<>
+						<button
+							type="button"
+							className={quick()}
+							onClick={() => onSelectSingle(today)}
+						>
+							{labels.calendarToday}
+						</button>
+						<button
+							type="button"
+							className={quick()}
+							onClick={() => onSelectSingle(addDays(today, 1))}
+						>
+							{labels.calendarTomorrow}
+						</button>
+						<button
+							type="button"
+							className={quick()}
+							onClick={() => onSelectSingle(addDays(today, 7))}
+						>
+							{labels.calendarNextWeek}
+						</button>
+					</>
 				)}
+				{onClear &&
+					(value !== null || (singleValue != null && !pendingStart)) &&
+					!pendingStart && (
+						<button
+							type="button"
+							className={quick({ variant: "clear" })}
+							onClick={onClear}
+						>
+							{labels.calendarClear}
+						</button>
+					)}
 				{pendingStart && (
 					<button
 						type="button"

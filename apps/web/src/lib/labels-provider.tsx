@@ -74,7 +74,6 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersDueOnDate: m.filters_bar_due_on_date(),
 		filtersDueOn: m.filters_bar_due_on(),
 		filtersRemoveDueOnDate: m.filters_bar_remove_due_on_date(),
-		filtersDueDateRange: m.filters_bar_due_date_range(),
 		filtersRemoveDueDateRange: m.filters_bar_remove_due_date_range(),
 		filtersTasksGroup: m.filters_bar_tasks_group(),
 		filtersHideCompleted: m.filters_bar_hide_completed(),

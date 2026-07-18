@@ -41,7 +41,6 @@ export interface OutlinerLabels {
 	filtersDueOnDate: string;
 	filtersDueOn: string;
 	filtersRemoveDueOnDate: string;
-	filtersDueDateRange: string;
 	filtersRemoveDueDateRange: string;
 	filtersTasksGroup: string;
 	filtersHideCompleted: string;
@@ -90,7 +89,6 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	filtersDueOnDate: "Due on date",
 	filtersDueOn: "Due",
 	filtersRemoveDueOnDate: "Remove due date filter",
-	filtersDueDateRange: "Due in range",
 	filtersRemoveDueDateRange: "Remove due date range filter",
 	filtersTasksGroup: "Tasks",
 	filtersHideCompleted: "Hide completed",

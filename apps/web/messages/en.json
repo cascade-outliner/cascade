@@ -150,7 +150,6 @@
 	"filters_bar_due_on_date": "Due on date",
 	"filters_bar_due_on": "Due",
 	"filters_bar_remove_due_on_date": "Remove due date filter",
-	"filters_bar_due_date_range": "Due in range",
 	"filters_bar_remove_due_date_range": "Remove due date range filter",
 	"filters_bar_tasks_group": "Tasks",
 	"filters_bar_hide_completed": "Hide completed",

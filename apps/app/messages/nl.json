@@ -84,7 +84,6 @@
 	"filters_bar_due_on_date": "Vervalt op datum",
 	"filters_bar_due_on": "Vervalt",
 	"filters_bar_remove_due_on_date": "Filter 'Vervalt op datum' verwijderen",
-	"filters_bar_due_date_range": "Vervalt in periode",
 	"filters_bar_remove_due_date_range": "Filter 'Vervalt in periode' verwijderen",
 	"filters_bar_tasks_group": "Taken",
 	"filters_bar_hide_completed": "Voltooide taken verbergen",

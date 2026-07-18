@@ -1,5 +1,4 @@
 import { Menu } from "@base-ui/react";
-import { Calendar } from "@cascade/ui/calendar";
 import { CalendarRange } from "@cascade/ui/calendar-range";
 import { cva } from "@cascade/ui/cva.config";
 import {
@@ -196,9 +195,10 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 												sideOffset={6}
 											>
 												<Menu.Popup className={calendarPopup()}>
-													<Calendar
-														value={filters.dueOnDate}
-														onSelect={(date) => {
+													<CalendarRange
+														singleValue={filters.dueOnDate}
+														value={filters.dueDateRange}
+														onSelectSingle={(date) => {
 															onFiltersChange({
 																...filters,
 																dueToday: false,
@@ -208,29 +208,6 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 															});
 															setMenuOpen(false);
 														}}
-													/>
-												</Menu.Popup>
-											</Menu.Positioner>
-										</Menu.Portal>
-									</Menu.SubmenuRoot>
-									<Menu.SubmenuRoot>
-										<Menu.SubmenuTrigger className={menuItem()}>
-											<CalendarIcon size={13} weight="bold" />
-											{labels.filtersDueDateRange}
-											<CaretRightIcon
-												size={13}
-												weight="bold"
-												className="ml-auto"
-											/>
-										</Menu.SubmenuTrigger>
-										<Menu.Portal>
-											<Menu.Positioner
-												className="z-50 outline-none"
-												sideOffset={6}
-											>
-												<Menu.Popup className={calendarPopup()}>
-													<CalendarRange
-														value={filters.dueDateRange}
 														onSelect={(range) => {
 															onFiltersChange({
 																...filters,
@@ -244,6 +221,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 														onClear={() =>
 															onFiltersChange({
 																...filters,
+																dueOnDate: null,
 																dueDateRange: null,
 															})
 														}
