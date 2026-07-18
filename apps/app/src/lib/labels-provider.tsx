@@ -59,6 +59,12 @@ function createOutlinerLabels(): OutlinerLabels {
 		deleteTagAria: m.outliner_delete_tag_aria(),
 		deleteTagConfirmBody: m.outliner_delete_tag_confirm_body(),
 		cancel: m.outliner_cancel(),
+		linkEditTitle: m.outliner_link_edit_title(),
+		linkTextLabel: m.outliner_link_text_label(),
+		linkUrlLabel: m.outliner_link_url_label(),
+		linkOpen: m.outliner_link_open(),
+		linkSave: m.outliner_link_save(),
+		linkDelete: m.outliner_link_delete(),
 		nodeTypeLabels: {
 			...defaultOutlinerLabels.nodeTypeLabels,
 			text: m.outliner_type_text(),

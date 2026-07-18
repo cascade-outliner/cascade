@@ -55,4 +55,80 @@ describe("renderNode", () => {
 		const { container } = render(renderNode(deeplyNested, 0));
 		expect(container.textContent).not.toContain("leaf");
 	});
+
+	it("renders a link node as an anchor with the full URL on href and title", () => {
+		const link = {
+			type: "link",
+			url: "https://example.com/some/very/long/path?query=1",
+			children: [textNode("example.com/some/very/…")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		const anchor = container.querySelector("a");
+		expect(anchor?.getAttribute("href")).toBe(
+			"https://example.com/some/very/long/path?query=1",
+		);
+		expect(anchor?.getAttribute("title")).toBe(
+			"https://example.com/some/very/long/path?query=1",
+		);
+		expect(anchor?.textContent).toBe("example.com/some/very/…");
+	});
+
+	it("renders a link with a non-http(s) URL as plain text, never an anchor", () => {
+		const link = {
+			type: "link",
+			url: "javascript:alert(1)",
+			children: [textNode("click me")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		expect(container.querySelector("a")).toBe(null);
+		expect(container.textContent).toBe("click me");
+	});
+
+	it("renders a link with no url as plain text", () => {
+		const link = { type: "link", children: [textNode("label")] } as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		expect(container.querySelector("a")).toBe(null);
+		expect(container.textContent).toBe("label");
+	});
+
+	it("displays the tidy label for a link whose text is just its URL (typed autolink)", () => {
+		const url = "https://www.example.com/some/very/long/path/segment?query=1";
+		const link = {
+			type: "autolink",
+			url,
+			children: [textNode(url)],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		const anchor = container.querySelector("a");
+		expect(anchor?.textContent).toBe(
+			"example.com/some/very/long/path/segment…",
+		);
+		expect(anchor?.getAttribute("href")).toBe(url);
+	});
+
+	it("renders an unlinked autolink as plain text", () => {
+		const link = {
+			type: "autolink",
+			url: "https://example.com",
+			isUnlinked: true,
+			children: [textNode("https://example.com")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		expect(container.querySelector("a")).toBe(null);
+	});
+
+	it("renders a trailing icon anchor that opens the URL directly", () => {
+		const link = {
+			type: "link",
+			url: "https://example.com/docs",
+			children: [textNode("docs")],
+		} as never;
+		const { container } = render(renderNode(paragraph([link]), 0));
+		const anchors = container.querySelectorAll("a");
+		expect(anchors).toHaveLength(2);
+		const icon = anchors[1];
+		expect(icon.getAttribute("href")).toBe("https://example.com/docs");
+		expect(icon.getAttribute("target")).toBe("_blank");
+		expect(icon.getAttribute("aria-label")).toBe("Open link");
+	});
 });

@@ -25,11 +25,18 @@ export function PopoverTrigger({
 
 export function PopoverContent({
 	className,
+	anchor,
 	...props
-}: React.ComponentProps<typeof BasePopover.Popup>) {
+}: React.ComponentProps<typeof BasePopover.Popup> & {
+	anchor?: React.ComponentProps<typeof BasePopover.Positioner>["anchor"];
+}) {
 	return (
 		<BasePopover.Portal>
-			<BasePopover.Positioner className="z-50 outline-none" sideOffset={6}>
+			<BasePopover.Positioner
+				className="z-50 outline-none"
+				sideOffset={6}
+				anchor={anchor}
+			>
 				<BasePopover.Popup className={popup({ className })} {...props} />
 			</BasePopover.Positioner>
 		</BasePopover.Portal>

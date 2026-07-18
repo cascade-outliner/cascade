@@ -31,6 +31,12 @@ export interface OutlinerLabels {
 	deleteTagAria: string;
 	deleteTagConfirmBody: string;
 	cancel: string;
+	linkEditTitle: string;
+	linkTextLabel: string;
+	linkUrlLabel: string;
+	linkOpen: string;
+	linkSave: string;
+	linkDelete: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
@@ -77,6 +83,12 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	deleteTagConfirmBody:
 		"This removes it from every node it's on. This can't be undone.",
 	cancel: "Cancel",
+	linkEditTitle: "Edit link",
+	linkTextLabel: "Text",
+	linkUrlLabel: "URL",
+	linkOpen: "Open link",
+	linkSave: "Save",
+	linkDelete: "Remove link",
 	nodeTypeLabels: Object.fromEntries(
 		nodeTypeNames.map((type) => [type, nodeTypeDefs[type].label]),
 	) as Record<NodeTypeName, string>,

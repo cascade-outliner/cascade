@@ -1,7 +1,24 @@
+import { AutoLinkNode, LinkNode } from "@lexical/link";
+import {
+	AutoLinkPlugin,
+	createLinkMatcherWithRegExp,
+} from "@lexical/react/LexicalAutoLinkPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import type { FocusPoint } from "../../node-editor";
 import type { LexicalElementNode } from "../read/lexical-read-view";
 import { EditableContent } from "./lexical-editable-content";
+
+// Same shape as Lexical's playground URL matcher: http(s) URLs plus bare
+// `www.` ones, which get an https:// scheme so they satisfy the server's
+// http(s)-only allowlist for stored link URLs.
+const URL_REGEX =
+	/((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/;
+
+const LINK_MATCHERS = [
+	createLinkMatcherWithRegExp(URL_REGEX, (text) =>
+		text.startsWith("http") ? text : `https://${text}`,
+	),
+];
 
 export interface LexicalEditViewProps {
 	id: string;
@@ -34,10 +51,15 @@ export function LexicalEditView({
 		<LexicalComposer
 			initialConfig={{
 				namespace: `node-editor-${id}`,
+				nodes: [LinkNode, AutoLinkNode],
+				theme: {
+					link: "text-redleather underline decoration-redleather/40 underline-offset-2 dark:text-peach dark:decoration-peach/40",
+				},
 				onError: (error) => console.error("lexical error", error),
 				editorState: content ? JSON.stringify(content) : null,
 			}}
 		>
+			<AutoLinkPlugin matchers={LINK_MATCHERS} />
 			<EditableContent
 				focusPoint={focusPoint}
 				onSave={onSave}
