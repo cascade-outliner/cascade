@@ -19,6 +19,8 @@ import { AppHeader } from "@/ui/header/AppHeader";
 import { SettingsProvider } from "@/ui/settings-context";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
+import "@fontsource-variable/bitter/index.css";
+import "@fontsource-variable/bitter/wght.css";
 import "@fontsource-variable/bitter/wght-italic.css";
 import appCss from "../styles.css?url";
 
@@ -26,7 +28,7 @@ interface MyRouterContext {
 	queryClient: QueryClient;
 }
 
-const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
+const webUrl = import.meta.env.VITE_WEB_URL ?? "localhost:3000";
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	beforeLoad: async () => {
@@ -112,13 +114,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="flex h-dvh flex-col overflow-hidden bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
+			<body className="flex h-dvh flex-col font-serif bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
 				<NuqsAdapter>
 					<AppLabelsProvider>
 						<SettingsProvider>
 							<Toaster>
 								<AppHeader />
-								<div className="min-h-0 flex-1 overflow-hidden">{children}</div>
+								{children}
 							</Toaster>
 						</SettingsProvider>
 					</AppLabelsProvider>

@@ -13,7 +13,6 @@ export function AppHeader() {
 					alt={m.header_logo_alt()}
 					src="/logo192.png"
 				/>
-				cascade
 			</Link>
 
 			<div className="ml-auto flex shrink-0 items-center">

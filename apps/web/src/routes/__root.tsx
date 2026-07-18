@@ -7,6 +7,8 @@ import { seoHead } from "#/lib/seo";
 import { m } from "#/paraglide/messages.js";
 import { getLocale, getTextDirection } from "#/paraglide/runtime.js";
 
+import "@fontsource-variable/bitter/index.css";
+import "@fontsource-variable/bitter/wght.css";
 import "@fontsource-variable/bitter/wght-italic.css";
 import appCss from "../styles.css?url";
 
