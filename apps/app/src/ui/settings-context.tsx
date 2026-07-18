@@ -17,7 +17,6 @@ function defaults(): Settings {
 			typeof matchMedia !== "undefined" &&
 			matchMedia("(prefers-color-scheme: dark)").matches,
 		indentSize: 16,
-		lastSeenChangelogId: null,
 		preAlphaBannerDismissed: false,
 	};
 }

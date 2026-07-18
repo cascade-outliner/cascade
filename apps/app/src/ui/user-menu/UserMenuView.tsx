@@ -8,6 +8,7 @@ import {
 } from "@base-ui/react";
 import { LanguageSwitcher } from "@cascade/ui/language-switcher";
 import {
+	ArrowSquareOutIcon,
 	GearIcon,
 	MinusIcon,
 	PlusIcon,
@@ -22,7 +23,6 @@ import {
 	locales,
 	setLocale,
 } from "#/paraglide/runtime.js";
-import { changelogEntries } from "@/changelog";
 import type { Settings } from "@/core/settings/settings-patch-schema";
 import { MAX_INDENT_SIZE, MIN_INDENT_SIZE } from "@/ui/settings-context";
 import {
@@ -33,12 +33,15 @@ import {
 	iconButton,
 	menuItem,
 	menuPopup,
+	quickLinkItem,
 	secondaryButton,
 	settingsDialogPopup,
 	stepperButton,
 	tabTrigger,
 } from "./styles";
 import type { UserMenuUser } from "./types";
+
+const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
 
 function initials(name: string, email: string): string {
 	const source = name.trim() || email;
@@ -80,11 +83,9 @@ export interface UserMenuViewProps {
 	user: UserMenuUser;
 	settings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
-	hasUnseenChangelog: boolean;
 	settingsOpen: boolean;
 	onSettingsOpenChange: (open: boolean) => void;
 	onOpenSettings: () => void;
-	onTabChange: (value: string) => void;
 	deleteDialogOpen: boolean;
 	onDeleteDialogOpenChange: (open: boolean) => void;
 	onOpenDeleteDialog: () => void;
@@ -97,11 +98,9 @@ export function UserMenuView({
 	user,
 	settings,
 	setSetting,
-	hasUnseenChangelog,
 	settingsOpen,
 	onSettingsOpenChange,
 	onOpenSettings,
-	onTabChange,
 	deleteDialogOpen,
 	onDeleteDialogOpenChange,
 	onOpenDeleteDialog,
@@ -128,12 +127,6 @@ export function UserMenuView({
 							<Menu.Item className={menuItem()} onClick={onOpenSettings}>
 								<GearIcon size={14} weight="bold" />
 								{m.user_menu_settings()}
-								{hasUnseenChangelog && (
-									<span
-										aria-hidden="true"
-										className="ml-auto size-1.5 rounded-full bg-redleather"
-									/>
-								)}
 							</Menu.Item>
 							<Menu.Item className={menuItem()} onClick={onSignOut}>
 								<SignOutIcon size={14} weight="bold" />
@@ -159,22 +152,13 @@ export function UserMenuView({
 								<XIcon size={16} weight="bold" />
 							</Dialog.Close>
 						</div>
-						<Tabs.Root defaultValue="general" onValueChange={onTabChange}>
+						<Tabs.Root defaultValue="general">
 							<Tabs.List className="mb-4 flex gap-4 border-b border-dark-grey/10 dark:border-ginger/15">
 								<Tabs.Tab value="general" className={tabTrigger()}>
 									{m.user_menu_general_tab()}
 								</Tabs.Tab>
 								<Tabs.Tab value="user" className={tabTrigger()}>
 									{m.user_menu_user_tab()}
-								</Tabs.Tab>
-								<Tabs.Tab value="changelog" className={tabTrigger()}>
-									{m.user_menu_changelog_tab()}
-									{hasUnseenChangelog && (
-										<span
-											aria-hidden="true"
-											className="ml-1.5 inline-block size-1.5 rounded-full bg-redleather"
-										/>
-									)}
 								</Tabs.Tab>
 							</Tabs.List>
 							<Tabs.Panel value="general">
@@ -231,6 +215,20 @@ export function UserMenuView({
 										onSelect={(locale) => setLocale(locale as Locale)}
 									/>
 								</div>
+								<div className="mt-4 border-t border-dark-grey/10 pt-3 dark:border-ginger/15">
+									<h3 className="mb-1 px-3 text-xs font-semibold text-dark-grey/60 dark:text-ginger/60">
+										{m.user_menu_quick_links()}
+									</h3>
+									<a
+										href={`${webUrl}/changelog`}
+										target="_blank"
+										rel="noreferrer"
+										className={quickLinkItem()}
+									>
+										<ArrowSquareOutIcon size={14} weight="bold" />
+										{m.user_menu_changelog_link()}
+									</a>
+								</div>
 							</Tabs.Panel>
 							<Tabs.Panel value="user">
 								<div className="flex items-center gap-3">
@@ -260,23 +258,6 @@ export function UserMenuView({
 									<TrashIcon size={14} weight="bold" />
 									{m.user_menu_delete_account()}
 								</button>
-							</Tabs.Panel>
-							<Tabs.Panel
-								value="changelog"
-								className="max-h-[60vh] overflow-y-auto sm:max-h-80"
-							>
-								{changelogEntries.map((entry) => (
-									<div key={entry.id} className="mb-4 last:mb-0">
-										<h3 className="mb-1 text-xs font-semibold text-dark-grey/60 dark:text-ginger/60">
-											{entry.id}
-										</h3>
-										<div
-											className="prose prose-sm dark:prose-invert max-w-none"
-											// biome-ignore lint/security/noDangerouslySetInnerHtml: content is authored by the repo (CHANGELOG.md), not user input
-											dangerouslySetInnerHTML={{ __html: entry.html }}
-										/>
-									</div>
-								))}
 							</Tabs.Panel>
 						</Tabs.Root>
 					</Dialog.Popup>

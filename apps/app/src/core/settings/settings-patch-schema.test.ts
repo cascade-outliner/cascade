@@ -18,16 +18,9 @@ describe("settingsPatchSchema", () => {
 		const full = {
 			dark: false,
 			indentSize: 24,
-			lastSeenChangelogId: "2026-07-17",
 			preAlphaBannerDismissed: true,
 		};
 		expect(settingsPatchSchema.parse(full)).toEqual(full);
-	});
-
-	it("accepts a null lastSeenChangelogId", () => {
-		expect(settingsPatchSchema.parse({ lastSeenChangelogId: null })).toEqual({
-			lastSeenChangelogId: null,
-		});
 	});
 
 	it("strips unknown keys", () => {
@@ -58,8 +51,5 @@ describe("settingsPatchSchema", () => {
 
 	it("rejects wrong value types", () => {
 		expect(settingsPatchSchema.safeParse({ dark: "yes" }).success).toBe(false);
-		expect(
-			settingsPatchSchema.safeParse({ lastSeenChangelogId: 5 }).success,
-		).toBe(false);
 	});
 });
