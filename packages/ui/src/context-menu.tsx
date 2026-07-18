@@ -9,13 +9,15 @@ const popup = cva({
 		"data-starting-style:scale-95 data-starting-style:opacity-0",
 		"data-ending-style:scale-95 data-ending-style:opacity-0",
 		"outline-none",
+		"dark:border-ginger/10 dark:bg-dark-grey dark:text-ginger",
 	],
 });
 
 const item = cva({
 	base: [
 		"flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-ginger/70 data-disabled:cursor-default data-disabled:opacity-40",
+		"data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20",
+		"data-disabled:cursor-default data-disabled:opacity-40",
 	],
 	variants: {
 		variant: {
@@ -28,7 +30,7 @@ const item = cva({
 	},
 });
 
-const separator = cva({ base: "my-1 h-px bg-dark-grey/10" });
+const separator = cva({ base: "my-1 h-px bg-dark-grey/10 dark:bg-ginger/10" });
 
 export const ContextMenu = BaseContextMenu.Root;
 
