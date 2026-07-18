@@ -75,11 +75,12 @@ export const visibleTree = authed
 		z.object({
 			rootId: z.string().nullable(),
 			cursor: z.array(z.string()).nullable().default(null),
+			includeCollapsedDescendants: z.boolean().default(false),
 			limit: z.number().int().min(1).max(2000).default(500),
 		}),
 	)
 	.handler(async ({ input, context }) => {
-		const { rootId, cursor, limit } = input;
+		const { rootId, cursor, includeCollapsedDescendants, limit } = input;
 		const userId = context.user.id;
 
 		const result = (await db.execute(sql`
@@ -96,7 +97,9 @@ export const visibleTree = authed
 					v.path || c."order"
 				FROM nodes c
 				JOIN visible v ON c.parent_id = v.id
-				WHERE c.user_id = ${userId} AND v.expanded = true AND v.depth < 64
+				WHERE c.user_id = ${userId}
+					AND (${includeCollapsedDescendants} = true OR v.expanded = true)
+					AND v.depth < 64
 			)
 			SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 				EXISTS (SELECT 1 FROM nodes ch WHERE ch.parent_id = v.id AND ch.user_id = ${userId}) AS has_children,
@@ -115,7 +118,7 @@ export const visibleTree = authed
 			content: r.content,
 			type: r.type,
 			metadata: r.metadata as NodeMetadata,
-			expanded: r.expanded,
+			expanded: includeCollapsedDescendants ? r.has_children : r.expanded,
 			order: r.order,
 			dueDate: r.due_date,
 			tags: r.tags,

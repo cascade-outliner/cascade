@@ -13,11 +13,10 @@ export const noFilters: NodeFilters = {
 	hideCompleted: false,
 };
 
+export function hasActiveDueDateFilter(filters: NodeFilters): boolean {
+	return filters.dueToday || filters.dueThisWeek || filters.dueOnDate !== null;
+}
+
 export function hasActiveFilters(filters: NodeFilters): boolean {
-	return (
-		filters.dueToday ||
-		filters.dueThisWeek ||
-		filters.dueOnDate !== null ||
-		filters.hideCompleted
-	);
+	return hasActiveDueDateFilter(filters) || filters.hideCompleted;
 }

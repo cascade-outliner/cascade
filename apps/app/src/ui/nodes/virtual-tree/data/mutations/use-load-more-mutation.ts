@@ -6,12 +6,18 @@ import type { VisibleTreeData } from "../types";
 export function useLoadMoreMutation(
 	queryKey: QueryKey,
 	rootId: string | null,
+	includeCollapsedDescendants: boolean,
 	nextCursor: string[] | null,
 ) {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: () => client.nodes.visibleTree({ rootId, cursor: nextCursor }),
+		mutationFn: () =>
+			client.nodes.visibleTree({
+				rootId,
+				cursor: nextCursor,
+				includeCollapsedDescendants,
+			}),
 		onSuccess: (next) => {
 			queryClient.setQueryData(queryKey, (old: VisibleTreeData | undefined) =>
 				old

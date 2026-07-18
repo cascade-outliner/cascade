@@ -10,7 +10,10 @@ import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutati
 import { makeSetRows, patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
 
-export function useToggleMutation(queryKey: QueryKey) {
+export function useToggleMutation(
+	queryKey: QueryKey,
+	includeCollapsedDescendants: boolean,
+) {
 	const queryClient = useQueryClient();
 	const setRows = makeSetRows(queryClient, queryKey);
 
@@ -21,6 +24,10 @@ export function useToggleMutation(queryKey: QueryKey) {
 	>({
 		queryKey,
 		mutationFn: async ({ id, expanded }) => {
+			if (includeCollapsedDescendants) {
+				await client.nodes.toggleExpanded({ id, expanded });
+				return;
+			}
 			if (expanded) {
 				const subtree = await client.nodes.visibleTree({ rootId: id });
 				setRows((rows) => expandNode(rows, id, subtree.rows));
@@ -30,13 +37,12 @@ export function useToggleMutation(queryKey: QueryKey) {
 			}
 		},
 		patch: (old, { id, expanded }) =>
-			patchRows(
-				(rows) =>
-					expanded
-						? patchRow(rows, id, { expanded: true })
-						: collapseNode(rows, id),
-				old,
-			),
+			patchRows((rows) => {
+				if (includeCollapsedDescendants) return rows;
+				return expanded
+					? patchRow(rows, id, { expanded: true })
+					: collapseNode(rows, id);
+			}, old),
 	});
 
 	return (id: string, expanded: boolean) => mutation.mutate({ id, expanded });

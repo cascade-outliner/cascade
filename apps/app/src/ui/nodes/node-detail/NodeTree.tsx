@@ -1,5 +1,6 @@
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
+import { hasActiveDueDateFilter } from "@cascade/outliner/node-filters";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import type { ReactNode } from "react";
 import { NodeLink } from "#/ui/nodes/node-link";
@@ -15,9 +16,9 @@ export function NodeTree({
 	nodeId: string;
 	header: ReactNode;
 }) {
-	const tree = useVisibleTree(nodeId);
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
+	const tree = useVisibleTree(nodeId, hasActiveDueDateFilter(filters));
 	const visibility = getRowVisibility(tree.rows, filters);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();

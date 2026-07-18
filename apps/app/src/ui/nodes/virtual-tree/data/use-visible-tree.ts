@@ -20,11 +20,17 @@ export { visibleTreeOptions } from "./visible-tree-query";
  * shared `queryKey`; this hook only assembles their return values into the
  * `VisibleTree` shape consumers use.
  */
-export function useVisibleTree(rootId: string | null): VisibleTree {
-	const options = visibleTreeOptions(rootId);
+export function useVisibleTree(
+	rootId: string | null,
+	includeCollapsedDescendants = false,
+): VisibleTree {
+	const options = visibleTreeOptions(rootId, includeCollapsedDescendants);
 	const { data } = useSuspenseQuery(options);
 
-	const toggle = useToggleMutation(options.queryKey);
+	const toggle = useToggleMutation(
+		options.queryKey,
+		includeCollapsedDescendants,
+	);
 	const move = useMoveMutation(options.queryKey);
 	const remove = useRemoveMutation(options.queryKey);
 	const updateContent = useUpdateContentMutation(options.queryKey);
@@ -39,6 +45,7 @@ export function useVisibleTree(rootId: string | null): VisibleTree {
 	const loadMore = useLoadMoreMutation(
 		options.queryKey,
 		rootId,
+		includeCollapsedDescendants,
 		data.nextCursor,
 	);
 
