@@ -1,4 +1,5 @@
 import { OutlinerLabelsProvider } from "@cascade/outliner/labels-context";
+import { MAX_TAG_LENGTH } from "@cascade/outliner/node-tags";
 import { defaultUiLabels, UiLabelsProvider } from "@cascade/ui/labels-context";
 import { PreAlphaBanner } from "@cascade/ui/pre-alpha-banner";
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -93,6 +94,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							tagHintNavigate: m.outliner_tag_hint_navigate(),
 							tagHintToggle: m.outliner_tag_hint_toggle(),
 							createTag: m.outliner_create_tag(),
+							tagNameTooLong: m.outliner_tag_name_too_long({
+								max: MAX_TAG_LENGTH,
+							}),
 							deleteTagAria: m.outliner_delete_tag_aria(),
 							deleteTagConfirmBody: m.outliner_delete_tag_confirm_body(),
 							cancel: m.outliner_cancel(),

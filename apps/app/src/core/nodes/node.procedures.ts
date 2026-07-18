@@ -22,6 +22,7 @@ import { z } from "zod";
 import { nodeColumns, nodeTagNames } from "@/core/nodes/node.queries";
 import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
 import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
+import { setNodeTagsInputSchema } from "@/core/nodes/tag-name-schema";
 import { db } from "@/db";
 import { authed } from "@/orpc/context";
 import {
@@ -333,7 +334,7 @@ export const setNodeTags = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
 	})
-	.input(z.object({ id: z.string(), tags: z.array(z.string()) }))
+	.input(setNodeTagsInputSchema)
 	.handler(async ({ input, context, errors }) => {
 		const userId = context.user.id;
 		const names = normalizeTags(input.tags);

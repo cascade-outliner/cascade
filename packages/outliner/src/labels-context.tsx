@@ -1,4 +1,5 @@
 import { createContext, type ReactNode, use } from "react";
+import { MAX_TAG_LENGTH } from "./node-tags";
 import { type NodeTypeName, nodeTypeDefs, nodeTypeNames } from "./node-types";
 
 export interface OutlinerLabels {
@@ -24,6 +25,7 @@ export interface OutlinerLabels {
 	tagHintNavigate: string;
 	tagHintToggle: string;
 	createTag: string;
+	tagNameTooLong: string;
 	deleteTagAria: string;
 	deleteTagConfirmBody: string;
 	cancel: string;
@@ -66,6 +68,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	tagHintNavigate: "navigate",
 	tagHintToggle: "toggle",
 	createTag: "Create",
+	tagNameTooLong: `Tag name is too long (max ${MAX_TAG_LENGTH} characters)`,
 	deleteTagAria: "Delete tag",
 	deleteTagConfirmBody:
 		"This removes it from every node it's on. This can't be undone.",

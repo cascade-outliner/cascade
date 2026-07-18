@@ -3,7 +3,7 @@ import { cva } from "@cascade/ui/cva.config";
 import { CheckIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 import { type KeyboardEvent, useMemo, useRef, useState } from "react";
 import { useOutlinerLabels } from "./labels-context";
-import { normalizeTags, type TagSummary } from "./node-tags";
+import { MAX_TAG_LENGTH, normalizeTags, type TagSummary } from "./node-tags";
 
 interface NodeTagsEditorProps {
 	tags: string[];
@@ -17,10 +17,24 @@ interface NodeTagsEditorProps {
 
 const search = cva({
 	base: [
-		"mb-1 w-64 rounded-md border px-2 py-1.5",
+		"mb-1 flex w-64 items-center gap-2 rounded-md border px-2 py-1.5",
 		"border-dark-grey/15 focus-within:ring-2 focus-within:ring-redleather/50",
 		"dark:border-ginger/15",
 	],
+});
+
+const charCount = cva({
+	base: "shrink-0 text-[10.5px] tabular-nums",
+	variants: {
+		over: {
+			true: "text-redleather",
+			false: "text-graphite/60 dark:text-ginger/50",
+		},
+	},
+});
+
+const limitError = cva({
+	base: "mb-1 px-1 text-[11px] text-redleather",
 });
 
 const input = cva({
@@ -129,8 +143,14 @@ export function NodeTagsEditor({
 			: allTags.filter((t) => t.name.toLowerCase().includes(q));
 	}, [allTags, trimmedQuery]);
 
+	const overLimit = trimmedQuery.length > MAX_TAG_LENGTH;
+	// Surface the countdown only once the limit is near, so short tags (the
+	// common case) don't carry a permanent counter.
+	const showCount = MAX_TAG_LENGTH - trimmedQuery.length <= 15;
+
 	const canCreate =
 		trimmedQuery !== "" &&
+		!overLimit &&
 		!allTags.some((t) => t.name.toLowerCase() === trimmedQuery.toLowerCase());
 
 	// Keyboard-navigable options: an optional leading "create new" row when
@@ -224,6 +244,7 @@ export function NodeTagsEditor({
 					className={input()}
 					role="combobox"
 					aria-expanded={optionCount > 0}
+					aria-invalid={overLimit || undefined}
 					onClick={(e) => e.stopPropagation()}
 					onChange={(e) => {
 						setQuery(e.target.value);
@@ -231,7 +252,17 @@ export function NodeTagsEditor({
 					}}
 					onKeyDown={handleInputKeyDown}
 				/>
+				{showCount && (
+					<span className={charCount({ over: overLimit })}>
+						{trimmedQuery.length}/{MAX_TAG_LENGTH}
+					</span>
+				)}
 			</div>
+			{overLimit && (
+				<p role="alert" className={limitError()}>
+					{labels.tagNameTooLong}
+				</p>
+			)}
 			<div className="max-h-48 overflow-y-auto">
 				{canCreate && (
 					<button

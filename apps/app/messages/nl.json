@@ -70,6 +70,7 @@
 	"outliner_tag_hint_navigate": "navigeren",
 	"outliner_tag_hint_toggle": "wisselen",
 	"outliner_create_tag": "Aanmaken",
+	"outliner_tag_name_too_long": "Tagnaam is te lang (max {max} tekens)",
 	"outliner_delete_tag_aria": "Label verwijderen",
 	"outliner_delete_tag_confirm_body": "Dit verwijdert het label van elke node waar het aan toegevoegd is. Dit kan niet ongedaan worden gemaakt.",
 	"outliner_cancel": "Annuleren",

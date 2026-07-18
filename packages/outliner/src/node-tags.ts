@@ -4,6 +4,10 @@ export interface TagSummary {
 	count: number;
 }
 
+/** Longest allowed tag name (after trimming), enforced in both the tags
+ * editor UI and the server's setTags input schema. */
+export const MAX_TAG_LENGTH = 64;
+
 /** Small set of hues tag pills can be tinted with; each needs a hand-tuned
  * dark-mode variant, so keep this list in sync with the `hue` cva variant in
  * node-tags-pills.tsx. */

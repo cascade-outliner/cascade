@@ -131,6 +131,7 @@
 	"outliner_tag_hint_navigate": "navigate",
 	"outliner_tag_hint_toggle": "toggle",
 	"outliner_create_tag": "Create",
+	"outliner_tag_name_too_long": "Tag name is too long (max {max} characters)",
 	"outliner_delete_tag_aria": "Delete tag",
 	"outliner_delete_tag_confirm_body": "This removes it from every node it's on. This can't be undone.",
 	"outliner_cancel": "Cancel",
