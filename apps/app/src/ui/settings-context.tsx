@@ -1,3 +1,5 @@
+import { fontAttribute } from "@cascade/theme/fonts";
+import { isDarkTheme, themeAttribute } from "@cascade/theme/themes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, use, useEffect, useState } from "react";
 import type {
@@ -13,12 +15,21 @@ export {
 
 function defaults(): Settings {
 	return {
-		dark:
+		theme:
 			typeof matchMedia !== "undefined" &&
-			matchMedia("(prefers-color-scheme: dark)").matches,
+			matchMedia("(prefers-color-scheme: dark)").matches
+				? "dark"
+				: "light",
+		font: "bitter",
 		indentSize: 16,
 		preAlphaBannerDismissed: false,
 	};
+}
+
+/** Stored `dark` flags predate themes; treat them as the matching built-in theme. */
+export function withLegacyTheme(patch: SettingsPatch): SettingsPatch {
+	if (patch.theme !== undefined || patch.dark === undefined) return patch;
+	return { ...patch, theme: patch.dark ? "dark" : "light" };
 }
 
 const SettingsContext = createContext<{
@@ -50,11 +61,26 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 		}),
 	);
 
-	const settings: Settings = { ...defaults(), ...remote, ...unsaved };
+	const settings: Settings = {
+		...defaults(),
+		...withLegacyTheme(remote ?? {}),
+		...unsaved,
+	};
 
 	useEffect(() => {
-		document.documentElement.classList.toggle("dark", settings.dark);
-	}, [settings.dark]);
+		const root = document.documentElement;
+		root.classList.toggle("dark", isDarkTheme(settings.theme));
+		const attribute = themeAttribute(settings.theme);
+		if (attribute) root.dataset.theme = attribute;
+		else delete root.dataset.theme;
+	}, [settings.theme]);
+
+	useEffect(() => {
+		const root = document.documentElement;
+		const attribute = fontAttribute(settings.font);
+		if (attribute) root.dataset.font = attribute;
+		else delete root.dataset.font;
+	}, [settings.font]);
 
 	function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
 		setUnsaved((prev) => ({ ...prev, [key]: value }));

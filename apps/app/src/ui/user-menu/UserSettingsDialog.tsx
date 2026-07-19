@@ -1,5 +1,8 @@
-import { Dialog, NumberField, Switch, Tabs } from "@base-ui/react";
+import { Dialog, NumberField, Tabs } from "@base-ui/react";
+import { type FontId, fonts } from "@cascade/theme/fonts";
+import { themes } from "@cascade/theme/themes";
 import { LanguageSwitcher } from "@cascade/ui/language-switcher";
+import { Select } from "@cascade/ui/select";
 import {
 	ArrowSquareOutIcon,
 	MinusIcon,
@@ -24,13 +27,37 @@ import {
 	indentSizeInput,
 	quickLinkItem,
 	settingsDialogPopup,
-	settingsSwitch,
 	stepperButton,
 	tabTrigger,
 } from "./styles";
 import type { UserMenuUser } from "./types";
 
 const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
+
+/** The built-in light/dark palettes get translated labels; theme names are proper nouns. */
+function themeOptions() {
+	return themes.map((theme) => ({
+		value: theme.id,
+		label:
+			theme.id === "light"
+				? m.user_menu_theme_light()
+				: theme.id === "dark"
+					? m.user_menu_theme_dark()
+					: theme.label,
+	}));
+}
+
+function fontOptions() {
+	const labels: Partial<Record<FontId, string>> = {
+		"system-sans": m.user_menu_font_system_sans(),
+		"system-serif": m.user_menu_font_system_serif(),
+		"system-mono": m.user_menu_font_monospace(),
+	};
+	return fonts.map((font) => ({
+		value: font.id,
+		label: labels[font.id] ?? font.label,
+	}));
+}
 
 export interface UserSettingsDialogProps {
 	user: UserMenuUser;
@@ -81,15 +108,22 @@ export function UserSettingsDialog({
 						</Tabs.List>
 						<Tabs.Panel value="general">
 							<div className="flex items-center justify-between text-sm">
-								{m.user_menu_dark_mode()}
-								<Switch.Root
-									aria-label={m.user_menu_dark_mode()}
-									checked={settings.dark}
-									onCheckedChange={(next) => setSetting("dark", next)}
-									className={settingsSwitch()}
-								>
-									<Switch.Thumb className="block size-4 rounded-full bg-white data-checked:translate-x-4" />
-								</Switch.Root>
+								{m.user_menu_theme()}
+								<Select
+									aria-label={m.user_menu_theme()}
+									options={themeOptions()}
+									value={settings.theme}
+									onValueChange={(theme) => setSetting("theme", theme)}
+								/>
+							</div>
+							<div className="mt-3 flex items-center justify-between text-sm">
+								{m.user_menu_font()}
+								<Select
+									aria-label={m.user_menu_font()}
+									options={fontOptions()}
+									value={settings.font}
+									onValueChange={(font) => setSetting("font", font)}
+								/>
 							</div>
 							<div className="mt-3 flex items-center justify-between text-sm">
 								{m.user_menu_indent_size()}

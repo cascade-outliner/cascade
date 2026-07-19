@@ -7,4 +7,96 @@
 	--color-graphite: #62646b;
 	--color-peach: #e38b75;
 	--color-dark-grey: #2b2d33;
+
+	--font-app: "Bitter Variable", serif;
+}
+
+/*
+ * Theme palettes (see themes.ts for the registry). Every theme overrides the
+ * same six color slots, whose roles are:
+ *
+ *   super-ginger  page background (light themes) / primary text (dark themes)
+ *   ginger        surfaces & hover tints (light) / secondary text, borders (dark)
+ *   dark-grey     primary text (light) / page background (dark)
+ *   graphite      muted text
+ *   peach         accent
+ *   redleather    danger / strong accent
+ *
+ * Tailwind utilities compile to var(--color-*) references, so these
+ * un-layered overrides re-theme every component. Dark themes additionally
+ * rely on the `.dark` class being set alongside `data-theme` (driven by the
+ * theme's `dark` flag in themes.ts) so `dark:` variants pick the right slots.
+ */
+
+[data-theme="catppuccin-latte"] {
+	--color-super-ginger: #eff1f5;
+	--color-ginger: #ccd0da;
+	--color-redleather: #d20f39;
+	--color-graphite: #6c6f85;
+	--color-peach: #fe640b;
+	--color-dark-grey: #4c4f69;
+}
+
+[data-theme="catppuccin-frappe"] {
+	--color-super-ginger: #c6d0f5;
+	--color-ginger: #b5bfe2;
+	--color-redleather: #e78284;
+	--color-graphite: #737994;
+	--color-peach: #ef9f76;
+	--color-dark-grey: #303446;
+}
+
+[data-theme="catppuccin-macchiato"] {
+	--color-super-ginger: #cad3f5;
+	--color-ginger: #b8c0e0;
+	--color-redleather: #ed8796;
+	--color-graphite: #6e738d;
+	--color-peach: #f5a97f;
+	--color-dark-grey: #24273a;
+}
+
+[data-theme="catppuccin-mocha"] {
+	--color-super-ginger: #cdd6f4;
+	--color-ginger: #bac2de;
+	--color-redleather: #f38ba8;
+	--color-graphite: #6c7086;
+	--color-peach: #fab387;
+	--color-dark-grey: #1e1e2e;
+}
+
+[data-theme="nord"] {
+	--color-super-ginger: #eceff4;
+	--color-ginger: #d8dee9;
+	--color-redleather: #bf616a;
+	--color-graphite: #4c566a;
+	--color-peach: #88c0d0;
+	--color-dark-grey: #2e3440;
+}
+
+[data-theme="dracula"] {
+	--color-super-ginger: #f8f8f2;
+	--color-ginger: #f8f8f2;
+	--color-redleather: #ff5555;
+	--color-graphite: #6272a4;
+	--color-peach: #bd93f9;
+	--color-dark-grey: #282a36;
+}
+
+/*
+ * Font choices (see fonts.ts for the registry). The default is Bitter; each
+ * option overrides --font-app with a system stack that degrades gracefully.
+ */
+
+[data-font="system-sans"] {
+	--font-app: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+		sans-serif;
+}
+
+[data-font="system-serif"] {
+	--font-app: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+
+[data-font="system-mono"] {
+	--font-app: ui-monospace, SFMono-Regular, Menlo, Consolas,
+		"Liberation Mono", monospace;
 }

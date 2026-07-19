@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "exports": {
-    ".": "./theme.css"
+    ".": "./theme.css",
+    "./themes": "./themes.ts",
+    "./fonts": "./fonts.ts"
   }
 }

@@ -1,3 +1,5 @@
+import { fontIds } from "@cascade/theme/fonts";
+import { themeIds } from "@cascade/theme/themes";
 import { describe, expect, it } from "vitest";
 import {
 	MAX_INDENT_SIZE,
@@ -17,10 +19,33 @@ describe("settingsPatchSchema", () => {
 	it("accepts a full settings object", () => {
 		const full = {
 			dark: false,
+			theme: "catppuccin-mocha",
+			font: "system-mono",
 			indentSize: 24,
 			preAlphaBannerDismissed: true,
 		};
 		expect(settingsPatchSchema.parse(full)).toEqual(full);
+	});
+
+	it("accepts every registered theme and font", () => {
+		for (const theme of themeIds) {
+			expect(settingsPatchSchema.parse({ theme })).toEqual({ theme });
+		}
+		for (const font of fontIds) {
+			expect(settingsPatchSchema.parse({ font })).toEqual({ font });
+		}
+	});
+
+	it("rejects an unknown theme", () => {
+		expect(
+			settingsPatchSchema.safeParse({ theme: "hotdog-stand" }).success,
+		).toBe(false);
+	});
+
+	it("rejects an unknown font", () => {
+		expect(settingsPatchSchema.safeParse({ font: "comic-sans" }).success).toBe(
+			false,
+		);
 	});
 
 	it("strips unknown keys", () => {

@@ -1,3 +1,5 @@
+import { fontAttribute } from "@cascade/theme/fonts";
+import { isDarkTheme, themeAttribute } from "@cascade/theme/themes";
 import { Toaster } from "@cascade/ui/toast";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
@@ -62,7 +64,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 		],
 		scripts: [
-			...(loaderData?.settings.dark === undefined
+			...(loaderData?.settings.dark === undefined &&
+			loaderData?.settings.theme === undefined
 				? [
 						{
 							children:
@@ -105,16 +108,26 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	const { settings } = Route.useLoaderData();
+	const dark =
+		settings.theme !== undefined ? isDarkTheme(settings.theme) : settings.dark;
 	return (
 		<html
 			lang={getLocale()}
-			className={settings.dark ? "dark" : undefined}
+			className={dark ? "dark" : undefined}
+			data-theme={
+				settings.theme !== undefined
+					? themeAttribute(settings.theme)
+					: undefined
+			}
+			data-font={
+				settings.font !== undefined ? fontAttribute(settings.font) : undefined
+			}
 			suppressHydrationWarning
 		>
 			<head>
 				<HeadContent />
 			</head>
-			<body className="flex h-dvh flex-col font-serif bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
+			<body className="flex h-dvh flex-col font-app bg-super-ginger text-dark-grey dark:bg-dark-grey dark:text-super-ginger">
 				<NuqsAdapter>
 					<AppLabelsProvider>
 						<SettingsProvider>
