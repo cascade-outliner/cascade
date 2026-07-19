@@ -13,8 +13,8 @@ export interface Theme {
 }
 
 export const themes = [
-	{ id: "light", label: "Light", dark: false },
-	{ id: "dark", label: "Dark", dark: true },
+	{ id: "light", label: "Cascade Light", dark: false },
+	{ id: "dark", label: "Cascade Dark", dark: true },
 	{ id: "catppuccin-latte", label: "Catppuccin Latte", dark: false },
 	{ id: "catppuccin-frappe", label: "Catppuccin Frappé", dark: true },
 	{ id: "catppuccin-macchiato", label: "Catppuccin Macchiato", dark: true },
