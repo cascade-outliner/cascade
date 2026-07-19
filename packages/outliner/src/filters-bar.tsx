@@ -23,46 +23,46 @@ interface FiltersBarProps {
 const trigger = cva({
 	base: [
 		"inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium outline-none",
-		"border-dark-grey/15 text-graphite hover:border-dark-grey/30 hover:text-dark-grey",
-		"dark:border-ginger/15 dark:text-ginger/70 dark:hover:border-ginger/30 dark:hover:text-ginger",
-		"data-popup-open:border-redleather/30 data-popup-open:bg-redleather/10 data-popup-open:text-redleather",
-		"focus-visible:ring-2 focus-visible:ring-redleather/50",
+		"border-ink/15 text-muted hover:border-ink/30 hover:text-ink",
+		"dark:border-surface/15 dark:text-surface/70 dark:hover:border-surface/30 dark:hover:text-surface",
+		"data-popup-open:border-danger/30 data-popup-open:bg-danger/10 data-popup-open:text-danger",
+		"focus-visible:ring-2 focus-visible:ring-danger/50",
 	],
 });
 
 const popup = cva({
 	base: [
-		"w-56 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey",
-		"shadow-lg shadow-dark-grey/15",
+		"w-56 rounded-lg border border-ink/10 bg-white p-1 text-ink",
+		"shadow-lg shadow-ink/15",
 		"outline-none",
-		"dark:border-ginger/10 dark:bg-dark-grey dark:text-ginger",
+		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });
 
 const groupLabel = cva({
-	base: "px-2.5 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-graphite/75 dark:text-ginger/50",
+	base: "px-2.5 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-muted/75 dark:text-surface/50",
 });
 
 const menuItem = cva({
 	base: [
 		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20",
+		"data-highlighted:bg-surface/70 dark:data-highlighted:bg-surface/20",
 		"data-disabled:cursor-default data-disabled:opacity-50 data-disabled:hover:bg-transparent",
 	],
 });
 
 const calendarPopup = cva({
 	base: [
-		"rounded-lg border border-dark-grey/10 bg-white p-3 text-dark-grey",
-		"shadow-lg shadow-dark-grey/15 outline-none",
-		"dark:border-ginger/10 dark:bg-dark-grey dark:text-ginger",
+		"rounded-lg border border-ink/10 bg-white p-3 text-ink",
+		"shadow-lg shadow-ink/15 outline-none",
+		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });
 
 const chip = cva({
 	base: [
 		"inline-flex shrink-0 items-center gap-1.5 rounded-full border py-1 pl-2.5 pr-1 text-[11.5px] font-medium tabular-nums",
-		"border-peach/50 bg-peach/25 text-dark-grey dark:border-peach/40 dark:bg-peach/20 dark:text-ginger",
+		"border-accent/50 bg-accent/25 text-ink dark:border-accent/40 dark:bg-accent/20 dark:text-surface",
 	],
 });
 
@@ -72,8 +72,8 @@ const checkbox = cva({
 	base: "flex size-4 shrink-0 items-center justify-center rounded border",
 	variants: {
 		checked: {
-			true: "border-redleather bg-redleather text-super-ginger",
-			false: "border-dark-grey/30 dark:border-ginger/30",
+			true: "border-danger bg-danger text-canvas",
+			false: "border-ink/30 dark:border-surface/30",
 		},
 	},
 });
@@ -141,7 +141,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 	] as const;
 
 	return (
-		<div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-dark-grey/10 pb-3 dark:border-ginger/10">
+		<div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 pb-3 dark:border-surface/10">
 			<div className="flex flex-wrap items-center gap-1.5">
 				<Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
 					<Menu.Trigger className={trigger()}>
@@ -266,7 +266,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 								<button
 									type="button"
 									aria-label={filter.removeLabel}
-									className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+									className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
 									onClick={() =>
 										onFiltersChange({ ...filters, [filter.key]: false })
 									}
@@ -284,7 +284,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						<button
 							type="button"
 							aria-label={labels.filtersRemoveDueOnDate}
-							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
 							onClick={() => onFiltersChange({ ...filters, dueOnDate: null })}
 						>
 							<XIcon size={9} weight="bold" />
@@ -303,7 +303,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						<button
 							type="button"
 							aria-label={labels.filtersRemoveDueDateRange}
-							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
 							onClick={() =>
 								onFiltersChange({ ...filters, dueDateRange: null })
 							}
@@ -320,7 +320,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						<button
 							type="button"
 							aria-label={labels.filtersRemoveHideCompleted}
-							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-dark-grey/10 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/15"
+							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
 							onClick={() =>
 								onFiltersChange({ ...filters, hideCompleted: false })
 							}
@@ -335,7 +335,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 				<div className="flex items-center gap-3">
 					<button
 						type="button"
-						className="cursor-pointer text-xs font-medium text-graphite underline decoration-dark-grey/25 underline-offset-2 hover:text-dark-grey hover:decoration-dark-grey/50 dark:text-ginger/60 dark:decoration-ginger/25 dark:hover:text-ginger dark:hover:decoration-ginger/50"
+						className="cursor-pointer text-xs font-medium text-muted underline decoration-ink/25 underline-offset-2 hover:text-ink hover:decoration-ink/50 dark:text-surface/60 dark:decoration-surface/25 dark:hover:text-surface dark:hover:decoration-surface/50"
 						onClick={() => onFiltersChange(noFilters)}
 					>
 						{labels.filtersClear}

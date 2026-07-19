@@ -55,7 +55,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="bg-super-ginger text-dark-grey">
+			<body className="bg-canvas text-ink">
 				<AppLabelsProvider>
 					<PreAlphaBanner />
 					{children}

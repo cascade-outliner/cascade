@@ -18,14 +18,14 @@ export function DeleteAccountDialog({
 	return (
 		<AlertDialog.Root open={open} onOpenChange={onOpenChange}>
 			<AlertDialog.Portal>
-				<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm" />
+				<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
 				<AlertDialog.Popup className={alertPopup()}>
 					<AlertDialog.Title className="text-lg font-semibold">
 						{m.user_menu_delete_account()}
 					</AlertDialog.Title>
-					<AlertDialog.Description className="mt-2 text-sm text-dark-grey dark:text-ginger">
+					<AlertDialog.Description className="mt-2 text-sm text-ink dark:text-surface">
 						{m.user_menu_delete_confirm_body()}
-						<p className="text-redleather font-medium pt-4">
+						<p className="text-danger font-medium pt-4">
 							{m.user_menu_delete_confirm_warning()}
 						</p>
 					</AlertDialog.Description>

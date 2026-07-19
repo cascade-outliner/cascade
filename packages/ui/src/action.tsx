@@ -3,13 +3,13 @@ import { useId } from "react";
 import { cva } from "./cva.config";
 
 const variantRing = {
-	primary: "focus-visible:ring-redleather/50",
-	dark: "focus-visible:ring-dark-grey/50",
+	primary: "focus-visible:ring-danger/50",
+	dark: "focus-visible:ring-ink/50",
 };
 
 const variantBg = {
-	primary: "bg-redleather",
-	dark: "bg-dark-grey",
+	primary: "bg-danger",
+	dark: "bg-ink",
 };
 
 const trigger = cva({
@@ -109,8 +109,8 @@ export function Action({
 				className={trigger({
 					variant,
 					className: hideUntilHover
-						? `pl-6 pr-3 font-semibold text-super-ginger ${grow}`
-						: `px-6 font-semibold text-super-ginger ${grow}`,
+						? `pl-6 pr-3 font-semibold text-canvas ${grow}`
+						: `px-6 font-semibold text-canvas ${grow}`,
 				})}
 				{...props}
 			>
@@ -133,7 +133,7 @@ export function Action({
 					render={action.render}
 					className={trigger({
 						variant,
-						className: `text-super-ginger ${iconSize}`,
+						className: `text-canvas ${iconSize}`,
 					})}
 				>
 					{action.icon}

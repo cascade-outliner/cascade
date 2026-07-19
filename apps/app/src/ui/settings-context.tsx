@@ -1,5 +1,10 @@
 import { fontAttribute } from "@cascade/theme/fonts";
-import { isDarkTheme, themeAttribute } from "@cascade/theme/themes";
+import {
+	isDarkTheme,
+	resolveThemeId,
+	SYSTEM_THEME,
+	themeAttribute,
+} from "@cascade/theme/themes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, use, useEffect, useState } from "react";
 import type {
@@ -15,15 +20,20 @@ export {
 
 function defaults(): Settings {
 	return {
-		theme:
-			typeof matchMedia !== "undefined" &&
-			matchMedia("(prefers-color-scheme: dark)").matches
-				? "dark"
-				: "light",
+		theme: SYSTEM_THEME,
+		lightTheme: "light",
+		darkTheme: "dark",
 		font: "bitter",
 		indentSize: 16,
 		preAlphaBannerDismissed: false,
 	};
+}
+
+function getSystemPrefersDark(): boolean {
+	return (
+		typeof matchMedia !== "undefined" &&
+		matchMedia("(prefers-color-scheme: dark)").matches
+	);
 }
 
 /** Stored `dark` flags predate themes; treat them as the matching built-in theme. */
@@ -40,7 +50,20 @@ const SettingsContext = createContext<{
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	const [unsaved, setUnsaved] = useState<SettingsPatch>({});
+	const [systemPrefersDark, setSystemPrefersDark] =
+		useState(getSystemPrefersDark);
 	const queryClient = useQueryClient();
+
+	// Live-updates the resolved theme when "sync with system" is selected and
+	// the OS preference changes while the app is open (e.g. scheduled dark
+	// mode kicking in), not just on the next load.
+	useEffect(() => {
+		if (typeof matchMedia === "undefined") return;
+		const media = matchMedia("(prefers-color-scheme: dark)");
+		const onChange = () => setSystemPrefersDark(media.matches);
+		media.addEventListener("change", onChange);
+		return () => media.removeEventListener("change", onChange);
+	}, []);
 
 	const queryOptions = orpc.settings.get.queryOptions();
 	const { data: remote } = useQuery(queryOptions);
@@ -66,14 +89,20 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 		...withLegacyTheme(remote ?? {}),
 		...unsaved,
 	};
+	const resolvedTheme = resolveThemeId(
+		settings.theme,
+		settings.lightTheme,
+		settings.darkTheme,
+		systemPrefersDark,
+	);
 
 	useEffect(() => {
 		const root = document.documentElement;
-		root.classList.toggle("dark", isDarkTheme(settings.theme));
-		const attribute = themeAttribute(settings.theme);
+		root.classList.toggle("dark", isDarkTheme(resolvedTheme));
+		const attribute = themeAttribute(resolvedTheme);
 		if (attribute) root.dataset.theme = attribute;
 		else delete root.dataset.theme;
-	}, [settings.theme]);
+	}, [resolvedTheme]);
 
 	useEffect(() => {
 		const root = document.documentElement;

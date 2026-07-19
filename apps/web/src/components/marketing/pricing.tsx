@@ -6,13 +6,13 @@ import { m } from "#/paraglide/messages.js";
 
 export function Pricing() {
 	return (
-		<section id="pricing" className="bg-ginger">
+		<section id="pricing" className="bg-surface">
 			<div className="mx-auto max-w-3xl px-8 py-24 text-center">
 				<h2 className="mb-5 font-serif text-4xl md:text-6xl font-light inline-flex justify-start">
 					{m.pricing_heading()}
 					<AsteriskIcon size={24} weight="thin" />
 				</h2>
-				<p className="mx-auto mb-4 max-w-xl text-pretty text-base text-graphite">
+				<p className="mx-auto mb-4 max-w-xl text-pretty text-base text-muted">
 					{m.pricing_body_line1()}
 					<br />
 					{m.pricing_body_line2()}

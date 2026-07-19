@@ -18,8 +18,8 @@ interface NodeTagsEditorProps {
 const search = cva({
 	base: [
 		"mb-1 flex w-64 items-center gap-2 rounded-md border px-2 py-1.5",
-		"border-dark-grey/15 focus-within:ring-2 focus-within:ring-redleather/50",
-		"dark:border-ginger/15",
+		"border-ink/15 focus-within:ring-2 focus-within:ring-danger/50",
+		"dark:border-surface/15",
 	],
 });
 
@@ -27,34 +27,34 @@ const charCount = cva({
 	base: "shrink-0 text-[10.5px] tabular-nums",
 	variants: {
 		over: {
-			true: "text-redleather",
-			false: "text-graphite/60 dark:text-ginger/50",
+			true: "text-danger",
+			false: "text-muted/60 dark:text-surface/50",
 		},
 	},
 });
 
 const limitError = cva({
-	base: "mb-1 px-1 text-[11px] text-redleather",
+	base: "mb-1 px-1 text-[11px] text-danger",
 });
 
 const input = cva({
 	base: [
 		"w-full bg-transparent text-sm outline-none",
-		"text-dark-grey placeholder:text-graphite/60 dark:text-ginger dark:placeholder:text-ginger/40",
+		"text-ink placeholder:text-muted/60 dark:text-surface dark:placeholder:text-surface/40",
 	],
 });
 
 const optionRow = cva({
 	base: [
 		"group/option flex w-full items-center gap-1 rounded-md pr-1 pl-1 text-sm outline-none",
-		"text-dark-grey dark:text-ginger hover:bg-ginger/70 dark:hover:bg-ginger/20",
+		"text-ink dark:text-surface hover:bg-surface/70 dark:hover:bg-surface/20",
 	],
 	variants: {
 		// Keyboard-driven (arrow keys), independent of CSS :hover above, so a
 		// stationary mouse resting over an option can't silently hijack what
 		// Enter does while the user is typing something else.
 		highlighted: {
-			true: "bg-ginger/70 dark:bg-ginger/20",
+			true: "bg-surface/70 dark:bg-surface/20",
 			false: "",
 		},
 	},
@@ -68,37 +68,37 @@ const checkbox = cva({
 	base: "flex size-4 shrink-0 items-center justify-center rounded border",
 	variants: {
 		checked: {
-			true: "border-redleather bg-redleather text-super-ginger",
-			false: "border-dark-grey/30 dark:border-ginger/30",
+			true: "border-danger bg-danger text-canvas",
+			false: "border-ink/30 dark:border-surface/30",
 		},
 	},
 });
 
 const usageCount = cva({
-	base: "ml-auto shrink-0 text-[11px] tabular-nums text-graphite/70 dark:text-ginger/50",
+	base: "ml-auto shrink-0 text-[11px] tabular-nums text-muted/70 dark:text-surface/50",
 });
 
 const deleteTagButton = cva({
 	base: [
 		"flex shrink-0 items-center justify-center rounded-md size-6 outline-none cursor-pointer",
 		"opacity-0 group-hover/option:opacity-100 focus-visible:opacity-100",
-		"text-graphite/60 hover:bg-redleather/10 hover:text-redleather",
-		"focus-visible:ring-2 focus-visible:ring-redleather/50",
-		"dark:text-ginger/50 dark:hover:bg-redleather/15",
+		"text-muted/60 hover:bg-danger/10 hover:text-danger",
+		"focus-visible:ring-2 focus-visible:ring-danger/50",
+		"dark:text-surface/50 dark:hover:bg-danger/15",
 	],
 });
 
 const footer = cva({
 	base: [
 		"mt-1 flex gap-3 border-t px-1 pt-1.5 text-[10.5px]",
-		"border-dark-grey/10 text-graphite/75 dark:border-ginger/10 dark:text-ginger/50",
+		"border-ink/10 text-muted/75 dark:border-surface/10 dark:text-surface/50",
 	],
 });
 
 const kbd = cva({
 	base: [
 		"rounded border px-1 font-mono text-[9.5px]",
-		"border-dark-grey/20 bg-dark-grey/5 dark:border-ginger/20 dark:bg-ginger/10",
+		"border-ink/20 bg-ink/5 dark:border-surface/20 dark:bg-surface/10",
 	],
 });
 
@@ -333,21 +333,21 @@ export function NodeTagsEditor({
 				}}
 			>
 				<AlertDialog.Portal>
-					<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm" />
+					<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
 					<AlertDialog.Popup
-						className="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border border-dark-grey/10 bg-white p-6 text-dark-grey shadow-lg shadow-dark-grey/15 outline-none dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger"
+						className="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border border-ink/10 bg-white p-6 text-ink shadow-lg shadow-ink/15 outline-none dark:border-surface/15 dark:bg-ink dark:text-surface"
 						onClick={(e) => e.stopPropagation()}
 					>
 						<AlertDialog.Title className="text-lg font-semibold">
 							{labels.delete} &ldquo;{pendingDelete}&rdquo;?
 						</AlertDialog.Title>
-						<AlertDialog.Description className="mt-2 text-sm text-dark-grey dark:text-ginger">
+						<AlertDialog.Description className="mt-2 text-sm text-ink dark:text-surface">
 							{labels.deleteTagConfirmBody}
 						</AlertDialog.Description>
 						<div className="mt-6 flex justify-end gap-2">
 							<AlertDialog.Close
 								disabled={isDeleting}
-								className="cursor-pointer rounded-md px-3 py-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40 dark:hover:bg-ginger/20"
+								className="cursor-pointer rounded-md px-3 py-1.5 text-sm outline-none hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 disabled:cursor-default disabled:opacity-40 dark:hover:bg-surface/20"
 							>
 								{labels.cancel}
 							</AlertDialog.Close>
@@ -355,7 +355,7 @@ export function NodeTagsEditor({
 								type="button"
 								onClick={confirmDelete}
 								disabled={isDeleting}
-								className="cursor-pointer rounded-md bg-redleather px-3 py-1.5 text-sm text-super-ginger outline-none hover:bg-redleather/90 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40"
+								className="cursor-pointer rounded-md bg-danger px-3 py-1.5 text-sm text-canvas outline-none hover:bg-danger/90 focus-visible:ring-2 focus-visible:ring-danger/50 disabled:cursor-default disabled:opacity-40"
 							>
 								{labels.delete}
 							</button>

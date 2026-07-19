@@ -7,7 +7,7 @@ export function DefaultNodeLink() {
 	return (
 		<span
 			aria-hidden
-			className="w-2 h-2 rounded-full bg-dark-grey dark:bg-ginger shrink-0"
+			className="w-2 h-2 rounded-full bg-ink dark:bg-surface shrink-0"
 		/>
 	);
 }

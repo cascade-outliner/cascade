@@ -18,7 +18,7 @@ function Privacy() {
 				<h1 className="font-serif text-4xl italic mb-2">
 					{m.privacy_heading()}
 				</h1>
-				<p className="text-sm text-graphite">{m.privacy_last_updated()}</p>
+				<p className="text-sm text-muted">{m.privacy_last_updated()}</p>
 
 				<p>{m.privacy_intro()}</p>
 

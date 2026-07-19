@@ -1,6 +1,13 @@
 import { readFileSync } from "node:fs";
 import { fontAttribute, fonts } from "@cascade/theme/fonts";
-import { themeAttribute, themes } from "@cascade/theme/themes";
+import {
+	darkThemeIds,
+	lightThemeIds,
+	resolveThemeId,
+	SYSTEM_THEME,
+	themeAttribute,
+	themes,
+} from "@cascade/theme/themes";
 import { describe, expect, it } from "vitest";
 
 const themeCss = readFileSync(
@@ -19,12 +26,12 @@ describe("theme registry", () => {
 
 	it("overrides all six palette slots in every theme block", () => {
 		const slots = [
-			"--color-super-ginger",
-			"--color-ginger",
-			"--color-redleather",
-			"--color-graphite",
-			"--color-peach",
-			"--color-dark-grey",
+			"--color-canvas",
+			"--color-surface",
+			"--color-danger",
+			"--color-muted",
+			"--color-accent",
+			"--color-ink",
 		];
 		const blocks = themeCss.matchAll(/\[data-theme="[^"]+"\]\s*\{([^}]*)\}/g);
 		for (const [, body] of blocks) {
@@ -45,5 +52,31 @@ describe("theme registry", () => {
 	it("uses unique theme and font ids", () => {
 		expect(new Set(themes.map((theme) => theme.id)).size).toBe(themes.length);
 		expect(new Set(fonts.map((font) => font.id)).size).toBe(fonts.length);
+	});
+
+	it("partitions every theme into exactly light or dark", () => {
+		expect(lightThemeIds.length + darkThemeIds.length).toBe(themes.length);
+		for (const id of lightThemeIds) {
+			expect(darkThemeIds).not.toContain(id);
+		}
+	});
+});
+
+describe("resolveThemeId", () => {
+	it("passes a fixed selection through unchanged, regardless of OS preference", () => {
+		expect(resolveThemeId("nord", "light", "dark", false)).toBe("nord");
+		expect(resolveThemeId("nord", "light", "dark", true)).toBe("nord");
+	});
+
+	it("resolves 'system' to the configured light theme when the OS prefers light", () => {
+		expect(
+			resolveThemeId(SYSTEM_THEME, "catppuccin-latte", "dracula", false),
+		).toBe("catppuccin-latte");
+	});
+
+	it("resolves 'system' to the configured dark theme when the OS prefers dark", () => {
+		expect(
+			resolveThemeId(SYSTEM_THEME, "catppuccin-latte", "dracula", true),
+		).toBe("dracula");
 	});
 });

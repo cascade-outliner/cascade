@@ -13,7 +13,7 @@ export type OnSaveLink = (
 export type OnDeleteLink = (path: number[], update: { text: string }) => void;
 
 const anchorClassName =
-	"text-redleather underline decoration-redleather/40 underline-offset-2 hover:decoration-redleather dark:text-peach dark:decoration-peach/40 dark:hover:decoration-peach";
+	"text-danger underline decoration-danger/40 underline-offset-2 hover:decoration-danger dark:text-accent dark:decoration-accent/40 dark:hover:decoration-accent";
 
 /** Small trailing icon that always opens the URL directly in a new tab. */
 function OpenLinkIcon({ url, label }: { url: string; label: string }) {
@@ -24,7 +24,7 @@ function OpenLinkIcon({ url, label }: { url: string; label: string }) {
 			rel="noreferrer"
 			aria-label={label}
 			title={url}
-			className="inline-block align-[-0.1em] ml-0.5 text-redleather hover:text-redleather/70 dark:text-peach dark:hover:text-peach/70"
+			className="inline-block align-[-0.1em] ml-0.5 text-danger hover:text-danger/70 dark:text-accent dark:hover:text-accent/70"
 			onClick={(event) => event.stopPropagation()}
 		>
 			<ArrowSquareOutIcon size="0.9em" />
@@ -178,7 +178,7 @@ function EditableLink({
 								href={url}
 								target="_blank"
 								rel="noreferrer"
-								className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+								className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm outline-none hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20"
 							>
 								<ArrowSquareOutIcon size="1em" />
 								{labels.linkOpen}
@@ -190,7 +190,7 @@ function EditableLink({
 										aria-label={labels.linkDelete}
 										title={labels.linkDelete}
 										onClick={removeLink}
-										className="cursor-pointer rounded-md p-1.5 text-sm outline-none hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 dark:hover:bg-ginger/20"
+										className="cursor-pointer rounded-md p-1.5 text-sm outline-none hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20"
 									>
 										<TrashIcon size="1.15em" />
 									</button>
@@ -198,7 +198,7 @@ function EditableLink({
 								<button
 									type="submit"
 									disabled={!canSave}
-									className="cursor-pointer rounded-md bg-redleather px-3 py-1.5 text-sm text-super-ginger outline-none hover:bg-redleather/90 focus-visible:ring-2 focus-visible:ring-redleather/50 disabled:cursor-default disabled:opacity-40"
+									className="cursor-pointer rounded-md bg-danger px-3 py-1.5 text-sm text-canvas outline-none hover:bg-danger/90 focus-visible:ring-2 focus-visible:ring-danger/50 disabled:cursor-default disabled:opacity-40"
 								>
 									{labels.linkSave}
 								</button>

@@ -26,7 +26,7 @@ export function Footer() {
 					{m.footer_cta()}
 				</Button>
 			</div>
-			<div className="mt-18 flex flex-col-reverse items-center gap-4 border-t border-dark-grey/8 pt-6 text-base md:flex-row md:justify-between">
+			<div className="mt-18 flex flex-col-reverse items-center gap-4 border-t border-ink/8 pt-6 text-base md:flex-row md:justify-between">
 				<span className="font-serif text-base italic">cascade</span>
 				<div className="inline-flex items-center gap-4">
 					<Link to="/privacy" className="hover:underline focus:underline">
@@ -42,7 +42,7 @@ export function Footer() {
 					/>
 					<div className="inline-flex items-center gap-0.75">
 						<span>{m.footer_with()}</span>
-						<HeartIcon className="fill-redleather" weight="fill" />
+						<HeartIcon className="fill-danger" weight="fill" />
 						<span>{m.footer_from()}</span>
 						<a
 							href="https://patrickroelofs.com"

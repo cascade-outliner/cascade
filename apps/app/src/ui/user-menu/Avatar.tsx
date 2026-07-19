@@ -29,7 +29,7 @@ export function Avatar({
 	return (
 		<span
 			aria-hidden="true"
-			className={`flex items-center justify-center rounded-full bg-redleather/10 text-xs font-semibold text-redleather ${className ?? ""}`}
+			className={`flex items-center justify-center rounded-full bg-danger/10 text-xs font-semibold text-danger ${className ?? ""}`}
 		>
 			{initials(user.name, user.email)}
 		</span>

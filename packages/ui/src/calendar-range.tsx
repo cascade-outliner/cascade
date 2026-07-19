@@ -85,26 +85,26 @@ const WEEKDAY_LABELS = Array.from({ length: 7 }, (_, i) =>
 
 const navButton = cva({
 	base: [
-		"flex size-[22px] items-center justify-center rounded-md text-graphite outline-none transition-colors",
-		"hover:bg-ginger/70 hover:text-dark-grey",
-		"dark:text-ginger/80 dark:hover:bg-ginger/20 dark:hover:text-ginger",
+		"flex size-[22px] items-center justify-center rounded-md text-muted outline-none transition-colors",
+		"hover:bg-surface/70 hover:text-ink",
+		"dark:text-surface/80 dark:hover:bg-surface/20 dark:hover:text-surface",
 	],
 });
 
 const day = cva({
 	base: [
 		"flex h-7 items-center justify-center rounded-md text-[12.5px] tabular-nums outline-none transition-colors",
-		"text-dark-grey hover:bg-ginger/70 dark:text-ginger dark:hover:bg-ginger/20",
+		"text-ink hover:bg-surface/70 dark:text-surface dark:hover:bg-surface/20",
 	],
 	variants: {
 		muted: { true: "opacity-35 dark:opacity-50", false: "" },
-		today: { true: "font-semibold ring-1 ring-inset ring-peach", false: "" },
+		today: { true: "font-semibold ring-1 ring-inset ring-accent", false: "" },
 		selected: {
-			true: "bg-redleather font-semibold text-super-ginger hover:bg-redleather dark:hover:bg-redleather",
+			true: "bg-danger font-semibold text-canvas hover:bg-danger dark:hover:bg-danger",
 			false: "",
 		},
 		inRange: {
-			true: "rounded-none bg-peach/40 dark:bg-peach/20",
+			true: "rounded-none bg-accent/40 dark:bg-accent/20",
 			false: "",
 		},
 	},
@@ -112,22 +112,21 @@ const day = cva({
 		{
 			selected: true,
 			inRange: true,
-			class: "rounded-md bg-redleather text-super-ginger hover:bg-redleather",
+			class: "rounded-md bg-danger text-canvas hover:bg-danger",
 		},
 	],
 });
 
 const quick = cva({
 	base: [
-		"rounded-full border border-dark-grey/15 px-2.5 py-1 text-[11.5px] outline-none transition-colors",
-		"text-dark-grey hover:bg-ginger/70",
-		"dark:border-ginger/15 dark:text-ginger dark:hover:bg-ginger/20",
+		"rounded-full border border-ink/15 px-2.5 py-1 text-[11.5px] outline-none transition-colors",
+		"text-ink hover:bg-surface/70",
+		"dark:border-surface/15 dark:text-surface dark:hover:bg-surface/20",
 	],
 	variants: {
 		variant: {
 			default: "",
-			clear:
-				"ml-auto border-redleather/30 text-redleather hover:bg-redleather/10",
+			clear: "ml-auto border-danger/30 text-danger hover:bg-danger/10",
 		},
 	},
 	defaultVariants: { variant: "default" },
@@ -232,7 +231,7 @@ export function CalendarRange({
 				</button>
 			</div>
 			{pendingStart && (
-				<p className="mb-2 text-center text-[11px] text-graphite dark:text-ginger/60">
+				<p className="mb-2 text-center text-[11px] text-muted dark:text-surface/60">
 					{labels.calendarRangeSelectEnd}
 				</p>
 			)}
@@ -240,7 +239,7 @@ export function CalendarRange({
 				{WEEKDAY_LABELS.map((label) => (
 					<div
 						key={label}
-						className="pb-1 text-center text-[10px] font-semibold text-graphite dark:text-ginger/70"
+						className="pb-1 text-center text-[10px] font-semibold text-muted dark:text-surface/70"
 					>
 						{label}
 					</div>
@@ -266,7 +265,7 @@ export function CalendarRange({
 					);
 				})}
 			</div>
-			<div className="mt-3 flex flex-wrap gap-1.5 border-t border-dark-grey/10 pt-3 dark:border-ginger/10">
+			<div className="mt-3 flex flex-wrap gap-1.5 border-t border-ink/10 pt-3 dark:border-surface/10">
 				{onSelectSingle && !pendingStart && (
 					<>
 						<button

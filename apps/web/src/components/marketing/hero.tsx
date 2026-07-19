@@ -22,7 +22,7 @@ function DemoBreadcrumbs({
 						type="button"
 						onClick={() => onNavigate(null)}
 						aria-label={m.hero_breadcrumb_back_to_root()}
-						className="hover:text-redleather transition-colors"
+						className="hover:text-danger transition-colors"
 					>
 						<HouseIcon size={16} weight="bold" />
 					</button>
@@ -43,7 +43,7 @@ function DemoBreadcrumbs({
 							<button
 								type="button"
 								onClick={() => onNavigate(crumb.id)}
-								className="max-w-48 truncate hover:text-redleather transition-colors"
+								className="max-w-48 truncate hover:text-danger transition-colors"
 							>
 								{crumb.label}
 							</button>
@@ -63,7 +63,7 @@ export function Hero() {
 			<h1 className="mb-6 text-balance font-serif text-5xl md:text-[68px] leading-[1.05] font-light tracking-[-0.02em]">
 				{m.hero_heading()}
 			</h1>
-			<p className="mx-auto mb-12 max-w-lg text-pretty text-lg text-graphite">
+			<p className="mx-auto mb-12 max-w-lg text-pretty text-lg text-muted">
 				{m.hero_subtitle_line1()}
 				<br />
 				{m.hero_subtitle_line2()}
@@ -76,7 +76,7 @@ export function Hero() {
 				>
 					{m.hero_cta()}
 				</Button>
-				<p className="text-sm text-graphite">{m.hero_demo_hint()}</p>
+				<p className="text-sm text-muted">{m.hero_demo_hint()}</p>
 			</div>
 			<VirtualTree
 				tree={tree}
@@ -86,7 +86,7 @@ export function Hero() {
 						type="button"
 						aria-label={m.hero_demo_open_node()}
 						onClick={() => setRootId(id)}
-						className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-dark-grey hover:bg-redleather shrink-0 hover:scale-150 hover:-z-10 transition-all ease-in-out"
+						className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-ink hover:bg-danger shrink-0 hover:scale-150 hover:-z-10 transition-all ease-in-out"
 					/>
 				)}
 				header={
@@ -97,10 +97,10 @@ export function Hero() {
 						/>
 					) : undefined
 				}
-				className="mt-10 h-[420px] overflow-auto rounded-2xl border border-dark-grey/10 bg-white text-left shadow-lg shadow-dark-grey/10"
+				className="mt-10 h-[420px] overflow-auto rounded-2xl border border-ink/10 bg-white text-left shadow-lg shadow-ink/10"
 				contentClassName="max-w-none mx-0 px-6 py-6"
 			/>
-			<p className="mt-3 text-xs text-graphite">{m.hero_demo_footer()}</p>
+			<p className="mt-3 text-xs text-muted">{m.hero_demo_footer()}</p>
 		</header>
 	);
 }

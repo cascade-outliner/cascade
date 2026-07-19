@@ -1,12 +1,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-	--color-super-ginger: #FCF5EE;
-	--color-ginger: #f9e4d6;
-	--color-redleather: #ad4c4e;
-	--color-graphite: #62646b;
-	--color-peach: #e38b75;
-	--color-dark-grey: #2b2d33;
+	--color-canvas: #FCF5EE;
+	--color-surface: #f9e4d6;
+	--color-danger: #ad4c4e;
+	--color-muted: #62646b;
+	--color-accent: #e38b75;
+	--color-ink: #2b2d33;
 
 	--font-app: "Bitter Variable", serif;
 }
@@ -15,12 +15,12 @@
  * Theme palettes (see themes.ts for the registry). Every theme overrides the
  * same six color slots, whose roles are:
  *
- *   super-ginger  page background (light themes) / primary text (dark themes)
- *   ginger        surfaces & hover tints (light) / secondary text, borders (dark)
- *   dark-grey     primary text (light) / page background (dark)
- *   graphite      muted text
- *   peach         accent
- *   redleather    danger / strong accent
+ *   canvas   page background (light themes) / primary text (dark themes)
+ *   surface  surfaces & hover tints (light) / secondary text, borders (dark)
+ *   ink      primary text (light) / page background (dark)
+ *   muted    muted text
+ *   accent   accent
+ *   danger   danger / strong accent
  *
  * Tailwind utilities compile to var(--color-*) references, so these
  * un-layered overrides re-theme every component. Dark themes additionally
@@ -29,57 +29,57 @@
  */
 
 [data-theme="catppuccin-latte"] {
-	--color-super-ginger: #eff1f5;
-	--color-ginger: #ccd0da;
-	--color-redleather: #d20f39;
-	--color-graphite: #6c6f85;
-	--color-peach: #fe640b;
-	--color-dark-grey: #4c4f69;
+	--color-canvas: #eff1f5;
+	--color-surface: #ccd0da;
+	--color-danger: #d20f39;
+	--color-muted: #6c6f85;
+	--color-accent: #fe640b;
+	--color-ink: #4c4f69;
 }
 
 [data-theme="catppuccin-frappe"] {
-	--color-super-ginger: #c6d0f5;
-	--color-ginger: #b5bfe2;
-	--color-redleather: #e78284;
-	--color-graphite: #737994;
-	--color-peach: #ef9f76;
-	--color-dark-grey: #303446;
+	--color-canvas: #c6d0f5;
+	--color-surface: #b5bfe2;
+	--color-danger: #e78284;
+	--color-muted: #737994;
+	--color-accent: #ef9f76;
+	--color-ink: #303446;
 }
 
 [data-theme="catppuccin-macchiato"] {
-	--color-super-ginger: #cad3f5;
-	--color-ginger: #b8c0e0;
-	--color-redleather: #ed8796;
-	--color-graphite: #6e738d;
-	--color-peach: #f5a97f;
-	--color-dark-grey: #24273a;
+	--color-canvas: #cad3f5;
+	--color-surface: #b8c0e0;
+	--color-danger: #ed8796;
+	--color-muted: #6e738d;
+	--color-accent: #f5a97f;
+	--color-ink: #24273a;
 }
 
 [data-theme="catppuccin-mocha"] {
-	--color-super-ginger: #cdd6f4;
-	--color-ginger: #bac2de;
-	--color-redleather: #f38ba8;
-	--color-graphite: #6c7086;
-	--color-peach: #fab387;
-	--color-dark-grey: #1e1e2e;
+	--color-canvas: #cdd6f4;
+	--color-surface: #bac2de;
+	--color-danger: #f38ba8;
+	--color-muted: #6c7086;
+	--color-accent: #fab387;
+	--color-ink: #1e1e2e;
 }
 
 [data-theme="nord"] {
-	--color-super-ginger: #eceff4;
-	--color-ginger: #d8dee9;
-	--color-redleather: #bf616a;
-	--color-graphite: #4c566a;
-	--color-peach: #88c0d0;
-	--color-dark-grey: #2e3440;
+	--color-canvas: #eceff4;
+	--color-surface: #d8dee9;
+	--color-danger: #bf616a;
+	--color-muted: #4c566a;
+	--color-accent: #88c0d0;
+	--color-ink: #2e3440;
 }
 
 [data-theme="dracula"] {
-	--color-super-ginger: #f8f8f2;
-	--color-ginger: #f8f8f2;
-	--color-redleather: #ff5555;
-	--color-graphite: #6272a4;
-	--color-peach: #bd93f9;
-	--color-dark-grey: #282a36;
+	--color-canvas: #f8f8f2;
+	--color-surface: #f8f8f2;
+	--color-danger: #ff5555;
+	--color-muted: #6272a4;
+	--color-accent: #bd93f9;
+	--color-ink: #282a36;
 }
 
 /*

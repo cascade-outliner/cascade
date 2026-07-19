@@ -3,10 +3,10 @@ import { cva } from "./cva.config";
 
 const field = cva({
 	base: [
-		"w-full rounded-md border border-dark-grey/15 bg-white px-3 py-2 text-sm text-dark-grey outline-none",
-		"placeholder:text-dark-grey/40",
-		"focus-visible:ring-2 focus-visible:ring-redleather/50",
-		"dark:border-ginger/20 dark:bg-dark-grey dark:text-ginger dark:placeholder:text-ginger/40",
+		"w-full rounded-md border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none",
+		"placeholder:text-ink/40",
+		"focus-visible:ring-2 focus-visible:ring-danger/50",
+		"dark:border-surface/20 dark:bg-ink dark:text-surface dark:placeholder:text-surface/40",
 	],
 });
 

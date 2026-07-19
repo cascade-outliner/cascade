@@ -11,7 +11,7 @@ function NavLinks() {
 			<Link
 				to="/login"
 				href={appUrl}
-				className="font-bold text-redleather inline-flex items-center gap-2"
+				className="font-bold text-danger inline-flex items-center gap-2"
 			>
 				{m.nav_go_to_app()} <ArrowUpRightIcon size={24} />
 			</Link>
@@ -37,7 +37,7 @@ export function Nav() {
 					<ListIcon size={28} />
 				</Dialog.Trigger>
 				<Dialog.Portal>
-					<Dialog.Backdrop className="fixed inset-0 z-50 bg-dark-grey/40 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0" />
+					<Dialog.Backdrop className="fixed inset-0 z-50 bg-ink/40 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0" />
 					<Dialog.Popup className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xs flex-col gap-8 bg-white p-8 shadow-lg transition-transform duration-150 data-starting-style:translate-x-full data-ending-style:translate-x-full">
 						<Dialog.Close className="self-end" aria-label={m.nav_close_menu()}>
 							<XIcon size={28} />

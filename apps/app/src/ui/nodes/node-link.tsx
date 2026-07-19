@@ -14,7 +14,7 @@ export function NodeLink({ id, content }: NodeLinkProps) {
 			params={{ nodeSlug: toNodeSlug({ id, content }) }}
 			search={true}
 			aria-label={m.node_link_open()}
-			className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-dark-grey hover:bg-redleather dark:bg-ginger dark:hover:bg-redleather shrink-0"
+			className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-ink hover:bg-danger dark:bg-surface dark:hover:bg-danger shrink-0"
 		/>
 	);
 }

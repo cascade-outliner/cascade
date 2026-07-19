@@ -76,7 +76,7 @@ export function NodeEditor({
 			tabIndex={0}
 			aria-label={labels.editNodeText}
 			data-node-focus-target
-			className={`cursor-text text-left flex-1 min-w-0 rr-block ${completed ? "line-through text-graphite dark:text-super-ginger/30" : ""}`}
+			className={`cursor-text text-left flex-1 min-w-0 rr-block ${completed ? "line-through text-muted dark:text-canvas/30" : ""}`}
 			onClick={(event) => onStartEdit({ x: event.clientX, y: event.clientY })}
 			onKeyDown={(event) => {
 				if (event.key === "Enter" || event.key === " ") {

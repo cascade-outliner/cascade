@@ -51,7 +51,7 @@ const root = cva({
 		"absolute right-0 bottom-0 left-auto mr-0 w-80 origin-bottom",
 		"[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]",
 		"z-[calc(1000-var(--toast-index))] h-[var(--height)]",
-		"rounded-lg border border-dark-grey/10 bg-white text-dark-grey shadow-lg shadow-dark-grey/15",
+		"rounded-lg border border-ink/10 bg-white text-ink shadow-lg shadow-ink/15",
 		"select-none [transition:transform_0.4s_cubic-bezier(0.22,1,0.36,1),opacity_0.4s,height_0.15s]",
 		"data-expanded:h-[var(--toast-height)]",
 		"data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
@@ -62,9 +62,9 @@ const root = cva({
 	variants: {
 		type: {
 			success: "[&_.toast-icon]:text-green-600",
-			error: "[&_.toast-icon]:text-redleather",
+			error: "[&_.toast-icon]:text-danger",
 			warning: "[&_.toast-icon]:text-amber-600",
-			info: "[&_.toast-icon]:text-graphite",
+			info: "[&_.toast-icon]:text-muted",
 		},
 	},
 	defaultVariants: {
@@ -95,13 +95,13 @@ function ToastList() {
 				</div>
 				<div className="flex-1 space-y-0.5">
 					<Toast.Title className="font-semibold text-sm" />
-					<Toast.Description className="text-sm text-dark-grey" />
+					<Toast.Description className="text-sm text-ink" />
 				</div>
 				<Toast.Close
 					aria-label={labels.dismissToast}
-					className="shrink-0 cursor-pointer rounded p-1 text-dark-grey outline-none hover:bg-dark-grey/5 "
+					className="shrink-0 cursor-pointer rounded p-1 text-ink outline-none hover:bg-ink/5 "
 				>
-					<XIcon size={16} className="text-dark-grey" />
+					<XIcon size={16} className="text-ink" />
 				</Toast.Close>
 			</Toast.Content>
 		</Toast.Root>

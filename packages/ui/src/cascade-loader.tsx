@@ -7,7 +7,7 @@ export function CascadeLoader() {
 		<div className="flex w-screen h-screen relative z-10 items-center justify-center">
 			<CircleNotchIcon
 				size={48}
-				className="animate-spin text-redleather dark:text-peach"
+				className="animate-spin text-danger dark:text-accent"
 				aria-label={labels.loading}
 			/>
 		</div>

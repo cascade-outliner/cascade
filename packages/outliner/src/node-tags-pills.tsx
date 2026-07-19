@@ -20,7 +20,7 @@ const pill = cva({
 	variants: {
 		hue: {
 			neutral:
-				"border-dark-grey/15 bg-transparent text-graphite dark:border-ginger/15 dark:text-ginger/60",
+				"border-ink/15 bg-transparent text-muted dark:border-surface/15 dark:text-surface/60",
 			amber:
 				"border-amber-600/30 bg-amber-600/10 text-amber-700 dark:border-amber-400/35 dark:bg-amber-400/15 dark:text-amber-300",
 			emerald:
@@ -33,9 +33,9 @@ const pill = cva({
 		},
 		interactive: {
 			true: [
-				"outline-none hover:border-redleather/50 hover:text-redleather",
-				"focus-visible:ring-2 focus-visible:ring-redleather/50",
-				"dark:hover:border-redleather/40 dark:hover:text-redleather",
+				"outline-none hover:border-danger/50 hover:text-danger",
+				"focus-visible:ring-2 focus-visible:ring-danger/50",
+				"dark:hover:border-danger/40 dark:hover:text-danger",
 			],
 		},
 	},
@@ -47,11 +47,11 @@ const pill = cva({
 const addTrigger = cva({
 	base: [
 		"inline-flex shrink-0 items-center justify-center rounded-full border border-dashed size-5 outline-none",
-		"border-dark-grey/25 text-graphite/70",
+		"border-ink/25 text-muted/70",
 		"opacity-0 transition-opacity group-hover/node:opacity-100 group-focus-within/node:opacity-100 pointer-coarse:opacity-100 data-popup-open:opacity-100",
-		"hover:border-redleather/50 hover:text-redleather hover:bg-redleather/5",
-		"focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-redleather/50",
-		"dark:border-ginger/25 dark:text-ginger/60 dark:hover:border-redleather/40 dark:hover:text-redleather",
+		"hover:border-danger/50 hover:text-danger hover:bg-danger/5",
+		"focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-danger/50",
+		"dark:border-surface/25 dark:text-surface/60 dark:hover:border-danger/40 dark:hover:text-danger",
 	],
 });
 

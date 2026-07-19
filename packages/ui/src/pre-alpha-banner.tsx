@@ -4,9 +4,9 @@ import { useUiLabels } from "./labels-context";
 export function PreAlphaBanner() {
 	const labels = useUiLabels();
 	return (
-		<div className="bg-ginger py-2 text-center text-dark-grey text-sm">
+		<div className="bg-surface py-2 text-center text-ink text-sm">
 			<div className="relative mx-auto flex max-w-3xl items-center justify-center gap-2 px-10">
-				<WarningIcon size={16} weight="fill" className="text-redleather" />
+				<WarningIcon size={16} weight="fill" className="text-danger" />
 				<span>
 					{labels.preAlphaBannerPrefix}{" "}
 					<strong className="font-semibold">

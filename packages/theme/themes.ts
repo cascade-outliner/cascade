@@ -30,6 +30,28 @@ export const themeIds = themes.map((theme) => theme.id) as [
 	...ThemeId[],
 ];
 
+/** Sentinel selection meaning "follow the OS light/dark preference". */
+export const SYSTEM_THEME = "system" as const;
+
+/** What's actually stored for the theme setting: a concrete theme, or sync-with-system. */
+export type ThemeSelection = ThemeId | typeof SYSTEM_THEME;
+
+export const themeSelectionIds = [...themeIds, SYSTEM_THEME] as [
+	ThemeSelection,
+	...ThemeSelection[],
+];
+
+function themeIdsWhere(dark: boolean) {
+	return themes
+		.filter((theme) => theme.dark === dark)
+		.map((theme) => theme.id) as [ThemeId, ...ThemeId[]];
+}
+
+/** Themes offered as the "light theme" half of a system-sync selection. */
+export const lightThemeIds = themeIdsWhere(false);
+/** Themes offered as the "dark theme" half of a system-sync selection. */
+export const darkThemeIds = themeIdsWhere(true);
+
 export function isDarkTheme(id: ThemeId): boolean {
 	return themes.some((theme) => theme.id === id && theme.dark);
 }
@@ -41,4 +63,19 @@ export function isDarkTheme(id: ThemeId): boolean {
  */
 export function themeAttribute(id: ThemeId): string | undefined {
 	return id === "light" || id === "dark" ? undefined : id;
+}
+
+/**
+ * Resolves a stored theme selection to a concrete theme id: a fixed selection
+ * passes through unchanged; "system" picks the user's configured light or
+ * dark theme based on the current OS preference.
+ */
+export function resolveThemeId(
+	selection: ThemeSelection,
+	lightTheme: ThemeId,
+	darkTheme: ThemeId,
+	systemPrefersDark: boolean,
+): ThemeId {
+	if (selection !== SYSTEM_THEME) return selection;
+	return systemPrefersDark ? darkTheme : lightTheme;
 }

@@ -3,12 +3,12 @@ import { cva } from "./cva.config";
 
 const popup = cva({
 	base: [
-		"origin-(--transform-origin) rounded-lg border border-dark-grey/10 bg-white p-3 text-dark-grey",
-		"shadow-lg shadow-dark-grey/15 transition-[transform,opacity] duration-150 ease-out",
+		"origin-(--transform-origin) rounded-lg border border-ink/10 bg-white p-3 text-ink",
+		"shadow-lg shadow-ink/15 transition-[transform,opacity] duration-150 ease-out",
 		"data-starting-style:scale-95 data-starting-style:opacity-0",
 		"data-ending-style:scale-95 data-ending-style:opacity-0",
 		"outline-none",
-		"dark:border-ginger/10 dark:bg-dark-grey dark:text-ginger",
+		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });
 

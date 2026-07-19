@@ -31,7 +31,7 @@ export function NodeToggle({
 					onClick={() => onToggle(!expanded)}
 					aria-label={expanded ? labels.toggleCollapse : labels.toggleExpand}
 					aria-expanded={expanded}
-					className="cursor-pointer shrink-0 p-1 -m-1 text-dark-grey hover:text-redleather dark:text-ginger dark:hover:text-redleather"
+					className="cursor-pointer shrink-0 p-1 -m-1 text-ink hover:text-danger dark:text-surface dark:hover:text-danger"
 				>
 					<CaretRightIcon
 						className={nodeToggleCaret({

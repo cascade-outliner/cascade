@@ -9,15 +9,15 @@ import { cva } from "./cva.config";
 const trigger = cva({
 	base: [
 		"flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm outline-none",
-		"hover:bg-ginger/70 focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:bg-ginger/70",
-		"dark:hover:bg-ginger/20 dark:data-popup-open:bg-ginger/20",
+		"hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 data-popup-open:bg-surface/70",
+		"dark:hover:bg-surface/20 dark:data-popup-open:bg-surface/20",
 	],
 });
 
 const popup = cva({
 	base: [
-		"origin-(--transform-origin) min-w-32 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger",
-		"shadow-lg shadow-dark-grey/15 transition-[transform,opacity] duration-150 ease-out",
+		"origin-(--transform-origin) min-w-32 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface",
+		"shadow-lg shadow-ink/15 transition-[transform,opacity] duration-150 ease-out",
 		"data-starting-style:scale-95 data-starting-style:opacity-0",
 		"data-ending-style:scale-95 data-ending-style:opacity-0",
 		"outline-none",
@@ -27,7 +27,7 @@ const popup = cva({
 const item = cva({
 	base: [
 		"flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20",
+		"data-highlighted:bg-surface/70 dark:data-highlighted:bg-surface/20",
 	],
 });
 

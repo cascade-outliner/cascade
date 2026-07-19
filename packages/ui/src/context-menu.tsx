@@ -4,25 +4,25 @@ import { cva } from "./cva.config";
 
 const popup = cva({
 	base: [
-		"origin-(--transform-origin) min-w-40 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey",
-		"shadow-lg shadow-dark-grey/15 transition-[transform,opacity] duration-150 ease-out",
+		"origin-(--transform-origin) min-w-40 rounded-lg border border-ink/10 bg-white p-1 text-ink",
+		"shadow-lg shadow-ink/15 transition-[transform,opacity] duration-150 ease-out",
 		"data-starting-style:scale-95 data-starting-style:opacity-0",
 		"data-ending-style:scale-95 data-ending-style:opacity-0",
 		"outline-none",
-		"dark:border-ginger/10 dark:bg-dark-grey dark:text-ginger",
+		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });
 
 const item = cva({
 	base: [
 		"flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20",
+		"data-highlighted:bg-surface/70 dark:data-highlighted:bg-surface/20",
 		"data-disabled:cursor-default data-disabled:opacity-40",
 	],
 	variants: {
 		variant: {
 			default: "",
-			destructive: "text-redleather",
+			destructive: "text-danger",
 		},
 	},
 	defaultVariants: {
@@ -30,7 +30,7 @@ const item = cva({
 	},
 });
 
-const separator = cva({ base: "my-1 h-px bg-dark-grey/10 dark:bg-ginger/10" });
+const separator = cva({ base: "my-1 h-px bg-ink/10 dark:bg-surface/10" });
 
 export const ContextMenu = BaseContextMenu.Root;
 

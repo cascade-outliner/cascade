@@ -62,13 +62,13 @@ const pill = cva({
 	variants: {
 		bucket: {
 			overdue:
-				"border-redleather/30 bg-redleather/10 text-redleather dark:border-redleather/35 dark:bg-redleather/15",
+				"border-danger/30 bg-danger/10 text-danger dark:border-danger/35 dark:bg-danger/15",
 			today:
-				"border-peach/50 bg-peach/25 text-dark-grey dark:border-peach/40 dark:bg-peach/20 dark:text-ginger",
+				"border-accent/50 bg-accent/25 text-ink dark:border-accent/40 dark:bg-accent/20 dark:text-surface",
 			upcoming:
-				"border-dark-grey/15 bg-transparent text-graphite dark:border-ginger/15 dark:text-ginger/60",
+				"border-ink/15 bg-transparent text-muted dark:border-surface/15 dark:text-surface/60",
 			completed:
-				"border-dark-grey/10 bg-transparent text-graphite opacity-70 dark:border-ginger/10 dark:text-super-ginger/30",
+				"border-ink/10 bg-transparent text-muted opacity-70 dark:border-surface/10 dark:text-canvas/30",
 		},
 	},
 });

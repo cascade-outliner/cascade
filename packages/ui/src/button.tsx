@@ -3,13 +3,13 @@ import { useId } from "react";
 import { cva } from "./cva.config";
 
 const variantRing = {
-	primary: "focus-visible:ring-redleather/50",
-	dark: "focus-visible:ring-dark-grey/50",
+	primary: "focus-visible:ring-danger/50",
+	dark: "focus-visible:ring-ink/50",
 };
 
 const variantBg = {
-	primary: "bg-redleather",
-	dark: "bg-dark-grey",
+	primary: "bg-danger",
+	dark: "bg-ink",
 };
 
 const root = cva({
@@ -70,13 +70,11 @@ export function Button({
 				/>
 			</span>
 			<span className="relative z-10 flex h-11 items-center">
-				<span
-					className={`origin-right px-6 font-semibold text-super-ginger ${grow}`}
-				>
+				<span className={`origin-right px-6 font-semibold text-canvas ${grow}`}>
 					{children}
 				</span>
 				<span
-					className={`flex size-11 items-center justify-center text-super-ginger ${slide}`}
+					className={`flex size-11 items-center justify-center text-canvas ${slide}`}
 				>
 					{icon}
 				</span>

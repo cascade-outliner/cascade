@@ -1,6 +1,6 @@
 import { Dialog, NumberField, Tabs } from "@base-ui/react";
 import { type FontId, fonts } from "@cascade/theme/fonts";
-import { themes } from "@cascade/theme/themes";
+import { SYSTEM_THEME, themes } from "@cascade/theme/themes";
 import { LanguageSwitcher } from "@cascade/ui/language-switcher";
 import { Select } from "@cascade/ui/select";
 import {
@@ -35,16 +35,29 @@ import type { UserMenuUser } from "./types";
 const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
 
 /** The built-in light/dark palettes get translated labels; theme names are proper nouns. */
+function themeLabel(theme: (typeof themes)[number]): string {
+	if (theme.id === "light") return m.user_menu_theme_light();
+	if (theme.id === "dark") return m.user_menu_theme_dark();
+	return theme.label;
+}
+
 function themeOptions() {
-	return themes.map((theme) => ({
-		value: theme.id,
-		label:
-			theme.id === "light"
-				? m.user_menu_theme_light()
-				: theme.id === "dark"
-					? m.user_menu_theme_dark()
-					: theme.label,
-	}));
+	return [
+		{ value: SYSTEM_THEME, label: m.user_menu_theme_sync_system() },
+		...themes.map((theme) => ({ value: theme.id, label: themeLabel(theme) })),
+	];
+}
+
+function lightThemeOptions() {
+	return themes
+		.filter((theme) => !theme.dark)
+		.map((theme) => ({ value: theme.id, label: themeLabel(theme) }));
+}
+
+function darkThemeOptions() {
+	return themes
+		.filter((theme) => theme.dark)
+		.map((theme) => ({ value: theme.id, label: themeLabel(theme) }));
 }
 
 function fontOptions() {
@@ -81,7 +94,7 @@ export function UserSettingsDialog({
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Backdrop className="fixed inset-0 z-50 bg-ginger/20 backdrop-blur-sm" />
+				<Dialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
 				<Dialog.Popup className={settingsDialogPopup()}>
 					<div className="mb-4 flex items-center justify-between">
 						<Dialog.Title className="text-lg font-semibold">
@@ -95,7 +108,7 @@ export function UserSettingsDialog({
 						</Dialog.Close>
 					</div>
 					<Tabs.Root defaultValue="general">
-						<Tabs.List className="mb-4 flex gap-4 border-b border-dark-grey/10 dark:border-ginger/15">
+						<Tabs.List className="mb-4 flex gap-4 border-b border-ink/10 dark:border-surface/15">
 							<Tabs.Tab value="general" className={tabTrigger()}>
 								{m.user_menu_general_tab()}
 							</Tabs.Tab>
@@ -116,6 +129,28 @@ export function UserSettingsDialog({
 									onValueChange={(theme) => setSetting("theme", theme)}
 								/>
 							</div>
+							{settings.theme === SYSTEM_THEME && (
+								<>
+									<div className="mt-3 flex items-center justify-between pl-4 text-sm">
+										{m.user_menu_theme_light_option()}
+										<Select
+											aria-label={m.user_menu_theme_light_option()}
+											options={lightThemeOptions()}
+											value={settings.lightTheme}
+											onValueChange={(theme) => setSetting("lightTheme", theme)}
+										/>
+									</div>
+									<div className="mt-3 flex items-center justify-between pl-4 text-sm">
+										{m.user_menu_theme_dark_option()}
+										<Select
+											aria-label={m.user_menu_theme_dark_option()}
+											options={darkThemeOptions()}
+											value={settings.darkTheme}
+											onValueChange={(theme) => setSetting("darkTheme", theme)}
+										/>
+									</div>
+								</>
+							)}
 							<div className="mt-3 flex items-center justify-between text-sm">
 								{m.user_menu_font()}
 								<Select
@@ -186,7 +221,7 @@ export function UserSettingsDialog({
 									<div className="truncate text-sm font-semibold">
 										{user.name}
 									</div>
-									<div className="truncate text-sm text-dark-grey/60 dark:text-ginger/60">
+									<div className="truncate text-sm text-ink/60 dark:text-surface/60">
 										{user.email}
 									</div>
 								</div>

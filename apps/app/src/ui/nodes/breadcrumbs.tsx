@@ -26,7 +26,7 @@ function CrumbLink({ crumb }: { crumb: Crumb }) {
 			to="/$nodeSlug"
 			params={{ nodeSlug: toNodeSlug(crumb) }}
 			search={true}
-			className="max-w-48 truncate hover:text-redleather"
+			className="max-w-48 truncate hover:text-danger"
 		>
 			{crumbLabel(crumb)}
 		</Link>
@@ -38,13 +38,13 @@ function CollapsedCrumbs({ crumbs }: { crumbs: Crumb[] }) {
 		<Menu.Root>
 			<Menu.Trigger
 				aria-label={m.breadcrumbs_hidden_count({ count: crumbs.length })}
-				className="cursor-pointer rounded-md px-1 outline-none hover:text-redleather focus-visible:ring-2 focus-visible:ring-redleather/50 data-popup-open:text-redleather"
+				className="cursor-pointer rounded-md px-1 outline-none hover:text-danger focus-visible:ring-2 focus-visible:ring-danger/50 data-popup-open:text-danger"
 			>
 				<DotsThreeIcon size={16} weight="bold" />
 			</Menu.Trigger>
 			<Menu.Portal>
 				<Menu.Positioner className="z-50 outline-none" sideOffset={6}>
-					<Menu.Popup className="min-w-40 max-w-72 rounded-lg border border-dark-grey/10 bg-white p-1 text-dark-grey dark:border-ginger/15 dark:bg-dark-grey dark:text-ginger shadow-lg shadow-dark-grey/15 outline-none">
+					<Menu.Popup className="min-w-40 max-w-72 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface shadow-lg shadow-ink/15 outline-none">
 						{crumbs.map((crumb) => (
 							<Menu.Item
 								key={crumb.id}
@@ -56,7 +56,7 @@ function CollapsedCrumbs({ crumbs }: { crumbs: Crumb[] }) {
 										search={true}
 									/>
 								}
-								className="block cursor-pointer truncate rounded-md px-3 py-1.5 text-sm outline-none data-highlighted:bg-ginger/70 dark:data-highlighted:bg-ginger/20"
+								className="block cursor-pointer truncate rounded-md px-3 py-1.5 text-sm outline-none data-highlighted:bg-surface/70 dark:data-highlighted:bg-surface/20"
 							>
 								{crumbLabel(crumb)}
 							</Menu.Item>
@@ -95,7 +95,7 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 						to="/"
 						search={true}
 						aria-label={m.breadcrumbs_home_label()}
-						className="hover:text-redleather"
+						className="hover:text-danger"
 					>
 						<HouseIcon size={16} weight="bold" />
 					</Link>

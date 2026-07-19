@@ -53,7 +53,7 @@ export function LexicalEditView({
 				namespace: `node-editor-${id}`,
 				nodes: [LinkNode, AutoLinkNode],
 				theme: {
-					link: "text-redleather underline decoration-redleather/40 underline-offset-2 dark:text-peach dark:decoration-peach/40",
+					link: "text-danger underline decoration-danger/40 underline-offset-2 dark:text-accent dark:decoration-accent/40",
 				},
 				onError: (error) => console.error("lexical error", error),
 				editorState: content ? JSON.stringify(content) : null,

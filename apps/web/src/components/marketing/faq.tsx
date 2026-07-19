@@ -16,7 +16,7 @@ export function Faq() {
 				{faqs.map((faq, i) => (
 					<details
 						key={faq.question}
-						className={`group border-t border-dark-grey/10 py-1 ${
+						className={`group border-t border-ink/10 py-1 ${
 							i === faqs.length - 1 ? "border-b" : ""
 						}`}
 					>

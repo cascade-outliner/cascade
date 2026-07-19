@@ -71,7 +71,7 @@ function Login() {
 				<button
 					type="button"
 					onClick={handleGithub}
-					className="cursor-pointer mb-4 flex w-full items-center justify-center gap-2 rounded-full bg-dark-grey py-3 text-sm font-bold text-white"
+					className="cursor-pointer mb-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3 text-sm font-bold text-white"
 				>
 					<GithubLogoIcon className="size-4" weight="bold" />
 					{m.login_continue_github()}
@@ -79,15 +79,15 @@ function Login() {
 				<button
 					type="button"
 					onClick={handleGoogle}
-					className="cursor-pointer mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-graphite/30 py-3 text-sm font-bold"
+					className="cursor-pointer mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-muted/30 py-3 text-sm font-bold"
 				>
 					<GoogleLogoIcon className="size-4" weight="bold" />
 					{m.login_continue_google()}
 				</button>
-				<div className="mb-6 flex items-center gap-3 text-xs text-graphite">
-					<hr className="grow border-graphite/30" />
+				<div className="mb-6 flex items-center gap-3 text-xs text-muted">
+					<hr className="grow border-muted/30" />
 					{m.login_or()}
-					<hr className="grow border-graphite/30" />
+					<hr className="grow border-muted/30" />
 				</div>
 				<form
 					method="post"
@@ -109,7 +109,7 @@ function Login() {
 						required
 					/>
 					{error && (
-						<p role="alert" className="text-sm text-redleather">
+						<p role="alert" className="text-sm text-danger">
 							{error}
 						</p>
 					)}
@@ -122,9 +122,9 @@ function Login() {
 						{m.login_submit()}
 					</Button>
 				</form>
-				<p className="mt-8 text-center text-sm text-graphite">
+				<p className="mt-8 text-center text-sm text-muted">
 					{m.login_no_account()}
-					<Link to="/register" className="font-bold text-redleather pl-1">
+					<Link to="/register" className="font-bold text-danger pl-1">
 						{m.login_create_one()}
 					</Link>
 				</p>

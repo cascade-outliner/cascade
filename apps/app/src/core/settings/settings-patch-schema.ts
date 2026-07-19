@@ -1,5 +1,11 @@
 import { type FontId, fontIds } from "@cascade/theme/fonts";
-import { type ThemeId, themeIds } from "@cascade/theme/themes";
+import {
+	darkThemeIds,
+	lightThemeIds,
+	type ThemeId,
+	type ThemeSelection,
+	themeSelectionIds,
+} from "@cascade/theme/themes";
 import { z } from "zod";
 
 export const MIN_INDENT_SIZE = 2;
@@ -11,7 +17,12 @@ export const MAX_INDENT_SIZE = 64;
  * (e.g. a theme from `prefers-color-scheme`) until the user picks a value.
  */
 export interface Settings {
-	theme: ThemeId;
+	/** A concrete theme, or "system" to follow the OS light/dark preference. */
+	theme: ThemeSelection;
+	/** Used for the light half of the OS preference when `theme` is "system". */
+	lightTheme: ThemeId;
+	/** Used for the dark half of the OS preference when `theme` is "system". */
+	darkTheme: ThemeId;
 	font: FontId;
 	indentSize: number;
 	preAlphaBannerDismissed: boolean;
@@ -22,7 +33,9 @@ export const settingsPatchSchema = z
 	.object({
 		/** Legacy dark-mode flag from before themes; mapped to a theme on read. */
 		dark: z.boolean(),
-		theme: z.enum(themeIds),
+		theme: z.enum(themeSelectionIds),
+		lightTheme: z.enum(lightThemeIds),
+		darkTheme: z.enum(darkThemeIds),
 		font: z.enum(fontIds),
 		indentSize: z.number().int().min(MIN_INDENT_SIZE).max(MAX_INDENT_SIZE),
 		preAlphaBannerDismissed: z.boolean(),

@@ -25,7 +25,7 @@ function Changelog() {
 				</h1>
 				{changelogEntries.map((entry) => (
 					<div key={entry.id} className="mb-8 last:mb-0">
-						<h2 className="mb-2 text-sm font-semibold text-dark-grey/60">
+						<h2 className="mb-2 text-sm font-semibold text-ink/60">
 							{entry.id}
 						</h2>
 						<div

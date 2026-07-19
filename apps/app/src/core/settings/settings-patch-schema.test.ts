@@ -1,5 +1,9 @@
 import { fontIds } from "@cascade/theme/fonts";
-import { themeIds } from "@cascade/theme/themes";
+import {
+	darkThemeIds,
+	lightThemeIds,
+	themeSelectionIds,
+} from "@cascade/theme/themes";
 import { describe, expect, it } from "vitest";
 import {
 	MAX_INDENT_SIZE,
@@ -20,6 +24,8 @@ describe("settingsPatchSchema", () => {
 		const full = {
 			dark: false,
 			theme: "catppuccin-mocha",
+			lightTheme: "catppuccin-latte",
+			darkTheme: "dracula",
 			font: "system-mono",
 			indentSize: 24,
 			preAlphaBannerDismissed: true,
@@ -27,8 +33,8 @@ describe("settingsPatchSchema", () => {
 		expect(settingsPatchSchema.parse(full)).toEqual(full);
 	});
 
-	it("accepts every registered theme and font", () => {
-		for (const theme of themeIds) {
+	it("accepts every registered theme selection (including 'system') and font", () => {
+		for (const theme of themeSelectionIds) {
 			expect(settingsPatchSchema.parse({ theme })).toEqual({ theme });
 		}
 		for (const font of fontIds) {
@@ -46,6 +52,31 @@ describe("settingsPatchSchema", () => {
 		expect(settingsPatchSchema.safeParse({ font: "comic-sans" }).success).toBe(
 			false,
 		);
+	});
+
+	it("accepts every light theme as lightTheme and every dark theme as darkTheme", () => {
+		for (const theme of lightThemeIds) {
+			expect(settingsPatchSchema.parse({ lightTheme: theme })).toEqual({
+				lightTheme: theme,
+			});
+		}
+		for (const theme of darkThemeIds) {
+			expect(settingsPatchSchema.parse({ darkTheme: theme })).toEqual({
+				darkTheme: theme,
+			});
+		}
+	});
+
+	it("rejects a dark theme assigned to lightTheme", () => {
+		expect(
+			settingsPatchSchema.safeParse({ lightTheme: darkThemeIds[0] }).success,
+		).toBe(false);
+	});
+
+	it("rejects a light theme assigned to darkTheme", () => {
+		expect(
+			settingsPatchSchema.safeParse({ darkTheme: lightThemeIds[0] }).success,
+		).toBe(false);
 	});
 
 	it("strips unknown keys", () => {
