@@ -1,20 +1,19 @@
 import { Dialog } from "@base-ui/react";
 import { ArrowUpRightIcon, ListIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
-import { appUrl } from "#/lib/app-url";
+import { appLoginUrl } from "#/lib/app-url";
 import { m } from "#/paraglide/messages.js";
 
 function NavLinks() {
 	return (
 		<>
 			<Link to="/changelog">{m.nav_changelog()}</Link>
-			<Link
-				to="/login"
-				href={appUrl}
+			<a
+				href={appLoginUrl}
 				className="font-bold text-danger inline-flex items-center gap-2"
 			>
 				{m.nav_go_to_app()} <ArrowUpRightIcon size={24} />
-			</Link>
+			</a>
 		</>
 	);
 }

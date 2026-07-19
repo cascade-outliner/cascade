@@ -13,6 +13,10 @@ export function UserMenu() {
 	const signOut = useSignOut();
 	const deleteAccount = useDeleteAccount();
 
+	if (!user) {
+		return null;
+	}
+
 	return (
 		<UserMenuView
 			user={user}

@@ -34,15 +34,19 @@ interface MyRouterContext {
 	queryClient: QueryClient;
 }
 
-const webUrl = import.meta.env.VITE_WEB_URL ?? "localhost:3000";
+const authPaths = new Set(["/login", "/register"]);
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-	beforeLoad: async () => {
+	beforeLoad: async ({ location }) => {
 		const session = await getSession();
-		if (!session) {
-			throw redirect({ href: `${webUrl}/login` });
+		const isAuthPath = authPaths.has(location.pathname);
+		if (!session && !isAuthPath) {
+			throw redirect({ to: "/login" });
 		}
-		return { user: session.user };
+		if (session && isAuthPath) {
+			throw redirect({ to: "/" });
+		}
+		return { user: session?.user };
 	},
 	loader: async ({ context: { queryClient } }) => {
 		const settings = await queryClient
@@ -132,6 +136,7 @@ function ssrThemeAttrs(settings: SettingsPatch) {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	const { settings } = Route.useLoaderData();
+	const { user } = Route.useRouteContext();
 	const { dark, themeAttr } = ssrThemeAttrs(settings);
 	return (
 		<html
@@ -151,7 +156,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<AppLabelsProvider>
 						<SettingsProvider>
 							<Toaster>
-								<AppHeader />
+								{user && <AppHeader />}
 								{children}
 							</Toaster>
 						</SettingsProvider>

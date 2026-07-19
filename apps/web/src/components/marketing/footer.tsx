@@ -3,6 +3,7 @@ import { LanguageSwitcher } from "@cascade/ui/language-switcher";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { HeartIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
+import { appRegisterUrl } from "#/lib/app-url";
 import { m } from "#/paraglide/messages.js";
 import {
 	getLocale,
@@ -20,7 +21,7 @@ export function Footer() {
 			<div className="flex justify-center">
 				<Button
 					nativeButton={false}
-					render={<Link to="/register" />}
+					render={<a href={appRegisterUrl} />}
 					icon={<ArrowRightIcon className="size-4" weight="bold" />}
 				>
 					{m.footer_cta()}

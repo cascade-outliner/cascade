@@ -3,10 +3,8 @@ import { toast } from "@cascade/ui/toast";
 import { useMutation } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 
-const webUrl = import.meta.env.VITE_WEB_URL ?? "https://cascadelist.com";
-
 function goToLogin() {
-	window.location.href = `${webUrl}/login`;
+	window.location.href = "/login";
 }
 
 export function useSignOut() {

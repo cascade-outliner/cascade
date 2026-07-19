@@ -216,9 +216,6 @@ importers:
       '@base-ui/react':
         specifier: ^1.6.0
         version: 1.6.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@cascade/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
       '@cascade/http':
         specifier: workspace:*
         version: link:../../packages/http
