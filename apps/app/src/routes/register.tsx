@@ -58,7 +58,14 @@ function Register() {
 	}
 
 	return (
-		<main className="mx-auto max-w-sm px-8 pt-16 pb-24 min-h-128">
+		<main className="mx-auto max-w-md w-full px-8 pt-16 pb-24 min-h-128">
+			<Link
+				to="/"
+				className="font-serif text-2xl italic flex items-center gap-4 justify-center pb-12"
+			>
+				<img width={48} height={48} alt="" src="/logo192.png" />
+				cascade
+			</Link>
 			<h1 className="mb-8 text-center font-serif text-4xl italic">
 				{m.register_heading()}
 			</h1>
