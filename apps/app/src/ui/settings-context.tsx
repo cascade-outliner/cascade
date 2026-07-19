@@ -36,12 +36,6 @@ function getSystemPrefersDark(): boolean {
 	);
 }
 
-/** Stored `dark` flags predate themes; treat them as the matching built-in theme. */
-export function withLegacyTheme(patch: SettingsPatch): SettingsPatch {
-	if (patch.theme !== undefined || patch.dark === undefined) return patch;
-	return { ...patch, theme: patch.dark ? "dark" : "light" };
-}
-
 const SettingsContext = createContext<{
 	settings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
@@ -86,7 +80,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
 	const settings: Settings = {
 		...defaults(),
-		...withLegacyTheme(remote ?? {}),
+		...remote,
 		...unsaved,
 	};
 	const resolvedTheme = resolveThemeId(

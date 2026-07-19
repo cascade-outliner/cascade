@@ -22,7 +22,7 @@ import { AppLabelsProvider } from "@/lib/labels-provider";
 import { orpc } from "@/orpc/client";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
 import { AppHeader } from "@/ui/header/AppHeader";
-import { SettingsProvider, withLegacyTheme } from "@/ui/settings-context";
+import { SettingsProvider } from "@/ui/settings-context";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 import "@fontsource-variable/bitter/index.css";
@@ -48,7 +48,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		const settings = await queryClient
 			.ensureQueryData(orpc.settings.get.queryOptions())
 			.catch((): SettingsPatch => ({}));
-		return { settings: withLegacyTheme(settings) };
+		return { settings };
 	},
 	head: ({ loaderData }) => {
 		const settings = loaderData?.settings ?? {};

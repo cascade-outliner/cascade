@@ -32,8 +32,7 @@ test("syncing with system lets you pick which light and dark theme to use, and f
 	orpcClient,
 }) => {
 	const before = await orpcClient.settings.get();
-	const restoreTheme =
-		before.theme ?? ((before.dark ?? false) ? "dark" : "light");
+	const restoreTheme = before.theme ?? "light";
 	const restoreLightTheme = before.lightTheme;
 	const restoreDarkTheme = before.darkTheme;
 
@@ -95,10 +94,7 @@ test("theme choice persists to the account and applies on a device with no local
 	orpcClient,
 }) => {
 	const before = await orpcClient.settings.get();
-	// Merge-only updates can't delete keys, so restore the equivalent of the
-	// previous state (a legacy `dark` flag maps to the built-in themes).
-	const restoreTheme =
-		before.theme ?? ((before.dark ?? false) ? "dark" : "light");
+	const restoreTheme = before.theme ?? "light";
 	const target = restoreTheme === "dracula" ? "nord" : "dracula";
 	const targetLabel = target === "dracula" ? "Dracula" : "Nord";
 

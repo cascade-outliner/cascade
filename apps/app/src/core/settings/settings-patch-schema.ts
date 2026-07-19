@@ -31,8 +31,6 @@ export interface Settings {
 /** A partial settings object: unknown keys are stripped, values validated. */
 export const settingsPatchSchema = z
 	.object({
-		/** Legacy dark-mode flag from before themes; mapped to a theme on read. */
-		dark: z.boolean(),
 		theme: z.enum(themeSelectionIds),
 		lightTheme: z.enum(lightThemeIds),
 		darkTheme: z.enum(darkThemeIds),

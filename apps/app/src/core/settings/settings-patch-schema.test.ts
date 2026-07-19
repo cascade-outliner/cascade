@@ -17,12 +17,13 @@ describe("settingsPatchSchema", () => {
 	});
 
 	it("accepts a partial patch with a single key", () => {
-		expect(settingsPatchSchema.parse({ dark: true })).toEqual({ dark: true });
+		expect(settingsPatchSchema.parse({ theme: "dracula" })).toEqual({
+			theme: "dracula",
+		});
 	});
 
 	it("accepts a full settings object", () => {
 		const full = {
-			dark: false,
 			theme: "catppuccin-mocha",
 			lightTheme: "catppuccin-latte",
 			darkTheme: "dracula",
@@ -80,8 +81,8 @@ describe("settingsPatchSchema", () => {
 	});
 
 	it("strips unknown keys", () => {
-		expect(settingsPatchSchema.parse({ dark: true, evil: "x" })).toEqual({
-			dark: true,
+		expect(settingsPatchSchema.parse({ theme: "dracula", evil: "x" })).toEqual({
+			theme: "dracula",
 		});
 	});
 
@@ -106,6 +107,8 @@ describe("settingsPatchSchema", () => {
 	});
 
 	it("rejects wrong value types", () => {
-		expect(settingsPatchSchema.safeParse({ dark: "yes" }).success).toBe(false);
+		expect(
+			settingsPatchSchema.safeParse({ preAlphaBannerDismissed: "yes" }).success,
+		).toBe(false);
 	});
 });
