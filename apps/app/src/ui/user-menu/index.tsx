@@ -10,12 +10,12 @@ export function UserMenu() {
 	const { settings, setSetting, saveSettings } = useSettings();
 	const { user } = useRouteContext({ from: "__root__" });
 
+	const signOut = useSignOut();
+	const deleteAccount = useDeleteAccount();
+
 	if (!user) {
 		return null;
 	}
-
-	const signOut = useSignOut();
-	const deleteAccount = useDeleteAccount();
 
 	return (
 		<UserMenuView
