@@ -8,44 +8,51 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ChangelogRouteImport } from './routes/changelog'
-import { Route as PayloadRouteImport } from './routes/_payload'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as PayloadAdminIndexRouteImport } from './routes/_payload/admin.index'
-import { Route as PayloadApiSplatRouteImport } from './routes/_payload/api.$'
-import { Route as PayloadAdminSplatRouteImport } from './routes/_payload/admin.$'
+import { Route as rootRouteImport } from './app/__root'
+import { Route as PayloadRouteImport } from './app/_payload'
+import { Route as FrontendRouteImport } from './app/_frontend'
+import { Route as FrontendIndexRouteImport } from './app/_frontend/index'
+import { Route as FrontendSearchRouteImport } from './app/_frontend/search'
+import { Route as FrontendSlugRouteImport } from './app/_frontend/$slug'
+import { Route as PayloadAdminIndexRouteImport } from './app/_payload/admin.index'
+import { Route as FrontendPostsIndexRouteImport } from './app/_frontend/posts.index'
+import { Route as PayloadApiSplatRouteImport } from './app/_payload/api.$'
+import { Route as PayloadAdminSplatRouteImport } from './app/_payload/admin.$'
+import { Route as FrontendPostsSlugRouteImport } from './app/_frontend/posts.$slug'
+import { Route as FrontendPostsPagePageNumberRouteImport } from './app/_frontend/posts_.page.$pageNumber'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangelogRoute = ChangelogRouteImport.update({
-  id: '/changelog',
-  path: '/changelog',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PayloadRoute = PayloadRouteImport.update({
   id: '/_payload',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const FrontendRoute = FrontendRouteImport.update({
+  id: '/_frontend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrontendIndexRoute = FrontendIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => FrontendRoute,
+} as any)
+const FrontendSearchRoute = FrontendSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => FrontendRoute,
+} as any)
+const FrontendSlugRoute = FrontendSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => FrontendRoute,
 } as any)
 const PayloadAdminIndexRoute = PayloadAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => PayloadRoute,
+} as any)
+const FrontendPostsIndexRoute = FrontendPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => FrontendRoute,
 } as any)
 const PayloadApiSplatRoute = PayloadApiSplatRouteImport.update({
   id: '/api/$',
@@ -57,98 +64,99 @@ const PayloadAdminSplatRoute = PayloadAdminSplatRouteImport.update({
   path: '/admin/$',
   getParentRoute: () => PayloadRoute,
 } as any)
+const FrontendPostsSlugRoute = FrontendPostsSlugRouteImport.update({
+  id: '/posts/$slug',
+  path: '/posts/$slug',
+  getParentRoute: () => FrontendRoute,
+} as any)
+const FrontendPostsPagePageNumberRoute =
+  FrontendPostsPagePageNumberRouteImport.update({
+    id: '/posts_/page/$pageNumber',
+    path: '/posts/page/$pageNumber',
+    getParentRoute: () => FrontendRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/changelog': typeof ChangelogRoute
-  '/privacy': typeof PrivacyRoute
-  '/terms': typeof TermsRoute
+  '/': typeof FrontendIndexRoute
+  '/$slug': typeof FrontendSlugRoute
+  '/search': typeof FrontendSearchRoute
+  '/posts/$slug': typeof FrontendPostsSlugRoute
   '/admin/$': typeof PayloadAdminSplatRoute
   '/api/$': typeof PayloadApiSplatRoute
+  '/posts/': typeof FrontendPostsIndexRoute
   '/admin/': typeof PayloadAdminIndexRoute
+  '/posts/page/$pageNumber': typeof FrontendPostsPagePageNumberRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/changelog': typeof ChangelogRoute
-  '/privacy': typeof PrivacyRoute
-  '/terms': typeof TermsRoute
+  '/': typeof FrontendIndexRoute
+  '/$slug': typeof FrontendSlugRoute
+  '/search': typeof FrontendSearchRoute
+  '/posts/$slug': typeof FrontendPostsSlugRoute
   '/admin/$': typeof PayloadAdminSplatRoute
   '/api/$': typeof PayloadApiSplatRoute
+  '/posts': typeof FrontendPostsIndexRoute
   '/admin': typeof PayloadAdminIndexRoute
+  '/posts/page/$pageNumber': typeof FrontendPostsPagePageNumberRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_frontend': typeof FrontendRouteWithChildren
   '/_payload': typeof PayloadRouteWithChildren
-  '/changelog': typeof ChangelogRoute
-  '/privacy': typeof PrivacyRoute
-  '/terms': typeof TermsRoute
+  '/_frontend/$slug': typeof FrontendSlugRoute
+  '/_frontend/search': typeof FrontendSearchRoute
+  '/_frontend/': typeof FrontendIndexRoute
+  '/_frontend/posts/$slug': typeof FrontendPostsSlugRoute
   '/_payload/admin/$': typeof PayloadAdminSplatRoute
   '/_payload/api/$': typeof PayloadApiSplatRoute
+  '/_frontend/posts/': typeof FrontendPostsIndexRoute
   '/_payload/admin/': typeof PayloadAdminIndexRoute
+  '/_frontend/posts_/page/$pageNumber': typeof FrontendPostsPagePageNumberRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/changelog'
-    | '/privacy'
-    | '/terms'
+    | '/$slug'
+    | '/search'
+    | '/posts/$slug'
     | '/admin/$'
     | '/api/$'
+    | '/posts/'
     | '/admin/'
+    | '/posts/page/$pageNumber'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/changelog'
-    | '/privacy'
-    | '/terms'
+    | '/$slug'
+    | '/search'
+    | '/posts/$slug'
     | '/admin/$'
     | '/api/$'
+    | '/posts'
     | '/admin'
+    | '/posts/page/$pageNumber'
   id:
     | '__root__'
-    | '/'
+    | '/_frontend'
     | '/_payload'
-    | '/changelog'
-    | '/privacy'
-    | '/terms'
+    | '/_frontend/$slug'
+    | '/_frontend/search'
+    | '/_frontend/'
+    | '/_frontend/posts/$slug'
     | '/_payload/admin/$'
     | '/_payload/api/$'
+    | '/_frontend/posts/'
     | '/_payload/admin/'
+    | '/_frontend/posts_/page/$pageNumber'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  FrontendRoute: typeof FrontendRouteWithChildren
   PayloadRoute: typeof PayloadRouteWithChildren
-  ChangelogRoute: typeof ChangelogRoute
-  PrivacyRoute: typeof PrivacyRoute
-  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changelog': {
-      id: '/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof ChangelogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_payload': {
       id: '/_payload'
       path: ''
@@ -156,12 +164,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PayloadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_frontend': {
+      id: '/_frontend'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof FrontendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_frontend/': {
+      id: '/_frontend/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof FrontendIndexRouteImport
+      parentRoute: typeof FrontendRoute
+    }
+    '/_frontend/search': {
+      id: '/_frontend/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof FrontendSearchRouteImport
+      parentRoute: typeof FrontendRoute
+    }
+    '/_frontend/$slug': {
+      id: '/_frontend/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof FrontendSlugRouteImport
+      parentRoute: typeof FrontendRoute
     }
     '/_payload/admin/': {
       id: '/_payload/admin/'
@@ -169,6 +198,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof PayloadAdminIndexRouteImport
       parentRoute: typeof PayloadRoute
+    }
+    '/_frontend/posts/': {
+      id: '/_frontend/posts/'
+      path: '/posts'
+      fullPath: '/posts/'
+      preLoaderRoute: typeof FrontendPostsIndexRouteImport
+      parentRoute: typeof FrontendRoute
     }
     '/_payload/api/$': {
       id: '/_payload/api/$'
@@ -184,8 +220,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PayloadAdminSplatRouteImport
       parentRoute: typeof PayloadRoute
     }
+    '/_frontend/posts/$slug': {
+      id: '/_frontend/posts/$slug'
+      path: '/posts/$slug'
+      fullPath: '/posts/$slug'
+      preLoaderRoute: typeof FrontendPostsSlugRouteImport
+      parentRoute: typeof FrontendRoute
+    }
+    '/_frontend/posts_/page/$pageNumber': {
+      id: '/_frontend/posts_/page/$pageNumber'
+      path: '/posts/page/$pageNumber'
+      fullPath: '/posts/page/$pageNumber'
+      preLoaderRoute: typeof FrontendPostsPagePageNumberRouteImport
+      parentRoute: typeof FrontendRoute
+    }
   }
 }
+
+interface FrontendRouteChildren {
+  FrontendSlugRoute: typeof FrontendSlugRoute
+  FrontendSearchRoute: typeof FrontendSearchRoute
+  FrontendIndexRoute: typeof FrontendIndexRoute
+  FrontendPostsSlugRoute: typeof FrontendPostsSlugRoute
+  FrontendPostsIndexRoute: typeof FrontendPostsIndexRoute
+  FrontendPostsPagePageNumberRoute: typeof FrontendPostsPagePageNumberRoute
+}
+
+const FrontendRouteChildren: FrontendRouteChildren = {
+  FrontendSlugRoute: FrontendSlugRoute,
+  FrontendSearchRoute: FrontendSearchRoute,
+  FrontendIndexRoute: FrontendIndexRoute,
+  FrontendPostsSlugRoute: FrontendPostsSlugRoute,
+  FrontendPostsIndexRoute: FrontendPostsIndexRoute,
+  FrontendPostsPagePageNumberRoute: FrontendPostsPagePageNumberRoute,
+}
+
+const FrontendRouteWithChildren = FrontendRoute._addFileChildren(
+  FrontendRouteChildren,
+)
 
 interface PayloadRouteChildren {
   PayloadAdminSplatRoute: typeof PayloadAdminSplatRoute
@@ -203,11 +275,8 @@ const PayloadRouteWithChildren =
   PayloadRoute._addFileChildren(PayloadRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  FrontendRoute: FrontendRouteWithChildren,
   PayloadRoute: PayloadRouteWithChildren,
-  ChangelogRoute: ChangelogRoute,
-  PrivacyRoute: PrivacyRoute,
-  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
