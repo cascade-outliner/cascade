@@ -6,8 +6,8 @@ import { GithubLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react/ssr";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { oauthErrorMessage } from "@/lib/oauth-error";
 import { m } from "#/paraglide/messages.js";
+import { oauthErrorMessage } from "@/lib/oauth-error";
 
 export const Route = createFileRoute("/register")({
 	validateSearch: z.object({ error: z.string().optional() }),
