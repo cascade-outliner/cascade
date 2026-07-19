@@ -20,10 +20,14 @@ import {
 import { useSettings } from "@/ui/settings-context";
 
 export const Route = createFileRoute("/")({
-	loader: ({ context: { queryClient } }) => {
-		queryClient.prefetchQuery(visibleTreeOptions(null));
-		queryClient.prefetchQuery(existingTagsOptions());
+	loader: async ({ context: { queryClient } }) => {
+		await Promise.all([
+			queryClient.ensureQueryData(visibleTreeOptions(null)),
+			queryClient.ensureQueryData(existingTagsOptions()),
+		]);
 	},
+	pendingComponent: CascadeLoader,
+	pendingMinMs: 200,
 	errorComponent: GenericErrorComponent,
 	component: () => (
 		<Suspense fallback={<CascadeLoader />}>

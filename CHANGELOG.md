@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-19
+- The outliner now shows a loading spinner while its initial data loads instead of a blank page. [#260](https://github.com/Patrickroelofs/cascade/issues/260)
+
 ## 2026-07-18
 - URLs you paste or type into a node now turn into tidy links (e.g. `example.com/docs…`) instead of the full raw address. Click a link to see the full URL, edit its text or destination, or remove the link while keeping its text; the little arrow icon next to every link opens it directly in a new tab. [#183](https://github.com/Patrickroelofs/cascade/issues/183)
 - Filter nodes by a **due date range**: pick a start and end date from the new "Due in range" calendar in the filter menu to see everything due between those days (inclusive). The active range appears as a removable chip in the filters bar and is bookmarkable via the URL. [#217](https://github.com/Patrickroelofs/cascade/issues/217)
