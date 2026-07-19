@@ -44,6 +44,7 @@
 			}
 		}
 	],
+	"node_backlinks_heading": "Linked mentions",
 	"node_link_open": "Open node",
 	"node_deleted": "Node deleted",
 	"node_save_failed": "Failed to save changes",

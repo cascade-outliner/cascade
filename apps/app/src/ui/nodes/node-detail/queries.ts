@@ -6,6 +6,10 @@ import { useOptimisticNodeMutation } from "#/ui/nodes/use-optimistic-node-mutati
 import { visibleTreeOptions } from "#/ui/nodes/virtual-tree/data/use-visible-tree";
 import type { NodeDetailData } from "./types";
 
+export function nodeBacklinksOptions(nodeId: string) {
+	return orpc.nodes.backlinks.queryOptions({ input: { id: nodeId } });
+}
+
 /** Resolves the slug to a node id and warms the caches the detail page needs. */
 export async function loadNodeDetail(queryClient: QueryClient, nodeId: string) {
 	queryClient.prefetchQuery(visibleTreeOptions(nodeId));
@@ -14,6 +18,7 @@ export async function loadNodeDetail(queryClient: QueryClient, nodeId: string) {
 		queryClient.ensureQueryData(
 			orpc.nodes.get.queryOptions({ input: { id: nodeId } }),
 		),
+		queryClient.ensureQueryData(nodeBacklinksOptions(nodeId)),
 		queryClient.ensureQueryData(
 			orpc.nodes.ancestors.queryOptions({ input: { id: nodeId } }),
 		),

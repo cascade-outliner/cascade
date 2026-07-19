@@ -23,6 +23,9 @@ vi.mock("@/orpc/client", () => ({
 			ancestors: {
 				key: vi.fn(() => ["nodes", "ancestors"]),
 			},
+			backlinks: {
+				key: vi.fn(() => ["nodes", "backlinks"]),
+			},
 		},
 	},
 }));
@@ -96,6 +99,7 @@ describe("useVisibleTree.updateContent", () => {
 
 	it("does not show an error toast when the update succeeds", async () => {
 		const queryClient = new QueryClient();
+		const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
 		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
 			rows: [row],
 			nextCursor: null,
@@ -109,6 +113,11 @@ describe("useVisibleTree.updateContent", () => {
 		});
 
 		expect(toast.error).not.toHaveBeenCalled();
+		await waitFor(() => {
+			expect(invalidateQueries).toHaveBeenCalledWith({
+				queryKey: ["nodes", "backlinks"],
+			});
+		});
 	});
 
 	it("requests collapsed descendants when a due-date filter is active", () => {

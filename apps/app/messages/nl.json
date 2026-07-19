@@ -44,6 +44,7 @@
 			}
 		}
 	],
+	"node_backlinks_heading": "Gelinkte vermeldingen",
 	"node_link_open": "Node openen",
 	"node_deleted": "Node verwijderd",
 	"node_save_failed": "Opslaan van wijzigingen mislukt",

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-19
+- Nodes now show linked mentions: when another node links to the current node, you'll see it listed on the node page and can click straight back to the referring node. [#271](https://github.com/Patrickroelofs/cascade/issues/271)
 - If your saved settings ever fail to load (e.g. after a stored theme or font is no longer available), Cascade now shows a notification and resets them to their defaults instead of applying them in a broken state. [#228](https://github.com/Patrickroelofs/cascade/issues/228)
 - Themes have a new "Sync with system" option: pick which theme to use in light mode and which to use in dark mode, and Cascade switches between them automatically as your OS's light/dark setting changes. [#228](https://github.com/Patrickroelofs/cascade/issues/228)
 - Pick a theme for the whole app in Settings: besides the classic Cascade Light and Cascade Dark looks there are now Catppuccin (Latte, Frappé, Macchiato, Mocha), Nord, and Dracula palettes. Your choice applies instantly, is saved to your account, and follows you across devices. [#228](https://github.com/Patrickroelofs/cascade/issues/228)

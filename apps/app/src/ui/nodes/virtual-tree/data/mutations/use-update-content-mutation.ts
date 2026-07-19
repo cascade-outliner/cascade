@@ -23,13 +23,18 @@ export function useUpdateContentMutation(queryKey: QueryKey) {
 		onSuccess: (_data, { id }) => {
 			// Bust breadcrumbs, but only for chains the edited node is actually
 			// part of, rather than every ancestors cache entry.
-			queryClient.invalidateQueries({
-				queryKey: orpc.nodes.ancestors.key(),
-				predicate: (query) => {
-					const chain = query.state.data as { id: string }[] | undefined;
-					return chain?.some((ancestor) => ancestor.id === id) ?? false;
-				},
-			});
+			return Promise.all([
+				queryClient.invalidateQueries({
+					queryKey: orpc.nodes.ancestors.key(),
+					predicate: (query) => {
+						const chain = query.state.data as { id: string }[] | undefined;
+						return chain?.some((ancestor) => ancestor.id === id) ?? false;
+					},
+				}),
+				queryClient.invalidateQueries({
+					queryKey: orpc.nodes.backlinks.key(),
+				}),
+			]);
 		},
 		onError: () => {
 			toast.error(m.node_save_failed());

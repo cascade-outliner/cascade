@@ -12,15 +12,18 @@ import {
 	desc,
 	eq,
 	gt,
+	isNotNull,
 	isNull,
 	like,
 	lt,
+	ne,
 	sql,
 } from "drizzle-orm";
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
 import { nodeColumns, nodeTagNames } from "@/core/nodes/node.queries";
 import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
+import { contentLinksToNode } from "@/core/nodes/node-backlinks";
 import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
 import { setNodeTagsInputSchema } from "@/core/nodes/tag-name-schema";
 import { db } from "@/db";
@@ -283,6 +286,41 @@ export const getNodeAncestors = authed
 			SELECT id, content FROM chain ORDER BY depth DESC
 		`)) as unknown as { id: string; content: unknown }[];
 		return result;
+	});
+
+export const getNodeBacklinks = authed
+	.errors({
+		NOT_FOUND: { status: 404, message: "Node not found" },
+	})
+	.input(z.object({ id: z.string() }))
+	.handler(async ({ input, context, errors }) => {
+		const [target] = await db
+			.select({ id: nodes.id })
+			.from(nodes)
+			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
+			.limit(1);
+		if (!target) throw errors.NOT_FOUND();
+
+		const targetIdFragment = input.id.split("-")[0] ?? input.id;
+		const candidates = await db
+			.select({ id: nodes.id, content: nodes.content })
+			.from(nodes)
+			.where(
+				and(
+					eq(nodes.userId, context.user.id),
+					ne(nodes.id, input.id),
+					isNotNull(nodes.content),
+					like(
+						sql<string>`CAST(${nodes.content} AS text)`,
+						`%${targetIdFragment}%`,
+					),
+				),
+			)
+			.orderBy(desc(nodes.updatedAt));
+
+		return candidates.filter((candidate) =>
+			contentLinksToNode(candidate.content, target.id),
+		);
 	});
 
 export const toggleNodeExpanded = authed
