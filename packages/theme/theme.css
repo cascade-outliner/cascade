@@ -7,17 +7,4 @@
 	--color-graphite: #62646b;
 	--color-peach: #e38b75;
 	--color-dark-grey: #2b2d33;
-	--animate-fade-in: fade-in 200ms ease-out;
-}
-
-@keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.animate-fade-in {
-		animation: none;
-	}
 }

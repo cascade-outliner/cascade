@@ -43,7 +43,7 @@ function RootTree() {
 	return (
 		<VirtualTree
 			tree={tree}
-			className="h-full animate-fade-in"
+			className="h-full"
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
