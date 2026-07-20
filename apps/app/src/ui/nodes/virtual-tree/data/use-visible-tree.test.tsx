@@ -12,7 +12,9 @@ vi.mock("@/orpc/client", () => ({
 	client: {
 		nodes: {
 			updateContent: vi.fn(),
+			move: vi.fn(),
 			toggleExpanded: vi.fn(),
+			visibleTree: vi.fn(),
 		},
 	},
 	orpc: {
@@ -141,5 +143,60 @@ describe("useVisibleTree.updateContent", () => {
 				nextCursor: null,
 			});
 		});
+	});
+});
+
+describe("useVisibleTree.move", () => {
+	const queryKey = ["nodes", "visibleTree", { input: { rootId: null } }];
+	const nextCursor = ["b0"];
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(orpc.nodes.visibleTree.queryOptions).mockReturnValue({
+			queryKey,
+			queryFn: () => Promise.resolve({ rows: [row], nextCursor: null }),
+		} as never);
+	});
+
+	it("does not invalidate (and so keeps loadMore-accumulated rows) when the move succeeds", async () => {
+		const queryClient = new QueryClient();
+		const loadedMore: VisibleNodeRow = { ...row, id: "node-2", order: "b0" };
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row, loadedMore],
+			nextCursor: null,
+		});
+		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+		vi.mocked(client.nodes.move).mockResolvedValueOnce(undefined as never);
+
+		const { result } = renderVisibleTree(queryClient);
+
+		result.current.move("node-1", { position: "append", parentId: null });
+
+		await waitFor(() => expect(queryClient.isMutating()).toBe(0));
+
+		expect(invalidateSpy).not.toHaveBeenCalled();
+		expect(
+			queryClient.getQueryData<{ rows: VisibleNodeRow[] }>(
+				visibleTreeOptions(null).queryKey,
+			)?.rows,
+		).toHaveLength(2);
+	});
+
+	it("invalidates to reconcile when the move fails", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row],
+			nextCursor,
+		});
+		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+		vi.mocked(client.nodes.move).mockRejectedValueOnce(new Error("conflict"));
+
+		const { result } = renderVisibleTree(queryClient);
+
+		result.current.move("node-1", { position: "append", parentId: null });
+
+		await waitFor(() =>
+			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey }),
+		);
 	});
 });

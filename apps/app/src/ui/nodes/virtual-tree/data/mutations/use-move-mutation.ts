@@ -4,24 +4,21 @@ import {
 	patchRow,
 } from "@cascade/outliner/visible-rows";
 import type { QueryKey } from "@tanstack/react-query";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/orpc/client";
-import { makeSetRows } from "../cache-helpers";
+import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
+import { patchRows } from "../cache-helpers";
+import type { VisibleTreeData } from "../types";
+
+interface MoveVars {
+	id: string;
+	target: MoveTarget;
+	expandParentId?: string;
+}
 
 export function useMoveMutation(queryKey: QueryKey) {
-	const queryClient = useQueryClient();
-	const setRows = makeSetRows(queryClient, queryKey);
-
-	const mutation = useMutation({
-		mutationFn: async ({
-			id,
-			target,
-			expandParentId,
-		}: {
-			id: string;
-			target: MoveTarget;
-			expandParentId?: string;
-		}) => {
+	const mutation = useOptimisticNodeMutation<MoveVars, void, VisibleTreeData>({
+		queryKey,
+		mutationFn: async ({ id, target, expandParentId }) => {
 			await Promise.all([
 				client.nodes.move(
 					target.position === "append"
@@ -38,20 +35,16 @@ export function useMoveMutation(queryKey: QueryKey) {
 					: null,
 			]);
 		},
-		onMutate: async ({ id, target, expandParentId }) => {
-			await queryClient.cancelQueries({ queryKey });
-			setRows((rows) => {
+		patch: (old, { id, target, expandParentId }) =>
+			patchRows((rows) => {
 				const expanded = expandParentId
 					? patchRow(rows, expandParentId, { expanded: true })
 					: rows;
 				return moveSubtree(expanded, id, target);
-			});
-		},
-		onSettled: () => {
-			// Server-computed fractional order is authoritative; positions match,
-			// so this reconciliation is invisible unless a concurrent edit raced us.
-			queryClient.invalidateQueries({ queryKey });
-		},
+			}, old),
+		// Server-computed fractional order is authoritative and the optimistic
+		// moveSubtree splice already matches it, so a success needs no
+		// reconciliation; onError falls back to invalidating (the default).
 	});
 
 	return (
@@ -59,7 +52,7 @@ export function useMoveMutation(queryKey: QueryKey) {
 		target: MoveTarget,
 		moveOptions: { expandParentId?: string } = {},
 	) =>
-		mutation.mutateAsync({
+		mutation.mutate({
 			id,
 			target,
 			expandParentId: moveOptions.expandParentId,
