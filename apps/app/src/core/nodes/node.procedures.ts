@@ -106,7 +106,14 @@ export const visibleTree = authed
 				(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child,
 				${nodeTagNames(sql`v.id`)} AS tags
 			FROM visible v
-			${cursor ? sql`WHERE v.path > ${cursor}::text[]` : sql``}
+			${
+				cursor
+					? sql`WHERE v.path > ARRAY[${sql.join(
+							cursor.map((value) => sql`${value}`),
+							sql`, `,
+						)}]::text[]`
+					: sql``
+			}
 			ORDER BY v.path
 			LIMIT ${limit + 1}
 		`)) as unknown as VisibleTreeSqlRow[];

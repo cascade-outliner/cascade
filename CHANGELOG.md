@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-20
+- Fixed a server error when loading a second page of the outline (e.g. scrolling further into a large expanded branch): `visibleTree`'s cursor pagination now binds the cursor as a proper Postgres array instead of a row constructor, which Postgres rejected with a cast error. [#306](https://github.com/Patrickroelofs/cascade/issues/306)
 - Added a repeatable performance-testing harness for maintainers: large-tree seeding, a `visibleTree` query-latency benchmark, a virtualized-tree render/scroll check, and a CI job that comments before/after numbers on each relevant PR. [#304](https://github.com/Patrickroelofs/cascade/issues/304)
 
 ## 2026-07-19
