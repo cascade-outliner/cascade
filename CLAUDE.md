@@ -43,6 +43,10 @@ pnpm db:generate:app    # generate a drizzle migration from schema changes
 pnpm db:migrate:app     # run drizzle migrations
 pnpm db:seed:app        # seed dev data
 pnpm db:studio:app      # open Drizzle Studio
+
+pnpm perf:seed:app      # seed a large tree for perf testing (see below)
+pnpm perf:query:app     # benchmark visibleTree latency
+pnpm test:perf:ui:app   # Playwright perf spec: virtualized tree render/scroll
 ```
 
 To run a single vitest test file or by name, `cd` into the workspace and use vitest directly, e.g. `cd apps/app && pnpm vitest run path/to/file.test.ts` or `pnpm vitest run -t "test name"`.
@@ -54,6 +58,16 @@ Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:54
 ### End-to-end tests
 
 `apps/app/e2e` is a Playwright suite. It needs a running database and builds+starts the app itself (no dev server needs to be running first). It authenticates once (`e2e/auth.setup.ts`, creating/reusing a dedicated `e2e@cascadelist.com` user) and reuses that session across tests; each test gets its own throwaway node via the real oRPC API (`e2e/support/fixtures.ts`'s `scratchNode` fixture) so tests never touch dev seed data and can run in parallel.
+
+### Performance testing
+
+`apps/app/e2e-perf/` is a repeatable perf harness for the tree data layer (see issue #304 for the motivating story), living alongside the Playwright perf spec rather than in a separate scripts directory. It's independent of the `apps/app/e2e` suite and never runs as part of the default `pnpm test:e2e:app`. CLI entry points (`seed.ts`, `query-bench.ts`, `report.ts`, `virtual-tree-scroll.spec.ts`, `auth.setup.ts`) live at the top level; shared plumbing (`config.ts`, `cli-args.ts`, `http-client.ts`, `stats.ts`, `env.ts`) lives under `e2e-perf/support/`.
+
+- `pnpm perf:seed:app -- --count=20000 --shape=balanced|wide|deep` seeds a large tree for a dedicated throwaway `perf-harness@cascadelist.com` user (never the dev seed user), non-interactively. `wide` makes one root with `count` direct children, `deep` makes a single chain `count` nodes long (exercising the recursive queries' depth-64 cap), `balanced` scales the interactive dev seed's branching shape to land on ~`count` total nodes. Every non-leaf node is seeded `expanded: true` so the app's default tree view actually shows the seeded scale. It builds on `apps/app/src/db/seed-tree.ts`, the shared tree-generator the interactive dev seed (`pnpm db:seed:app`) also uses — that file stays in `src/db/` since it's production-adjacent code, not test-only.
+- `pnpm perf:query:app` needs the app server already running (`pnpm dev:app`, or a built server) at `APP_URL` (default `http://localhost:3001`). It authenticates as the perf-harness user over HTTP and calls the real `visibleTree` oRPC procedure repeatedly, walking cursor-paginated pages and reporting latency percentiles to `apps/app/perf-results/` (gitignored).
+- `pnpm perf:report:app -- --beforeDir=<dir> --afterDir=<dir>` diffs two `perf-results/` snapshots into a markdown comparison table.
+- `pnpm test:perf:ui:app` is a separate Playwright config/project (`playwright.perf.config.ts`, testing `e2e-perf/`) that loads the seeded tree in a real browser and asserts the number of mounted `role="treeitem"` rows stays small and roughly constant regardless of total tree size — a regression here means virtualization itself broke.
+- `.github/workflows/perf.yml` runs `perf:seed`/`perf:query` against both a PR's base and head commit and posts a single comment on the PR with the `visibleTree` before/after comparison. It's a comparison for a human to read, not a merge gate, and only triggers on changes to `apps/app`/`packages/outliner`/`packages/auth`/`packages/http`.
 
 ## Architecture notes
 
