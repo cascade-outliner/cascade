@@ -4,7 +4,7 @@ import { PlusIcon, TagIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
 import { type TagSummary, tagHue } from "./node-tags";
-import { NodeTagsEditor } from "./node-tags-editor";
+import { NodeTagsEditor } from "./node-tags-editor/node-tags-editor";
 
 interface NodeTagsControlProps {
 	tags: string[];

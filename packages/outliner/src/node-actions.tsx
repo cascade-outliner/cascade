@@ -18,7 +18,7 @@ import {
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
 import type { TagSummary } from "./node-tags";
-import { NodeTagsEditor } from "./node-tags-editor";
+import { NodeTagsEditor } from "./node-tags-editor/node-tags-editor";
 import { type NodeTypeName, nodeTypeNames } from "./node-types";
 
 interface NodeActionsProps {
