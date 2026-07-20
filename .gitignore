@@ -18,4 +18,6 @@ storybook-static
 playwright-report/
 test-results/
 **/e2e/.auth/
+**/e2e-perf/.auth/
+**/perf-results/
 sitemap.xml

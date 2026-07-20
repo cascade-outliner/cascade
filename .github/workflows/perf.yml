@@ -1,0 +1,165 @@
+name: perf
+
+# Compares apps/app's visibleTree query latency (see e2e-perf/ and issue
+# #304) between the PR's base and head, then posts/updates a single comment
+# on the PR with the results. Scoped to paths that can actually affect this
+# so doc-only or apps/web-only PRs don't pay for it.
+#
+# This is a comparison, not a pass/fail gate: it's meant to surface
+# regressions for a human to judge, not to block merges on noisy CI timing.
+on:
+  pull_request:
+    paths:
+      - "apps/app/**"
+      - "packages/outliner/**"
+      - "packages/auth/**"
+      - "packages/http/**"
+      - ".github/workflows/perf.yml"
+
+env:
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/cascade
+  BETTER_AUTH_SECRET: ci-only-secret-do-not-use-in-production-1234
+  BETTER_AUTH_URL: http://localhost:3001
+  APP_URL: http://localhost:3001
+  PORT: 3001
+  # Kept modest so the before/after comparison finishes in a reasonable time
+  # on every PR; e2e-perf/seed.ts supports much larger trees for manual,
+  # deeper investigations (see CLAUDE.md).
+  PERF_SEED_COUNT: 5000
+
+jobs:
+  perf-compare:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cascade
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      # Results are written outside the repo (into $RUNNER_TEMP) so they
+      # survive the checkout below switching between base and head, which
+      # cleans untracked files in the working tree.
+      - name: Checkout PR base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+
+      # pnpm/action-setup reads the pinned version from package.json's
+      # "packageManager" field, so it needs a checkout to already exist.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # The base branch won't have e2e-perf/ yet on the PR that first
+      # introduces this workflow (or any branch cut before it merged) — skip
+      # the "before" run rather than fail; report.ts already renders a
+      # "results missing" row when there's nothing to compare against.
+      - name: Check whether the base branch has the perf harness
+        id: base-has-perf
+        run: |
+          if [ -f apps/app/e2e-perf/seed.ts ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run perf suite (base)
+        if: steps.base-has-perf.outputs.exists == 'true'
+        run: |
+          set -e
+          pnpm install --frozen-lockfile
+          pnpm --filter app exec drizzle-kit push --force
+          pnpm build:app
+          node --env-file-if-exists=.env.local apps/app/.output/server/index.mjs &
+          server_pid=$!
+          for i in $(seq 1 60); do curl -sf http://localhost:3001/ >/dev/null && break; sleep 2; done
+          pnpm --filter app perf:seed -- --count="$PERF_SEED_COUNT" --shape=balanced
+          pnpm --filter app perf:query
+          kill "$server_pid"
+          mkdir -p "$RUNNER_TEMP/perf-before"
+          cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-before/"
+
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Run perf suite (this PR)
+        run: |
+          set -e
+          pnpm install --frozen-lockfile
+          pnpm --filter app exec drizzle-kit push --force
+          pnpm build:app
+          node --env-file-if-exists=.env.local apps/app/.output/server/index.mjs &
+          server_pid=$!
+          for i in $(seq 1 60); do curl -sf http://localhost:3001/ >/dev/null && break; sleep 2; done
+          pnpm --filter app perf:seed -- --count="$PERF_SEED_COUNT" --shape=balanced
+          pnpm --filter app perf:query
+          kill "$server_pid"
+          mkdir -p "$RUNNER_TEMP/perf-after"
+          cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-after/"
+
+      - name: Build comparison report
+        run: |
+          pnpm --filter app perf:report -- \
+            --beforeDir="$RUNNER_TEMP/perf-before" \
+            --afterDir="$RUNNER_TEMP/perf-after" \
+            --out="$RUNNER_TEMP/perf-report.md"
+
+      - name: Upload raw results
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-results
+          path: |
+            ${{ runner.temp }}/perf-before/
+            ${{ runner.temp }}/perf-after/
+            ${{ runner.temp }}/perf-report.md
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+            const body = fs.readFileSync(process.env.RUNNER_TEMP + "/perf-report.md", "utf-8");
+            const marker = "<!-- perf-report -->";
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((c) => c.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

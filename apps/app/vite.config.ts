@@ -16,7 +16,7 @@ export default defineConfig(() => {
 			tsconfigPaths: true,
 		},
 		test: {
-			exclude: ["**/node_modules/**", "**/e2e/**"],
+			exclude: ["**/node_modules/**", "**/e2e/**", "**/e2e-perf/**"],
 		},
 		build: {
 			rollupOptions: {

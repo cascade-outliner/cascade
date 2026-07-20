@@ -11,13 +11,17 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:perf:ui": "playwright test --config=playwright.perf.config.ts",
     "start": "node ./src/db/migrate.ts && node ./.output/server/index.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:seed": "node --env-file=.env.local --import tsx/esm ./src/db/seed.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "perf:seed": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/seed.ts",
+    "perf:query": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/query-bench.ts",
+    "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/report.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
