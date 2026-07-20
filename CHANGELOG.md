@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-20
+- Fixed loading more of a large outline (scrolling past ~500 visible rows) failing with a server error instead of loading the next page. [#306](https://github.com/Patrickroelofs/cascade/issues/306)
 - Added a repeatable performance-testing harness for maintainers: large-tree seeding, a `visibleTree` query-latency benchmark, a virtualized-tree render/scroll check, and a CI job that comments before/after numbers on each relevant PR. [#304](https://github.com/Patrickroelofs/cascade/issues/304)
 
 ## 2026-07-19
