@@ -21,7 +21,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	// dueDate as an ISO string instead of a Date; normalize it here so every
 	// consumer below can rely on a real Date | null.
 	const dueDate = row.dueDate ? new Date(row.dueDate) : null;
-	const position = siblingPosition(props.rows, row.id);
+	const position = siblingPosition(props.rows, index);
 
 	return (
 		<div

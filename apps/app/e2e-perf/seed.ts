@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import { user } from "@cascade/auth/schema";
+import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
 import { cliArgs } from "./support/cli-args";
 import { config } from "./support/config";
@@ -22,12 +23,18 @@ const { values } = parseArgs({
 		count: { type: "string", default: "20000" },
 		shape: { type: "string", default: "balanced" },
 		email: { type: "string", default: config.perfUserEmail },
+		seed: { type: "string", default: "42" },
 	},
 });
 
 const count = Number.parseInt(values.count, 10);
 if (!Number.isFinite(count) || count <= 0) {
 	console.error(`--count must be a positive integer, got ${values.count}`);
+	process.exit(1);
+}
+const seed = Number.parseInt(values.seed, 10);
+if (!Number.isFinite(seed)) {
+	console.error(`--seed must be an integer, got ${values.seed}`);
 	process.exit(1);
 }
 if (values.shape !== "wide" && values.shape !== "deep" && values.shape !== "balanced") {
@@ -37,21 +44,9 @@ if (values.shape !== "wide" && values.shape !== "deep" && values.shape !== "bala
 const shape = values.shape as Shape;
 const email = values.email;
 
-// The recursive tree-reading queries (visibleTree, getNodeAncestors, moveNode's
-// subtree check) all cap recursion at depth 64 as a hard correctness bound —
-// see apps/app/src/core/nodes/node.procedures.ts. A "deep" tree longer than
-// that isn't a bug in the harness: it deliberately lets us measure the cost of
-// walking right up to that cap, and confirms nodes past it are (by design)
-// unreachable from an ancestor above the cap.
 function shapeConfig(shape: Shape, count: number): TreeShapeConfig {
-	// expandNonLeaf: true so the app's default (collapsed-respecting) tree view
-	// actually shows the seeded scale, the same way a tree a real user has
-	// spent time expanding would look, rather than a handful of collapsed
-	// roots with everything folded away underneath.
 	switch (shape) {
 		case "wide":
-			// One root with `count` direct children: stresses the per-row
-			// has_children/is_last_child computation at a single tree level.
 			return {
 				roots: 1,
 				maxDepth: 2,
@@ -60,8 +55,6 @@ function shapeConfig(shape: Shape, count: number): TreeShapeConfig {
 				expandNonLeaf: true,
 			};
 		case "deep":
-			// A single chain `count` nodes long: stresses ancestor/descendant
-			// walks and the depth-64 recursion cap.
 			return {
 				roots: 1,
 				maxDepth: count,
@@ -70,8 +63,6 @@ function shapeConfig(shape: Shape, count: number): TreeShapeConfig {
 				expandNonLeaf: true,
 			};
 		case "balanced": {
-			// Same branching shape as the interactive dev seed (depth 6, up to
-			// 12 children), scaled to land on ~`count` total nodes.
 			const maxDepth = 6;
 			const minChildren = 1;
 			const maxChildren = 12;
@@ -99,13 +90,14 @@ async function main() {
 	assertNotProduction();
 
 	const userId = await ensurePerfUser(email);
-	// Perf runs always start from a clean tree for this user so results are
-	// comparable run to run.
 	await db.delete(nodes).where(eq(nodes.userId, userId));
 
+	faker.seed(seed);
 	const treeConfig = shapeConfig(shape, count);
 	const expected = expectedNodeCount(treeConfig);
-	console.log(`Seeding a "${shape}" tree, expecting ~${expected} nodes for ${email}...`);
+	console.log(
+		`Seeding a "${shape}" tree (seed=${seed}), expecting ~${expected} nodes for ${email}...`,
+	);
 
 	const done = await insertRows(
 		(rows) => db.insert(nodes).values(rows),

@@ -206,16 +206,17 @@ export function findMoveDownTarget(
 
 /**
  * 1-indexed position among visible siblings, for `aria-posinset`/`aria-setsize`.
+ * Takes the row's own index (callers virtualizing `rows` already know it, e.g.
+ * from `VirtualItem.index`) rather than re-deriving it with a linear scan.
  * Scans only the local run of rows deeper than this row's siblings, not the
  * whole tree.
  */
 export function siblingPosition(
 	rows: VisibleNodeRow[],
-	id: string,
+	index: number,
 ): { posInSet: number; setSize: number } | null {
-	const index = rows.findIndex((r) => r.id === id);
-	if (index === -1) return null;
 	const row = rows[index];
+	if (!row) return null;
 	let posInSet = 1;
 	for (let i = index - 1; i >= 0; i--) {
 		if (rows[i].depth < row.depth) break;

@@ -12,19 +12,30 @@ import {
 const { values } = parseArgs({
 	args: cliArgs(),
 	options: {
-		// How many visibleTree pages to walk via cursor pagination, simulating
-		// scrolling/loading further down a large tree.
 		pages: { type: "string", default: "20" },
-		// Page size passed to visibleTree, same default the app itself uses.
 		limit: { type: "string", default: "500" },
+		warmup: { type: "string", default: "3" },
 	},
 });
 
 const pages = Number.parseInt(values.pages, 10);
 const limit = Number.parseInt(values.limit, 10);
+const warmup = Number.parseInt(values.warmup, 10);
 
 async function main() {
 	const client = await createPerfClient();
+	
+	if (warmup > 0) {
+		console.log(`Warming up with ${warmup} untimed visibleTree call(s)...`);
+		for (let i = 0; i < warmup; i++) {
+			await client.nodes.visibleTree({
+				rootId: null,
+				cursor: null,
+				includeCollapsedDescendants: true,
+				limit,
+			});
+		}
+	}
 
 	console.log(`Walking up to ${pages} visibleTree page(s) at limit=${limit}...`);
 	const visibleTreeSamples: LatencySample[] = [];
@@ -54,7 +65,7 @@ async function main() {
 
 	const outPath = await writeResultsFile("query-bench.json", {
 		timestamp: new Date().toISOString(),
-		params: { pages, limit },
+		params: { pages, limit, warmup },
 		visibleTree: visibleTreeSummary,
 	});
 	console.log(`Wrote results to ${outPath}`);
