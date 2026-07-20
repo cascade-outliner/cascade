@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./virtual-tree": "./src/virtual-tree/virtual-tree.tsx",
+    "./node-tags-editor": "./src/node-tags-editor/node-tags-editor.tsx",
     "./node-types": "./src/node-types.ts",
     "./node-tags": "./src/node-tags.ts",
     "./tree-types": "./src/tree-types.ts",
