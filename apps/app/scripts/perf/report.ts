@@ -38,8 +38,21 @@ function pct(before: number, after: number): string {
 	return `${sign}${delta.toFixed(1)}%`;
 }
 
-function row(label: string, before: number, after: number, unit: string): string {
-	return `| ${label} | ${before.toFixed(1)}${unit} | ${after.toFixed(1)}${unit} | ${pct(before, after)} |`;
+function fmt(value: number | undefined, unit: string): string {
+	return value === undefined ? "—" : `${value.toFixed(1)}${unit}`;
+}
+
+// Each side (before/after) is rendered independently — a missing "before"
+// (e.g. the base branch predates this harness, see perf.yml) shouldn't blank
+// out an "after" number that's actually available.
+function row(
+	label: string,
+	before: number | undefined,
+	after: number | undefined,
+	unit: string,
+): string {
+	const delta = before !== undefined && after !== undefined ? pct(before, after) : "—";
+	return `| ${label} | ${fmt(before, unit)} | ${fmt(after, unit)} | ${delta} |`;
 }
 
 async function main() {
@@ -63,36 +76,26 @@ async function main() {
 	lines.push("| Metric | Base | This PR | Δ |");
 	lines.push("| --- | --- | --- | --- |");
 
-	if (beforeQuery && afterQuery) {
+	if (beforeQuery || afterQuery) {
 		lines.push(
-			row(
-				"visibleTree p50",
-				beforeQuery.visibleTree.p50Ms,
-				afterQuery.visibleTree.p50Ms,
-				"ms",
-			),
+			row("visibleTree p50", beforeQuery?.visibleTree.p50Ms, afterQuery?.visibleTree.p50Ms, "ms"),
 		);
 		lines.push(
-			row(
-				"visibleTree p95",
-				beforeQuery.visibleTree.p95Ms,
-				afterQuery.visibleTree.p95Ms,
-				"ms",
-			),
+			row("visibleTree p95", beforeQuery?.visibleTree.p95Ms, afterQuery?.visibleTree.p95Ms, "ms"),
 		);
 		lines.push(
 			row(
 				"getNodeAncestors p50",
-				beforeQuery.getNodeAncestors.p50Ms,
-				afterQuery.getNodeAncestors.p50Ms,
+				beforeQuery?.getNodeAncestors.p50Ms,
+				afterQuery?.getNodeAncestors.p50Ms,
 				"ms",
 			),
 		);
 		lines.push(
 			row(
 				"getNodeAncestors p95",
-				beforeQuery.getNodeAncestors.p95Ms,
-				afterQuery.getNodeAncestors.p95Ms,
+				beforeQuery?.getNodeAncestors.p95Ms,
+				afterQuery?.getNodeAncestors.p95Ms,
 				"ms",
 			),
 		);
@@ -100,14 +103,22 @@ async function main() {
 		lines.push("| query-bench results missing | — | — | — |");
 	}
 
-	if (beforeMove && afterMove) {
-		lines.push(row("moveNode p50", beforeMove.moveNode.p50Ms, afterMove.moveNode.p50Ms, "ms"));
-		lines.push(row("moveNode p95", beforeMove.moveNode.p95Ms, afterMove.moveNode.p95Ms, "ms"));
+	if (beforeMove || afterMove) {
+		lines.push(row("moveNode p50", beforeMove?.moveNode.p50Ms, afterMove?.moveNode.p50Ms, "ms"));
+		lines.push(row("moveNode p95", beforeMove?.moveNode.p95Ms, afterMove?.moveNode.p95Ms, "ms"));
 		lines.push(
-			row("moveNode throughput", beforeMove.opsPerSec, afterMove.opsPerSec, " ops/s"),
+			row("moveNode throughput", beforeMove?.opsPerSec, afterMove?.opsPerSec, " ops/s"),
 		);
 	} else {
 		lines.push("| move-bench results missing | — | — | — |");
+	}
+
+	if (!beforeQuery || !beforeMove) {
+		lines.push("");
+		lines.push(
+			"_No 'Base' numbers yet — the base branch doesn't have `scripts/perf/` " +
+				"(or its run failed). This resolves once the harness lands on the base branch._",
+		);
 	}
 
 	lines.push("");
