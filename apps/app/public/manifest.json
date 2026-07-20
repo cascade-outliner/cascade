@@ -1,6 +1,11 @@
 {
+  "id": "/",
   "short_name": "Cascade",
   "name": "Cascade",
+  "description": "Cascade is an infinitely nested outliner. One outline for everything.",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities"],
   "icons": [
     {
       "src": "favicon.ico",
@@ -19,5 +24,7 @@
     }
   ],
   "start_url": ".",
-  "display": "standalone"
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any"
 }

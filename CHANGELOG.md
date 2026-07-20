@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-20
+- The installable app manifest now includes a description, language/text direction, categories, and an explicit scope, so browsers and OSes show richer info when installing Cascade as an app. [#280](https://github.com/Patrickroelofs/cascade/issues/280)
+
 ## 2026-07-19
 - Primary action buttons (submit, add node, save) now use their own color instead of borrowing the "danger" one, so they read as a clear call to action instead of a warning in every theme, with legible text everywhere. [#284](https://github.com/Patrickroelofs/cascade/issues/284)
 - Cascade no longer hard-codes app manifest colors that could clash with your active theme, and the browser UI color now follows the current theme after the app loads instead of staying stuck on the default light color. [#278](https://github.com/Patrickroelofs/cascade/issues/278)
