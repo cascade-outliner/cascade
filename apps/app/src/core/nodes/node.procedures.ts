@@ -82,37 +82,45 @@ export const visibleTree = authed
 	.handler(async ({ input, context }) => {
 		const { rootId, cursor, includeCollapsedDescendants, limit } = input;
 		const userId = context.user.id;
+		const cursorArray = cursor
+			? sql`ARRAY[${sql.join(
+					cursor.map((value) => sql`${value}`),
+					sql`, `,
+				)}]::text[]`
+			: sql`NULL::text[]`;
 
 		const result = (await db.execute(sql`
-			WITH RECURSIVE visible AS (
+			WITH RECURSIVE params AS (
+				SELECT ${cursorArray} AS cursor
+				),
+				visible AS (
 				SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order", n.due_date,
 					0 AS depth,
 					ARRAY[n."order"] AS path
-				FROM nodes n
+				FROM nodes n, params
 				WHERE n.user_id = ${userId}
 					AND ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
+					AND (params.cursor IS NULL OR ARRAY[n."order"] >= params.cursor[1:1])
 				UNION ALL
 				SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date,
 					v.depth + 1,
 					v.path || c."order"
 				FROM nodes c
 				JOIN visible v ON c.parent_id = v.id
+				CROSS JOIN params
 				WHERE c.user_id = ${userId}
 					AND (${includeCollapsedDescendants} = true OR v.expanded = true)
 					AND v.depth < 64
+					AND (
+						params.cursor IS NULL
+						OR (v.path || c."order") >= params.cursor[1:array_length(v.path, 1) + 1]
+					)
 				),
 				page AS MATERIALIZED (
 					SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 						(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
 					FROM visible v
-					${
-						cursor
-							? sql`WHERE v.path > ARRAY[${sql.join(
-									cursor.map((value) => sql`${value}`),
-									sql`, `,
-								)}]::text[]`
-							: sql``
-					}
+					${cursor ? sql`WHERE v.path > (SELECT cursor FROM params)` : sql``}
 					ORDER BY v.path
 					LIMIT ${limit + 1}
 				)
