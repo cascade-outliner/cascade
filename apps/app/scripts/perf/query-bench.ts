@@ -1,8 +1,10 @@
 import { parseArgs } from "node:util";
+import { cliArgs } from "./cli-args";
 import { createPerfClient } from "./http-client";
 import { type LatencySample, printSummary, summarize, time, writeResultsFile } from "./stats";
 
 const { values } = parseArgs({
+	args: cliArgs(),
 	options: {
 		// How many visibleTree pages to walk via cursor pagination, simulating
 		// scrolling/loading further down a large tree.

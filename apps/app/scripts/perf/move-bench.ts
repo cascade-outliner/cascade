@@ -1,8 +1,10 @@
 import { parseArgs } from "node:util";
+import { cliArgs } from "./cli-args";
 import { createPerfClient } from "./http-client";
 import { type LatencySample, printSummary, summarize, time, writeResultsFile } from "./stats";
 
 const { values } = parseArgs({
+	args: cliArgs(),
 	options: {
 		// Total number of moveNode calls to issue.
 		total: { type: "string", default: "200" },

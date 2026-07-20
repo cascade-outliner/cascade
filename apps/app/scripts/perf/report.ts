@@ -1,9 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
+import { cliArgs } from "./cli-args";
 import type { LatencySummary } from "./stats";
 
 const { values } = parseArgs({
+	args: cliArgs(),
 	options: {
 		beforeDir: { type: "string", default: "perf-results/before" },
 		afterDir: { type: "string", default: "perf-results/after" },
