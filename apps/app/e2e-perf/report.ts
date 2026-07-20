@@ -1,8 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { cliArgs } from "./cli-args";
-import type { LatencySummary } from "./stats";
+import { cliArgs } from "./support/cli-args";
+import type { LatencySummary } from "./support/stats";
 
 const { values } = parseArgs({
 	args: cliArgs(),
@@ -78,7 +78,7 @@ async function main() {
 	if (!beforeQuery) {
 		lines.push("");
 		lines.push(
-			"_No 'Base' numbers yet — the base branch doesn't have `scripts/perf/` " +
+			"_No 'Base' numbers yet — the base branch doesn't have `e2e-perf/` " +
 				"(or its run failed). This resolves once the harness lands on the base branch._",
 		);
 	}

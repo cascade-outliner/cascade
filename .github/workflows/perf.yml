@@ -1,6 +1,6 @@
 name: perf
 
-# Compares apps/app's visibleTree query latency (see scripts/perf/ and issue
+# Compares apps/app's visibleTree query latency (see e2e-perf/ and issue
 # #304) between the PR's base and head, then posts/updates a single comment
 # on the PR with the results. Scoped to paths that can actually affect this
 # so doc-only or apps/web-only PRs don't pay for it.
@@ -23,7 +23,7 @@ env:
   APP_URL: http://localhost:3001
   PORT: 3001
   # Kept modest so the before/after comparison finishes in a reasonable time
-  # on every PR; scripts/perf/seed.ts supports much larger trees for manual,
+  # on every PR; e2e-perf/seed.ts supports much larger trees for manual,
   # deeper investigations (see CLAUDE.md).
   PERF_SEED_COUNT: 5000
 
@@ -65,14 +65,14 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      # The base branch won't have scripts/perf/ yet on the PR that first
+      # The base branch won't have e2e-perf/ yet on the PR that first
       # introduces this workflow (or any branch cut before it merged) — skip
       # the "before" run rather than fail; report.ts already renders a
       # "results missing" row when there's nothing to compare against.
       - name: Check whether the base branch has the perf harness
         id: base-has-perf
         run: |
-          if [ -f apps/app/scripts/perf/seed.ts ]; then
+          if [ -f apps/app/e2e-perf/seed.ts ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"

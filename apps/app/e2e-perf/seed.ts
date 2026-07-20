@@ -1,8 +1,8 @@
 import { parseArgs } from "node:util";
 import { user } from "@cascade/auth/schema";
 import { eq } from "drizzle-orm";
-import { cliArgs } from "./cli-args";
-import { config } from "./config";
+import { cliArgs } from "./support/cli-args";
+import { config } from "./support/config";
 import { auth } from "@/auth";
 import { nodes } from "@/core/nodes/node.schema";
 import { db } from "@/db";

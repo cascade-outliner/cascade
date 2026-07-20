@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { writeResultsFile } from "../scripts/perf/stats";
+import { writeResultsFile } from "./support/stats";
 
 /**
- * Measures the virtualized tree view against whatever tree `scripts/perf/seed.ts`
+ * Measures the virtualized tree view against whatever tree `e2e-perf/seed.ts`
  * has seeded for the perf-harness user. Not a strict pass/fail perf gate (see
  * CLAUDE.md/issue #304) — the useful signal is the printed/written timings
  * plus the mounted-row assertion, which catches a regression in virtualization

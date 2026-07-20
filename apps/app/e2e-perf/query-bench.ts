@@ -1,7 +1,13 @@
 import { parseArgs } from "node:util";
-import { cliArgs } from "./cli-args";
-import { createPerfClient } from "./http-client";
-import { type LatencySample, printSummary, summarize, time, writeResultsFile } from "./stats";
+import { cliArgs } from "./support/cli-args";
+import { createPerfClient } from "./support/http-client";
+import {
+	type LatencySample,
+	printSummary,
+	summarize,
+	time,
+	writeResultsFile,
+} from "./support/stats";
 
 const { values } = parseArgs({
 	args: cliArgs(),

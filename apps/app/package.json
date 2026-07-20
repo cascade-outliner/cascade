@@ -19,9 +19,9 @@
     "db:pull": "drizzle-kit pull",
     "db:seed": "node --env-file=.env.local --import tsx/esm ./src/db/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "perf:seed": "node --env-file-if-exists=.env.local --import tsx/esm ./scripts/perf/seed.ts",
-    "perf:query": "node --env-file-if-exists=.env.local --import tsx/esm ./scripts/perf/query-bench.ts",
-    "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./scripts/perf/report.ts"
+    "perf:seed": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/seed.ts",
+    "perf:query": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/query-bench.ts",
+    "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/report.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

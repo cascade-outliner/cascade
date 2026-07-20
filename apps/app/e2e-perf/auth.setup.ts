@@ -1,11 +1,11 @@
 import { test } from "@playwright/test";
-import { config } from "../scripts/perf/config";
+import { config } from "./support/config";
 import { authFile } from "./support/env";
 
 /**
  * Creates (if needed) and signs in as the shared perf-harness user via
  * better-auth's REST API, mirroring `e2e/auth.setup.ts`. The tree data itself
- * is expected to already be seeded by `scripts/perf/seed.ts` — this setup
+ * is expected to already be seeded by `e2e-perf/seed.ts` — this setup
  * only establishes the session.
  */
 test("authenticate as the perf harness user", async ({ page }) => {

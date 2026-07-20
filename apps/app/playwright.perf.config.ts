@@ -4,7 +4,7 @@ import { authFile } from "./e2e-perf/support/env";
 /**
  * Separate from playwright.config.ts (the default e2e suite) so UI perf specs
  * never run as part of every PR's e2e job — they need a large seeded tree
- * (scripts/perf/seed.ts) first, and their assertions are about virtualization
+ * (e2e-perf/seed.ts) first, and their assertions are about virtualization
  * staying bounded rather than typical feature correctness. See CLAUDE.md's
  * performance-testing section for how to run this locally, and
  * .github/workflows/perf.yml for how CI wires it up.
