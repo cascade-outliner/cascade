@@ -4,7 +4,6 @@ import { MAX_TAG_LENGTH } from "./node-tags";
 import { type NodeTypeName, nodeTypeDefs, nodeTypeNames } from "./node-types";
 
 export interface OutlinerLabels {
-	/** Accessible name for the tree's `role="tree"` container. */
 	treeLabel: string;
 	toggleExpand: string;
 	toggleCollapse: string;
@@ -39,9 +38,6 @@ export interface OutlinerLabels {
 	linkSave: string;
 	linkDelete: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
-	/** "Convert into" menu labels for the heading levels (paragraph reuses
-	 * `nodeTypeLabels.text`, since selecting it sets both the row type and
-	 * the content block type back to plain text). */
 	headingLabels: Record<Exclude<BlockType, "paragraph">, string>;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
