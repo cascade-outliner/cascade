@@ -1,3 +1,4 @@
+import { fontSizeIds } from "@cascade/theme/font-sizes";
 import { fontIds } from "@cascade/theme/fonts";
 import {
 	darkThemeIds,
@@ -28,6 +29,7 @@ describe("settingsPatchSchema", () => {
 			lightTheme: "catppuccin-latte",
 			darkTheme: "dracula",
 			font: "system-mono",
+			fontSize: "large",
 			indentSize: 24,
 			preAlphaBannerDismissed: true,
 		};
@@ -41,6 +43,9 @@ describe("settingsPatchSchema", () => {
 		for (const font of fontIds) {
 			expect(settingsPatchSchema.parse({ font })).toEqual({ font });
 		}
+		for (const fontSize of fontSizeIds) {
+			expect(settingsPatchSchema.parse({ fontSize })).toEqual({ fontSize });
+		}
 	});
 
 	it("rejects an unknown theme", () => {
@@ -51,6 +56,12 @@ describe("settingsPatchSchema", () => {
 
 	it("rejects an unknown font", () => {
 		expect(settingsPatchSchema.safeParse({ font: "comic-sans" }).success).toBe(
+			false,
+		);
+	});
+
+	it("rejects an unknown font size", () => {
+		expect(settingsPatchSchema.safeParse({ fontSize: "huge" }).success).toBe(
 			false,
 		);
 	});

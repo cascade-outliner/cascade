@@ -13,6 +13,20 @@
 }
 
 /*
+ * The base font size scale (see font-sizes.ts for the registry). Kept outside
+ * `@theme` since it's a plain multiplier, not a token that should generate a
+ * utility class; `html`'s font-size is what actually makes every rem-based
+ * size in the app follow it.
+ */
+:root {
+	--font-size-scale: 1;
+}
+
+html {
+	font-size: calc(16px * var(--font-size-scale));
+}
+
+/*
  * Theme palettes (see themes.ts for the registry). Every theme overrides the
  * same seven color slots, whose roles are:
  *
@@ -113,4 +127,21 @@
 [data-font="system-mono"] {
 	--font-app: ui-monospace, SFMono-Regular, Menlo, Consolas,
 		"Liberation Mono", monospace;
+}
+
+/*
+ * Font size choices (see font-sizes.ts for the registry). The default needs
+ * no override; each other option scales the root font size.
+ */
+
+[data-font-size="small"] {
+	--font-size-scale: 0.875;
+}
+
+[data-font-size="large"] {
+	--font-size-scale: 1.125;
+}
+
+[data-font-size="extra-large"] {
+	--font-size-scale: 1.25;
 }

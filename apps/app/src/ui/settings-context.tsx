@@ -1,3 +1,4 @@
+import { fontSizeAttribute } from "@cascade/theme/font-sizes";
 import { fontAttribute } from "@cascade/theme/fonts";
 import {
 	isDarkTheme,
@@ -28,6 +29,7 @@ function defaults(): Settings {
 		lightTheme: "light",
 		darkTheme: "dark",
 		font: "bitter",
+		fontSize: "default",
 		indentSize: 16,
 		preAlphaBannerDismissed: false,
 	};
@@ -146,6 +148,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 		if (attribute) root.dataset.font = attribute;
 		else delete root.dataset.font;
 	}, [settings.font]);
+
+	useEffect(() => {
+		const root = document.documentElement;
+		const attribute = fontSizeAttribute(settings.fontSize);
+		if (attribute) root.dataset.fontSize = attribute;
+		else delete root.dataset.fontSize;
+	}, [settings.fontSize]);
 
 	function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
 		setUnsaved((prev) => ({ ...prev, [key]: value }));

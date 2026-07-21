@@ -1,3 +1,4 @@
+import { type FontSizeId, fontSizeIds } from "@cascade/theme/font-sizes";
 import { type FontId, fontIds } from "@cascade/theme/fonts";
 import {
 	darkThemeIds,
@@ -24,6 +25,7 @@ export interface Settings {
 	/** Used for the dark half of the OS preference when `theme` is "system". */
 	darkTheme: ThemeId;
 	font: FontId;
+	fontSize: FontSizeId;
 	indentSize: number;
 	preAlphaBannerDismissed: boolean;
 }
@@ -35,6 +37,7 @@ export const settingsPatchSchema = z
 		lightTheme: z.enum(lightThemeIds),
 		darkTheme: z.enum(darkThemeIds),
 		font: z.enum(fontIds),
+		fontSize: z.enum(fontSizeIds),
 		indentSize: z.number().int().min(MIN_INDENT_SIZE).max(MAX_INDENT_SIZE),
 		preAlphaBannerDismissed: z.boolean(),
 	})

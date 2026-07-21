@@ -1,4 +1,5 @@
 import { Dialog, NumberField, Tabs } from "@base-ui/react";
+import { type FontSizeId, fontSizes } from "@cascade/theme/font-sizes";
 import { type FontId, fonts } from "@cascade/theme/fonts";
 import { SYSTEM_THEME, themes } from "@cascade/theme/themes";
 import { Button } from "@cascade/ui/button";
@@ -69,6 +70,19 @@ function fontOptions() {
 	return fonts.map((font) => ({
 		value: font.id,
 		label: labels[font.id] ?? font.label,
+	}));
+}
+
+function fontSizeOptions() {
+	const labels: Record<FontSizeId, string> = {
+		small: m.user_menu_font_size_small(),
+		default: m.user_menu_font_size_default(),
+		large: m.user_menu_font_size_large(),
+		"extra-large": m.user_menu_font_size_extra_large(),
+	};
+	return fontSizes.map((fontSize) => ({
+		value: fontSize.id,
+		label: labels[fontSize.id],
 	}));
 }
 
@@ -158,6 +172,15 @@ export function UserSettingsDialog({
 									options={fontOptions()}
 									value={settings.font}
 									onValueChange={(font) => setSetting("font", font)}
+								/>
+							</div>
+							<div className="mt-3 flex items-center justify-between text-sm">
+								{m.user_menu_font_size()}
+								<Select
+									aria-label={m.user_menu_font_size()}
+									options={fontSizeOptions()}
+									value={settings.fontSize}
+									onValueChange={(fontSize) => setSetting("fontSize", fontSize)}
 								/>
 							</div>
 							<div className="mt-3 flex items-center justify-between text-sm">
