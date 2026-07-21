@@ -135,6 +135,8 @@
 	"filters_bar_due_on": "Due",
 	"filters_bar_remove_due_on_date": "Remove due date filter",
 	"filters_bar_remove_due_date_range": "Remove due date range filter",
+	"filters_bar_tags_group": "Tags",
+	"filters_bar_remove_tag": "Remove tag filter",
 	"filters_bar_tasks_group": "Tasks",
 	"filters_bar_hide_completed": "Hide completed",
 	"filters_bar_remove_hide_completed": "Remove Hide completed filter",

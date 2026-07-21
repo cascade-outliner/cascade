@@ -36,6 +36,15 @@ function row(
 	};
 }
 
+function taggedRow(
+	id: string,
+	parentId: string | null,
+	depth: number,
+	tags: string[],
+): VisibleNodeRow {
+	return { ...row(id, parentId, depth, null), tags };
+}
+
 beforeEach(() => {
 	vi.useFakeTimers();
 	vi.setSystemTime(wednesday);
@@ -192,6 +201,71 @@ describe("getRowVisibility with dueToday", () => {
 		});
 		expect(visibility.contextIds).toEqual(new Set(["parent"]));
 		expect(visibility.hiddenIds).toEqual(new Set(["matching-child", "other"]));
+	});
+});
+
+describe("getRowVisibility with tags", () => {
+	it("keeps tagged rows and their ancestors visible as context", () => {
+		const rows = [
+			taggedRow("parent", null, 0, []),
+			taggedRow("matching-child", "parent", 1, ["work"]),
+			taggedRow("other", null, 0, ["personal"]),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work"],
+		});
+
+		expect(visibility.contextIds).toEqual(new Set(["parent"]));
+		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
+	});
+
+	it("matches tag names case-insensitively", () => {
+		const rows = [taggedRow("matching", null, 0, ["Work"])];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work"],
+		});
+
+		expect(visibility.hiddenIds.size).toBe(0);
+	});
+
+	it("requires rows to carry every selected tag", () => {
+		const rows = [
+			taggedRow("all-tags", null, 0, ["work", "urgent"]),
+			taggedRow("one-tag", null, 0, ["work"]),
+			taggedRow("other-tags", null, 0, ["urgent", "personal"]),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work", "urgent"],
+		});
+
+		expect(visibility.hiddenIds).toEqual(new Set(["one-tag", "other-tags"]));
+	});
+
+	it("requires rows to match the tag and every other active filter", () => {
+		const rows = [
+			{
+				...taggedRow("tag-and-date", null, 0, ["work"]),
+				dueDate: formatCalendarDate(wednesday),
+			},
+			{
+				...taggedRow("tag-only", null, 0, ["work"]),
+				dueDate: formatCalendarDate(new Date(2026, 6, 16)),
+			},
+			{
+				...taggedRow("date-only", null, 0, ["personal"]),
+				dueDate: formatCalendarDate(wednesday),
+			},
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work"],
+			dueToday: true,
+		});
+
+		expect(visibility.hiddenIds).toEqual(new Set(["tag-only", "date-only"]));
 	});
 });
 
