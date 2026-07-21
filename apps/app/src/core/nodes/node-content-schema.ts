@@ -9,8 +9,9 @@ export const MAX_TEXT_LENGTH = 20_000;
 export const MAX_CONTENT_BYTES = 256 * 1024;
 
 // Explicit allowlist of the fields the registered Lexical nodes (root,
-// paragraph, text, tab, linebreak, and @lexical/link's LinkNode /
-// AutoLinkNode) actually serialize, instead of `.passthrough()`.
+// paragraph, text, tab, linebreak, @lexical/link's LinkNode / AutoLinkNode,
+// and @lexical/rich-text's HeadingNode) actually serialize, instead of
+// `.passthrough()`.
 export interface LexicalSchemaNode {
 	type: string;
 	text?: string;
@@ -28,6 +29,8 @@ export interface LexicalSchemaNode {
 	target?: string | null;
 	title?: string | null;
 	isUnlinked?: boolean;
+	// @lexical/rich-text's HeadingNode.
+	tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 	children?: LexicalSchemaNode[];
 }
 
@@ -59,6 +62,7 @@ function lexicalNodeSchema(depth: number): z.ZodType<LexicalSchemaNode> {
 			title: z.string().max(512).nullable().optional(),
 			// AutoLinkNode also serializes this alongside the LinkNode fields.
 			isUnlinked: z.boolean().optional(),
+			tag: z.enum(["h1", "h2", "h3", "h4", "h5", "h6"]).optional(),
 			children:
 				depth >= MAX_LEXICAL_DEPTH
 					? z.array(z.never()).max(0).optional()

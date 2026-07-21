@@ -4,6 +4,7 @@ import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
 import type { RefObject } from "react";
 import { twMerge } from "tailwind-merge";
 import type { OutlinerLabels } from "../labels-context";
+import { setBlockType } from "../lexical/lexical-content";
 import type { VisibleTree } from "../tree-types";
 import type { VirtualTreeProps } from "./types";
 import type { useTreeInteractions } from "./use-tree-interactions";
@@ -119,6 +120,12 @@ export function VirtualTreeView({
 									onExitEdit={() => onExitEdit(row.id)}
 									onToggle={(expanded) => tree.toggle(row.id, expanded)}
 									onConvert={(type) => onConvert(row.id, type)}
+									onTurnInto={(blockType) =>
+										tree.updateContent(
+											row.id,
+											setBlockType(row.content, blockType),
+										)
+									}
 									onToggleTask={(completed) => onToggleTask(row.id, completed)}
 									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
 									onSetTags={(tags) => tree.setTags(row.id, tags)}

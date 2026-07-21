@@ -1,4 +1,5 @@
 import { createContext, type ReactNode, use } from "react";
+import type { BlockType } from "./lexical/lexical-content";
 import { MAX_TAG_LENGTH } from "./node-tags";
 import { type NodeTypeName, nodeTypeDefs, nodeTypeNames } from "./node-types";
 
@@ -10,6 +11,7 @@ export interface OutlinerLabels {
 	taskCompleted: string;
 	dragToReorder: string;
 	editNodeText: string;
+	turnInto: string;
 	convertInto: string;
 	delete: string;
 	emptyTree: string;
@@ -38,6 +40,7 @@ export interface OutlinerLabels {
 	linkSave: string;
 	linkDelete: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
+	blockTypeLabels: Record<BlockType, string>;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
 	filtersDueToday: string;
@@ -61,6 +64,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	taskCompleted: "Task completed",
 	dragToReorder: "Drag to reorder",
 	editNodeText: "Edit node text",
+	turnInto: "Turn into",
 	convertInto: "Convert into",
 	delete: "Delete",
 	emptyTree: "This tree is empty. Add a node to get started.",
@@ -92,6 +96,15 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	nodeTypeLabels: Object.fromEntries(
 		nodeTypeNames.map((type) => [type, nodeTypeDefs[type].label]),
 	) as Record<NodeTypeName, string>,
+	blockTypeLabels: {
+		paragraph: "Paragraph",
+		h1: "Heading 1",
+		h2: "Heading 2",
+		h3: "Heading 3",
+		h4: "Heading 4",
+		h5: "Heading 5",
+		h6: "Heading 6",
+	},
 	filtersTrigger: "Filter",
 	filtersDueDateGroup: "Due date",
 	filtersDueToday: "Due today",

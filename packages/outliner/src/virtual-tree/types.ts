@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { OutlinerFeature } from "../features/types";
+import type { BlockType } from "../lexical/lexical-content";
 import type { LexicalElementNode } from "../lexical/read/lexical-read-view";
 import type { FocusPoint } from "../node-editor";
 import type { TagSummary } from "../node-tags";
@@ -58,6 +59,7 @@ export interface VirtualTreeRowProps {
 	onExitEdit: () => void;
 	onToggle: (expanded: boolean) => void;
 	onConvert: (type: NodeTypeName) => void;
+	onTurnInto: (blockType: BlockType) => void;
 	onToggleTask: (completed: boolean) => void;
 	onSetDueDate: (date: Date | null) => void;
 	onSetTags: (tags: string[]) => void;
