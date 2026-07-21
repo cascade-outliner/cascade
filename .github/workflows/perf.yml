@@ -1,9 +1,9 @@
 name: perf
 
-# Compares apps/app's visibleTree query latency 
-# between the PR's base and head, then posts/updates a single comment
-# on the PR with the results. Scoped to paths that can actually affect this
-# so doc-only or apps/web-only PRs don't pay for it.
+# Compares apps/app's visibleTree query latency and createNode/moveNode
+# mutation latency between the PR's base and head, then posts/updates a
+# single comment on the PR with the results. Scoped to paths that can
+# actually affect this so doc-only or apps/web-only PRs don't pay for it.
 on:
   pull_request:
     paths:
@@ -74,6 +74,11 @@ jobs:
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
+          if [ -f apps/app/e2e-perf/mutation-bench.ts ]; then
+            echo "has-mutation-bench=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-mutation-bench=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run perf suite (base)
         if: steps.base-has-perf.outputs.exists == 'true'
@@ -87,9 +92,15 @@ jobs:
           for i in $(seq 1 60); do curl -sf http://localhost:3001/ >/dev/null && break; sleep 2; done
           pnpm --filter app perf:seed -- --count="$PERF_SEED_COUNT" --shape=balanced
           pnpm --filter app perf:query
+          if [ "${{ steps.base-has-perf.outputs.has-mutation-bench }}" = "true" ]; then
+            pnpm --filter app perf:mutate
+          fi
           kill "$server_pid"
           mkdir -p "$RUNNER_TEMP/perf-before"
           cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-before/"
+          if [ -f apps/app/perf-results/mutation-bench.json ]; then
+            cp apps/app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-before/"
+          fi
 
       - name: Checkout PR head
         uses: actions/checkout@v4
@@ -108,9 +119,11 @@ jobs:
           for i in $(seq 1 60); do curl -sf http://localhost:3001/ >/dev/null && break; sleep 2; done
           pnpm --filter app perf:seed -- --count="$PERF_SEED_COUNT" --shape=balanced
           pnpm --filter app perf:query
+          pnpm --filter app perf:mutate
           kill "$server_pid"
           mkdir -p "$RUNNER_TEMP/perf-after"
           cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-after/"
+          cp apps/app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-after/"
 
       - name: Build comparison report
         run: |
