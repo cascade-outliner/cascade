@@ -13,18 +13,18 @@ import { type LexicalTextNode, renderTextNode } from "./render-text-nodes";
 // rows written before size/depth limits were enforced on write).
 const MAX_RENDER_DEPTH = 64;
 
-// Modest scale since headings render inline in a single tree row, not as a
-// full-page headline.
+// h6 matches the surrounding row text's base size; each level up from there
+// steps up one Tailwind size, same as a standard heading scale.
 const HEADING_CLASSES: Record<
 	NonNullable<LexicalElementNode["tag"]>,
 	string
 > = {
-	h1: "text-xl font-bold",
-	h2: "text-lg font-bold",
-	h3: "text-base font-semibold",
-	h4: "text-base font-medium",
-	h5: "text-sm font-semibold",
-	h6: "text-sm font-medium",
+	h1: "text-4xl font-bold",
+	h2: "text-3xl font-bold",
+	h3: "text-2xl font-bold",
+	h4: "text-xl font-bold",
+	h5: "text-lg font-bold",
+	h6: "text-base font-bold",
 };
 
 export interface RenderNodeOptions {

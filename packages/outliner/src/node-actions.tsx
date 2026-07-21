@@ -114,17 +114,16 @@ export function NodeActions({
 						{labels.convertInto}
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent>
-						{CONVERT_OPTIONS.filter((option) => option !== currentOption).map(
-							(option) => (
-								<ContextMenuItem
-									key={option}
-									icon={CONVERT_ICONS[option]}
-									onClick={() => selectOption(option)}
-								>
-									{optionLabel(option)}
-								</ContextMenuItem>
-							),
-						)}
+						{CONVERT_OPTIONS.map((option) => (
+							<ContextMenuItem
+								key={option}
+								icon={CONVERT_ICONS[option]}
+								disabled={option === currentOption}
+								onClick={() => selectOption(option)}
+							>
+								{optionLabel(option)}
+							</ContextMenuItem>
+						))}
 					</ContextMenuSubContent>
 				</ContextMenuSub>
 				<ContextMenuSeparator />
