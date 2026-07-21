@@ -89,13 +89,6 @@ export const footer = cva({
 	],
 });
 
-export const kbd = cva({
-	base: [
-		"rounded border px-1 font-mono text-[9.5px]",
-		"border-ink/20 bg-ink/5 dark:border-surface/20 dark:bg-surface/10",
-	],
-});
-
 export const dialogBackdrop = cva({
 	base: "fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm",
 });
