@@ -377,6 +377,18 @@ describe("getRowVisibility with dueDateRange", () => {
 		expect(visibility.hiddenIds).toEqual(new Set(["other"]));
 	});
 
+	it("includes a row due on the end day at any time of day, not just midnight", () => {
+		const rows = [
+			row("end-morning", null, 0, new Date(2026, 6, 19, 9, 0)),
+			row("end-evening", null, 0, new Date(2026, 6, 19, 23, 59)),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueDateRange: { start: friday, end: sunday },
+		});
+		expect(visibility.hiddenIds.size).toBe(0);
+	});
+
 	it("keeps completed tasks in range visible when hideCompleted is off", () => {
 		const rows = [
 			row("open", null, 0, friday),
