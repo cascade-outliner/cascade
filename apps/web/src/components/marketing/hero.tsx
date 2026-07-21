@@ -6,8 +6,6 @@ import { appRegisterUrl } from "#/lib/app-url";
 import { useDemoTree } from "#/lib/use-demo-tree";
 import { m } from "#/paraglide/messages.js";
 
-// Lexical + drag-and-drop are ~the heaviest deps in the bundle; deferring
-// this import keeps them out of the marketing page's initial JS.
 const VirtualTree = lazy(() =>
 	import("@cascade/outliner/virtual-tree").then((mod) => ({
 		default: mod.VirtualTree,
