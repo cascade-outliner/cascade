@@ -26,7 +26,7 @@ export interface VisibleNodeRow {
  */
 export const nodeTypeDefs = {
 	text: {
-		label: "Text",
+		label: "Paragraph",
 		metadataSchema: z.null(),
 		defaultMetadata: null,
 	},

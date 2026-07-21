@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2026-07-21
-- Added a "Turn into" action to the node context menu, letting you convert a node's text into a heading (Heading 1 through Heading 6) or back into a plain paragraph. [#351](https://github.com/Patrickroelofs/cascade/issues/351)
+- The "Convert into" node context menu action now also converts a node's text into a heading (Heading 1 through Heading 6) or back into a plain paragraph, alongside the existing Text/Task options. [#351](https://github.com/Patrickroelofs/cascade/issues/351)
 - Nesting is now unbounded: trees deeper than 64 levels used to render incompletely, and moving a node more than 64 levels below itself could silently corrupt the tree into a cycle. Both are fixed — depth has no cap and the "can't move into your own subtree" check now catches this at any depth. [#321](https://github.com/Patrickroelofs/cascade/issues/321)
 - Fixed expanding a node with more than 500 visible descendants silently showing only the first 500; expanding now fetches every page of the subtree. [#322](https://github.com/Patrickroelofs/cascade/issues/322)
 - Fixed due dates occasionally rendering a day off depending on your timezone: due dates are now stored and sent as plain calendar days instead of timestamps, so the day you pick is always the day that's saved. Existing due dates were backfilled to their UTC calendar day. [#323](https://github.com/Patrickroelofs/cascade/issues/323)

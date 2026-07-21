@@ -36,7 +36,6 @@ function createOutlinerLabels(): OutlinerLabels {
 		taskCompleted: m.outliner_task_completed(),
 		dragToReorder: m.outliner_drag_handle(),
 		editNodeText: m.outliner_edit_node_text(),
-		turnInto: m.outliner_turn_into(),
 		convertInto: m.outliner_convert_into(),
 		delete: m.outliner_delete(),
 		emptyTree: m.outliner_empty_tree(),
@@ -71,8 +70,7 @@ function createOutlinerLabels(): OutlinerLabels {
 			text: m.outliner_type_text(),
 			task: m.outliner_type_task(),
 		},
-		blockTypeLabels: {
-			paragraph: m.outliner_block_type_paragraph(),
+		headingLabels: {
 			h1: m.outliner_block_type_h1(),
 			h2: m.outliner_block_type_h2(),
 			h3: m.outliner_block_type_h3(),

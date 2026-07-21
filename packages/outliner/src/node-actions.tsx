@@ -9,7 +9,7 @@ import {
 	ContextMenuTrigger,
 } from "@cascade/ui/context-menu";
 import {
-	ArrowsClockwiseIcon,
+	CheckSquareIcon,
 	ParagraphIcon,
 	TextHFiveIcon,
 	TextHFourIcon,
@@ -21,11 +21,28 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { Fragment, type ReactNode } from "react";
 import { useOutlinerLabels } from "./labels-context";
-import { type BlockType, blockTypes } from "./lexical/lexical-content";
-import { type NodeTypeName, nodeTypeNames } from "./node-types";
+import type { BlockType } from "./lexical/lexical-content";
+import type { NodeTypeName } from "./node-types";
 
-const BLOCK_TYPE_ICONS: Record<BlockType, ReactNode> = {
+/** Every option in the merged "Convert into" menu: the row-level `task` type,
+ * plus every Lexical block type ("text" is represented by `blockType`
+ * "paragraph", so it isn't listed separately). */
+type ConvertOption = "task" | BlockType;
+
+const CONVERT_OPTIONS: ConvertOption[] = [
+	"paragraph",
+	"task",
+	"h1",
+	"h2",
+	"h3",
+	"h4",
+	"h5",
+	"h6",
+];
+
+const CONVERT_ICONS: Record<ConvertOption, ReactNode> = {
 	paragraph: <ParagraphIcon size={14} weight="bold" />,
+	task: <CheckSquareIcon size={14} weight="bold" />,
 	h1: <TextHOneIcon size={14} weight="bold" />,
 	h2: <TextHTwoIcon size={14} weight="bold" />,
 	h3: <TextHThreeIcon size={14} weight="bold" />,
@@ -41,7 +58,7 @@ interface NodeActionsProps {
 	onTurnInto: (blockType: BlockType) => void;
 	onDelete: () => void;
 	/** Feature-contributed menu entries (due date, tags, …), rendered in
-	 * order before the core "Turn into"/"Convert into"/"Delete" entries. */
+	 * order before the core "Convert into"/"Delete" entries. */
 	menuItems: { id: string; node: ReactNode }[];
 	viewTransitionName?: string;
 	children: ReactNode;
@@ -58,6 +75,23 @@ export function NodeActions({
 	children,
 }: NodeActionsProps) {
 	const labels = useOutlinerLabels();
+	const currentOption: ConvertOption = nodeType === "task" ? "task" : blockType;
+
+	function optionLabel(option: ConvertOption): string {
+		if (option === "task") return labels.nodeTypeLabels.task;
+		if (option === "paragraph") return labels.nodeTypeLabels.text;
+		return labels.headingLabels[option];
+	}
+
+	function selectOption(option: ConvertOption) {
+		if (option === "task") {
+			onConvert("task");
+			return;
+		}
+		onConvert("text");
+		onTurnInto(option);
+	}
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger
@@ -76,37 +110,21 @@ export function NodeActions({
 					</Fragment>
 				))}
 				<ContextMenuSub>
-					<ContextMenuSubTrigger icon={BLOCK_TYPE_ICONS[blockType]}>
-						{labels.turnInto}
-					</ContextMenuSubTrigger>
-					<ContextMenuSubContent>
-						{blockTypes
-							.filter((type) => type !== blockType)
-							.map((type) => (
-								<ContextMenuItem
-									key={type}
-									icon={BLOCK_TYPE_ICONS[type]}
-									onClick={() => onTurnInto(type)}
-								>
-									{labels.blockTypeLabels[type]}
-								</ContextMenuItem>
-							))}
-					</ContextMenuSubContent>
-				</ContextMenuSub>
-				<ContextMenuSub>
-					<ContextMenuSubTrigger
-						icon={<ArrowsClockwiseIcon size={14} weight="bold" />}
-					>
+					<ContextMenuSubTrigger icon={CONVERT_ICONS[currentOption]}>
 						{labels.convertInto}
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent>
-						{nodeTypeNames
-							.filter((type) => type !== nodeType)
-							.map((type) => (
-								<ContextMenuItem key={type} onClick={() => onConvert(type)}>
-									{labels.nodeTypeLabels[type]}
+						{CONVERT_OPTIONS.filter((option) => option !== currentOption).map(
+							(option) => (
+								<ContextMenuItem
+									key={option}
+									icon={CONVERT_ICONS[option]}
+									onClick={() => selectOption(option)}
+								>
+									{optionLabel(option)}
 								</ContextMenuItem>
-							))}
+							),
+						)}
 					</ContextMenuSubContent>
 				</ContextMenuSub>
 				<ContextMenuSeparator />
