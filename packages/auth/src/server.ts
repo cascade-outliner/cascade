@@ -22,6 +22,13 @@ export function createAuth(db: object | string) {
 		emailAndPassword: {
 			enabled: true,
 		},
+		// Database-backed so brute-force/credential-stuffing limits on
+		// sign-in/sign-up (better-auth's built-in default: 3 requests/10s)
+		// are shared across horizontally-scaled instances instead of
+		// resetting per-process with the default in-memory store.
+		rateLimit: {
+			storage: "database",
+		},
 		user: {
 			deleteUser: {
 				enabled: true,

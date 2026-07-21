@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-21
+- Sign-in/sign-up rate limiting is now backed by the database instead of in-memory state, so brute-force/credential-stuffing protection holds up across restarts and multiple app instances instead of resetting per-process. [#298](https://github.com/Patrickroelofs/cascade/issues/298)
 - Fixed `moveNode` silently corrupting sibling order when moving a node "before" or "after" a target that wasn't actually a child of the destination parent (e.g. a stale target after a concurrent move); it now rejects the move instead. [#292](https://github.com/Patrickroelofs/cascade/issues/292)
 - Nesting is now unbounded: trees deeper than 64 levels used to render incompletely, and moving a node more than 64 levels below itself could silently corrupt the tree into a cycle. Both are fixed — depth has no cap and the "can't move into your own subtree" check now catches this at any depth. [#321](https://github.com/Patrickroelofs/cascade/issues/321)
 - Fixed expanding a node with more than 500 visible descendants silently showing only the first 500; expanding now fetches every page of the subtree. [#322](https://github.com/Patrickroelofs/cascade/issues/322)

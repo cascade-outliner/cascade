@@ -1,4 +1,11 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	bigint,
+	boolean,
+	integer,
+	pgTable,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
 	id: text().primaryKey(),
@@ -68,4 +75,14 @@ export const verification = pgTable("verification", {
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.notNull()
 		.defaultNow(),
+});
+
+// Shared rate-limit storage for better-auth (see `rateLimit.storage` in
+// createAuth): keeps brute-force protection consistent across horizontally
+// scaled instances, unlike the default in-memory limiter.
+export const rateLimit = pgTable("rate_limit", {
+	id: text().primaryKey(),
+	key: text().notNull().unique(),
+	count: integer().notNull(),
+	lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
