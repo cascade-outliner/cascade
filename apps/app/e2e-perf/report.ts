@@ -17,6 +17,11 @@ interface QueryBenchResult {
 	visibleTree: LatencySummary;
 }
 
+interface MutationBenchResult {
+	createNode: LatencySummary;
+	moveNode: LatencySummary;
+}
+
 async function readJson<T>(filePath: string): Promise<T | null> {
 	try {
 		return JSON.parse(await readFile(filePath, "utf-8")) as T;
@@ -56,6 +61,12 @@ async function main() {
 	const afterQuery = await readJson<QueryBenchResult>(
 		path.join(values.afterDir, "query-bench.json"),
 	);
+	const beforeMutation = await readJson<MutationBenchResult>(
+		path.join(values.beforeDir, "mutation-bench.json"),
+	);
+	const afterMutation = await readJson<MutationBenchResult>(
+		path.join(values.afterDir, "mutation-bench.json"),
+	);
 
 	const lines: string[] = [];
 	lines.push("<!-- perf-report -->");
@@ -73,6 +84,33 @@ async function main() {
 		);
 	} else {
 		lines.push("| query-bench results missing | — | — | — |");
+	}
+
+	if (beforeMutation || afterMutation) {
+		lines.push(
+			row(
+				"createNode p50",
+				beforeMutation?.createNode.p50Ms,
+				afterMutation?.createNode.p50Ms,
+				"ms",
+			),
+		);
+		lines.push(
+			row(
+				"createNode p95",
+				beforeMutation?.createNode.p95Ms,
+				afterMutation?.createNode.p95Ms,
+				"ms",
+			),
+		);
+		lines.push(
+			row("moveNode p50", beforeMutation?.moveNode.p50Ms, afterMutation?.moveNode.p50Ms, "ms"),
+		);
+		lines.push(
+			row("moveNode p95", beforeMutation?.moveNode.p95Ms, afterMutation?.moveNode.p95Ms, "ms"),
+		);
+	} else {
+		lines.push("| mutation-bench results missing | — | — | — |");
 	}
 
 	if (!beforeQuery) {

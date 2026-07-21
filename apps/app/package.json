@@ -21,6 +21,7 @@
     "db:studio": "drizzle-kit studio",
     "perf:seed": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/seed.ts",
     "perf:query": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/query-bench.ts",
+    "perf:mutate": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/mutation-bench.ts",
     "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/report.ts"
   },
   "dependencies": {
