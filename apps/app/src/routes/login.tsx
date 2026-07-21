@@ -3,14 +3,21 @@ import { Button } from "@cascade/ui/button";
 import { Input } from "@cascade/ui/input";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { GithubLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react/ssr";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { m } from "#/paraglide/messages.js";
+import { getSession } from "@/auth/session";
 import { oauthErrorMessage } from "@/lib/oauth-error";
 
 export const Route = createFileRoute("/login")({
 	validateSearch: z.object({ error: z.string().optional() }),
+	beforeLoad: async () => {
+		const session = await getSession();
+		if (session) {
+			throw redirect({ to: "/" });
+		}
+	},
 	component: Login,
 });
 

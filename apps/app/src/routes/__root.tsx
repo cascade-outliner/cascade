@@ -10,19 +10,15 @@ import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
-	redirect,
 	Scripts,
+	useMatches,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { getLocale } from "#/paraglide/runtime.js";
-import { getSession } from "@/auth/session";
 import type { SettingsPatch } from "@/core/settings/settings-patch-schema";
 import { AppLabelsProvider } from "@/lib/labels-provider";
-import { orpc } from "@/orpc/client";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
-import { AppHeader } from "@/ui/header/AppHeader";
-import { SettingsProvider } from "@/ui/settings-context";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 import "@fontsource-variable/bitter/index.css";
@@ -34,28 +30,22 @@ interface MyRouterContext {
 	queryClient: QueryClient;
 }
 
-const authPaths = new Set(["/login", "/register"]);
+interface AuthedLoaderData {
+	settings: SettingsPatch;
+}
+
+function authedSettings(
+	matches: ReadonlyArray<{ routeId: string; loaderData?: unknown }>,
+): SettingsPatch {
+	const authedMatch = matches.find((match) => match.routeId === "/_authed");
+	return (
+		(authedMatch?.loaderData as AuthedLoaderData | undefined)?.settings ?? {}
+	);
+}
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-	beforeLoad: async ({ location }) => {
-		const session = await getSession();
-		const isAuthPath = authPaths.has(location.pathname);
-		if (!session && !isAuthPath) {
-			throw redirect({ to: "/login" });
-		}
-		if (session && isAuthPath) {
-			throw redirect({ to: "/" });
-		}
-		return { user: session?.user };
-	},
-	loader: async ({ context: { queryClient } }) => {
-		const settings = await queryClient
-			.ensureQueryData(orpc.settings.get.queryOptions())
-			.catch((): SettingsPatch => ({}));
-		return { settings };
-	},
-	head: ({ loaderData }) => {
-		const settings = loaderData?.settings ?? {};
+	head: ({ matches }) => {
+		const settings = authedSettings(matches);
 		const isSystemSync =
 			settings.theme === undefined || settings.theme === SYSTEM_THEME;
 		const lightThemeId = settings.lightTheme ?? "light";
@@ -135,8 +125,7 @@ function ssrThemeAttrs(settings: SettingsPatch) {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-	const { settings } = Route.useLoaderData();
-	const { user } = Route.useRouteContext();
+	const settings = authedSettings(useMatches());
 	const { dark, themeAttr } = ssrThemeAttrs(settings);
 	return (
 		<html
@@ -154,12 +143,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body className="flex h-dvh flex-col font-app bg-canvas text-ink dark:bg-ink dark:text-canvas">
 				<NuqsAdapter>
 					<AppLabelsProvider>
-						<SettingsProvider>
-							<Toaster>
-								{user && <AppHeader />}
-								{children}
-							</Toaster>
-						</SettingsProvider>
+						<Toaster>{children}</Toaster>
 					</AppLabelsProvider>
 				</NuqsAdapter>
 				{import.meta.env.DEV && (
