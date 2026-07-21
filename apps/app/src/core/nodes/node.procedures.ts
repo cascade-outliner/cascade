@@ -197,7 +197,9 @@ export const createNode = authed
 		);
 
 		return await db.transaction(async (tx) => {
-			await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
+			await tx.execute(
+				sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
+			);
 
 			let order: string;
 			if (input.afterId) {
@@ -452,7 +454,9 @@ export const moveNode = authed
 	.handler(async ({ input, context, errors }) => {
 		const userId = context.user.id;
 		await db.transaction(async (tx) => {
-			await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
+			await tx.execute(
+				sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
+			);
 
 			const [moved] = await tx
 				.select({ id: nodes.id })
