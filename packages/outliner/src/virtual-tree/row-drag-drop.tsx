@@ -56,11 +56,6 @@ export function RowDragAndDrop({
 	const handleRef = useRef<HTMLButtonElement>(null);
 	const [instruction, setInstruction] = useState<Instruction | null>(null);
 
-	// The drag-and-drop handlers below are wired up once (empty deps) and close
-	// over `latest` instead of `row`/`rows`/etc. directly, so this ref has to
-	// stay current across every render. Assigning it in a layout effect (not
-	// inline during render) keeps this component compatible with React
-	// Compiler, which forbids ref writes during render.
 	const latest = useRef({ row, rows, onMoveDrop, indentSize });
 	useLayoutEffect(() => {
 		latest.current = { row, rows, onMoveDrop, indentSize };
@@ -75,10 +70,6 @@ export function RowDragAndDrop({
 
 		return combine(
 			draggable({
-				// Only the handle carries the native `draggable` attribute (rather
-				// than the whole row via `dragHandle`) so the row's text stays
-				// selectable — Firefox refuses to let users select text inside any
-				// `draggable="true"` ancestor, handle-restricted or not.
 				element: handle,
 				getInitialData: (): DragData => ({ nodeId: id }),
 				onGenerateDragPreview: ({ nativeSetDragImage }) => {
