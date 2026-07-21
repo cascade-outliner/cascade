@@ -1,10 +1,11 @@
+import type { HeadingTag } from "../heading-styles";
 import { renderNode } from "./lexical-render-node";
 import type { OnDeleteLink, OnSaveLink } from "./node-link-view";
 import type { LexicalTextNode } from "./render-text-nodes";
 
 export interface LexicalElementNode {
 	type: string;
-	tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+	tag?: HeadingTag;
 	children?: (LexicalTextNode | LexicalElementNode)[];
 }
 

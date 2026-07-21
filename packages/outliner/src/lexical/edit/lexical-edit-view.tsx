@@ -6,6 +6,7 @@ import {
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { HeadingNode } from "@lexical/rich-text";
 import type { FocusPoint } from "../../node-editor";
+import { HEADING_CLASSES } from "../heading-styles";
 import type { LexicalElementNode } from "../read/lexical-read-view";
 import { EditableContent } from "./lexical-editable-content";
 
@@ -54,6 +55,7 @@ export function LexicalEditView({
 				namespace: `node-editor-${id}`,
 				nodes: [LinkNode, AutoLinkNode, HeadingNode],
 				theme: {
+					heading: HEADING_CLASSES,
 					link: "text-danger underline decoration-danger/40 underline-offset-2 dark:text-accent dark:decoration-accent/40",
 				},
 				onError: (error) => console.error("lexical error", error),

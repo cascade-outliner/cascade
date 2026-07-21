@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { HEADING_CLASSES } from "../heading-styles";
 import { linkTextContent, type SerializedLinkNode } from "../link-content";
 import { isHttpUrl, tidyUrlLabel } from "../link-url";
 import type { LexicalElementNode } from "./lexical-read-view";
@@ -12,18 +13,6 @@ import { type LexicalTextNode, renderTextNode } from "./render-text-nodes";
 // Defense in depth against pathologically nested content (e.g. pre-existing
 // rows written before size/depth limits were enforced on write).
 const MAX_RENDER_DEPTH = 64;
-
-const HEADING_CLASSES: Record<
-	NonNullable<LexicalElementNode["tag"]>,
-	string
-> = {
-	h1: "text-4xl font-bold",
-	h2: "text-3xl font-bold",
-	h3: "text-2xl font-bold",
-	h4: "text-xl font-bold",
-	h5: "text-lg font-bold",
-	h6: "text-base font-bold",
-};
 
 export interface RenderNodeOptions {
 	/** When set, links render with a click-to-edit popover; `path` is the chain of child indexes from the root. */
