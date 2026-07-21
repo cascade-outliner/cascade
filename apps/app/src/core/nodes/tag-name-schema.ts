@@ -1,15 +1,11 @@
 import { MAX_TAG_LENGTH } from "@cascade/outliner/node-tags";
 import { z } from "zod";
 
-// Length is checked on the trimmed name because that's what normalizeTags
-// ends up storing; surrounding whitespace doesn't count against the limit.
 export const tagNameSchema = z
 	.string()
 	.trim()
 	.max(MAX_TAG_LENGTH, `tag name exceeds ${MAX_TAG_LENGTH} characters`);
 
-// No UI flow needs anywhere near this many tags on a single node; the cap
-// keeps a single setNodeTags call from driving an unbounded bulk upsert.
 export const MAX_TAGS_PER_NODE = 50;
 
 export const setNodeTagsInputSchema = z.object({
