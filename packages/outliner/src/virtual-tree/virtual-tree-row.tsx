@@ -3,7 +3,6 @@
 import { Fragment } from "react";
 import { twMerge } from "tailwind-merge";
 import { defaultOutlinerFeatures } from "../features/default-features";
-import type { RowFeatureContext } from "../features/types";
 import { NodeActions } from "../node-actions";
 import { NodeEditor } from "../node-editor";
 import { DefaultNodeLink } from "../node-link-slot";
@@ -24,10 +23,15 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const dueDate = row.dueDate ? new Date(row.dueDate) : null;
 	const position = siblingPosition(props.rows, index);
 
-	const featureCtx: RowFeatureContext = {
+	// Built once per row and passed to every feature's slot/menu renderer,
+	// each of which only reads the handful of fields its own (narrower)
+	// context type declares — see features/task, features/due-date,
+	// features/tags.
+	const featureCtx = {
 		row,
 		dueDate,
 		completed,
+		tags: row.tags,
 		existingTags: props.existingTags,
 		onSetDueDate: props.onSetDueDate,
 		onSetTags: props.onSetTags,

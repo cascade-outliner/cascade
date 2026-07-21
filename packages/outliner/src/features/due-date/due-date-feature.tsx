@@ -7,9 +7,15 @@ import {
 import { CalendarIcon } from "@phosphor-icons/react/ssr";
 import { useOutlinerLabels } from "../../labels-context";
 import { NodeDueDatePill } from "../../node-due-date-pill";
-import type { OutlinerFeature, RowFeatureContext } from "../types";
+import type { OutlinerFeature } from "../types";
 
-function DueDateMenuItem({ ctx }: { ctx: RowFeatureContext }) {
+export interface DueDateFeatureContext {
+	dueDate: Date | null;
+	completed: boolean;
+	onSetDueDate: (date: Date | null) => void;
+}
+
+function DueDateMenuItem({ ctx }: { ctx: DueDateFeatureContext }) {
 	const labels = useOutlinerLabels();
 	return (
 		<ContextMenuSub>
@@ -33,7 +39,7 @@ function DueDateMenuItem({ ctx }: { ctx: RowFeatureContext }) {
 
 /** Due dates: a trailing pill on rows that have one, plus a "Set/Change
  * date" context-menu submenu. */
-export const dueDateFeature: OutlinerFeature = {
+export const dueDateFeature: OutlinerFeature<DueDateFeatureContext> = {
 	id: "due-date",
 	renderTrailing: (ctx) =>
 		ctx.dueDate ? (

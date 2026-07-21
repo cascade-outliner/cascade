@@ -5,11 +5,19 @@ import {
 } from "@cascade/ui/context-menu";
 import { TagIcon } from "@phosphor-icons/react/ssr";
 import { useOutlinerLabels } from "../../labels-context";
+import type { TagSummary } from "../../node-tags";
 import { NodeTagsEditor } from "../../node-tags-editor/node-tags-editor";
 import { NodeTagPills } from "../../node-tags-pills";
-import type { OutlinerFeature, RowFeatureContext } from "../types";
+import type { OutlinerFeature } from "../types";
 
-function TagsMenuItem({ ctx }: { ctx: RowFeatureContext }) {
+export interface TagsFeatureContext {
+	tags: string[];
+	existingTags: TagSummary[];
+	onSetTags: (tags: string[]) => void;
+	onDeleteTag?: (name: string) => void | Promise<void>;
+}
+
+function TagsMenuItem({ ctx }: { ctx: TagsFeatureContext }) {
 	const labels = useOutlinerLabels();
 	return (
 		<ContextMenuSub>
@@ -18,11 +26,11 @@ function TagsMenuItem({ ctx }: { ctx: RowFeatureContext }) {
 				openOnHover
 				delay={150}
 			>
-				{ctx.row.tags.length > 0 ? labels.manageTags : labels.addTag}
+				{ctx.tags.length > 0 ? labels.manageTags : labels.addTag}
 			</ContextMenuSubTrigger>
 			<ContextMenuSubContent>
 				<NodeTagsEditor
-					tags={ctx.row.tags}
+					tags={ctx.tags}
 					existingTags={ctx.existingTags}
 					onChange={ctx.onSetTags}
 					onDeleteTag={ctx.onDeleteTag}
@@ -33,8 +41,8 @@ function TagsMenuItem({ ctx }: { ctx: RowFeatureContext }) {
 }
 
 /** Tags: trailing pills plus a context-menu submenu for managing them. */
-export const tagsFeature: OutlinerFeature = {
+export const tagsFeature: OutlinerFeature<TagsFeatureContext> = {
 	id: "tags",
-	renderTrailing: (ctx) => <NodeTagPills tags={ctx.row.tags} />,
+	renderTrailing: (ctx) => <NodeTagPills tags={ctx.tags} />,
 	renderContextMenuItem: (ctx) => <TagsMenuItem ctx={ctx} />,
 };
