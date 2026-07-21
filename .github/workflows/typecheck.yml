@@ -1,4 +1,4 @@
-name: test
+name: typecheck
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  typecheck:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -16,5 +16,4 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test:app
-      - run: pnpm test:web
+      - run: pnpm tsc

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite dev --port 3001",
     "generate-routes": "tsr generate",
+    "compile-messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations",
     "build": "vite build && tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",

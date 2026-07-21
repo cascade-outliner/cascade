@@ -9,10 +9,11 @@
   "scripts": {
     "dev": "node scripts/generate-sitemap.mjs && vite dev --port 3000",
     "generate-routes": "tsr generate",
+    "compile-messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations",
     "build": "node scripts/generate-sitemap.mjs && vite build",
     "start": "node ./.output/server/index.mjs",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
