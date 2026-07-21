@@ -222,10 +222,15 @@ export function RowDragAndDrop({
 
 				const modifier = e.ctrlKey || e.metaKey || e.shiftKey;
 				if (!modifier) {
-					// A plain click while something is selected drops the selection
-					// but doesn't otherwise interfere with the row's normal click
-					// behavior (starting edit, toggling expand, etc).
-					if (selectedIds.size > 0) onClearSelection();
+					// A plain click while something is selected drops the
+					// selection, but this runs in the capture phase — ahead of the
+					// row's own default mousedown behavior (Lexical placing the
+					// text cursor, the browser starting a native text selection).
+					// Deferring the actual state update to a microtask lets that
+					// default behavior finish first, so clearing the selection is
+					// a trailing side effect instead of a same-tick race that can
+					// disrupt it.
+					if (selectedIds.size > 0) queueMicrotask(onClearSelection);
 					return;
 				}
 				if ((e.target as HTMLElement).closest(ROW_INTERACTIVE_SELECTOR)) return;
