@@ -4,6 +4,7 @@ import {
 	createLinkMatcherWithRegExp,
 } from "@lexical/react/LexicalAutoLinkPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { HeadingNode } from "@lexical/rich-text";
 import type { FocusPoint } from "../../node-editor";
 import type { LexicalElementNode } from "../read/lexical-read-view";
 import { EditableContent } from "./lexical-editable-content";
@@ -51,7 +52,7 @@ export function LexicalEditView({
 		<LexicalComposer
 			initialConfig={{
 				namespace: `node-editor-${id}`,
-				nodes: [LinkNode, AutoLinkNode],
+				nodes: [LinkNode, AutoLinkNode, HeadingNode],
 				theme: {
 					link: "text-danger underline decoration-danger/40 underline-offset-2 dark:text-accent dark:decoration-accent/40",
 				},

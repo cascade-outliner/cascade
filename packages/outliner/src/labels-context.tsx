@@ -1,9 +1,9 @@
 import { createContext, type ReactNode, use } from "react";
+import type { BlockType } from "./lexical/lexical-content";
 import { MAX_TAG_LENGTH } from "./node-tags";
 import { type NodeTypeName, nodeTypeDefs, nodeTypeNames } from "./node-types";
 
 export interface OutlinerLabels {
-	/** Accessible name for the tree's `role="tree"` container. */
 	treeLabel: string;
 	toggleExpand: string;
 	toggleCollapse: string;
@@ -38,6 +38,7 @@ export interface OutlinerLabels {
 	linkSave: string;
 	linkDelete: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
+	headingLabels: Record<Exclude<BlockType, "paragraph">, string>;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
 	filtersDueToday: string;
@@ -92,6 +93,14 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	nodeTypeLabels: Object.fromEntries(
 		nodeTypeNames.map((type) => [type, nodeTypeDefs[type].label]),
 	) as Record<NodeTypeName, string>,
+	headingLabels: {
+		h1: "Heading 1",
+		h2: "Heading 2",
+		h3: "Heading 3",
+		h4: "Heading 4",
+		h5: "Heading 5",
+		h6: "Heading 6",
+	},
 	filtersTrigger: "Filter",
 	filtersDueDateGroup: "Due date",
 	filtersDueToday: "Due today",

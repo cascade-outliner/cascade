@@ -144,6 +144,9 @@ importers:
       '@lexical/link':
         specifier: ^0.46.0
         version: 0.46.0(typescript@7.0.2)
+      '@lexical/rich-text':
+        specifier: ^0.46.0
+        version: 0.46.0(typescript@7.0.2)
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.61.1

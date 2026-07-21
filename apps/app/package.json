@@ -70,6 +70,7 @@
     "@faker-js/faker": "^10.5.0",
     "@inlang/plugin-message-format": "4.4.0",
     "@lexical/link": "^0.46.0",
+    "@lexical/rich-text": "^0.46.0",
     "@playwright/test": "^1.61.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tailwindcss/typography": "^0.5.20",

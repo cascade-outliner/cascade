@@ -13,6 +13,18 @@ import { type LexicalTextNode, renderTextNode } from "./render-text-nodes";
 // rows written before size/depth limits were enforced on write).
 const MAX_RENDER_DEPTH = 64;
 
+const HEADING_CLASSES: Record<
+	NonNullable<LexicalElementNode["tag"]>,
+	string
+> = {
+	h1: "text-4xl font-bold",
+	h2: "text-3xl font-bold",
+	h3: "text-2xl font-bold",
+	h4: "text-xl font-bold",
+	h5: "text-lg font-bold",
+	h6: "text-base font-bold",
+};
+
 export interface RenderNodeOptions {
 	/** When set, links render with a click-to-edit popover; `path` is the chain of child indexes from the root. */
 	onSaveLink?: OnSaveLink;
@@ -46,6 +58,16 @@ export function renderNode(
 
 		case "paragraph": {
 			return <p key={key}>{renderChildren(node.children)}</p>;
+		}
+
+		case "heading": {
+			const tag = (node as LexicalElementNode).tag ?? "h1";
+			const Tag = tag;
+			return (
+				<Tag key={key} className={HEADING_CLASSES[tag]}>
+					{renderChildren(node.children)}
+				</Tag>
+			);
 		}
 
 		case "link":

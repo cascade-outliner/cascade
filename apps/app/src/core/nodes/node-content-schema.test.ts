@@ -4,6 +4,7 @@ import {
 	AutoLinkNode,
 	LinkNode,
 } from "@lexical/link";
+import { $createHeadingNode, HeadingNode } from "@lexical/rich-text";
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -227,6 +228,28 @@ describe("updateNodeContentInputSchema", () => {
 				link.append($createTextNode("https://example.com/typed"));
 				paragraph.append(link);
 				$getRoot().append(paragraph);
+			},
+			{ discrete: true },
+		);
+
+		const content = editor.getEditorState().toJSON();
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content,
+		});
+		expect(result.success).toBe(true);
+	});
+
+	// Same drift guard, for @lexical/rich-text: build the heading with the
+	// real HeadingNode so the allowlist can't silently fall out of sync with
+	// the `tag` field it serializes.
+	it("accepts a heading node produced by a real Lexical editor", () => {
+		const editor = createEditor({ nodes: [HeadingNode] });
+		editor.update(
+			() => {
+				const heading = $createHeadingNode("h2");
+				heading.append($createTextNode("A title"));
+				$getRoot().append(heading);
 			},
 			{ discrete: true },
 		);

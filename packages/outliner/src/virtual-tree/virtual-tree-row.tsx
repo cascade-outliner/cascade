@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { twMerge } from "tailwind-merge";
 import { parseCalendarDate } from "../calendar-date";
 import { defaultOutlinerFeatures } from "../features/default-features";
+import { getBlockType } from "../lexical/lexical-content";
 import { NodeActions } from "../node-actions";
 import { NodeEditor } from "../node-editor";
 import { DefaultNodeLink } from "../node-link-slot";
@@ -21,6 +22,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	// Date | null for display and day math.
 	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
 	const position = siblingPosition(props.rows, index);
+	const blockType = getBlockType(row.content);
 
 	// Built once per row and passed to every feature's slot/menu renderer,
 	// each of which only reads the handful of fields its own (narrower)
@@ -72,7 +74,9 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			>
 				<NodeActions
 					nodeType={row.type}
+					blockType={blockType}
 					onConvert={props.onConvert}
+					onTurnInto={props.onTurnInto}
 					onDelete={props.onDelete}
 					menuItems={menuItems}
 					viewTransitionName={`node-${row.id}`}
