@@ -48,7 +48,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		}
 		return { user: session?.user };
 	},
-	loader: async ({ context: { queryClient } }) => {
+	loader: async ({ context: { queryClient, user } }) => {
+		if (!user) {
+			return { settings: {} as SettingsPatch };
+		}
 		const settings = await queryClient
 			.ensureQueryData(orpc.settings.get.queryOptions())
 			.catch((): SettingsPatch => ({}));
