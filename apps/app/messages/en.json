@@ -67,6 +67,7 @@
 	"node_link_open": "Open node",
 	"node_deleted": "Node deleted",
 	"node_save_failed": "Failed to save changes",
+	"node_create_failed": "Failed to create node",
 	"node_deleted_with_children": [
 		{
 			"declarations": ["input count", "local countPlural = count: plural"],

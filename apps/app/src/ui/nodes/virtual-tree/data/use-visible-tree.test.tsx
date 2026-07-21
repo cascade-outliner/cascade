@@ -11,6 +11,7 @@ import { useVisibleTree, visibleTreeOptions } from "./use-visible-tree";
 vi.mock("@/orpc/client", () => ({
 	client: {
 		nodes: {
+			create: vi.fn(),
 			updateContent: vi.fn(),
 			move: vi.fn(),
 			toggleExpanded: vi.fn(),
@@ -198,5 +199,112 @@ describe("useVisibleTree.move", () => {
 		await waitFor(() =>
 			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey }),
 		);
+	});
+});
+
+describe("useVisibleTree.add/addAfter", () => {
+	const created = {
+		id: "node-2",
+		parentId: null,
+		content: null,
+		type: "text" as const,
+		metadata: null,
+		expanded: false,
+		order: "b0",
+		dueDate: null,
+		tags: [],
+		hasChildren: false,
+	};
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.mocked(orpc.nodes.visibleTree.queryOptions).mockImplementation(
+			({ input }) =>
+				({
+					queryKey: ["nodes", "visibleTree", { input }],
+					queryFn: () => Promise.resolve({ rows: [row], nextCursor: null }),
+				}) as never,
+		);
+	});
+
+	it("appends the created row and returns its id on success", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row],
+			nextCursor: null,
+		});
+		vi.mocked(client.nodes.create).mockResolvedValueOnce(created);
+
+		const { result } = renderVisibleTree(queryClient);
+
+		let newId: string | null = null;
+		await result.current.add().then((id) => {
+			newId = id;
+		});
+
+		expect(newId).toBe("node-2");
+		expect(toast.error).not.toHaveBeenCalled();
+		expect(
+			queryClient.getQueryData<{ rows: VisibleNodeRow[] }>(
+				visibleTreeOptions(null).queryKey,
+			)?.rows,
+		).toHaveLength(2);
+	});
+
+	it("shows an error toast and returns null when the create fails, without touching the cache", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row],
+			nextCursor: null,
+		});
+		vi.mocked(client.nodes.create).mockRejectedValueOnce(new Error("boom"));
+
+		const { result } = renderVisibleTree(queryClient);
+
+		let newId: string | null = "unset" as unknown as string | null;
+		await result.current.add().then((id) => {
+			newId = id;
+		});
+
+		expect(newId).toBeNull();
+		expect(toast.error).toHaveBeenCalledWith(m.node_create_failed());
+		expect(
+			queryClient.getQueryData<{ rows: VisibleNodeRow[] }>(
+				visibleTreeOptions(null).queryKey,
+			)?.rows,
+		).toEqual([row]);
+	});
+
+	it("addAfter reads the sibling from the live cache instead of the stale render snapshot", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row],
+			nextCursor: null,
+		});
+		const { result, rerender } = renderVisibleTree(queryClient);
+
+		// A concurrent change updates the sibling's depth in the cache after
+		// this hook instance was rendered with the original `row`.
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [{ ...row, depth: 3 }],
+			nextCursor: null,
+		});
+		rerender();
+
+		vi.mocked(client.nodes.create).mockResolvedValueOnce({
+			...created,
+			parentId: row.parentId,
+		});
+
+		await result.current.addAfter("node-1");
+
+		expect(client.nodes.create).toHaveBeenCalledWith(
+			expect.objectContaining({ parentId: row.parentId, afterId: "node-1" }),
+		);
+		expect(
+			queryClient.getQueryData<{ rows: VisibleNodeRow[] }>(
+				visibleTreeOptions(null).queryKey,
+			)?.rows?.[1],
+		).toMatchObject({ depth: 3 });
 	});
 });

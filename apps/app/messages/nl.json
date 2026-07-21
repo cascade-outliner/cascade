@@ -67,6 +67,7 @@
 	"node_link_open": "Node openen",
 	"node_deleted": "Node verwijderd",
 	"node_save_failed": "Opslaan van wijzigingen mislukt",
+	"node_create_failed": "Aanmaken van node mislukt",
 	"node_deleted_with_children": [
 		{
 			"declarations": ["input count", "local countPlural = count: plural"],

@@ -58,12 +58,14 @@ export function useTreeInteractions(
 
 	const handleCreateBelow = async (id: string) => {
 		const newId = await tree.addAfter(id, { dueDate: newNodeDueDate });
+		if (!newId) return;
 		setFocusPoint(null);
 		setEditingNodeId(newId);
 	};
 
 	const handleAddRoot = async () => {
 		const id = await tree.add({ dueDate: newNodeDueDate });
+		if (!id) return;
 		setFocusPoint(null);
 		setEditingNodeId(id);
 	};
