@@ -1,3 +1,4 @@
+import type { DueDateRange } from "@cascade/outliner/node-filters";
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCreateMutation } from "./mutations/use-create-mutation";
@@ -23,8 +24,13 @@ export { visibleTreeOptions } from "./visible-tree-query";
 export function useVisibleTree(
 	rootId: string | null,
 	includeCollapsedDescendants = false,
+	dueDateRange: DueDateRange | null = null,
 ): VisibleTree {
-	const options = visibleTreeOptions(rootId, includeCollapsedDescendants);
+	const options = visibleTreeOptions(
+		rootId,
+		includeCollapsedDescendants,
+		dueDateRange,
+	);
 	const { data } = useSuspenseQuery(options);
 
 	const toggle = useToggleMutation(
@@ -46,6 +52,7 @@ export function useVisibleTree(
 		options.queryKey,
 		rootId,
 		includeCollapsedDescendants,
+		dueDateRange,
 		data.nextCursor,
 	);
 

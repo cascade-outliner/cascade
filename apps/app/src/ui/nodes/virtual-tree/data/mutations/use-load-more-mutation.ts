@@ -1,3 +1,5 @@
+import { formatCalendarDate } from "@cascade/outliner/calendar-date";
+import type { DueDateRange } from "@cascade/outliner/node-filters";
 import type { QueryKey } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/orpc/client";
@@ -7,6 +9,7 @@ export function useLoadMoreMutation(
 	queryKey: QueryKey,
 	rootId: string | null,
 	includeCollapsedDescendants: boolean,
+	dueDateRange: DueDateRange | null,
 	nextCursor: string[] | null,
 ) {
 	const queryClient = useQueryClient();
@@ -17,6 +20,12 @@ export function useLoadMoreMutation(
 				rootId,
 				cursor: nextCursor,
 				includeCollapsedDescendants,
+				...(dueDateRange
+					? {
+							dueDateStart: formatCalendarDate(dueDateRange.start),
+							dueDateEnd: formatCalendarDate(dueDateRange.end),
+						}
+					: {}),
 			}),
 		onSuccess: (next) => {
 			queryClient.setQueryData(queryKey, (old: VisibleTreeData | undefined) =>

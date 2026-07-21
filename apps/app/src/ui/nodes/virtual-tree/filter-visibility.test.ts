@@ -5,7 +5,7 @@ import {
 	startOfWeek,
 } from "@cascade/outliner/due-date-bucket";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
-import { noFilters } from "@cascade/outliner/node-filters";
+import { activeDueDateRange, noFilters } from "@cascade/outliner/node-filters";
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -66,6 +66,23 @@ describe("startOfWeek", () => {
 		expect(startOfWeek(new Date(2026, 6, 19, 23))).toEqual(
 			new Date(2026, 6, 13),
 		);
+	});
+});
+
+describe("activeDueDateRange", () => {
+	it("converts today, this week, and an exact date to inclusive bounds", () => {
+		expect(
+			activeDueDateRange({ ...noFilters, dueToday: true }, wednesday),
+		).toEqual({ start: new Date(2026, 6, 15), end: new Date(2026, 6, 15) });
+		expect(
+			activeDueDateRange({ ...noFilters, dueThisWeek: true }, wednesday),
+		).toEqual({ start: new Date(2026, 6, 13), end: new Date(2026, 6, 19) });
+		expect(
+			activeDueDateRange({
+				...noFilters,
+				dueOnDate: new Date(2026, 6, 17, 18),
+			}),
+		).toEqual({ start: new Date(2026, 6, 17), end: new Date(2026, 6, 17) });
 	});
 });
 

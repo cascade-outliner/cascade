@@ -82,15 +82,31 @@ interface VisibleTreeSqlRow {
  */
 export const visibleTree = authed
 	.input(
-		z.object({
-			rootId: z.string().nullable(),
-			cursor: z.array(z.string()).nullable().default(null),
-			includeCollapsedDescendants: z.boolean().default(false),
-			limit: z.number().int().min(1).max(2000).default(500),
-		}),
+		z
+			.object({
+				rootId: z.string().nullable(),
+				cursor: z.array(z.string()).nullable().default(null),
+				includeCollapsedDescendants: z.boolean().default(false),
+				dueDateStart: dueDateSchema.optional(),
+				dueDateEnd: dueDateSchema.optional(),
+				limit: z.number().int().min(1).max(2000).default(500),
+			})
+			.refine(
+				(input) =>
+					(input.dueDateStart === undefined) ===
+					(input.dueDateEnd === undefined),
+				{ message: "Both due-date bounds are required" },
+			),
 	)
 	.handler(async ({ input, context }) => {
-		const { rootId, cursor, includeCollapsedDescendants, limit } = input;
+		const {
+			rootId,
+			cursor,
+			includeCollapsedDescendants,
+			dueDateStart,
+			dueDateEnd,
+			limit,
+		} = input;
 		const userId = context.user.id;
 		const cursorArray = cursor
 			? sql`ARRAY[${sql.join(
@@ -125,10 +141,28 @@ export const visibleTree = authed
 						OR (v.path || c."order") >= params.cursor[1:array_length(v.path, 1) + 1]
 					)
 				),
+				matching_paths AS MATERIALIZED (
+					SELECT v.path
+					FROM visible v
+					${dueDateStart && dueDateEnd ? sql`WHERE v.due_date BETWEEN ${dueDateStart}::date AND ${dueDateEnd}::date` : sql``}
+				),
+				filtered AS (
+					SELECT v.*
+					FROM visible v
+					${
+						dueDateStart && dueDateEnd
+							? sql`WHERE EXISTS (
+								SELECT 1
+								FROM matching_paths m
+								WHERE m.path[1:cardinality(v.path)] = v.path
+							)`
+							: sql``
+					}
+				),
 				page AS MATERIALIZED (
 					SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
 						(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
-					FROM visible v
+					FROM filtered v
 					${cursor ? sql`WHERE v.path > (SELECT cursor FROM params)` : sql``}
 					ORDER BY v.path
 					LIMIT ${limit + 1}

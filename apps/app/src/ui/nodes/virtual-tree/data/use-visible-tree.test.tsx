@@ -13,6 +13,7 @@ vi.mock("@/orpc/client", () => ({
 		nodes: {
 			create: vi.fn(),
 			updateContent: vi.fn(),
+			setDueDate: vi.fn(),
 			move: vi.fn(),
 			toggleExpanded: vi.fn(),
 			visibleTree: vi.fn(),
@@ -22,6 +23,7 @@ vi.mock("@/orpc/client", () => ({
 		nodes: {
 			visibleTree: {
 				queryOptions: vi.fn(),
+				key: vi.fn(() => ["nodes", "visibleTree"]),
 			},
 			ancestors: {
 				key: vi.fn(() => ["nodes", "ancestors"]),
@@ -56,12 +58,18 @@ const row: VisibleNodeRow = {
 function renderVisibleTree(
 	queryClient: QueryClient,
 	includeCollapsedDescendants = false,
+	dueDateRange: { start: Date; end: Date } | null = null,
 ) {
-	return renderHook(() => useVisibleTree(null, includeCollapsedDescendants), {
-		wrapper: ({ children }) => (
-			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-		),
-	});
+	return renderHook(
+		() => useVisibleTree(null, includeCollapsedDescendants, dueDateRange),
+		{
+			wrapper: ({ children }) => (
+				<QueryClientProvider client={queryClient}>
+					{children}
+				</QueryClientProvider>
+			),
+		},
+	);
 }
 
 describe("useVisibleTree.updateContent", () => {
@@ -116,11 +124,17 @@ describe("useVisibleTree.updateContent", () => {
 
 	it("requests collapsed descendants when a due-date filter is active", () => {
 		const queryClient = new QueryClient();
+		const date = new Date(2026, 6, 21);
 
-		renderVisibleTree(queryClient, true);
+		renderVisibleTree(queryClient, true, { start: date, end: date });
 
 		expect(orpc.nodes.visibleTree.queryOptions).toHaveBeenCalledWith({
-			input: { rootId: null, includeCollapsedDescendants: true },
+			input: {
+				rootId: null,
+				includeCollapsedDescendants: true,
+				dueDateStart: "2026-07-21",
+				dueDateEnd: "2026-07-21",
+			},
 		});
 	});
 
@@ -144,6 +158,33 @@ describe("useVisibleTree.updateContent", () => {
 				nextCursor: null,
 			});
 		});
+	});
+
+	it("invalidates every tree variant after saving a due date", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row],
+			nextCursor: null,
+		});
+		queryClient.setQueryData(visibleTreeOptions(null, true).queryKey, {
+			rows: [row],
+			nextCursor: null,
+		});
+		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+		vi.mocked(client.nodes.setDueDate).mockResolvedValueOnce(undefined);
+
+		const { result } = renderVisibleTree(queryClient);
+
+		result.current.setDueDate("node-1", new Date(2026, 6, 21));
+
+		await waitFor(() => expect(queryClient.isMutating()).toBe(0));
+		expect(invalidateSpy).toHaveBeenCalledWith({
+			queryKey: ["nodes", "visibleTree"],
+		});
+		expect(
+			queryClient.getQueryState(visibleTreeOptions(null, true).queryKey)
+				?.isInvalidated,
+		).toBe(true);
 	});
 });
 

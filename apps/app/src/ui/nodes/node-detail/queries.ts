@@ -56,6 +56,10 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 			old
 				? { ...old, dueDate: dueDate ? formatCalendarDate(dueDate) : null }
 				: old,
+		onSuccess: () =>
+			queryClient.invalidateQueries({
+				queryKey: orpc.nodes.visibleTree.key(),
+			}),
 	});
 
 	const setTagsMutation = useOptimisticNodeMutation<
