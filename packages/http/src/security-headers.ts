@@ -3,7 +3,7 @@ const isProd = process.env.NODE_ENV === "production";
 function contentSecurityPolicy(nonce: string): string {
 	return [
 		"default-src 'self'",
-		`script-src 'self' 'nonce-${nonce}' https://rybbit.patrickroelofs.com`,
+		`script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://rybbit.patrickroelofs.com`,
 		"style-src 'self' 'unsafe-inline'",
 		"img-src 'self' data: https:",
 		"font-src 'self' data:",
