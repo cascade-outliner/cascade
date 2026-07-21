@@ -593,6 +593,22 @@ interface SubtreeRow {
 	due_date: CalendarDateString | null;
 }
 
+// Postgres caps a single query at 65535 bind parameters. Chunk size is kept
+// well under that for every query below: the `nodes` insert (9 params/row),
+// the `node_tags` inArray lookup and insert (1-2 params/row), and the
+// eventual `node_tags` insert, so a large duplicated subtree can't blow past
+// the limit and fail the whole transaction (see apps/app/src/db/seed-tree.ts
+// for the same constraint on the interactive/perf seed inserts).
+const DUPLICATE_BATCH_SIZE = 5000;
+
+function chunk<T>(items: T[], size: number): T[][] {
+	const out: T[][] = [];
+	for (let i = 0; i < items.length; i += size) {
+		out.push(items.slice(i, i + size));
+	}
+	return out;
+}
+
 /**
  * Copies a node and its full subtree (content, tags, due date, type,
  * metadata, expanded state), inserting the copy as a sibling immediately
@@ -651,39 +667,40 @@ export const duplicateNode = authed
 				.limit(1);
 			const newOrder = generateKeyBetween(original.order, next?.order ?? null);
 
-			await tx.insert(nodes).values(
-				subtree.map((row) => ({
-					id: idMap.get(row.id) as string,
-					parentId:
-						row.id === input.id
-							? original.parentId
-							: (idMap.get(row.parent_id as string) ?? null),
-					userId,
-					content: row.content,
-					type: row.type,
-					metadata: row.metadata as NodeMetadata,
-					expanded: row.expanded,
-					order: row.id === input.id ? newOrder : row.order,
-					dueDate: row.due_date,
-				})),
-			);
+			const nodeValues = subtree.map((row) => ({
+				id: idMap.get(row.id) as string,
+				parentId:
+					row.id === input.id
+						? original.parentId
+						: (idMap.get(row.parent_id as string) ?? null),
+				userId,
+				content: row.content,
+				type: row.type,
+				metadata: row.metadata as NodeMetadata,
+				expanded: row.expanded,
+				order: row.id === input.id ? newOrder : row.order,
+				dueDate: row.due_date,
+			}));
+			for (const batch of chunk(nodeValues, DUPLICATE_BATCH_SIZE)) {
+				await tx.insert(nodes).values(batch);
+			}
 
-			const tagRows = await tx
-				.select({ nodeId: nodeTags.nodeId, tagId: nodeTags.tagId })
-				.from(nodeTags)
-				.where(
-					inArray(
-						nodeTags.nodeId,
-						subtree.map((row) => row.id),
-					),
+			const subtreeIds = subtree.map((row) => row.id);
+			const tagRows: { nodeId: string; tagId: string }[] = [];
+			for (const idBatch of chunk(subtreeIds, DUPLICATE_BATCH_SIZE)) {
+				tagRows.push(
+					...(await tx
+						.select({ nodeId: nodeTags.nodeId, tagId: nodeTags.tagId })
+						.from(nodeTags)
+						.where(inArray(nodeTags.nodeId, idBatch))),
 				);
-			if (tagRows.length > 0) {
-				await tx.insert(nodeTags).values(
-					tagRows.map((row) => ({
-						nodeId: idMap.get(row.nodeId) as string,
-						tagId: row.tagId,
-					})),
-				);
+			}
+			const tagValues = tagRows.map((row) => ({
+				nodeId: idMap.get(row.nodeId) as string,
+				tagId: row.tagId,
+			}));
+			for (const batch of chunk(tagValues, DUPLICATE_BATCH_SIZE)) {
+				await tx.insert(nodeTags).values(batch);
 			}
 
 			const [created] = await tx

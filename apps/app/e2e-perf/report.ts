@@ -20,6 +20,7 @@ interface QueryBenchResult {
 interface MutationBenchResult {
 	createNode: LatencySummary;
 	moveNode: LatencySummary;
+	duplicateNode?: LatencySummary;
 }
 
 async function readJson<T>(filePath: string): Promise<T | null> {
@@ -108,6 +109,22 @@ async function main() {
 		);
 		lines.push(
 			row("moveNode p95", beforeMutation?.moveNode.p95Ms, afterMutation?.moveNode.p95Ms, "ms"),
+		);
+		lines.push(
+			row(
+				"duplicateNode p50",
+				beforeMutation?.duplicateNode?.p50Ms,
+				afterMutation?.duplicateNode?.p50Ms,
+				"ms",
+			),
+		);
+		lines.push(
+			row(
+				"duplicateNode p95",
+				beforeMutation?.duplicateNode?.p95Ms,
+				afterMutation?.duplicateNode?.p95Ms,
+				"ms",
+			),
 		);
 	} else {
 		lines.push("| mutation-bench results missing | — | — | — |");
