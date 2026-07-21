@@ -13,8 +13,6 @@ import { type LexicalTextNode, renderTextNode } from "./render-text-nodes";
 // rows written before size/depth limits were enforced on write).
 const MAX_RENDER_DEPTH = 64;
 
-// h6 matches the surrounding row text's base size; each level up from there
-// steps up one Tailwind size, same as a standard heading scale.
 const HEADING_CLASSES: Record<
 	NonNullable<LexicalElementNode["tag"]>,
 	string
