@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-21
+- Fixed node text being impossible to select with the mouse in Firefox: the whole row (not just its drag handle) was marked as a native drag source, and Firefox refuses to let you select text inside any draggable element. [#379](https://github.com/Patrickroelofs/cascade/issues/379)
 - Fixed due-date filters only searching the first 500 loaded nodes, which made valid matches deeper in large outlines appear to be missing.
 - Choose a Font size in Settings (Small, Default, Large, Extra large): it scales all text throughout the app, applies instantly with no reload, and is saved to your account across sessions and devices. [#282](https://github.com/Patrickroelofs/cascade/issues/282)
 - The "Convert into" node context menu action now also converts a node's text into a heading (Heading 1 through Heading 6) or back into a plain paragraph, alongside the existing Text/Task options. [#351](https://github.com/Patrickroelofs/cascade/issues/351)

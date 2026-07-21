@@ -3,6 +3,7 @@ import {
 	draggable,
 	dropTargetForElements,
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
 import {
 	attachInstruction,
 	extractInstruction,
@@ -74,9 +75,23 @@ export function RowDragAndDrop({
 
 		return combine(
 			draggable({
-				element: rowElement,
-				dragHandle: handle,
+				// Only the handle carries the native `draggable` attribute (rather
+				// than the whole row via `dragHandle`) so the row's text stays
+				// selectable — Firefox refuses to let users select text inside any
+				// `draggable="true"` ancestor, handle-restricted or not.
+				element: handle,
 				getInitialData: (): DragData => ({ nodeId: id }),
+				onGenerateDragPreview: ({ nativeSetDragImage }) => {
+					setCustomNativeDragPreview({
+						nativeSetDragImage,
+						render: ({ container }) => {
+							const preview = rowElement.cloneNode(true) as HTMLElement;
+							preview.style.width = `${rowElement.offsetWidth}px`;
+							container.append(preview);
+							return () => preview.remove();
+						},
+					});
+				},
 			}),
 			dropTargetForElements({
 				element: rowElement,
