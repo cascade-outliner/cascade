@@ -2,7 +2,8 @@ packages:
   - 'apps/*'
   - 'packages/*'
 overrides:
+  # Transitive dep of better-auth@1.6.23 (via @better-auth/kysely-adapter and
+  # drizzle-orm); pin here only and re-check this version when better-auth is bumped.
   kysely: 0.28.17
 allowBuilds:
-  better-sqlite3: true
   esbuild: true
