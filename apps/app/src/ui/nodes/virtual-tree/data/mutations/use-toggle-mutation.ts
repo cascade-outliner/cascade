@@ -1,3 +1,4 @@
+import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import {
 	collapseNode,
 	expandNode,
@@ -9,6 +10,17 @@ import { client } from "@/orpc/client";
 import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
 import { makeSetRows, patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
+
+async function fetchFullSubtree(rootId: string): Promise<VisibleNodeRow[]> {
+	const rows: VisibleNodeRow[] = [];
+	let cursor: string[] | null = null;
+	do {
+		const page = await client.nodes.visibleTree({ rootId, cursor });
+		rows.push(...page.rows);
+		cursor = page.nextCursor;
+	} while (cursor !== null);
+	return rows;
+}
 
 export function useToggleMutation(
 	queryKey: QueryKey,
@@ -29,8 +41,8 @@ export function useToggleMutation(
 				return;
 			}
 			if (expanded) {
-				const subtree = await client.nodes.visibleTree({ rootId: id });
-				setRows((rows) => expandNode(rows, id, subtree.rows));
+				const subtreeRows = await fetchFullSubtree(id);
+				setRows((rows) => expandNode(rows, id, subtreeRows));
 				await client.nodes.toggleExpanded({ id, expanded: true });
 			} else {
 				await client.nodes.toggleExpanded({ id, expanded: false });
