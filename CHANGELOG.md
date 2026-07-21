@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-21
+- Fixed the "Due in range" filter hiding nodes due on the range's end day whenever their due date carried a time later than midnight. [#315](https://github.com/Patrickroelofs/cascade/issues/315)
+
 ## 2026-07-19
 - Primary action buttons (submit, add node, save) now use their own color instead of borrowing the "danger" one, so they read as a clear call to action instead of a warning in every theme, with legible text everywhere. [#284](https://github.com/Patrickroelofs/cascade/issues/284)
 - Cascade no longer hard-codes app manifest colors that could clash with your active theme, and the browser UI color now follows the current theme after the app loads instead of staying stuck on the default light color. [#278](https://github.com/Patrickroelofs/cascade/issues/278)
