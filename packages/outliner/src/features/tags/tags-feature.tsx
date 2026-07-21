@@ -4,10 +4,10 @@ import {
 	ContextMenuSubTrigger,
 } from "@cascade/ui/context-menu";
 import { TagIcon } from "@phosphor-icons/react/ssr";
-import { useOutlinerLabels } from "../labels-context";
-import { NodeTagsEditor } from "../node-tags-editor/node-tags-editor";
-import { NodeTagPills } from "../node-tags-pills";
-import type { OutlinerFeature, RowFeatureContext } from "./types";
+import { useOutlinerLabels } from "../../labels-context";
+import { NodeTagsEditor } from "../../node-tags-editor/node-tags-editor";
+import { NodeTagPills } from "../../node-tags-pills";
+import type { OutlinerFeature, RowFeatureContext } from "../types";
 
 function TagsMenuItem({ ctx }: { ctx: RowFeatureContext }) {
 	const labels = useOutlinerLabels();

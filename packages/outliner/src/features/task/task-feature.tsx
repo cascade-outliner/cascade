@@ -1,5 +1,5 @@
-import { NodeCheckbox } from "../node-checkbox";
-import type { OutlinerFeature } from "./types";
+import { NodeCheckbox } from "../../node-checkbox";
+import type { OutlinerFeature } from "../types";
 
 /**
  * Task type: renders the completion checkbox on task-type rows. Doesn't

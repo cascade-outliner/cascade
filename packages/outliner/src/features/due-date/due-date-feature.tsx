@@ -5,9 +5,9 @@ import {
 	ContextMenuSubTrigger,
 } from "@cascade/ui/context-menu";
 import { CalendarIcon } from "@phosphor-icons/react/ssr";
-import { useOutlinerLabels } from "../labels-context";
-import { NodeDueDatePill } from "../node-due-date-pill";
-import type { OutlinerFeature, RowFeatureContext } from "./types";
+import { useOutlinerLabels } from "../../labels-context";
+import { NodeDueDatePill } from "../../node-due-date-pill";
+import type { OutlinerFeature, RowFeatureContext } from "../types";
 
 function DueDateMenuItem({ ctx }: { ctx: RowFeatureContext }) {
 	const labels = useOutlinerLabels();

@@ -1,6 +1,6 @@
-import { dueDateFeature } from "./due-date-feature";
-import { tagsFeature } from "./tags-feature";
-import { taskFeature } from "./task-feature";
+import { dueDateFeature } from "./due-date/due-date-feature";
+import { tagsFeature } from "./tags/tags-feature";
+import { taskFeature } from "./task/task-feature";
 import type { OutlinerFeature } from "./types";
 
 /** The tree's built-in features (task type, due dates, tags), in row/menu
