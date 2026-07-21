@@ -115,10 +115,47 @@ export const visibleTree = authed
 				)}]::text[]`
 			: sql`NULL::text[]`;
 
+		const dueDateFilterActive =
+			dueDateStart !== undefined && dueDateEnd !== undefined;
+
+		// A due-date filter forces `visible` to walk every node regardless of
+		// collapse state (below), which is only cheap when it's scoped to the
+		// branches that could actually contain a match. Without this, matching
+		// against one node buried in one branch still pays for walking every
+		// sibling branch too. `relevant_base_ids` finds, per match, which of
+		// `visible`'s own base-case candidates (top-level roots, or `rootId`'s
+		// direct children) is its ancestor, via a walk bounded by tree depth
+		// and match count rather than total tree size, so `visible`'s base
+		// case below can skip every candidate that leads to no match at all.
+		const relevantBaseIdsCte = dueDateFilterActive
+			? sql`
+				due_matches AS (
+					SELECT id FROM nodes
+					WHERE user_id = ${userId} AND due_date BETWEEN ${dueDateStart}::date AND ${dueDateEnd}::date
+				),
+				match_ancestor_chain AS (
+					SELECT n.id, n.parent_id
+					FROM nodes n
+					WHERE n.id IN (SELECT id FROM due_matches) AND n.user_id = ${userId}
+					UNION ALL
+					SELECT p.id, p.parent_id
+					FROM nodes p
+					JOIN match_ancestor_chain mac ON p.id = mac.parent_id
+					WHERE p.user_id = ${userId}
+				),
+				relevant_base_ids AS (
+					SELECT DISTINCT id
+					FROM match_ancestor_chain
+					WHERE ${rootId === null ? sql`parent_id IS NULL` : sql`parent_id = ${rootId}`}
+				),
+			`
+			: sql``;
+
 		const result = (await db.execute(sql`
 			WITH RECURSIVE params AS (
 				SELECT ${cursorArray} AS cursor
 				),
+				${relevantBaseIdsCte}
 				visible AS (
 				SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order", n.due_date,
 					0 AS depth,
@@ -127,6 +164,7 @@ export const visibleTree = authed
 				WHERE n.user_id = ${userId}
 					AND ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
 					AND (params.cursor IS NULL OR ARRAY[n."order"] >= params.cursor[1:1])
+					${dueDateFilterActive ? sql`AND n.id IN (SELECT id FROM relevant_base_ids)` : sql``}
 				UNION ALL
 				SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date,
 					v.depth + 1,

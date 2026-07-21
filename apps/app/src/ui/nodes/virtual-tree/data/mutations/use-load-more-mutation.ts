@@ -13,7 +13,12 @@ export function useLoadMoreMutation(
 	nextCursor: string[] | null,
 ) {
 	const queryClient = useQueryClient();
-	const pageQueryKey = [...queryKey, "loadMore"];
+	// Deliberately NOT `[...queryKey, "loadMore"]`: cancelQueries/
+	// invalidateQueries elsewhere (optimistic node mutations) match by
+	// prefix against `queryKey`, and would cancel a load-more fetch nested
+	// under it, throwing an unhandled CancelledError. Leading with a
+	// distinct tag keeps this key outside that prefix entirely.
+	const pageQueryKey = ["visibleTreeLoadMore", ...queryKey];
 
 	return async () => {
 		if (!nextCursor) return;
@@ -37,10 +42,15 @@ export function useLoadMoreMutation(
 							}
 						: {}),
 				});
-				queryClient.setQueryData(queryKey, (old: VisibleTreeData | undefined) =>
-					old
-						? { rows: [...old.rows, ...next.rows], nextCursor: next.nextCursor }
-						: old,
+				queryClient.setQueryData(
+					queryKey,
+					(old: VisibleTreeData | undefined) =>
+						old
+							? {
+									rows: [...old.rows, ...next.rows],
+									nextCursor: next.nextCursor,
+								}
+							: old,
 				);
 				return next;
 			},
