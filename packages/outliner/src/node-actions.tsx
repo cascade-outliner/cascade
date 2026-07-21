@@ -10,6 +10,7 @@ import {
 } from "@cascade/ui/context-menu";
 import {
 	CheckSquareIcon,
+	CopyIcon,
 	ParagraphIcon,
 	TextHFiveIcon,
 	TextHFourIcon,
@@ -57,6 +58,7 @@ interface NodeActionsProps {
 	blockType: BlockType;
 	onConvert: (type: NodeTypeName) => void;
 	onTurnInto: (blockType: BlockType) => void;
+	onDuplicate: () => void;
 	onDelete: () => void;
 	/** Feature-contributed menu entries (due date, tags, …), rendered in
 	 * order before the core "Convert into"/"Delete" entries. */
@@ -70,6 +72,7 @@ export function NodeActions({
 	blockType,
 	onConvert,
 	onTurnInto,
+	onDuplicate,
 	onDelete,
 	menuItems,
 	viewTransitionName,
@@ -135,6 +138,12 @@ export function NodeActions({
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>
+				<ContextMenuItem
+					icon={<CopyIcon size={14} weight="bold" />}
+					onClick={onDuplicate}
+				>
+					{labels.duplicate}
+				</ContextMenuItem>
 				<ContextMenuSeparator />
 				<ContextMenuItem
 					variant="destructive"

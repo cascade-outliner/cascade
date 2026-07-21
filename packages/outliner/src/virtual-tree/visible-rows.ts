@@ -30,7 +30,7 @@ export function subtreeRange(
  * sibling as last; only the drop-hitbox mode depends on it, so that is
  * acceptable until the tail loads.
  */
-function recomputeIsLastChild(rows: VisibleNodeRow[]): VisibleNodeRow[] {
+export function recomputeIsLastChild(rows: VisibleNodeRow[]): VisibleNodeRow[] {
 	const seen = new Set<string | null>();
 	const out = new Array<VisibleNodeRow>(rows.length);
 	for (let i = rows.length - 1; i >= 0; i--) {
@@ -126,6 +126,32 @@ export function insertRowAfter(
 	return recomputeIsLastChild([
 		...rows.slice(0, range.end),
 		row,
+		...rows.slice(range.end),
+	]);
+}
+
+/**
+ * Insert a freshly duplicated subtree as the next sibling right after
+ * `afterId`'s subtree: `newRoot` at `afterId`'s depth, plus `descendants` (as
+ * returned by visibleTree({ rootId: newRoot.id }), i.e. depths relative to
+ * `newRoot`, starting at 0 for its direct children) re-depthed to sit under it.
+ */
+export function insertSubtreeAfter(
+	rows: VisibleNodeRow[],
+	afterId: string,
+	newRoot: VisibleNodeRow,
+	descendants: VisibleNodeRow[],
+): VisibleNodeRow[] {
+	const range = subtreeRange(rows, afterId);
+	if (!range) return appendRow(rows, newRoot);
+	const reDepthed = descendants.map((r) => ({
+		...r,
+		depth: r.depth + newRoot.depth + 1,
+	}));
+	return recomputeIsLastChild([
+		...rows.slice(0, range.end),
+		newRoot,
+		...reDepthed,
 		...rows.slice(range.end),
 	]);
 }

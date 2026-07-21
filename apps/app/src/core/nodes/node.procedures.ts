@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
 	type CalendarDateString,
 	isValidCalendarDateString,
@@ -16,6 +17,7 @@ import {
 	desc,
 	eq,
 	gt,
+	inArray,
 	isNull,
 	like,
 	lt,
@@ -577,6 +579,119 @@ export const moveNode = authed
 				.update(nodes)
 				.set({ parentId: input.parentId, order })
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
+		});
+	});
+
+interface SubtreeRow {
+	id: string;
+	parent_id: string | null;
+	content: unknown;
+	type: NodeTypeName;
+	metadata: unknown;
+	expanded: boolean;
+	order: string;
+	due_date: CalendarDateString | null;
+}
+
+/**
+ * Copies a node and its full subtree (content, tags, due date, type,
+ * metadata, expanded state), inserting the copy as a sibling immediately
+ * after the original. Descendants keep their original `order` values since
+ * they move under freshly generated parent ids, so relative sibling order
+ * within the copy is preserved for free; only the new root needs a
+ * freshly computed order, between the original and its next sibling.
+ */
+export const duplicateNode = authed
+	.errors({
+		NOT_FOUND: { status: 404, message: "Node not found" },
+	})
+	.input(z.object({ id: z.string() }))
+	.handler(async ({ input, context, errors }) => {
+		const userId = context.user.id;
+
+		return await db.transaction(async (tx) => {
+			await tx.execute(
+				sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
+			);
+
+			const [original] = await tx
+				.select({ parentId: nodes.parentId, order: nodes.order })
+				.from(nodes)
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
+				.for("update");
+			if (!original) throw errors.NOT_FOUND();
+
+			const subtree = (await tx.execute(sql`
+				WITH RECURSIVE subtree AS (
+					SELECT id, parent_id, content, type, metadata, expanded, "order", due_date
+					FROM nodes WHERE id = ${input.id} AND user_id = ${userId}
+					UNION ALL
+					SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date
+					FROM nodes c
+					JOIN subtree s ON c.parent_id = s.id
+					WHERE c.user_id = ${userId}
+				)
+				SELECT * FROM subtree
+			`)) as unknown as SubtreeRow[];
+
+			const idMap = new Map(subtree.map((row) => [row.id, randomUUID()]));
+			const newRootId = idMap.get(input.id) as string;
+
+			const parentFilter = and(
+				eq(nodes.userId, userId),
+				original.parentId === null
+					? isNull(nodes.parentId)
+					: eq(nodes.parentId, original.parentId),
+			);
+			const [next] = await tx
+				.select({ order: nodes.order })
+				.from(nodes)
+				.where(and(parentFilter, gt(nodes.order, original.order)))
+				.orderBy(asc(nodes.order))
+				.limit(1);
+			const newOrder = generateKeyBetween(original.order, next?.order ?? null);
+
+			await tx.insert(nodes).values(
+				subtree.map((row) => ({
+					id: idMap.get(row.id) as string,
+					parentId:
+						row.id === input.id
+							? original.parentId
+							: (idMap.get(row.parent_id as string) ?? null),
+					userId,
+					content: row.content,
+					type: row.type,
+					metadata: row.metadata as NodeMetadata,
+					expanded: row.expanded,
+					order: row.id === input.id ? newOrder : row.order,
+					dueDate: row.due_date,
+				})),
+			);
+
+			const tagRows = await tx
+				.select({ nodeId: nodeTags.nodeId, tagId: nodeTags.tagId })
+				.from(nodeTags)
+				.where(
+					inArray(
+						nodeTags.nodeId,
+						subtree.map((row) => row.id),
+					),
+				);
+			if (tagRows.length > 0) {
+				await tx.insert(nodeTags).values(
+					tagRows.map((row) => ({
+						nodeId: idMap.get(row.nodeId) as string,
+						tagId: row.tagId,
+					})),
+				);
+			}
+
+			const [created] = await tx
+				.select(nodeColumns(userId))
+				.from(nodes)
+				.where(eq(nodes.id, newRootId))
+				.limit(1);
+			return created;
 		});
 	});
 

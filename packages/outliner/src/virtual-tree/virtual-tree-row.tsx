@@ -78,6 +78,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					blockType={blockType}
 					onConvert={props.onConvert}
 					onTurnInto={props.onTurnInto}
+					onDuplicate={props.onDuplicate}
 					onDelete={props.onDelete}
 					menuItems={menuItems}
 					viewTransitionName={`node-${row.id}`}

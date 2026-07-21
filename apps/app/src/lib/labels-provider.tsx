@@ -37,6 +37,7 @@ function createOutlinerLabels(): OutlinerLabels {
 		dragToReorder: m.outliner_drag_handle(),
 		editNodeText: m.outliner_edit_node_text(),
 		convertInto: m.outliner_convert_into(),
+		duplicate: m.outliner_duplicate(),
 		delete: m.outliner_delete(),
 		emptyTree: m.outliner_empty_tree(),
 		emptyFilterResults: m.outliner_empty_filter_results(),

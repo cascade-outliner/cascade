@@ -11,6 +11,7 @@ export interface OutlinerLabels {
 	dragToReorder: string;
 	editNodeText: string;
 	convertInto: string;
+	duplicate: string;
 	delete: string;
 	emptyTree: string;
 	emptyFilterResults: string;
@@ -66,6 +67,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	dragToReorder: "Drag to reorder",
 	editNodeText: "Edit node text",
 	convertInto: "Convert into",
+	duplicate: "Duplicate",
 	delete: "Delete",
 	emptyTree: "This tree is empty. Add a node to get started.",
 	emptyFilterResults: "No nodes match the current filters.",

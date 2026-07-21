@@ -73,6 +73,8 @@
 	"node_deleted": "Node verwijderd",
 	"node_save_failed": "Opslaan van wijzigingen mislukt",
 	"node_create_failed": "Aanmaken van node mislukt",
+	"node_duplicated": "Node gedupliceerd",
+	"node_duplicate_failed": "Dupliceren van node mislukt",
 	"node_deleted_with_children": [
 		{
 			"declarations": ["input count", "local countPlural = count: plural"],
@@ -91,6 +93,7 @@
 	"outliner_drag_handle": "Sleep om te herschikken",
 	"outliner_edit_node_text": "Nodetekst bewerken",
 	"outliner_convert_into": "Omzetten naar",
+	"outliner_duplicate": "Dupliceren",
 	"outliner_delete": "Verwijderen",
 	"outliner_empty_tree": "Deze boomstructuur is leeg. Voeg een node toe om te beginnen.",
 	"outliner_empty_filter_results": "Geen nodes voldoen aan de huidige filters.",

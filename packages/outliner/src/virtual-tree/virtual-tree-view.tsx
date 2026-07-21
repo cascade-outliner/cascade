@@ -132,6 +132,7 @@ export function VirtualTreeView({
 									onToggleTask={(completed) => onToggleTask(row.id, completed)}
 									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
 									onSetTags={(tags) => tree.setTags(row.id, tags)}
+									onDuplicate={() => tree.duplicate(row.id)}
 									onDelete={() => tree.remove(row.id)}
 									onSaveContent={(content) =>
 										tree.updateContent(row.id, content)

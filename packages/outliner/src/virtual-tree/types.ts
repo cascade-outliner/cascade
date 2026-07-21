@@ -67,6 +67,7 @@ export interface VirtualTreeRowProps {
 	onSetTags: (tags: string[]) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
+	onDuplicate: () => void;
 	onDelete: () => void;
 	onSaveContent: (content: { root: LexicalElementNode }) => void;
 	onCreateBelow: () => void;

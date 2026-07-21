@@ -2,6 +2,7 @@ import type { DueDateRange } from "@cascade/outliner/node-filters";
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useCreateMutation } from "./mutations/use-create-mutation";
+import { useDuplicateMutation } from "./mutations/use-duplicate-mutation";
 import { useLoadMoreMutation } from "./mutations/use-load-more-mutation";
 import { useMoveMutation } from "./mutations/use-move-mutation";
 import { useRemoveMutation } from "./mutations/use-remove-mutation";
@@ -39,6 +40,7 @@ export function useVisibleTree(
 	);
 	const move = useMoveMutation(options.queryKey);
 	const remove = useRemoveMutation(options.queryKey);
+	const duplicate = useDuplicateMutation(options.queryKey);
 	const updateContent = useUpdateContentMutation(options.queryKey);
 	const setType = useSetTypeMutation(options.queryKey);
 	const setDueDate = useSetDueDateMutation(options.queryKey);
@@ -62,6 +64,7 @@ export function useVisibleTree(
 		toggle,
 		move,
 		remove,
+		duplicate,
 		updateContent,
 		setType,
 		setDueDate,

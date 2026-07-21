@@ -7,6 +7,7 @@ import {
 	insertRowAfter,
 	moveSubtree,
 	patchRow,
+	recomputeIsLastChild,
 	removeSubtree,
 	subtreeRange,
 } from "@cascade/outliner/visible-rows";
@@ -123,6 +124,29 @@ export function useDemoTree(rootId: string | null) {
 		toast.success(m.node_deleted());
 	};
 
+	const duplicate: VisibleTree["duplicate"] = (id) => {
+		setAllNodes((current) => {
+			const range = subtreeRange(current, id);
+			if (!range) return current;
+			const slice = current.slice(range.start, range.end);
+			const idMap = new Map(slice.map((row) => [row.id, crypto.randomUUID()]));
+			const cloned = slice.map((row) => ({
+				...row,
+				id: idMap.get(row.id) as string,
+				parentId:
+					row.id === id
+						? row.parentId
+						: (idMap.get(row.parentId as string) ?? row.parentId),
+			}));
+			return recomputeIsLastChild([
+				...current.slice(0, range.end),
+				...cloned,
+				...current.slice(range.end),
+			]);
+		});
+		toast.success(m.node_duplicated());
+	};
+
 	const updateContent: VisibleTree["updateContent"] = (id, content) => {
 		setAllNodes((current) => patchRow(current, id, { content }));
 	};
@@ -186,6 +210,7 @@ export function useDemoTree(rootId: string | null) {
 		toggle,
 		move,
 		remove,
+		duplicate,
 		updateContent,
 		setType,
 		setDueDate,
