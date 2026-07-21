@@ -26,6 +26,7 @@ import { z } from "zod";
 import { nodeColumns } from "@/core/nodes/node.queries";
 import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
 import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
+import { ancestorsOf, descendantsOf } from "@/core/nodes/node-tree-cte";
 import { setNodeTagsInputSchema } from "@/core/nodes/tag-name-schema";
 import { db } from "@/db";
 import { authed } from "@/orpc/context";
@@ -315,14 +316,7 @@ export const getNodeAncestors = authed
 	.handler(async ({ input, context }) => {
 		const userId = context.user.id;
 		const result = (await db.execute(sql`
-			WITH RECURSIVE chain AS (
-				SELECT id, parent_id, content, 0 AS depth FROM nodes
-				WHERE id = ${input.id} AND user_id = ${userId}
-				UNION ALL
-				SELECT n.id, n.parent_id, n.content, c.depth + 1
-				FROM nodes n JOIN chain c ON n.id = c.parent_id
-				WHERE n.user_id = ${userId}
-			)
+			WITH RECURSIVE ${ancestorsOf(input.id, userId)}
 			SELECT id, content FROM chain ORDER BY depth DESC
 		`)) as unknown as { id: string; content: unknown }[];
 		return result;
@@ -484,15 +478,8 @@ export const moveNode = authed
 				// The anchor also verifies the target parent exists and belongs to
 				// this user; an empty result means it doesn't.
 				const ancestors = (await tx.execute(sql`
-					WITH RECURSIVE ancestors AS (
-						SELECT id, parent_id FROM nodes
-						WHERE id = ${input.parentId} AND user_id = ${userId}
-						UNION ALL
-						SELECT n.id, n.parent_id FROM nodes n
-						JOIN ancestors a ON n.id = a.parent_id
-						WHERE n.user_id = ${userId}
-					)
-					SELECT id FROM ancestors
+					WITH RECURSIVE ${ancestorsOf(input.parentId, userId)}
+					SELECT id FROM chain
 				`)) as unknown as { id: string }[];
 				if (ancestors.length === 0) throw errors.NOT_FOUND();
 				if (ancestors.some((a) => a.id === input.id)) {
@@ -564,13 +551,7 @@ export const deleteNode = authed
 	.handler(async ({ input, context }) => {
 		const userId = context.user.id;
 		const [result] = (await db.execute(sql`
-			WITH RECURSIVE descendants AS (
-				SELECT id FROM nodes WHERE parent_id = ${input.id} AND user_id = ${userId}
-				UNION ALL
-				SELECT c.id FROM nodes c
-				JOIN descendants d ON c.parent_id = d.id
-				WHERE c.user_id = ${userId}
-			)
+			WITH RECURSIVE ${descendantsOf(input.id, userId)}
 			DELETE FROM nodes WHERE id = ${input.id} AND user_id = ${userId}
 			RETURNING (SELECT count(*) FROM descendants)::int AS count
 		`)) as unknown as { count: number }[];
