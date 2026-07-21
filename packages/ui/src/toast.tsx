@@ -1,6 +1,7 @@
 import { Toast } from "@base-ui/react/toast";
 import {
 	CheckCircleIcon,
+	CircleNotchIcon,
 	InfoIcon,
 	WarningCircleIcon,
 	XCircleIcon,
@@ -9,7 +10,7 @@ import {
 import { cva } from "./cva.config";
 import { useUiLabels } from "./labels-context";
 
-type ToastType = "success" | "error" | "warning" | "info";
+type ToastType = "success" | "error" | "warning" | "info" | "loading";
 
 export const toastManager = Toast.createToastManager();
 
@@ -30,7 +31,39 @@ export const toast = {
 		addToast("warning", description, title),
 	info: (description: React.ReactNode, title?: React.ReactNode) =>
 		addToast("info", description, title),
+	loading: (description: React.ReactNode, title?: React.ReactNode) =>
+		addToast("loading", description, title),
 	dismiss: (id?: string) => toastManager.close(id),
+	/**
+	 * Shows a loading toast for the lifetime of `promiseValue`, morphing it in
+	 * place into a success/error toast once it settles (no separate toast,
+	 * no flicker). `promiseValue` must not reject uncaught elsewhere — this
+	 * re-throws the original error after showing it, matching
+	 * `toastManager.promise`.
+	 */
+	promise: <Value,>(
+		promiseValue: Promise<Value>,
+		options: {
+			loading: React.ReactNode;
+			success: React.ReactNode | ((result: Value) => React.ReactNode);
+			error: React.ReactNode | ((error: unknown) => React.ReactNode);
+		},
+	) =>
+		toastManager.promise(promiseValue, {
+			loading: { description: options.loading },
+			success: (result) => ({
+				description:
+					typeof options.success === "function"
+						? options.success(result)
+						: options.success,
+			}),
+			error: (error) => ({
+				description:
+					typeof options.error === "function"
+						? options.error(error)
+						: options.error,
+			}),
+		}),
 };
 
 const icons: Record<ToastType, React.ReactNode> = {
@@ -38,6 +71,7 @@ const icons: Record<ToastType, React.ReactNode> = {
 	error: <XCircleIcon size={24} weight="fill" />,
 	warning: <WarningCircleIcon size={24} weight="fill" />,
 	info: <InfoIcon size={24} weight="fill" />,
+	loading: <CircleNotchIcon size={24} className="animate-spin" />,
 };
 
 // Stacking geometry per base-ui's docs: toasts sit absolutely positioned in
@@ -65,6 +99,7 @@ const root = cva({
 			error: "[&_.toast-icon]:text-danger",
 			warning: "[&_.toast-icon]:text-amber-600",
 			info: "[&_.toast-icon]:text-muted",
+			loading: "[&_.toast-icon]:text-muted",
 		},
 	},
 	defaultVariants: {

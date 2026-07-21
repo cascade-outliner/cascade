@@ -73,6 +73,7 @@
 	"node_deleted": "Node verwijderd",
 	"node_save_failed": "Opslaan van wijzigingen mislukt",
 	"node_create_failed": "Aanmaken van node mislukt",
+	"node_duplicating": "Node dupliceren…",
 	"node_duplicated": "Node gedupliceerd",
 	"node_duplicate_failed": "Dupliceren van node mislukt",
 	"node_deleted_with_children": [

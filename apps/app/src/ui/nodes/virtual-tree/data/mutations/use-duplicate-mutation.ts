@@ -16,47 +16,54 @@ export function useDuplicateMutation(queryKey: QueryKey) {
 		mutationFn: (vars: { id: string }) => client.nodes.duplicate(vars),
 	});
 
-	return async (id: string) => {
+	return (id: string) => {
 		const source = queryClient
 			.getQueryData<VisibleTreeData>(queryKey)
 			?.rows.find((r) => r.id === id);
 		if (!source) return;
 
-		let created: Awaited<ReturnType<typeof mutation.mutateAsync>>;
-		try {
-			created = await mutation.mutateAsync({ id });
-		} catch {
-			toast.error(m.node_duplicate_failed());
-			return;
-		}
+		const run = async () => {
+			const created = await mutation.mutateAsync({ id });
+			const descendants = created.hasChildren
+				? await fetchFullSubtree(created.id)
+				: [];
 
-		const descendants = created.hasChildren
-			? await fetchFullSubtree(created.id)
-			: [];
+			await queryClient.cancelQueries({ queryKey });
+			setRows((currentRows) =>
+				insertSubtreeAfter(
+					currentRows,
+					id,
+					{
+						id: created.id,
+						parentId: created.parentId,
+						content: created.content,
+						type: created.type,
+						metadata: created.metadata,
+						expanded: created.expanded,
+						order: created.order,
+						dueDate: created.dueDate,
+						tags: created.tags,
+						depth: source.depth,
+						path: [...source.path.slice(0, -1), created.order],
+						hasChildren: created.hasChildren,
+						isLastChild: source.isLastChild,
+					},
+					descendants,
+				),
+			);
+		};
 
-		await queryClient.cancelQueries({ queryKey });
-		setRows((currentRows) =>
-			insertSubtreeAfter(
-				currentRows,
-				id,
-				{
-					id: created.id,
-					parentId: created.parentId,
-					content: created.content,
-					type: created.type,
-					metadata: created.metadata,
-					expanded: created.expanded,
-					order: created.order,
-					dueDate: created.dueDate,
-					tags: created.tags,
-					depth: source.depth,
-					path: [...source.path.slice(0, -1), created.order],
-					hasChildren: created.hasChildren,
-					isLastChild: source.isLastChild,
-				},
-				descendants,
-			),
-		);
-		toast.success(m.node_duplicated());
+		// One toast for the whole operation (server round trip plus, for a
+		// subtree with children, the follow-up fetch of its rows): a spinner
+		// while pending, morphing in place into success/error on settle.
+		return toast
+			.promise(run(), {
+				loading: m.node_duplicating(),
+				success: m.node_duplicated(),
+				error: m.node_duplicate_failed(),
+			})
+			.catch(() => {
+				// Already surfaced by the error toast above.
+			});
 	};
 }
