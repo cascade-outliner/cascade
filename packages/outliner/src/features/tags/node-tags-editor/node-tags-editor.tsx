@@ -1,3 +1,4 @@
+import { KeyboardCommandLabel } from "@cascade/ui/keyboard-command-label";
 import { CheckIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react/ssr";
 import { useState } from "react";
 import { useOutlinerLabels } from "../../../labels-context";
@@ -9,7 +10,6 @@ import {
 	deleteTagButton,
 	footer,
 	input,
-	kbd,
 	limitError,
 	optionButton,
 	optionRow,
@@ -144,10 +144,12 @@ export function NodeTagsEditor({
 			{optionCount > 0 && (
 				<div className={footer()}>
 					<span>
-						<span className={kbd()}>↑↓</span> {labels.tagHintNavigate}
+						<KeyboardCommandLabel>↑↓</KeyboardCommandLabel>{" "}
+						{labels.tagHintNavigate}
 					</span>
 					<span>
-						<span className={kbd()}>↵</span> {labels.tagHintToggle}
+						<KeyboardCommandLabel>↵</KeyboardCommandLabel>{" "}
+						{labels.tagHintToggle}
 					</span>
 				</div>
 			)}

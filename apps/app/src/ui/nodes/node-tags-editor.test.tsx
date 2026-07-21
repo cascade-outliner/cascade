@@ -48,4 +48,12 @@ describe("NodeTagsEditor tag length limit", () => {
 		fireEvent.change(input, { target: { value: near } });
 		expect(screen.getByText(`${near.length}/${MAX_TAG_LENGTH}`)).toBeDefined();
 	});
+
+	it("renders keyboard hints as semantic keyboard labels", () => {
+		setup();
+
+		const labels = screen.getAllByText(/↑↓|↵/);
+		expect(labels).toHaveLength(2);
+		expect(labels.map((element) => element.tagName)).toEqual(["KBD", "KBD"]);
+	});
 });
