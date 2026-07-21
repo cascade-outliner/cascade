@@ -29,9 +29,10 @@ import type { NodeTypeName } from "./node-types";
  * "paragraph", so it isn't listed separately). */
 type ConvertOption = "task" | BlockType;
 
-const CONVERT_OPTIONS: ConvertOption[] = [
+/** Block-type options, grouped together and separated from `task` (a
+ * different axis: the row type, not the content format) by a divider. */
+const BLOCK_OPTIONS: BlockType[] = [
 	"paragraph",
-	"task",
 	"h1",
 	"h2",
 	"h3",
@@ -114,7 +115,7 @@ export function NodeActions({
 						{labels.convertInto}
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent>
-						{CONVERT_OPTIONS.map((option) => (
+						{BLOCK_OPTIONS.map((option) => (
 							<ContextMenuItem
 								key={option}
 								icon={CONVERT_ICONS[option]}
@@ -124,6 +125,14 @@ export function NodeActions({
 								{optionLabel(option)}
 							</ContextMenuItem>
 						))}
+						<ContextMenuSeparator />
+						<ContextMenuItem
+							icon={CONVERT_ICONS.task}
+							disabled={currentOption === "task"}
+							onClick={() => selectOption("task")}
+						>
+							{optionLabel("task")}
+						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>
 				<ContextMenuSeparator />
