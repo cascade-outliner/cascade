@@ -8,10 +8,7 @@ export const MAX_CHILDREN_PER_NODE = 500;
 export const MAX_TEXT_LENGTH = 20_000;
 export const MAX_CONTENT_BYTES = 256 * 1024;
 
-// Explicit allowlist of the fields the registered Lexical nodes (root,
-// paragraph, text, tab, linebreak, @lexical/link's LinkNode / AutoLinkNode,
-// and @lexical/rich-text's HeadingNode) actually serialize, instead of
-// `.passthrough()`.
+// Explicit allowlist of the fields the registered Lexical nodes
 export interface LexicalSchemaNode {
 	type: string;
 	text?: string;
@@ -46,12 +43,8 @@ function lexicalNodeSchema(depth: number): z.ZodType<LexicalSchemaNode> {
 			indent: z.number().optional(),
 			direction: z.enum(["ltr", "rtl"]).nullable().optional(),
 			version: z.number().optional(),
-			// Lexical's ElementNode (root, paragraph, ...) always serializes
-			// these two alongside `format`/`children`.
 			textFormat: z.number().optional(),
 			textStyle: z.string().optional(),
-			// @lexical/link's LinkNode. Only http(s) URLs are accepted, so a
-			// stored `javascript:`/`data:` URL can never reach an href.
 			url: z
 				.string()
 				.max(MAX_URL_LENGTH)
@@ -60,7 +53,6 @@ function lexicalNodeSchema(depth: number): z.ZodType<LexicalSchemaNode> {
 			rel: z.string().max(256).nullable().optional(),
 			target: z.string().max(64).nullable().optional(),
 			title: z.string().max(512).nullable().optional(),
-			// AutoLinkNode also serializes this alongside the LinkNode fields.
 			isUnlinked: z.boolean().optional(),
 			tag: z.enum(["h1", "h2", "h3", "h4", "h5", "h6"]).optional(),
 			children:
