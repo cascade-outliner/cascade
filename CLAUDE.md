@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Cascade is a self-hosted, tree-based outliner (infinitely nestable nodes, virtualized for large trees). It's a pnpm monorepo with two TanStack Start apps and several shared packages, backed by PostgreSQL via Drizzle.
 
-- `apps/app` — the outliner itself (`app.cascadelist.com`, dev port 3001). Owns the database schema, the oRPC API, and auth session creation.
-- `apps/web` — marketing site + login/register/legal pages (`cascadelist.com`, dev port 3000). No database access of its own; talks to `apps/app`'s API and shares its auth session via a cross-subdomain cookie.
-- `packages/auth` — better-auth setup (`createAuth(db)`), shared by both apps so the session cookie is valid on both origins.
+- `apps/app` — the outliner itself (`app.cascadelist.com`, dev port 3001). Owns the database schema, the oRPC API, auth session creation, and the login/register UI.
+- `apps/web` — marketing site + legal pages (`cascadelist.com`, dev port 3000). No database access of its own; its `/login` and `/register` routes are pure redirects to `apps/app`.
+- `packages/auth` — better-auth setup (`createAuth(db)`), used by `apps/app`; the resulting session cookie is scoped to span both origins in production (`COOKIE_DOMAIN`).
 - `packages/http` — shared HTTP concerns (e.g. security headers).
 - `packages/outliner` — the tree/editor UI: virtualized tree rendering, drag-and-drop, Lexical-based node editor, node/tree types, filters. Framework-agnostic React, no oRPC/data-fetching code — consumers pass in data and callbacks.
 - `packages/ui` — generic design-system primitives (button, input, checkbox, popover, calendar, toast, etc.) built on `@base-ui/react` + `cva`.
@@ -54,7 +54,7 @@ To run a single vitest test file or by name, `cd` into the workspace and use vit
 
 ### Local setup
 
-Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:5432`, db `cascade`). Copy `apps/app/.env.local.example` (and the equivalent in `apps/web`) to `.env.local`. `BETTER_AUTH_SECRET` must be identical across both apps — it signs the shared session cookie. After the database is up, run `pnpm db:push:app` before `pnpm dev`.
+Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:5432`, db `cascade`). Copy `apps/app/.env.local.example` (and the equivalent in `apps/web`) to `.env.local`. Only `apps/app` reads `BETTER_AUTH_SECRET` — it signs the session cookie that both apps' users end up with; `apps/web` just needs `VITE_APP_URL` pointing at `apps/app`. After the database is up, run `pnpm db:push:app` before `pnpm dev`.
 
 ### End-to-end tests
 
@@ -86,7 +86,7 @@ Reads for the tree view go through a single recursive CTE (`visibleTree` in `app
 
 ### Routing: TanStack Start, file-based
 
-Both apps use `@tanstack/react-router`'s file-based routing (`src/routes/`) with SSR via `@tanstack/react-start`. Routes are generated with `pnpm generate-routes:app` / `:web` (`tsr generate`) — don't hand-edit `src/routeTree.gen.ts`. `apps/app`'s root route (`src/routes/__root.tsx`) gates the whole app behind a session check in `beforeLoad`, redirecting to `apps/web`'s `/login` when unauthenticated; `apps/web` owns the actual login/register UI and calls the shared better-auth client.
+Both apps use `@tanstack/react-router`'s file-based routing (`src/routes/`) with SSR via `@tanstack/react-start`. Routes are generated with `pnpm generate-routes:app` / `:web` (`tsr generate`) — don't hand-edit `src/routeTree.gen.ts`. `apps/app`'s root route (`src/routes/__root.tsx`) gates the whole app behind a session check in `beforeLoad`, redirecting to its own `/login` when unauthenticated; `apps/app` owns the actual login/register UI and calls the better-auth client, while `apps/web`'s `/login` and `/register` routes are pure redirects to `apps/app`.
 
 Path aliases: within a workspace, `@/*` and `#/*` both resolve to that workspace's `src/*` (see each app's `tsconfig.json`); imports across workspaces use the `@cascade/*` package names and their `exports` map.
 

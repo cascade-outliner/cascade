@@ -4,8 +4,8 @@ Cascade is a fast, tree-based outliner for organizing ideas, notes, and structur
 
 ## What it includes
 
-- `apps/app` - outliner app (`localhost:3001`)
-- `apps/web` - marketing + auth pages (`localhost:3000`)
+- `apps/app` - outliner app, including login/register (`localhost:3001`)
+- `apps/web` - marketing + legal pages (`localhost:3000`)
 - Shared packages for auth, UI, theme, outliner UI, and HTTP helpers
 
 ## Features
@@ -36,7 +36,7 @@ cp apps/app/.env.local.example apps/app/.env.local
 cp apps/web/.env.local.example apps/web/.env.local
 ```
 
-Set `BETTER_AUTH_SECRET` to the same value in both env files.
+Only `apps/app`'s env file needs `BETTER_AUTH_SECRET` set to a real value; `apps/web` just needs `VITE_APP_URL` pointing at `apps/app`.
 
 Prepare the database and start both apps:
 
