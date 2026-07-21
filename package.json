@@ -24,6 +24,7 @@
     "db:studio:app": "pnpm --filter app db:studio",
     "perf:seed:app": "pnpm --filter app perf:seed",
     "perf:query:app": "pnpm --filter app perf:query",
+    "perf:mutate:app": "pnpm --filter app perf:mutate",
     "perf:report:app": "pnpm --filter app perf:report",
     "------": "--------------------------",
     "dev:web": "pnpm --filter web dev",

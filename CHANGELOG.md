@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-21
+- Extended the performance-testing harness for maintainers with a `createNode`/`moveNode` mutation-latency benchmark, so PR comparisons now cover reorder and create operations alongside `visibleTree` reads. [#307](https://github.com/Patrickroelofs/cascade/issues/307)
 - Fixed the "Due in range" filter hiding nodes due on the range's end day whenever their due date carried a time later than midnight. [#315](https://github.com/Patrickroelofs/cascade/issues/315)
 
 ## 2026-07-19
