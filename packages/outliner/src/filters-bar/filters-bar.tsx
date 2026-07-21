@@ -1,6 +1,5 @@
 import { Menu } from "@base-ui/react";
 import { CalendarRange } from "@cascade/ui/calendar-range";
-import { cva } from "@cascade/ui/cva.config";
 import {
 	CalendarDotIcon,
 	CalendarDotsIcon,
@@ -12,71 +11,21 @@ import {
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import { useState } from "react";
-import { useOutlinerLabels } from "./labels-context";
-import { hasActiveFilters, type NodeFilters, noFilters } from "./node-filters";
-
-interface FiltersBarProps {
-	filters: NodeFilters;
-	onFiltersChange: (filters: NodeFilters) => void;
-}
-
-const trigger = cva({
-	base: [
-		"inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium outline-none",
-		"border-ink/15 text-muted hover:border-ink/30 hover:text-ink",
-		"dark:border-surface/15 dark:text-surface/70 dark:hover:border-surface/30 dark:hover:text-surface",
-		"data-popup-open:border-danger/30 data-popup-open:bg-danger/10 data-popup-open:text-danger",
-		"focus-visible:ring-2 focus-visible:ring-danger/50",
-	],
-});
-
-const popup = cva({
-	base: [
-		"w-56 rounded-lg border border-ink/10 bg-white p-1 text-ink",
-		"shadow-lg shadow-ink/15",
-		"outline-none",
-		"dark:border-surface/10 dark:bg-ink dark:text-surface",
-	],
-});
-
-const groupLabel = cva({
-	base: "px-2.5 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-muted/75 dark:text-surface/50",
-});
-
-const menuItem = cva({
-	base: [
-		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm outline-none",
-		"data-highlighted:bg-surface/70 dark:data-highlighted:bg-surface/20",
-		"data-disabled:cursor-default data-disabled:opacity-50 data-disabled:hover:bg-transparent",
-	],
-});
-
-const calendarPopup = cva({
-	base: [
-		"rounded-lg border border-ink/10 bg-white p-3 text-ink",
-		"shadow-lg shadow-ink/15 outline-none",
-		"dark:border-surface/10 dark:bg-ink dark:text-surface",
-	],
-});
-
-const chip = cva({
-	base: [
-		"inline-flex shrink-0 items-center gap-1.5 rounded-full border py-1 pl-2.5 pr-1 text-[11.5px] font-medium tabular-nums",
-		"border-accent/50 bg-accent/25 text-ink dark:border-accent/40 dark:bg-accent/20 dark:text-surface",
-	],
-});
-
-// Same visual as the tag editor's option checkboxes, so toggles look the
-// same wherever they appear.
-const checkbox = cva({
-	base: "flex size-4 shrink-0 items-center justify-center rounded border",
-	variants: {
-		checked: {
-			true: "border-danger bg-danger text-canvas",
-			false: "border-ink/30 dark:border-surface/30",
-		},
-	},
-});
+import { useOutlinerLabels } from "../labels-context";
+import { hasActiveFilters, noFilters } from "../node-filters";
+import { formatDueDateRange, formatDueOnDate } from "./format-due-date";
+import {
+	calendarPopup,
+	checkbox,
+	chip,
+	clearAll,
+	groupLabel,
+	menuItem,
+	popup,
+	removeChipButton,
+	trigger,
+} from "./styles";
+import type { FiltersBarProps } from "./types";
 
 /**
  * Entry point for outliner filters: a Filter menu grouped by field, active
@@ -84,40 +33,6 @@ const checkbox = cva({
  * active. The due-date filters are mutually exclusive; "Hide completed"
  * stacks on top of any of them.
  */
-const dueOnDateFormatter = new Intl.DateTimeFormat(undefined, {
-	day: "numeric",
-	month: "short",
-});
-const dueOnDateWithYearFormatter = new Intl.DateTimeFormat(undefined, {
-	day: "numeric",
-	month: "short",
-	year: "numeric",
-});
-
-function formatDueOnDate(date: Date): string {
-	return date.getFullYear() === new Date().getFullYear()
-		? dueOnDateFormatter.format(date)
-		: dueOnDateWithYearFormatter.format(date);
-}
-
-function formatDueDateRange(start: Date, end: Date): string {
-	const currentYear = new Date().getFullYear();
-	const sameYear = start.getFullYear() === end.getFullYear();
-	// Only show the year on the end date if both are in the same non-current year,
-	// or if they span across years.
-	const startStr =
-		start.getFullYear() === currentYear
-			? dueOnDateFormatter.format(start)
-			: dueOnDateWithYearFormatter.format(start);
-	const endInCurrentYear = end.getFullYear() === currentYear;
-	const startAndEndSameYear = sameYear && start.getFullYear() === currentYear;
-	const endStr =
-		endInCurrentYear || startAndEndSameYear
-			? dueOnDateFormatter.format(end)
-			: dueOnDateWithYearFormatter.format(end);
-	return `${startStr}–${endStr}`;
-}
-
 export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 	const active = hasActiveFilters(filters);
@@ -266,7 +181,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 								<button
 									type="button"
 									aria-label={filter.removeLabel}
-									className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
+									className={removeChipButton()}
 									onClick={() =>
 										onFiltersChange({ ...filters, [filter.key]: false })
 									}
@@ -284,7 +199,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						<button
 							type="button"
 							aria-label={labels.filtersRemoveDueOnDate}
-							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
+							className={removeChipButton()}
 							onClick={() => onFiltersChange({ ...filters, dueOnDate: null })}
 						>
 							<XIcon size={9} weight="bold" />
@@ -303,7 +218,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						<button
 							type="button"
 							aria-label={labels.filtersRemoveDueDateRange}
-							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
+							className={removeChipButton()}
 							onClick={() =>
 								onFiltersChange({ ...filters, dueDateRange: null })
 							}
@@ -320,7 +235,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						<button
 							type="button"
 							aria-label={labels.filtersRemoveHideCompleted}
-							className="flex size-4 items-center justify-center rounded-full outline-none hover:bg-ink/10 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/15"
+							className={removeChipButton()}
 							onClick={() =>
 								onFiltersChange({ ...filters, hideCompleted: false })
 							}
@@ -335,7 +250,7 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 				<div className="flex items-center gap-3">
 					<button
 						type="button"
-						className="cursor-pointer text-xs font-medium text-muted underline decoration-ink/25 underline-offset-2 hover:text-ink hover:decoration-ink/50 dark:text-surface/60 dark:decoration-surface/25 dark:hover:text-surface dark:hover:decoration-surface/50"
+						className={clearAll()}
 						onClick={() => onFiltersChange(noFilters)}
 					>
 						{labels.filtersClear}
