@@ -215,7 +215,10 @@ export const visibleTree = authed
 
 export const createNode = authed
 	.errors({
-		NOT_FOUND: { status: 404, message: "Node not found" },
+		INVALID_ANCHOR: {
+			status: 422,
+			message: "Anchor node is not a child of the requested parent",
+		},
 	})
 	.input(
 		z.object({
@@ -243,9 +246,9 @@ export const createNode = authed
 				const [after] = await tx
 					.select({ order: nodes.order })
 					.from(nodes)
-					.where(and(eq(nodes.id, input.afterId), eq(nodes.userId, userId)))
+					.where(and(parentFilter, eq(nodes.id, input.afterId)))
 					.limit(1);
-				if (!after) throw errors.NOT_FOUND();
+				if (!after) throw errors.INVALID_ANCHOR();
 				const [next] = await tx
 					.select({ order: nodes.order })
 					.from(nodes)
