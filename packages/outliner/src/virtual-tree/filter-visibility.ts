@@ -1,4 +1,9 @@
-import { isDueOnDate, isDueThisWeek, isDueToday } from "../due-date-bucket";
+import {
+	isDueOnDate,
+	isDueThisWeek,
+	isDueToday,
+	startOfDay,
+} from "../due-date-bucket";
 import { hasActiveFilters, type NodeFilters } from "../node-filters";
 import type { VisibleNodeRow } from "../node-types";
 
@@ -131,7 +136,8 @@ function rowMatchesFilters(row: VisibleNodeRow, filters: NodeFilters): boolean {
 	}
 	if (filters.dueDateRange) {
 		const { start, end } = filters.dueDateRange;
-		if (dueDate < start || dueDate > end) {
+		const dueDay = startOfDay(dueDate);
+		if (dueDay < start || dueDay > end) {
 			return false;
 		}
 	}
