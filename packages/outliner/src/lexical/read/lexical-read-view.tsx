@@ -4,7 +4,6 @@ import type { LexicalTextNode } from "./render-text-nodes";
 
 export interface LexicalElementNode {
 	type: string;
-	/** Heading level, present when `type === "heading"` (from `@lexical/rich-text`'s `HeadingNode`). */
 	tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 	children?: (LexicalTextNode | LexicalElementNode)[];
 }
