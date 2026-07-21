@@ -9,6 +9,7 @@ interface UseTagEditorOptions {
 	tags: string[];
 	existingTags: TagSummary[];
 	onChange: (tags: string[]) => void;
+	allowCreate?: boolean;
 }
 
 /** Drives the tag combobox: filtering, keyboard nav, and create/toggle. */
@@ -16,6 +17,7 @@ export function useTagEditor({
 	tags,
 	existingTags,
 	onChange,
+	allowCreate = true,
 }: UseTagEditorOptions) {
 	const [query, setQuery] = useState("");
 	const [highlighted, setHighlighted] = useState(-1);
@@ -50,6 +52,7 @@ export function useTagEditor({
 	const showCount = MAX_TAG_LENGTH - trimmedQuery.length <= 15;
 
 	const canCreate =
+		allowCreate &&
 		trimmedQuery !== "" &&
 		!overLimit &&
 		!allTags.some((t) => t.name.toLowerCase() === trimmedQuery.toLowerCase());

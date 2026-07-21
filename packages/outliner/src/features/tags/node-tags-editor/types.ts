@@ -5,6 +5,9 @@ export interface NodeTagsEditorProps {
 	/** All of this user's tags with usage counts (already sorted by name). */
 	existingTags: TagSummary[];
 	onChange: (tags: string[]) => void;
+	/** Filter mode reuses the searchable checklist without tag-management
+	 * affordances such as creation, deletion, and usage counts. */
+	mode?: "edit" | "filter";
 	/** Deletes the tag outright (every node that has it loses it), not just
 	 * this node's use of it. Omit to hide the delete affordance. */
 	onDeleteTag?: (name: string) => void | Promise<void>;

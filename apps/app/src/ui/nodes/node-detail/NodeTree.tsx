@@ -34,7 +34,11 @@ export function NodeTree({
 			header={
 				<>
 					{header}
-					<FiltersBar filters={filters} onFiltersChange={setFilters} />
+					<FiltersBar
+						filters={filters}
+						existingTags={existingTags}
+						onFiltersChange={setFilters}
+					/>
 				</>
 			}
 			hiddenRowIds={visibility.hiddenIds}
@@ -42,6 +46,16 @@ export function NodeTree({
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 			existingTags={existingTags}
 			onDeleteTag={deleteTag}
+			onTagClick={(tag) =>
+				setFilters({
+					...filters,
+					tags: filters.tags.some(
+						(name) => name.toLowerCase() === tag.toLowerCase(),
+					)
+						? filters.tags
+						: [...filters.tags, tag],
+				})
+			}
 		/>
 	);
 }

@@ -8,9 +8,11 @@ import {
 	CheckIcon,
 	CheckSquareIcon,
 	FunnelIcon,
+	TagIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import { useState } from "react";
+import { NodeTagsEditor } from "../features/tags/node-tags-editor/node-tags-editor";
 import { useOutlinerLabels } from "../labels-context";
 import { hasActiveFilters, noFilters } from "../node-filters";
 import { formatDueDateRange, formatDueOnDate } from "./format-due-date";
@@ -33,7 +35,11 @@ import type { FiltersBarProps } from "./types";
  * active. The due-date filters are mutually exclusive; "Hide completed"
  * stacks on top of any of them.
  */
-export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
+export function FiltersBar({
+	filters,
+	existingTags = [],
+	onFiltersChange,
+}: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 	const active = hasActiveFilters(filters);
 	// Controlled so picking a calendar date can close the menu; plain buttons
@@ -145,6 +151,36 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 										</Menu.Portal>
 									</Menu.SubmenuRoot>
 								</Menu.Group>
+								{existingTags.length > 0 && (
+									<Menu.SubmenuRoot>
+										<Menu.SubmenuTrigger className={menuItem()}>
+											<TagIcon size={13} weight="bold" />
+											{labels.filtersTagsGroup}
+											<CaretRightIcon
+												size={13}
+												weight="bold"
+												className="ml-auto"
+											/>
+										</Menu.SubmenuTrigger>
+										<Menu.Portal>
+											<Menu.Positioner
+												className="z-50 outline-none"
+												sideOffset={6}
+											>
+												<Menu.Popup className={popup()}>
+													<NodeTagsEditor
+														mode="filter"
+														tags={filters.tags}
+														existingTags={existingTags}
+														onChange={(tags) =>
+															onFiltersChange({ ...filters, tags })
+														}
+													/>
+												</Menu.Popup>
+											</Menu.Positioner>
+										</Menu.Portal>
+									</Menu.SubmenuRoot>
+								)}
 								<Menu.Group>
 									<Menu.GroupLabel className={groupLabel()}>
 										{labels.filtersTasksGroup}
@@ -227,6 +263,26 @@ export function FiltersBar({ filters, onFiltersChange }: FiltersBarProps) {
 						</button>
 					</span>
 				)}
+
+				{filters.tags.map((tag) => (
+					<span key={tag} className={chip()}>
+						<TagIcon size={11} weight="bold" />
+						{tag}
+						<button
+							type="button"
+							aria-label={`${labels.filtersRemoveTag}: ${tag}`}
+							className={removeChipButton()}
+							onClick={() =>
+								onFiltersChange({
+									...filters,
+									tags: filters.tags.filter((name) => name !== tag),
+								})
+							}
+						>
+							<XIcon size={9} weight="bold" />
+						</button>
+					</span>
+				))}
 
 				{filters.hideCompleted && (
 					<span className={chip()}>

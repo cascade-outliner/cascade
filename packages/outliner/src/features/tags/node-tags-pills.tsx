@@ -16,7 +16,7 @@ interface NodeTagsControlProps {
 const MAX_VISIBLE_TAGS = 4;
 
 const pill = cva({
-	base: "inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap",
+	base: "inline-flex min-w-0 max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap outline-none",
 	variants: {
 		hue: {
 			neutral:
@@ -36,6 +36,12 @@ const pill = cva({
 				"outline-none hover:border-danger/50 hover:text-danger",
 				"focus-visible:ring-2 focus-visible:ring-danger/50",
 				"dark:hover:border-danger/40 dark:hover:text-danger",
+			],
+		},
+		filterable: {
+			true: [
+				"cursor-pointer hover:ring-1 hover:ring-inset hover:ring-current/40",
+				"focus-visible:ring-2 focus-visible:ring-danger/50",
 			],
 		},
 	},
@@ -59,36 +65,62 @@ const addTrigger = cva({
  * whatever handles the rest (an overflow badge, an edit trigger, …). */
 function TagPillRow({
 	tags,
+	onTagClick,
 	children,
 }: {
 	tags: string[];
+	onTagClick?: (tag: string) => void;
 	children?: ReactNode;
 }) {
 	return (
 		<span className="inline-flex max-w-full items-center gap-1">
-			{tags.slice(0, MAX_VISIBLE_TAGS).map((tag) => (
-				<span key={tag} className={pill({ hue: tagHue(tag) })}>
-					<TagIcon size={11} weight="bold" />
-					<span className="max-w-28 shrink-0 overflow-hidden text-ellipsis">
-						{tag}
+			{tags.slice(0, MAX_VISIBLE_TAGS).map((tag) => {
+				const content = (
+					<>
+						<TagIcon size={11} weight="bold" />
+						<span className="max-w-28 shrink-0 overflow-hidden text-ellipsis">
+							{tag}
+						</span>
+					</>
+				);
+
+				return onTagClick ? (
+					<button
+						key={tag}
+						type="button"
+						className={pill({ hue: tagHue(tag), filterable: true })}
+						onClick={(event) => {
+							event.stopPropagation();
+							onTagClick(tag);
+						}}
+					>
+						{content}
+					</button>
+				) : (
+					<span key={tag} className={pill({ hue: tagHue(tag) })}>
+						{content}
 					</span>
-				</span>
-			))}
+				);
+			})}
 			{children}
 		</span>
 	);
 }
 
-/**
- * Read-only tag pills for a tree row; adding/removing tags happens via the
- * row's right-click "Tags" menu, not here.
- */
-export function NodeTagPills({ tags }: { tags: string[] }) {
+/** Tag pills for a tree row. They become filter buttons when a click handler
+ * is provided; adding/removing tags still happens via the row's Tags menu. */
+export function NodeTagPills({
+	tags,
+	onTagClick,
+}: {
+	tags: string[];
+	onTagClick?: (tag: string) => void;
+}) {
 	if (tags.length === 0) return null;
 	const hidden = tags.slice(MAX_VISIBLE_TAGS);
 
 	return (
-		<TagPillRow tags={tags}>
+		<TagPillRow tags={tags} onTagClick={onTagClick}>
 			{hidden.length > 0 && (
 				<span
 					className={pill({ className: "tabular-nums" })}

@@ -19,18 +19,17 @@ import {
 import type { NodeTagsEditorProps } from "./types";
 import { useTagEditor } from "./use-tag-editor";
 
-/**
- * One checklist over all of the user's tags: checked = on this node. Typing
- * filters the list; when the query matches nothing exactly, a "create" row is
- * offered first.
- */
+/** Searchable checklist over all of the user's tags. Edit mode manages the
+ * tags on a node; filter mode provides selection without management actions. */
 export function NodeTagsEditor({
 	tags,
 	existingTags,
 	onChange,
 	onDeleteTag,
+	mode = "edit",
 }: NodeTagsEditorProps) {
 	const labels = useOutlinerLabels();
+	const filterMode = mode === "filter";
 	const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 	const {
 		query,
@@ -49,19 +48,26 @@ export function NodeTagsEditor({
 		createTag,
 		toggleTag,
 		handleInputKeyDown,
-	} = useTagEditor({ tags, existingTags, onChange });
+	} = useTagEditor({
+		tags,
+		existingTags,
+		onChange,
+		allowCreate: !filterMode,
+	});
 
 	return (
-		<div>
-			<div className={search()}>
+		<div className={filterMode ? "px-1 pb-1" : undefined}>
+			<div className={search({ compact: filterMode })}>
 				<input
 					ref={inputRef}
 					value={query}
-					placeholder={labels.tagsInputPlaceholder}
+					placeholder={
+						filterMode ? labels.filtersSearchTags : labels.tagsInputPlaceholder
+					}
 					className={input()}
 					role="combobox"
 					aria-expanded={optionCount > 0}
-					aria-invalid={overLimit || undefined}
+					aria-invalid={(!filterMode && overLimit) || undefined}
 					onClick={(e) => e.stopPropagation()}
 					onChange={(e) => {
 						setQuery(e.target.value);
@@ -69,13 +75,13 @@ export function NodeTagsEditor({
 					}}
 					onKeyDown={handleInputKeyDown}
 				/>
-				{showCount && (
+				{!filterMode && showCount && (
 					<span className={charCount({ over: overLimit })}>
 						{trimmedQuery.length}/{MAX_TAG_LENGTH}
 					</span>
 				)}
 			</div>
-			{overLimit && (
+			{!filterMode && overLimit && (
 				<p role="alert" className={limitError()}>
 					{labels.tagNameTooLong}
 				</p>
@@ -114,9 +120,11 @@ export function NodeTagsEditor({
 									{checked && <CheckIcon size={10} weight="bold" />}
 								</span>
 								<span className="truncate">{tag.name}</span>
-								<span className={usageCount()}>{tag.count}</span>
+								{!filterMode && (
+									<span className={usageCount()}>{tag.count}</span>
+								)}
 							</button>
-							{onDeleteTag && (
+							{!filterMode && onDeleteTag && (
 								<button
 									type="button"
 									className={deleteTagButton()}
@@ -143,7 +151,7 @@ export function NodeTagsEditor({
 					</span>
 				</div>
 			)}
-			{onDeleteTag && (
+			{!filterMode && onDeleteTag && (
 				<DeleteTagDialog
 					tagName={pendingDelete}
 					onOpenChange={(open) => {

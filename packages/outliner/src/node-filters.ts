@@ -1,4 +1,6 @@
 export interface NodeFilters {
+	/** Show only nodes carrying every selected tag. */
+	tags: string[];
 	dueToday: boolean;
 	dueThisWeek: boolean;
 	/** Show only nodes due on this specific calendar date. */
@@ -9,6 +11,7 @@ export interface NodeFilters {
 }
 
 export const noFilters: NodeFilters = {
+	tags: [],
 	dueToday: false,
 	dueThisWeek: false,
 	dueOnDate: null,
@@ -26,5 +29,9 @@ export function hasActiveDueDateFilter(filters: NodeFilters): boolean {
 }
 
 export function hasActiveFilters(filters: NodeFilters): boolean {
-	return hasActiveDueDateFilter(filters) || filters.hideCompleted;
+	return (
+		filters.tags.length > 0 ||
+		hasActiveDueDateFilter(filters) ||
+		filters.hideCompleted
+	);
 }

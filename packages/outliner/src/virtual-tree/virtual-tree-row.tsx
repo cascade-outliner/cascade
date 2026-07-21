@@ -36,6 +36,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		existingTags: props.existingTags,
 		onSetDueDate: props.onSetDueDate,
 		onSetTags: props.onSetTags,
+		onTagClick: props.onTagClick,
 		onDeleteTag: props.onDeleteTag,
 		onToggleTask: props.onToggleTask,
 	};

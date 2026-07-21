@@ -32,6 +32,8 @@ export interface VirtualTreeProps {
 	 * one node's use of it. Not a `VisibleTree` mutation since it isn't
 	 * scoped to this view's rows. Omit to hide the delete affordance. */
 	onDeleteTag?: (name: string) => void | Promise<void>;
+	/** Handles clicking a tag pill on a tree row, e.g. to activate a filter. */
+	onTagClick?: (tag: string) => void;
 	/** Row/context-menu features to render, in order. Defaults to the
 	 * built-in task, due-date, and tags features (`defaultOutlinerFeatures`). */
 	features?: OutlinerFeature[];
@@ -63,6 +65,7 @@ export interface VirtualTreeRowProps {
 	onToggleTask: (completed: boolean) => void;
 	onSetDueDate: (date: Date | null) => void;
 	onSetTags: (tags: string[]) => void;
+	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDelete: () => void;
 	onSaveContent: (content: { root: LexicalElementNode }) => void;

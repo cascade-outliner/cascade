@@ -49,12 +49,28 @@ function RootTree() {
 				<NodeLink id={node.id} content={node.content} />
 			)}
 			contentClassName="rr-block"
-			header={<FiltersBar filters={filters} onFiltersChange={setFilters} />}
+			header={
+				<FiltersBar
+					filters={filters}
+					existingTags={existingTags}
+					onFiltersChange={setFilters}
+				/>
+			}
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 			existingTags={existingTags}
 			onDeleteTag={deleteTag}
+			onTagClick={(tag) =>
+				setFilters({
+					...filters,
+					tags: filters.tags.some(
+						(name) => name.toLowerCase() === tag.toLowerCase(),
+					)
+						? filters.tags
+						: [...filters.tags, tag],
+				})
+			}
 		/>
 	);
 }

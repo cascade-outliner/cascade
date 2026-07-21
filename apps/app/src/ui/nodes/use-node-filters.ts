@@ -4,7 +4,13 @@ import {
 	parseCalendarDate,
 } from "@cascade/outliner/calendar-date";
 import type { NodeFilters } from "@cascade/outliner/node-filters";
-import { createParser, parseAsStringLiteral, useQueryStates } from "nuqs";
+import {
+	createParser,
+	parseAsArrayOf,
+	parseAsString,
+	parseAsStringLiteral,
+	useQueryStates,
+} from "nuqs";
 
 /**
  * A calendar date as `YYYY-MM-DD` in the URL, parsed in local time (the
@@ -19,6 +25,7 @@ const parseAsLocalDate = createParser<Date>({
 });
 
 const filterParsers = {
+	tag: parseAsArrayOf(parseAsString).withDefault([]),
 	filter: parseAsStringLiteral(["today", "week"]),
 	due: parseAsLocalDate,
 	due_start: parseAsLocalDate,
@@ -31,7 +38,7 @@ export function useNodeFilters(): [
 	NodeFilters,
 	(filters: NodeFilters) => void,
 ] {
-	const [{ filter, due, due_start, due_end, completed }, setQueryFilters] =
+	const [{ tag, filter, due, due_start, due_end, completed }, setQueryFilters] =
 		useQueryStates(filterParsers);
 
 	const dueDateRange =
@@ -41,6 +48,7 @@ export function useNodeFilters(): [
 
 	return [
 		{
+			tags: tag,
 			dueToday: filter === "today",
 			dueThisWeek: filter === "week",
 			dueOnDate: due,
@@ -49,6 +57,7 @@ export function useNodeFilters(): [
 		},
 		(filters) =>
 			setQueryFilters({
+				tag: filters.tags.length > 0 ? filters.tags : null,
 				filter: filters.dueToday
 					? "today"
 					: filters.dueThisWeek

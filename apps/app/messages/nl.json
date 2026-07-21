@@ -136,6 +136,7 @@
 	"filters_bar_remove_due_on_date": "Filter 'Vervalt op datum' verwijderen",
 	"filters_bar_remove_due_date_range": "Filter 'Vervalt in periode' verwijderen",
 	"filters_bar_tags_group": "Labels",
+	"filters_bar_search_tags": "Labels zoeken…",
 	"filters_bar_remove_tag": "Labelfilter verwijderen",
 	"filters_bar_tasks_group": "Taken",
 	"filters_bar_hide_completed": "Voltooide taken verbergen",

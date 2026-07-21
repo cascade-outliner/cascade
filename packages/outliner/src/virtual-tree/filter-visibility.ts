@@ -5,7 +5,11 @@ import {
 	isDueToday,
 	startOfDay,
 } from "../due-date-bucket";
-import { hasActiveFilters, type NodeFilters } from "../node-filters";
+import {
+	hasActiveDueDateFilter,
+	hasActiveFilters,
+	type NodeFilters,
+} from "../node-filters";
 import type { VisibleNodeRow } from "../node-types";
 
 export interface RowVisibility {
@@ -27,7 +31,7 @@ const emptyVisibility: RowVisibility = {
  * only rendering treats hidden/context rows differently.
  *
  * "Hide completed" is an exclusion rather than a match: completed tasks and
- * their entire subtrees are dropped up front, and any due-date filters then
+ * their entire subtrees are dropped up front, and any positive filters then
  * match over what remains. On its own it dims nothing — every surviving row
  * stays fully visible.
  */
@@ -42,6 +46,7 @@ export function getRowVisibility(
 		: new Set<string>();
 
 	if (
+		filters.tags.length === 0 &&
 		!filters.dueToday &&
 		!filters.dueThisWeek &&
 		!filters.dueOnDate &&
@@ -51,7 +56,7 @@ export function getRowVisibility(
 	}
 
 	// Excluded subtrees never surface again, not even as dimmed context, so
-	// the due-date filters only consider the remaining rows. An excluded row
+	// positive filters only consider the remaining rows. An excluded row
 	// can't be a candidate's ancestor: exclusion always covers whole subtrees.
 	const candidates = rows.filter((row) => !excludedIds.has(row.id));
 	const parentById = new Map(candidates.map((row) => [row.id, row.parentId]));
@@ -119,11 +124,17 @@ function getCollapsedDescendantIds(rows: VisibleNodeRow[]): Set<string> {
 }
 
 /**
- * A row matches when it satisfies every active due-date filter, regardless
+ * A row matches when it satisfies every active positive filter, regardless
  * of completion status — "Hide completed" is the only filter that excludes
- * completed tasks, so a due-date filter must still match one that's done.
+ * completed tasks, so due-date and tag filters still match completed rows.
  */
 function rowMatchesFilters(row: VisibleNodeRow, filters: NodeFilters): boolean {
+	const rowTags = new Set(row.tags.map((tag) => tag.toLowerCase()));
+	if (!filters.tags.every((tag) => rowTags.has(tag.toLowerCase()))) {
+		return false;
+	}
+
+	if (!hasActiveDueDateFilter(filters)) return true;
 	if (!row.dueDate) return false;
 	const dueDate = parseCalendarDate(row.dueDate);
 	if (filters.dueToday && !isDueToday(dueDate)) {

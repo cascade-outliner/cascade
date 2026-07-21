@@ -2,10 +2,19 @@ import { cva } from "@cascade/ui/cva.config";
 
 export const search = cva({
 	base: [
-		"mb-1 flex w-64 items-center gap-2 rounded-md border px-2 py-1.5",
+		"mb-1 flex items-center gap-2 rounded-md border px-2 py-1.5",
 		"border-ink/15 focus-within:ring-2 focus-within:ring-danger/50",
 		"dark:border-surface/15",
 	],
+	variants: {
+		compact: {
+			true: "w-full",
+			false: "w-64",
+		},
+	},
+	defaultVariants: {
+		compact: false,
+	},
 });
 
 export const charCount = cva({
