@@ -19,7 +19,7 @@ import {
 } from "@/ui/nodes/virtual-tree/data/use-visible-tree";
 import { useSettings } from "@/ui/settings-context";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
 		queryClient.prefetchQuery(visibleTreeOptions(null));
 		queryClient.prefetchQuery(existingTagsOptions());

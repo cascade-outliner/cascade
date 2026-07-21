@@ -8,7 +8,7 @@ export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const { settings, setSetting, saveSettings } = useSettings();
-	const { user } = useRouteContext({ from: "__root__" });
+	const { user } = useRouteContext({ from: "/_authed" });
 
 	const signOut = useSignOut();
 	const deleteAccount = useDeleteAccount();
