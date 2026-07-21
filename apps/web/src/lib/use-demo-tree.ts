@@ -1,13 +1,16 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
 import { lexicalToPlainText } from "@cascade/outliner/lexical-content";
+import { addTag, removeTag } from "@cascade/outliner/node-tags";
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import type { AddNodeOptions, VisibleTree } from "@cascade/outliner/tree-types";
 import {
 	appendRow,
+	bulkMoveSubtrees,
 	insertRowAfter,
 	moveSubtree,
 	patchRow,
 	removeSubtree,
+	removeSubtrees,
 	subtreeRange,
 } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
@@ -180,6 +183,41 @@ export function useDemoTree(rootId: string | null) {
 		return created.id;
 	};
 
+	const bulkRemove: VisibleTree["bulkRemove"] = (ids) => {
+		setAllNodes((current) => removeSubtrees(current, ids));
+		toast.success(m.node_deleted());
+	};
+
+	const bulkMove: VisibleTree["bulkMove"] = (ids, target) => {
+		setAllNodes((current) => bulkMoveSubtrees(current, ids, target));
+	};
+
+	const bulkAddTag: VisibleTree["bulkAddTag"] = (ids, tag) => {
+		const idSet = new Set(ids);
+		setAllNodes((current) =>
+			current.map((r) =>
+				idSet.has(r.id) ? { ...r, tags: addTag(r.tags, tag) } : r,
+			),
+		);
+	};
+
+	const bulkRemoveTag: VisibleTree["bulkRemoveTag"] = (ids, tag) => {
+		const idSet = new Set(ids);
+		setAllNodes((current) =>
+			current.map((r) =>
+				idSet.has(r.id) ? { ...r, tags: removeTag(r.tags, tag) } : r,
+			),
+		);
+	};
+
+	const bulkSetDueDate: VisibleTree["bulkSetDueDate"] = (ids, dueDate) => {
+		const idSet = new Set(ids);
+		const formatted = dueDate ? formatCalendarDate(dueDate) : null;
+		setAllNodes((current) =>
+			current.map((r) => (idSet.has(r.id) ? { ...r, dueDate: formatted } : r)),
+		);
+	};
+
 	return {
 		rows,
 		hasMore: false,
@@ -193,6 +231,11 @@ export function useDemoTree(rootId: string | null) {
 		add,
 		addAfter,
 		loadMore: () => {},
+		bulkRemove,
+		bulkMove,
+		bulkAddTag,
+		bulkRemoveTag,
+		bulkSetDueDate,
 		ancestors,
 	};
 }

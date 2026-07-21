@@ -39,6 +39,15 @@ export function VirtualTree({
 		handleExitEdit,
 		handleConvert,
 		handleToggleTask,
+		selection,
+		handleRowSelect,
+		marqueeRect,
+		onMarqueePointerDown,
+		handleBulkMoveDrop,
+		handleBulkRemove,
+		handleBulkAddTag,
+		handleBulkRemoveTag,
+		handleBulkSetDueDate,
 	} = useTreeInteractions(tree, newNodeDueDate);
 
 	return (
@@ -73,6 +82,15 @@ export function VirtualTree({
 			onExitEdit={handleExitEdit}
 			onConvert={handleConvert}
 			onToggleTask={handleToggleTask}
+			selection={selection}
+			onRowSelect={handleRowSelect}
+			marqueeRect={marqueeRect}
+			onMarqueePointerDown={onMarqueePointerDown}
+			onBulkMoveDrop={handleBulkMoveDrop}
+			onBulkRemove={handleBulkRemove}
+			onBulkAddTag={handleBulkAddTag}
+			onBulkRemoveTag={handleBulkRemoveTag}
+			onBulkSetDueDate={handleBulkSetDueDate}
 		/>
 	);
 }

@@ -120,6 +120,25 @@
 	"outliner_link_open": "Open link",
 	"outliner_link_save": "Save",
 	"outliner_link_delete": "Remove link",
+	"outliner_selection_count": "{count} selected",
+	"outliner_clear_selection": "Clear selection",
+	"outliner_bulk_tags_trigger": "Tag selection",
+	"outliner_bulk_tag_input_placeholder": "Tag name…",
+	"outliner_bulk_add_tag_action": "Add",
+	"outliner_bulk_remove_tag_action": "Remove",
+	"outliner_bulk_due_date_trigger": "Set due date for selection",
+	"outliner_bulk_delete_trigger": "Delete selection",
+	"outliner_bulk_delete_confirm_title": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Delete this node?",
+				"countPlural=other": "Delete {count} nodes?"
+			}
+		}
+	],
+	"outliner_bulk_delete_confirm_body": "Deletes each selected node and its children. This can't be undone.",
 	"filters_bar_trigger": "Filter",
 	"filters_bar_due_date_group": "Due date",
 	"filters_bar_due_today": "Due today",

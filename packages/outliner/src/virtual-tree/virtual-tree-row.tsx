@@ -71,6 +71,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 				rows={props.rows}
 				indentSize={props.indentSize}
 				onMoveDrop={props.onMoveDrop}
+				onBulkMoveDrop={props.onBulkMoveDrop}
+				selectedIds={props.selectedIds}
+				selected={props.selected}
+				onSelect={props.onSelect}
+				onClearSelection={props.onClearSelection}
 			>
 				<NodeActions
 					nodeType={row.type}

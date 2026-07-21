@@ -65,6 +65,17 @@ function createOutlinerLabels(): OutlinerLabels {
 		linkOpen: m.outliner_link_open(),
 		linkSave: m.outliner_link_save(),
 		linkDelete: m.outliner_link_delete(),
+		selectionCount: (count) => m.outliner_selection_count({ count }),
+		clearSelection: m.outliner_clear_selection(),
+		bulkTagsTrigger: m.outliner_bulk_tags_trigger(),
+		bulkTagInputPlaceholder: m.outliner_bulk_tag_input_placeholder(),
+		bulkAddTagAction: m.outliner_bulk_add_tag_action(),
+		bulkRemoveTagAction: m.outliner_bulk_remove_tag_action(),
+		bulkDueDateTrigger: m.outliner_bulk_due_date_trigger(),
+		bulkDeleteTrigger: m.outliner_bulk_delete_trigger(),
+		bulkDeleteConfirmTitle: (count) =>
+			m.outliner_bulk_delete_confirm_title({ count }),
+		bulkDeleteConfirmBody: m.outliner_bulk_delete_confirm_body(),
 		nodeTypeLabels: {
 			...defaultOutlinerLabels.nodeTypeLabels,
 			text: m.outliner_type_text(),

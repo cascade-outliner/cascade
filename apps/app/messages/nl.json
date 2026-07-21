@@ -120,6 +120,25 @@
 	"outliner_link_open": "Link openen",
 	"outliner_link_save": "Opslaan",
 	"outliner_link_delete": "Link verwijderen",
+	"outliner_selection_count": "{count} geselecteerd",
+	"outliner_clear_selection": "Selectie wissen",
+	"outliner_bulk_tags_trigger": "Selectie taggen",
+	"outliner_bulk_tag_input_placeholder": "Labelnaam…",
+	"outliner_bulk_add_tag_action": "Toevoegen",
+	"outliner_bulk_remove_tag_action": "Verwijderen",
+	"outliner_bulk_due_date_trigger": "Vervaldatum instellen voor selectie",
+	"outliner_bulk_delete_trigger": "Selectie verwijderen",
+	"outliner_bulk_delete_confirm_title": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Deze node verwijderen?",
+				"countPlural=other": "{count} nodes verwijderen?"
+			}
+		}
+	],
+	"outliner_bulk_delete_confirm_body": "Verwijdert elke geselecteerde node en de onderliggende nodes. Dit kan niet ongedaan worden gemaakt.",
 	"filters_bar_trigger": "Filter",
 	"filters_bar_due_date_group": "Vervaldatum",
 	"filters_bar_due_today": "Vervalt vandaag",

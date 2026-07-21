@@ -75,4 +75,10 @@ export interface VirtualTreeRowProps {
 	onFocusNext: () => void;
 	onFocusPrevious: () => void;
 	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
+	onBulkMoveDrop: (draggedIds: string[], target: MoveTarget) => void;
+	/** Every currently multi-selected row id, and whether this row is one of them. */
+	selectedIds: Set<string>;
+	selected: boolean;
+	onSelect: (id: string, mode: "toggle" | "range") => void;
+	onClearSelection: () => void;
 }

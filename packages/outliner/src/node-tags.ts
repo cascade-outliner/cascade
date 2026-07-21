@@ -52,3 +52,23 @@ export function normalizeTags(tags: string[]): string[] {
 	}
 	return result;
 }
+
+/**
+ * Adds one tag to a single row's tag list (case-insensitively deduped),
+ * leaving the rest of the list untouched. Used for the bulk "add tag to
+ * selection" action, where every selected row keeps whatever tags it
+ * already had — unlike `setTags`, which replaces one node's whole list.
+ */
+export function addTag(tags: string[], tag: string): string[] {
+	const trimmed = tag.trim();
+	if (!trimmed) return tags;
+	const lower = trimmed.toLowerCase();
+	if (tags.some((t) => t.toLowerCase() === lower)) return tags;
+	return [...tags, trimmed];
+}
+
+/** Removes one tag (case-insensitively) from a single row's tag list, if present. */
+export function removeTag(tags: string[], tag: string): string[] {
+	const lower = tag.trim().toLowerCase();
+	return tags.filter((t) => t.toLowerCase() !== lower);
+}

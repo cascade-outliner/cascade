@@ -1,4 +1,9 @@
 import {
+	bulkAddTag,
+	bulkDeleteNodes,
+	bulkMoveNodes,
+	bulkRemoveTag,
+	bulkSetNodeDueDate,
 	createNode,
 	deleteNode,
 	deleteTag,
@@ -37,6 +42,11 @@ export default {
 		setTags: setNodeTags,
 		listTags,
 		deleteTag,
+		bulkMove: bulkMoveNodes,
+		bulkDelete: bulkDeleteNodes,
+		bulkAddTag,
+		bulkRemoveTag,
+		bulkSetDueDate: bulkSetNodeDueDate,
 	},
 	settings: {
 		get: getSettings,

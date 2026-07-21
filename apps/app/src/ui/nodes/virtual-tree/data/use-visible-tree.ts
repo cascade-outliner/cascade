@@ -1,5 +1,10 @@
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useBulkAddTagMutation } from "./mutations/use-bulk-add-tag-mutation";
+import { useBulkMoveMutation } from "./mutations/use-bulk-move-mutation";
+import { useBulkRemoveMutation } from "./mutations/use-bulk-remove-mutation";
+import { useBulkRemoveTagMutation } from "./mutations/use-bulk-remove-tag-mutation";
+import { useBulkSetDueDateMutation } from "./mutations/use-bulk-set-due-date-mutation";
 import { useCreateMutation } from "./mutations/use-create-mutation";
 import { useLoadMoreMutation } from "./mutations/use-load-more-mutation";
 import { useMoveMutation } from "./mutations/use-move-mutation";
@@ -48,6 +53,11 @@ export function useVisibleTree(
 		includeCollapsedDescendants,
 		data.nextCursor,
 	);
+	const bulkRemove = useBulkRemoveMutation(options.queryKey);
+	const bulkMove = useBulkMoveMutation(options.queryKey);
+	const bulkAddTag = useBulkAddTagMutation(options.queryKey);
+	const bulkRemoveTag = useBulkRemoveTagMutation(options.queryKey);
+	const bulkSetDueDate = useBulkSetDueDateMutation(options.queryKey);
 
 	return {
 		rows: data.rows,
@@ -62,5 +72,10 @@ export function useVisibleTree(
 		add,
 		addAfter,
 		loadMore,
+		bulkRemove,
+		bulkMove,
+		bulkAddTag,
+		bulkRemoveTag,
+		bulkSetDueDate,
 	};
 }

@@ -6,6 +6,8 @@ import { twMerge } from "tailwind-merge";
 import type { OutlinerLabels } from "../labels-context";
 import { setBlockType } from "../lexical/lexical-content";
 import type { VisibleTree } from "../tree-types";
+import { BulkActionsBar } from "./bulk-actions-bar";
+import { SelectionMarquee } from "./selection-marquee";
 import type { VirtualTreeProps } from "./types";
 import type { useTreeInteractions } from "./use-tree-interactions";
 import { VirtualTreeRow } from "./virtual-tree-row";
@@ -43,6 +45,15 @@ export function VirtualTreeView({
 	onExitEdit,
 	onConvert,
 	onToggleTask,
+	selection,
+	onRowSelect,
+	marqueeRect,
+	onMarqueePointerDown,
+	onBulkMoveDrop,
+	onBulkRemove,
+	onBulkAddTag,
+	onBulkRemoveTag,
+	onBulkSetDueDate,
 }: Pick<
 	VirtualTreeProps,
 	| "indentSize"
@@ -76,9 +87,22 @@ export function VirtualTreeView({
 	onExitEdit: Interactions["handleExitEdit"];
 	onConvert: Interactions["handleConvert"];
 	onToggleTask: Interactions["handleToggleTask"];
+	selection: Interactions["selection"];
+	onRowSelect: Interactions["handleRowSelect"];
+	marqueeRect: Interactions["marqueeRect"];
+	onMarqueePointerDown: Interactions["onMarqueePointerDown"];
+	onBulkMoveDrop: Interactions["handleBulkMoveDrop"];
+	onBulkRemove: Interactions["handleBulkRemove"];
+	onBulkAddTag: Interactions["handleBulkAddTag"];
+	onBulkRemoveTag: Interactions["handleBulkRemoveTag"];
+	onBulkSetDueDate: Interactions["handleBulkSetDueDate"];
 }) {
 	return (
-		<div ref={scrollRef} className={twMerge("h-dvh overflow-auto", className)}>
+		<div
+			ref={scrollRef}
+			onPointerDown={onMarqueePointerDown}
+			className={twMerge("h-dvh overflow-auto", className)}
+		>
 			<div
 				className={twMerge("max-w-6xl mx-auto px-4 py-16", contentClassName)}
 			>
@@ -142,6 +166,11 @@ export function VirtualTreeView({
 									onFocusNext={() => onFocusNeighbor(row.id, 1)}
 									onFocusPrevious={() => onFocusNeighbor(row.id, -1)}
 									onMoveDrop={onMoveDrop}
+									onBulkMoveDrop={onBulkMoveDrop}
+									selectedIds={selection.selectedIds}
+									selected={selection.selectedIds.has(row.id)}
+									onSelect={onRowSelect}
+									onClearSelection={selection.clear}
 								/>
 							);
 						})}
@@ -155,6 +184,16 @@ export function VirtualTreeView({
 					{labels.addNode}
 				</Button>
 			</div>
+			<SelectionMarquee rect={marqueeRect} />
+			<BulkActionsBar
+				count={selection.selectedIds.size}
+				existingTags={existingTags}
+				onAddTag={onBulkAddTag}
+				onRemoveTag={onBulkRemoveTag}
+				onSetDueDate={onBulkSetDueDate}
+				onDelete={onBulkRemove}
+				onClear={selection.clear}
+			/>
 		</div>
 	);
 }

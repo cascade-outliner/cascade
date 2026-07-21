@@ -53,6 +53,16 @@ export interface OutlinerLabels {
 	filtersHideCompleted: string;
 	filtersRemoveHideCompleted: string;
 	filtersClear: string;
+	selectionCount: (count: number) => string;
+	clearSelection: string;
+	bulkTagsTrigger: string;
+	bulkTagInputPlaceholder: string;
+	bulkAddTagAction: string;
+	bulkRemoveTagAction: string;
+	bulkDueDateTrigger: string;
+	bulkDeleteTrigger: string;
+	bulkDeleteConfirmTitle: (count: number) => string;
+	bulkDeleteConfirmBody: string;
 }
 
 export const defaultOutlinerLabels: OutlinerLabels = {
@@ -115,6 +125,17 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	filtersHideCompleted: "Hide completed",
 	filtersRemoveHideCompleted: "Remove Hide completed filter",
 	filtersClear: "Clear filters",
+	selectionCount: (count) => `${count} selected`,
+	clearSelection: "Clear selection",
+	bulkTagsTrigger: "Tag selection",
+	bulkTagInputPlaceholder: "Tag name…",
+	bulkAddTagAction: "Add",
+	bulkRemoveTagAction: "Remove",
+	bulkDueDateTrigger: "Set due date for selection",
+	bulkDeleteTrigger: "Delete selection",
+	bulkDeleteConfirmTitle: (count) => `Delete ${count} nodes?`,
+	bulkDeleteConfirmBody:
+		"Deletes each selected node and its children. This can't be undone.",
 };
 
 const OutlinerLabelsContext = createContext<OutlinerLabels | null>(null);

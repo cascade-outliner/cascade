@@ -1,11 +1,16 @@
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FocusPoint } from "../node-editor";
 import { defaultTypedMetadata, type NodeTypeName } from "../node-types";
 import type { VisibleTree } from "../tree-types";
 import { findNodeRow } from "./node-rows";
 import type { VirtualTreeProps } from "./types";
+import { useMarqueeSelection } from "./use-marquee-selection";
+import {
+	useEscapeClearsSelection,
+	useNodeSelection,
+} from "./use-node-selection";
 import {
 	findIndentTarget,
 	findMoveDownTarget,
@@ -151,6 +156,49 @@ export function useTreeInteractions(
 	const handleToggleTask = (id: string, completed: boolean) =>
 		tree.setType(id, { type: "task", metadata: { completed } });
 
+	const selection = useNodeSelection(tree.rows);
+	useEscapeClearsSelection(selection.selectedIds.size > 0, selection.clear);
+
+	const handleRowSelect = (id: string, mode: "toggle" | "range") => {
+		if (mode === "range") selection.selectRange(id);
+		else selection.toggle(id);
+	};
+
+	const handleMarqueeSelect = useCallback(
+		(ids: string[]) => selection.replace(ids),
+		[selection.replace],
+	);
+	const { marqueeRect, onPointerDown: onMarqueePointerDown } =
+		useMarqueeSelection({
+			containerRef: scrollRef,
+			onSelect: handleMarqueeSelect,
+		});
+
+	const handleBulkMoveDrop = (draggedIds: string[], target: MoveTarget) => {
+		tree.bulkMove(draggedIds, target);
+		selection.clear();
+	};
+
+	const handleBulkRemove = () => {
+		tree.bulkRemove([...selection.selectedIds]);
+		selection.clear();
+	};
+
+	const handleBulkAddTag = (tag: string) => {
+		tree.bulkAddTag([...selection.selectedIds], tag);
+		selection.clear();
+	};
+
+	const handleBulkRemoveTag = (tag: string) => {
+		tree.bulkRemoveTag([...selection.selectedIds], tag);
+		selection.clear();
+	};
+
+	const handleBulkSetDueDate = (date: Date | null) => {
+		tree.bulkSetDueDate([...selection.selectedIds], date);
+		selection.clear();
+	};
+
 	return {
 		scrollRef,
 		virtualizer,
@@ -170,5 +218,14 @@ export function useTreeInteractions(
 		handleExitEdit,
 		handleConvert,
 		handleToggleTask,
+		selection,
+		handleRowSelect,
+		marqueeRect,
+		onMarqueePointerDown,
+		handleBulkMoveDrop,
+		handleBulkRemove,
+		handleBulkAddTag,
+		handleBulkRemoveTag,
+		handleBulkSetDueDate,
 	};
 }

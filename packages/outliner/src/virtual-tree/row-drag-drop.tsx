@@ -15,6 +15,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { twMerge } from "tailwind-merge";
 import { NodeDragHandle } from "../node-drag-handle";
 import { NodeDropIndicator } from "../node-drop-indicator";
 import type { VisibleNodeRow } from "../node-types";
@@ -26,11 +27,23 @@ interface RowDragAndDropProps {
 	rows: VisibleNodeRow[];
 	indentSize: number;
 	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
+	/** Invoked instead of `onMoveDrop` when the dragged row is part of a
+	 * multi-row selection, moving the whole selection together. Falls back to
+	 * `onMoveDrop` on just the dragged row if omitted. */
+	onBulkMoveDrop?: (draggedIds: string[], target: MoveTarget) => void;
+	/** Rows currently multi-selected; dragging a selected row (with more than
+	 * one row selected) carries the whole selection instead of just itself. */
+	selectedIds: Set<string>;
+	selected: boolean;
+	onSelect: (id: string, mode: "toggle" | "range") => void;
+	onClearSelection: () => void;
 	children: ReactNode;
 }
 
 type DragData = Record<string, unknown> & {
-	nodeId: string;
+	/** Every id being dragged, in flat-row order — length 1 for an
+	 * unselected row, or the whole selection when dragging a selected one. */
+	nodeIds: string[];
 };
 
 /** True when `id` is `sourceId` itself or a visible descendant of it. */
@@ -44,11 +57,21 @@ function isInSubtree(rows: VisibleNodeRow[], sourceId: string, id: string) {
 	return false;
 }
 
+/** Elements inside a row that should absorb their own click instead of
+ * triggering select-on-modifier-click (e.g. the tag/due-date pills' own
+ * popovers, or the drag handle itself). */
+const ROW_INTERACTIVE_SELECTOR = "button, a, [contenteditable]";
+
 export function RowDragAndDrop({
 	row,
 	rows,
 	indentSize,
 	onMoveDrop,
+	onBulkMoveDrop,
+	selectedIds,
+	selected,
+	onSelect,
+	onClearSelection,
 	children,
 }: RowDragAndDropProps) {
 	const rowRef = useRef<HTMLDivElement>(null);
@@ -60,9 +83,23 @@ export function RowDragAndDrop({
 	// stay current across every render. Assigning it in a layout effect (not
 	// inline during render) keeps this component compatible with React
 	// Compiler, which forbids ref writes during render.
-	const latest = useRef({ row, rows, onMoveDrop, indentSize });
+	const latest = useRef({
+		row,
+		rows,
+		onMoveDrop,
+		onBulkMoveDrop,
+		selectedIds,
+		indentSize,
+	});
 	useLayoutEffect(() => {
-		latest.current = { row, rows, onMoveDrop, indentSize };
+		latest.current = {
+			row,
+			rows,
+			onMoveDrop,
+			onBulkMoveDrop,
+			selectedIds,
+			indentSize,
+		};
 	});
 
 	useEffect(() => {
@@ -76,13 +113,23 @@ export function RowDragAndDrop({
 			draggable({
 				element: rowElement,
 				dragHandle: handle,
-				getInitialData: (): DragData => ({ nodeId: id }),
+				getInitialData: (): DragData => {
+					const { rows: currentRows, selectedIds: currentSelection } =
+						latest.current;
+					const nodeIds =
+						currentSelection.has(id) && currentSelection.size > 1
+							? currentRows
+									.filter((r) => currentSelection.has(r.id))
+									.map((r) => r.id)
+							: [id];
+					return { nodeIds };
+				},
 			}),
 			dropTargetForElements({
 				element: rowElement,
 				canDrop: ({ source }) => {
-					const dragged = (source.data as DragData).nodeId;
-					return !isInSubtree(latest.current.rows, dragged, id);
+					const dragged = (source.data as DragData).nodeIds;
+					return !dragged.some((d) => isInSubtree(latest.current.rows, d, id));
 				},
 				getData: ({ input, element }) => {
 					const { row: current, indentSize } = latest.current;
@@ -107,19 +154,28 @@ export function RowDragAndDrop({
 				onDragLeave: () => setInstruction(null),
 				onDrop: ({ self, source }) => {
 					setInstruction(null);
-					const dragged = (source.data as DragData).nodeId;
+					const dragged = (source.data as DragData).nodeIds;
 					const inst = extractInstruction(self.data);
 					const {
 						row: current,
 						rows: allRows,
-						onMoveDrop: drop,
+						onMoveDrop: dropOne,
+						onBulkMoveDrop: dropMany,
 					} = latest.current;
-					if (!inst || inst.type === "instruction-blocked" || dragged === id) {
+					if (
+						!inst ||
+						inst.type === "instruction-blocked" ||
+						dragged.includes(id)
+					) {
 						return;
 					}
+					const drop = (target: MoveTarget) => {
+						if (dragged.length > 1 && dropMany) dropMany(dragged, target);
+						else dropOne(dragged[0], target);
+					};
 
 					if (inst.type === "reorder-above") {
-						drop(dragged, {
+						drop({
 							position: "before",
 							targetId: id,
 							parentId: current.parentId,
@@ -133,20 +189,20 @@ export function RowDragAndDrop({
 							firstChild?.parentId === id
 						) {
 							// Dropping below an expanded parent means "first child".
-							drop(dragged, {
+							drop({
 								position: "before",
 								targetId: firstChild.id,
 								parentId: id,
 							});
 						} else {
-							drop(dragged, {
+							drop({
 								position: "after",
 								targetId: id,
 								parentId: current.parentId,
 							});
 						}
 					} else if (inst.type === "make-child") {
-						drop(dragged, { position: "append", parentId: id });
+						drop({ position: "append", parentId: id });
 					}
 				},
 			}),
@@ -157,7 +213,30 @@ export function RowDragAndDrop({
 		<div
 			ref={rowRef}
 			{...{ [NODE_ROW_ATTRIBUTE]: row.id }}
-			className="group/node py-1 flex items-center gap-2 relative rounded-md has-data-popup-open:bg-accent/25 has-data-popup-open:ring-1 has-data-popup-open:ring-inset has-data-popup-open:ring-accent/60"
+			onMouseDownCapture={(e) => {
+				// Dragging always starts from the handle: leave it alone so
+				// starting a drag on a selected row (with the selection intact)
+				// can carry the whole selection, instead of this handler dropping
+				// the selection out from under it before dragstart even fires.
+				if (handleRef.current?.contains(e.target as Node)) return;
+
+				const modifier = e.ctrlKey || e.metaKey || e.shiftKey;
+				if (!modifier) {
+					// A plain click while something is selected drops the selection
+					// but doesn't otherwise interfere with the row's normal click
+					// behavior (starting edit, toggling expand, etc).
+					if (selectedIds.size > 0) onClearSelection();
+					return;
+				}
+				if ((e.target as HTMLElement).closest(ROW_INTERACTIVE_SELECTOR)) return;
+				e.preventDefault();
+				e.stopPropagation();
+				onSelect(row.id, e.shiftKey ? "range" : "toggle");
+			}}
+			className={twMerge(
+				"group/node py-1 flex items-center gap-2 relative rounded-md has-data-popup-open:bg-accent/25 has-data-popup-open:ring-1 has-data-popup-open:ring-inset has-data-popup-open:ring-accent/60",
+				selected && "bg-accent/15 ring-1 ring-inset ring-accent/50",
+			)}
 		>
 			<div style={{ paddingLeft: row.depth * indentSize }} />
 			<NodeDropIndicator instruction={instruction} />

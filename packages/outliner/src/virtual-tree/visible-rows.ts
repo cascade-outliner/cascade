@@ -107,6 +107,21 @@ export function removeSubtree(
 	return recomputeIsLastChild(out);
 }
 
+/**
+ * Delete every id (and its visible descendants) in a multi-selection. A
+ * selection may contain both a node and its own descendant; once the
+ * ancestor's turn removes the whole slice, the descendant's own turn through
+ * the loop is a no-op (`subtreeRange` returns null for an id no longer in
+ * `rows`), so no dedup pass is needed first — this mirrors the server's
+ * `bulkDeleteNodes`, which relies on the same cascade-tolerant looping.
+ */
+export function removeSubtrees(
+	rows: VisibleNodeRow[],
+	ids: string[],
+): VisibleNodeRow[] {
+	return ids.reduce((acc, id) => removeSubtree(acc, id), rows);
+}
+
 /** Append a freshly created root node to the end of the flat list. */
 export function appendRow(
 	rows: VisibleNodeRow[],
@@ -294,4 +309,44 @@ export function moveSubtree(
 		out = patchRow(out, oldParentId, { hasChildren: false, expanded: false });
 	}
 	return recomputeIsLastChild(out);
+}
+
+/**
+ * Move a whole multi-selection to one destination, mirroring the server's
+ * `bulkMoveNodes`. A parent and its own descendant can both be selected;
+ * moving the parent already carries the descendant along (its `parentId`
+ * doesn't change), so only "top-level" ids — those whose parent isn't also
+ * selected — get an explicit move. They're moved in their current top-to-
+ * bottom order, each placed right after the previous one, so the
+ * selection's relative order is preserved at the destination.
+ */
+export function bulkMoveSubtrees(
+	rows: VisibleNodeRow[],
+	ids: string[],
+	target: MoveTarget,
+): VisibleNodeRow[] {
+	const idSet = new Set(ids);
+	const indexById = new Map(rows.map((r, i) => [r.id, i]));
+	const topLevelIds = ids
+		.filter((id) => {
+			const row = rows.find((r) => r.id === id);
+			return row ? !idSet.has(row.parentId ?? "") : false;
+		})
+		.sort((a, b) => (indexById.get(a) ?? 0) - (indexById.get(b) ?? 0));
+
+	let out = rows;
+	let previousId: string | null = null;
+	for (const id of topLevelIds) {
+		const step: MoveTarget =
+			previousId === null
+				? target
+				: {
+						position: "after",
+						targetId: previousId,
+						parentId: target.parentId,
+					};
+		out = moveSubtree(out, id, step);
+		previousId = id;
+	}
+	return out;
 }

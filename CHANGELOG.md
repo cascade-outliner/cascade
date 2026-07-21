@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-21
+- You can now select multiple nodes at once — drag across the tree like a canvas, or ctrl/cmd-click and shift-click individual rows — and apply an action to the whole selection: delete, add/remove a tag, set a due date, or drag the selection together to reparent/reorder it in one move. A floating toolbar appears while anything is selected; Escape or finishing an action clears it. [#288](https://github.com/Patrickroelofs/cascade/issues/288)
 - The "Convert into" node context menu action now also converts a node's text into a heading (Heading 1 through Heading 6) or back into a plain paragraph, alongside the existing Text/Task options. [#351](https://github.com/Patrickroelofs/cascade/issues/351)
 - Fixed `moveNode` silently corrupting sibling order when moving a node "before" or "after" a target that wasn't actually a child of the destination parent (e.g. a stale target after a concurrent move); it now rejects the move instead. [#292](https://github.com/Patrickroelofs/cascade/issues/292)
 - Nesting is now unbounded: trees deeper than 64 levels used to render incompletely, and moving a node more than 64 levels below itself could silently corrupt the tree into a cycle. Both are fixed — depth has no cap and the "can't move into your own subtree" check now catches this at any depth. [#321](https://github.com/Patrickroelofs/cascade/issues/321)

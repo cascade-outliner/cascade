@@ -16,6 +16,7 @@ import {
 	desc,
 	eq,
 	gt,
+	inArray,
 	isNull,
 	like,
 	lt,
@@ -26,7 +27,10 @@ import { z } from "zod";
 import { nodeColumns } from "@/core/nodes/node.queries";
 import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
 import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
-import { setNodeTagsInputSchema } from "@/core/nodes/tag-name-schema";
+import {
+	setNodeTagsInputSchema,
+	tagNameSchema,
+} from "@/core/nodes/tag-name-schema";
 import { db } from "@/db";
 import { authed } from "@/orpc/context";
 import {
@@ -356,6 +360,22 @@ export const setNodeDueDate = authed
 		if (updated.length === 0) throw errors.NOT_FOUND();
 	});
 
+export const bulkSetNodeDueDate = authed
+	.input(
+		z.object({
+			ids: z.array(z.string()).min(1),
+			dueDate: dueDateSchema.nullable(),
+		}),
+	)
+	.handler(async ({ input, context }) => {
+		await db
+			.update(nodes)
+			.set({ dueDate: input.dueDate })
+			.where(
+				and(eq(nodes.userId, context.user.id), inArray(nodes.id, input.ids)),
+			);
+	});
+
 /** This user's tags with how many nodes each is on, sorted by name. */
 export const listTags = authed.handler(async ({ context }) => {
 	return await db
@@ -460,6 +480,111 @@ const moveNodeInput = z.discriminatedUnion("position", [
 	z.object({ ...moveNodeBase, position: z.literal("append") }),
 ]);
 
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+type MoveErrors = {
+	NOT_FOUND: () => unknown;
+	INVALID_MOVE: (opts?: { message?: string }) => unknown;
+};
+
+/**
+ * Core of a single reparent/reorder: validates the destination and
+ * recomputes the moved node's fractional index. Shared by `moveNode` (one
+ * id) and `bulkMoveNodes` (a chain of ids moved to the same destination) —
+ * both acquire the per-user advisory lock once for the whole batch before
+ * calling this per id.
+ */
+async function moveOneNode(
+	tx: Tx,
+	userId: string,
+	input: z.infer<typeof moveNodeInput>,
+	errors: MoveErrors,
+) {
+	const [moved] = await tx
+		.select({ id: nodes.id })
+		.from(nodes)
+		.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
+		.for("update");
+	if (!moved) throw errors.NOT_FOUND();
+
+	if (input.parentId) {
+		// The anchor also verifies the target parent exists and belongs to
+		// this user; an empty result means it doesn't.
+		const ancestors = (await tx.execute(sql`
+			WITH RECURSIVE ancestors AS (
+				SELECT id, parent_id FROM nodes
+				WHERE id = ${input.parentId} AND user_id = ${userId}
+				UNION ALL
+				SELECT n.id, n.parent_id FROM nodes n
+				JOIN ancestors a ON n.id = a.parent_id
+				WHERE n.user_id = ${userId}
+			)
+			SELECT id FROM ancestors
+		`)) as unknown as { id: string }[];
+		if (ancestors.length === 0) throw errors.NOT_FOUND();
+		if (ancestors.some((a) => a.id === input.id)) {
+			throw errors.INVALID_MOVE({
+				message: "Cannot move a node into its own subtree",
+			});
+		}
+	}
+
+	const parentFilter = and(
+		eq(nodes.userId, userId),
+		input.parentId === null
+			? isNull(nodes.parentId)
+			: eq(nodes.parentId, input.parentId),
+	);
+
+	let before: string | null = null;
+	let after: string | null = null;
+
+	if (input.position === "append") {
+		const [last] = await tx
+			.select({ order: nodes.order })
+			.from(nodes)
+			.where(parentFilter)
+			.orderBy(desc(nodes.order))
+			.limit(1);
+		before = last?.order ?? null;
+	} else {
+		const [target] = await tx
+			.select({ order: nodes.order })
+			.from(nodes)
+			.where(and(parentFilter, eq(nodes.id, input.targetId)))
+			.limit(1)
+			.for("update");
+		if (!target) {
+			throw errors.INVALID_MOVE({ message: "Move target not found" });
+		}
+		if (input.position === "before") {
+			const [prev] = await tx
+				.select({ order: nodes.order })
+				.from(nodes)
+				.where(and(parentFilter, lt(nodes.order, target.order)))
+				.orderBy(desc(nodes.order))
+				.limit(1);
+			before = prev?.order ?? null;
+			after = target.order;
+		} else {
+			const [next] = await tx
+				.select({ order: nodes.order })
+				.from(nodes)
+				.where(and(parentFilter, gt(nodes.order, target.order)))
+				.orderBy(asc(nodes.order))
+				.limit(1);
+			before = target.order;
+			after = next?.order ?? null;
+		}
+	}
+
+	const order = generateKeyBetween(before, after);
+	await tx
+		.update(nodes)
+		.set({ parentId: input.parentId, order })
+		.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
+}
+
 export const moveNode = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
@@ -472,90 +597,81 @@ export const moveNode = authed
 			await tx.execute(
 				sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
 			);
+			await moveOneNode(tx, userId, input, errors);
+		});
+	});
 
-			const [moved] = await tx
-				.select({ id: nodes.id })
-				.from(nodes)
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
-				.for("update");
-			if (!moved) throw errors.NOT_FOUND();
+const bulkMoveNodeBase = {
+	ids: z.array(z.string()).min(1),
+	parentId: z.string().nullable(),
+};
 
-			if (input.parentId) {
-				// The anchor also verifies the target parent exists and belongs to
-				// this user; an empty result means it doesn't.
-				const ancestors = (await tx.execute(sql`
-					WITH RECURSIVE ancestors AS (
-						SELECT id, parent_id FROM nodes
-						WHERE id = ${input.parentId} AND user_id = ${userId}
-						UNION ALL
-						SELECT n.id, n.parent_id FROM nodes n
-						JOIN ancestors a ON n.id = a.parent_id
-						WHERE n.user_id = ${userId}
-					)
-					SELECT id FROM ancestors
-				`)) as unknown as { id: string }[];
-				if (ancestors.length === 0) throw errors.NOT_FOUND();
-				if (ancestors.some((a) => a.id === input.id)) {
-					throw errors.INVALID_MOVE({
-						message: "Cannot move a node into its own subtree",
-					});
-				}
-			}
+const bulkMoveNodeInput = z.discriminatedUnion("position", [
+	z.object({
+		...bulkMoveNodeBase,
+		position: z.literal("before"),
+		targetId: z.string(),
+	}),
+	z.object({
+		...bulkMoveNodeBase,
+		position: z.literal("after"),
+		targetId: z.string(),
+	}),
+	z.object({ ...bulkMoveNodeBase, position: z.literal("append") }),
+]);
 
-			const parentFilter = and(
-				eq(nodes.userId, userId),
-				input.parentId === null
-					? isNull(nodes.parentId)
-					: eq(nodes.parentId, input.parentId),
+/**
+ * Reparents/reorders a whole selection to one destination in a single
+ * transaction. A parent and its own descendant can both be selected; moving
+ * the parent already carries the descendant along (its `parent_id` doesn't
+ * change), so only "top-level" ids — those whose parent isn't also in the
+ * selection — get an explicit move. The remaining ids are moved as a chain,
+ * each placed right after the previous one, so the selection's relative
+ * order (the order `ids` arrives in, already depth-first) is preserved at
+ * the destination.
+ */
+export const bulkMoveNodes = authed
+	.errors({
+		NOT_FOUND: { status: 404, message: "Node not found" },
+		INVALID_MOVE: { status: 422, message: "Invalid move operation" },
+	})
+	.input(bulkMoveNodeInput)
+	.handler(async ({ input, context, errors }) => {
+		const userId = context.user.id;
+		await db.transaction(async (tx) => {
+			await tx.execute(
+				sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
 			);
 
-			let before: string | null = null;
-			let after: string | null = null;
+			const idSet = new Set(input.ids);
+			const owned = await tx
+				.select({ id: nodes.id, parentId: nodes.parentId })
+				.from(nodes)
+				.where(and(eq(nodes.userId, userId), inArray(nodes.id, input.ids)));
+			const parentById = new Map(owned.map((n) => [n.id, n.parentId]));
+			const topLevelIds = input.ids.filter(
+				(id) => !idSet.has(parentById.get(id) ?? ""),
+			);
 
-			if (input.position === "append") {
-				const [last] = await tx
-					.select({ order: nodes.order })
-					.from(nodes)
-					.where(parentFilter)
-					.orderBy(desc(nodes.order))
-					.limit(1);
-				before = last?.order ?? null;
-			} else {
-				const [target] = await tx
-					.select({ order: nodes.order })
-					.from(nodes)
-					.where(and(parentFilter, eq(nodes.id, input.targetId)))
-					.limit(1)
-					.for("update");
-				if (!target) {
-					throw errors.INVALID_MOVE({ message: "Move target not found" });
-				}
-				if (input.position === "before") {
-					const [prev] = await tx
-						.select({ order: nodes.order })
-						.from(nodes)
-						.where(and(parentFilter, lt(nodes.order, target.order)))
-						.orderBy(desc(nodes.order))
-						.limit(1);
-					before = prev?.order ?? null;
-					after = target.order;
-				} else {
-					const [next] = await tx
-						.select({ order: nodes.order })
-						.from(nodes)
-						.where(and(parentFilter, gt(nodes.order, target.order)))
-						.orderBy(asc(nodes.order))
-						.limit(1);
-					before = target.order;
-					after = next?.order ?? null;
-				}
+			let previousId: string | null = null;
+			for (const id of topLevelIds) {
+				const target =
+					previousId === null
+						? input.position === "append"
+							? { position: "append" as const, parentId: input.parentId }
+							: {
+									position: input.position,
+									parentId: input.parentId,
+									targetId: input.targetId,
+								}
+						: {
+								position: "after" as const,
+								parentId: input.parentId,
+								targetId: previousId,
+							};
+				await moveOneNode(tx, userId, { id, ...target }, errors);
+				previousId = id;
 			}
-
-			const order = generateKeyBetween(before, after);
-			await tx
-				.update(nodes)
-				.set({ parentId: input.parentId, order })
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
 		});
 	});
 
@@ -576,6 +692,106 @@ export const deleteNode = authed
 		`)) as unknown as { count: number }[];
 
 		return { childrenDeleted: result?.count ?? 0 };
+	});
+
+/**
+ * Deletes every id in one transaction, reusing `deleteNode`'s per-id
+ * cascade-count query. A selection may include both a node and its own
+ * descendant; deleting the ancestor first already cascades to the
+ * descendant, so its own explicit delete just affects 0 rows — no dedup
+ * needed before looping.
+ */
+export const bulkDeleteNodes = authed
+	.input(z.object({ ids: z.array(z.string()).min(1) }))
+	.handler(async ({ input, context }) => {
+		const userId = context.user.id;
+		let childrenDeleted = 0;
+		await db.transaction(async (tx) => {
+			for (const id of input.ids) {
+				const [result] = (await tx.execute(sql`
+					WITH RECURSIVE descendants AS (
+						SELECT id FROM nodes WHERE parent_id = ${id} AND user_id = ${userId}
+						UNION ALL
+						SELECT c.id FROM nodes c
+						JOIN descendants d ON c.parent_id = d.id
+						WHERE c.user_id = ${userId}
+					)
+					DELETE FROM nodes WHERE id = ${id} AND user_id = ${userId}
+					RETURNING (SELECT count(*) FROM descendants)::int AS count
+				`)) as unknown as { count: number }[];
+				childrenDeleted += result?.count ?? 0;
+			}
+		});
+		return { childrenDeleted };
+	});
+
+/**
+ * Adds one tag to every id in the selection, on top of whatever tags each
+ * node already has (unlike `setNodeTags`, which replaces a single node's
+ * whole tag list).
+ */
+export const bulkAddTag = authed
+	.input(z.object({ ids: z.array(z.string()).min(1), tag: tagNameSchema }))
+	.handler(async ({ input, context }) => {
+		const userId = context.user.id;
+		const [name] = normalizeTags([input.tag]);
+		if (!name) return;
+
+		await db.transaction(async (tx) => {
+			const owned = await tx
+				.select({ id: nodes.id })
+				.from(nodes)
+				.where(and(eq(nodes.userId, userId), inArray(nodes.id, input.ids)));
+			if (owned.length === 0) return;
+
+			// onConflictDoUpdate (no-op set) so RETURNING also yields the id for a
+			// tag that already existed, not just a newly-inserted one.
+			const [tag] = await tx
+				.insert(tagsTable)
+				.values({ userId, name })
+				.onConflictDoUpdate({
+					target: [tagsTable.userId, tagsTable.name],
+					set: { name: sql`excluded.name` },
+				})
+				.returning({ id: tagsTable.id });
+
+			await tx
+				.insert(nodeTags)
+				.values(owned.map((n) => ({ nodeId: n.id, tagId: tag.id })))
+				.onConflictDoNothing();
+		});
+	});
+
+/** Removes one tag from every id in the selection, leaving their other tags untouched. */
+export const bulkRemoveTag = authed
+	.input(z.object({ ids: z.array(z.string()).min(1), tag: tagNameSchema }))
+	.handler(async ({ input, context }) => {
+		const userId = context.user.id;
+		const [name] = normalizeTags([input.tag]);
+		if (!name) return;
+
+		const [tag] = await db
+			.select({ id: tagsTable.id })
+			.from(tagsTable)
+			.where(and(eq(tagsTable.userId, userId), eq(tagsTable.name, name)))
+			.limit(1);
+		if (!tag) return;
+
+		const owned = await db
+			.select({ id: nodes.id })
+			.from(nodes)
+			.where(and(eq(nodes.userId, userId), inArray(nodes.id, input.ids)));
+		if (owned.length === 0) return;
+
+		await db.delete(nodeTags).where(
+			and(
+				eq(nodeTags.tagId, tag.id),
+				inArray(
+					nodeTags.nodeId,
+					owned.map((n) => n.id),
+				),
+			),
+		);
 	});
 
 export const updateNodeContent = authed
