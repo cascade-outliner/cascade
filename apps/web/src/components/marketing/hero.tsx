@@ -1,11 +1,23 @@
-import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { Button } from "@cascade/ui/button";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { HouseIcon } from "@phosphor-icons/react/ssr";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { appRegisterUrl } from "#/lib/app-url";
 import { useDemoTree } from "#/lib/use-demo-tree";
 import { m } from "#/paraglide/messages.js";
+
+const VirtualTree = lazy(() =>
+	import("@cascade/outliner/virtual-tree").then((mod) => ({
+		default: mod.VirtualTree,
+	})),
+);
+
+const demoTreeClassName =
+	"mt-10 h-[420px] overflow-auto rounded-2xl border border-ink/10 bg-white text-left shadow-lg shadow-ink/10";
+
+function DemoTreeSkeleton() {
+	return <div aria-hidden className={`${demoTreeClassName} animate-pulse`} />;
+}
 
 function DemoBreadcrumbs({
 	ancestors,
@@ -78,28 +90,30 @@ export function Hero() {
 				</Button>
 				<p className="text-sm text-muted">{m.hero_demo_hint()}</p>
 			</div>
-			<VirtualTree
-				tree={tree}
-				indentSize={16}
-				renderNodeLink={({ id }) => (
-					<button
-						type="button"
-						aria-label={m.hero_demo_open_node()}
-						onClick={() => setRootId(id)}
-						className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-ink hover:bg-danger shrink-0 hover:scale-150 hover:-z-10 transition-all ease-in-out"
-					/>
-				)}
-				header={
-					rootId !== null ? (
-						<DemoBreadcrumbs
-							ancestors={tree.ancestors}
-							onNavigate={setRootId}
+			<Suspense fallback={<DemoTreeSkeleton />}>
+				<VirtualTree
+					tree={tree}
+					indentSize={16}
+					renderNodeLink={({ id }) => (
+						<button
+							type="button"
+							aria-label={m.hero_demo_open_node()}
+							onClick={() => setRootId(id)}
+							className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-ink hover:bg-danger shrink-0 hover:scale-150 hover:-z-10 transition-all ease-in-out"
 						/>
-					) : undefined
-				}
-				className="mt-10 h-[420px] overflow-auto rounded-2xl border border-ink/10 bg-white text-left shadow-lg shadow-ink/10"
-				contentClassName="max-w-none mx-0 px-6 py-6"
-			/>
+					)}
+					header={
+						rootId !== null ? (
+							<DemoBreadcrumbs
+								ancestors={tree.ancestors}
+								onNavigate={setRootId}
+							/>
+						) : undefined
+					}
+					className={demoTreeClassName}
+					contentClassName="max-w-none mx-0 px-6 py-6"
+				/>
+			</Suspense>
 			<p className="mt-3 text-xs text-muted">{m.hero_demo_footer()}</p>
 		</header>
 	);
