@@ -226,26 +226,26 @@ export function UserSettingsDialog({
 									</div>
 								</div>
 							</div>
-							<Button
-								type="button"
-								size="sm"
-								variant="danger"
-								onClick={onSignOut}
-								icon={<SignOutIcon size={14} weight="bold" />}
-								className="mt-4"
-							>
-								{m.user_menu_sign_out()}
-							</Button>
-							<Button
-								type="button"
-								size="sm"
-								variant="danger"
-								onClick={onOpenDeleteDialog}
-								icon={<TrashIcon size={14} weight="bold" />}
-								className="mt-2"
-							>
-								{m.user_menu_delete_account()}
-							</Button>
+							<div className="mt-4 flex flex-col items-start gap-2">
+								<Button
+									type="button"
+									size="sm"
+									variant="danger"
+									onClick={onSignOut}
+									icon={<SignOutIcon size={14} weight="bold" />}
+								>
+									{m.user_menu_sign_out()}
+								</Button>
+								<Button
+									type="button"
+									size="sm"
+									variant="danger"
+									onClick={onOpenDeleteDialog}
+									icon={<TrashIcon size={14} weight="bold" />}
+								>
+									{m.user_menu_delete_account()}
+								</Button>
+							</div>
 						</Tabs.Panel>
 					</Tabs.Root>
 				</Dialog.Popup>

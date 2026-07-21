@@ -30,36 +30,12 @@ const root = cva({
 
 const spring =
 	"transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+const slide = `${spring} group-hover:translate-x-4.75 group-active:translate-x-4.75`;
 const grow = `${spring} group-hover:scale-[1.05] group-active:scale-[1.05]`;
 
-/**
- * Per-size layout. Small buttons put the icon on the left (mirrored from the
- * default) and travel a much shorter distance on hover so the blob split
- * stays subtle at that scale instead of the icon flying far away.
- */
 const sizes = {
-	md: {
-		height: "h-11",
-		iconBox: "size-11",
-		iconSide: "right" as const,
-		iconInset: "absolute inset-y-0 right-0 w-11",
-		textInset: "absolute inset-y-0 left-0 right-11 origin-right",
-		textOrigin: "origin-right",
-		textPadding: "px-6",
-		text: "font-semibold",
-		slide: `${spring} group-hover:translate-x-4.75 group-active:translate-x-4.75`,
-	},
-	sm: {
-		height: "h-8",
-		iconBox: "size-8",
-		iconSide: "left" as const,
-		iconInset: "absolute inset-y-0 left-0 w-8",
-		textInset: "absolute inset-y-0 left-8 right-0 origin-left",
-		textOrigin: "origin-left",
-		textPadding: "px-4",
-		text: "text-sm font-semibold",
-		slide: `${spring} group-hover:-translate-x-2 group-active:-translate-x-2`,
-	},
+	md: { height: "h-11", textPadding: "px-6", text: "font-semibold" },
+	sm: { height: "h-8", textPadding: "px-4", text: "text-sm font-semibold" },
 };
 
 export interface ButtonProps extends React.ComponentProps<typeof BaseButton> {
@@ -78,45 +54,26 @@ export function Button({
 }: ButtonProps) {
 	const filterId = useId();
 	const bg = variantBg[variant];
-	const {
-		height,
-		iconBox,
-		iconSide,
-		iconInset,
-		textInset,
-		textOrigin,
-		textPadding,
-		text,
-		slide,
-	} = sizes[size];
+	const { height, textPadding, text } = sizes[size];
 
-	if (!icon) {
+	/**
+	 * The blobby goo split needs two separate pieces to pull apart, so it only
+	 * applies to the default size with an icon. Small buttons (and any button
+	 * without an icon) just scale in place.
+	 */
+	if (size !== "md" || !icon) {
 		return (
 			<BaseButton className={root({ variant, className })} {...props}>
 				<span className={`absolute inset-0 rounded-full ${bg} ${grow}`} />
 				<span
-					className={`relative z-10 flex ${height} items-center justify-center ${textPadding} ${text} text-canvas ${grow}`}
+					className={`relative z-10 flex ${height} items-center justify-center gap-2 ${textPadding} ${text} text-canvas ${grow}`}
 				>
 					{children}
+					{icon}
 				</span>
 			</BaseButton>
 		);
 	}
-
-	const iconEl = (
-		<span
-			className={`flex ${iconBox} items-center justify-center text-canvas ${slide}`}
-		>
-			{icon}
-		</span>
-	);
-	const textEl = (
-		<span
-			className={`${textOrigin} ${textPadding} ${text} text-canvas ${grow}`}
-		>
-			{children}
-		</span>
-	);
 
 	return (
 		<BaseButton className={root({ variant, className })} {...props}>
@@ -135,26 +92,24 @@ export function Button({
 				className="absolute inset-0 flex"
 				style={{ filter: `url(#${filterId})` }}
 			>
-				{iconSide === "left" && (
-					<span className={`${iconInset} rounded-full ${bg} ${slide}`} />
-				)}
-				<span className={`${textInset} rounded-full ${bg} ${grow}`} />
-				{iconSide === "right" && (
-					<span className={`${iconInset} rounded-full ${bg} ${slide}`} />
-				)}
+				<span
+					className={`absolute inset-y-0 left-0 right-11 origin-right rounded-full ${bg} ${grow}`}
+				/>
+				<span
+					className={`absolute inset-y-0 right-0 w-11 rounded-full ${bg} ${slide}`}
+				/>
 			</span>
 			<span className={`relative z-10 flex ${height} items-center`}>
-				{iconSide === "left" ? (
-					<>
-						{iconEl}
-						{textEl}
-					</>
-				) : (
-					<>
-						{textEl}
-						{iconEl}
-					</>
-				)}
+				<span
+					className={`origin-right ${textPadding} ${text} text-canvas ${grow}`}
+				>
+					{children}
+				</span>
+				<span
+					className={`flex size-11 items-center justify-center text-canvas ${slide}`}
+				>
+					{icon}
+				</span>
 			</span>
 		</BaseButton>
 	);
