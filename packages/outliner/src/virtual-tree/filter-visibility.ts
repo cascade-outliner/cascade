@@ -13,7 +13,7 @@ import {
 import type { VisibleNodeRow } from "../node-types";
 
 export interface RowVisibility {
-	/** Row ids to hide entirely: not a match, and not on the path to one. */
+	/** Row ids to hide entirely: not a match, and neither an ancestor nor a descendant of one. */
 	hiddenIds: Set<string>;
 	/** Row ids to keep visible but dimmed: a match's ancestors or descendants. */
 	contextIds: Set<string>;
@@ -25,10 +25,11 @@ const emptyVisibility: RowVisibility = {
 };
 
 /**
- * Resolves which rows an active filter set hides. Matches and their ancestor
- * chain stay in the array at their original depth, so indent, outdent, and
- * drag-and-drop keep operating on the same contiguous rows they always have;
- * only rendering treats hidden/context rows differently.
+ * Resolves which rows an active filter set hides. Matches, their ancestor
+ * chain, and their descendants all stay in the array at their original
+ * depth, so indent, outdent, and drag-and-drop keep operating on the same
+ * contiguous rows they always have; only rendering treats hidden/context
+ * rows differently.
  *
  * "Hide completed" is an exclusion rather than a match: completed tasks and
  * their entire subtrees are dropped up front, and any positive filters then
@@ -60,6 +61,7 @@ export function getRowVisibility(
 	// can't be a candidate's ancestor: exclusion always covers whole subtrees.
 	const candidates = rows.filter((row) => !excludedIds.has(row.id));
 	const parentById = new Map(candidates.map((row) => [row.id, row.parentId]));
+	const indexById = new Map(candidates.map((row, index) => [row.id, index]));
 	const matchIds = new Set(
 		candidates
 			.filter((row) => rowMatchesFilters(row, filters))
@@ -77,6 +79,26 @@ export function getRowVisibility(
 		) {
 			contextIds.add(parentId);
 			parentId = parentById.get(parentId) ?? null;
+		}
+	}
+
+	// A match's descendants stay visible as context too, mirroring the
+	// ancestor walk above. `candidates` is depth-first, so a match's
+	// subtree is exactly the contiguous run of rows after it whose depth
+	// is greater than its own.
+	for (const id of matchIds) {
+		const index = indexById.get(id);
+		if (index === undefined) continue;
+		const matchDepth = candidates[index].depth;
+		for (
+			let i = index + 1;
+			i < candidates.length && candidates[i].depth > matchDepth;
+			i++
+		) {
+			const descendantId = candidates[i].id;
+			if (!matchIds.has(descendantId) && !collapsedIds.has(descendantId)) {
+				contextIds.add(descendantId);
+			}
 		}
 	}
 

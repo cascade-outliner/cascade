@@ -155,6 +155,7 @@ export const visibleTree = authed
 								SELECT 1
 								FROM matching_paths m
 								WHERE m.path[1:cardinality(v.path)] = v.path
+									OR v.path[1:cardinality(m.path)] = m.path
 							)`
 							: sql``
 					}
