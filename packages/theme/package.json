@@ -5,6 +5,7 @@
   "exports": {
     ".": "./theme.css",
     "./themes": "./themes.ts",
-    "./fonts": "./fonts.ts"
+    "./fonts": "./fonts.ts",
+    "./font-sizes": "./font-sizes.ts"
   }
 }

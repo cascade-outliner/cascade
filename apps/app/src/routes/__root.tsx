@@ -1,3 +1,4 @@
+import { fontSizeAttribute } from "@cascade/theme/font-sizes";
 import { fontAttribute } from "@cascade/theme/fonts";
 import {
 	isDarkTheme,
@@ -134,6 +135,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			data-theme={themeAttr}
 			data-font={
 				settings.font !== undefined ? fontAttribute(settings.font) : undefined
+			}
+			data-font-size={
+				settings.fontSize !== undefined
+					? fontSizeAttribute(settings.fontSize)
+					: undefined
 			}
 			suppressHydrationWarning
 		>

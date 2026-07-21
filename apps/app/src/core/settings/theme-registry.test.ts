@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { fontSizeAttribute, fontSizes } from "@cascade/theme/font-sizes";
 import { fontAttribute, fonts } from "@cascade/theme/fonts";
 import {
 	darkThemeIds,
@@ -55,9 +56,20 @@ describe("theme registry", () => {
 		}
 	});
 
-	it("uses unique theme and font ids", () => {
+	it("has a CSS font-size block for every non-default font size", () => {
+		for (const fontSize of fontSizes) {
+			const attribute = fontSizeAttribute(fontSize.id);
+			if (attribute === undefined) continue;
+			expect(themeCss).toContain(`[data-font-size="${attribute}"]`);
+		}
+	});
+
+	it("uses unique theme, font, and font size ids", () => {
 		expect(new Set(themes.map((theme) => theme.id)).size).toBe(themes.length);
 		expect(new Set(fonts.map((font) => font.id)).size).toBe(fonts.length);
+		expect(new Set(fontSizes.map((fontSize) => fontSize.id)).size).toBe(
+			fontSizes.length,
+		);
 	});
 
 	it("lets the browser pick default manifest colors", () => {

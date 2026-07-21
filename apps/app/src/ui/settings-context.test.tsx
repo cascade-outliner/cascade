@@ -112,6 +112,7 @@ describe("SettingsProvider", () => {
 		await waitFor(() => {
 			expect(result.current.settings.font).toBe("bitter");
 		});
+		expect(result.current.settings.fontSize).toBe("default");
 		expect(toast.error).not.toHaveBeenCalled();
 		expect(updateMock).not.toHaveBeenCalled();
 	});
