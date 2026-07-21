@@ -11,11 +11,6 @@ import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutati
 import { makeSetRows, patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
 
-/**
- * Fetches every page of a subtree, walking `nextCursor` until exhausted, so
- * expanding a node never silently truncates at the server's per-page limit
- * (see issue #322).
- */
 async function fetchFullSubtree(rootId: string): Promise<VisibleNodeRow[]> {
 	const rows: VisibleNodeRow[] = [];
 	let cursor: string[] | null = null;
