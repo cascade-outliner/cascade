@@ -38,3 +38,13 @@ export const requestPremiumSeat = authed.handler(
 		return readPremiumStatus(context.user.id);
 	},
 );
+
+/** Removes the current user's premium seat immediately. Idempotent. */
+export const revokePremiumSeat = authed.handler(
+	async ({ context }): Promise<PremiumStatus> => {
+		await db
+			.delete(premiumSeats)
+			.where(eq(premiumSeats.userId, context.user.id));
+		return { isPremium: false, grantedAt: null };
+	},
+);

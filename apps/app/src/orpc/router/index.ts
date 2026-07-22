@@ -19,6 +19,7 @@ import {
 import {
 	getPremiumStatus,
 	requestPremiumSeat,
+	revokePremiumSeat,
 } from "@/core/premium/premium.procedures";
 import {
 	getSettings,
@@ -51,5 +52,6 @@ export default {
 	premium: {
 		get: getPremiumStatus,
 		requestSeat: requestPremiumSeat,
+		revokeSeat: revokePremiumSeat,
 	},
 };
