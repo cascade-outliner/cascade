@@ -39,9 +39,10 @@
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-virtual": "^3.14.5",
     "lexical": "^0.46.0",
+    "react-diff-viewer-continued": "^4.4.0",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3",
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": "^4.3.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",

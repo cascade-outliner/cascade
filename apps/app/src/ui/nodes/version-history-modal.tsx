@@ -1,5 +1,5 @@
-import { NodeVersionHistoryDialog } from "@cascade/outliner/features/version-history/node-version-history-dialog";
 import type { QueryKey } from "@tanstack/react-query";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import {
 	useNodeVersions,
@@ -7,6 +7,15 @@ import {
 } from "@/ui/nodes/use-node-versions";
 import { PremiumUpsellNotice } from "@/ui/premium/PremiumUpsellNotice";
 import { usePremiumStatus } from "@/ui/premium/use-premium";
+
+// Dynamically imported (rather than a static import above) because it pulls
+// in react-diff-viewer-continued, which is sizable and only ever needed once
+// someone actually opens history — most page loads shouldn't pay for it.
+const NodeVersionHistoryDialog = lazy(() =>
+	import(
+		"@cascade/outliner/features/version-history/node-version-history-dialog"
+	).then((mod) => ({ default: mod.NodeVersionHistoryDialog })),
+);
 
 /** Wraps the framework-agnostic `NodeVersionHistoryDialog` with this app's
  * oRPC data fetching/mutation, so `NodeTree`/`RootTree` only need to track
@@ -32,25 +41,37 @@ export function VersionHistoryModal({
 	const versions = useNodeVersions(isPremium ? nodeId : null);
 	const { restore, restoringId } = useRestoreNodeVersion(treeQueryKey);
 
+	// The dialog (and the diff-viewer chunk it lazily pulls in) is only ever
+	// mounted starting from the first time it's opened, not on every page
+	// load — once true this never goes back to false, so closing/reopening
+	// afterward doesn't re-trigger the import.
+	const [hasOpened, setHasOpened] = useState(false);
+	useEffect(() => {
+		if (nodeId !== null) setHasOpened(true);
+	}, [nodeId]);
+	if (!hasOpened) return null;
+
 	return (
-		<NodeVersionHistoryDialog
-			open={nodeId !== null}
-			onOpenChange={onOpenChange}
-			locked={
-				premiumStatus !== undefined && !isPremium ? (
-					<PremiumUpsellNotice
-						description={m.premium_gate_version_history_description()}
-					/>
-				) : undefined
-			}
-			versions={versions}
-			onRestore={(versionId) => {
-				if (!nodeId) return;
-				const version = versions?.find((v) => v.id === versionId);
-				if (!version) return;
-				restore(versionId, nodeId, version.content as { root: unknown });
-			}}
-			restoringId={restoringId}
-		/>
+		<Suspense fallback={null}>
+			<NodeVersionHistoryDialog
+				open={nodeId !== null}
+				onOpenChange={onOpenChange}
+				locked={
+					premiumStatus !== undefined && !isPremium ? (
+						<PremiumUpsellNotice
+							description={m.premium_gate_version_history_description()}
+						/>
+					) : undefined
+				}
+				versions={versions}
+				onRestore={(versionId) => {
+					if (!nodeId) return;
+					const version = versions?.find((v) => v.id === versionId);
+					if (!version) return;
+					restore(versionId, nodeId, version.content as { root: unknown });
+				}}
+				restoringId={restoringId}
+			/>
+		</Suspense>
 	);
 }

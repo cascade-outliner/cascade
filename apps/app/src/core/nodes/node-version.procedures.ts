@@ -15,7 +15,9 @@ const MAX_LISTED_TREE_VERSIONS = 200;
 /** Version history is a premium feature (see `requirePremium`); content
  * edits are still snapshotted for every user regardless of seat status
  * (see `updateNodeContent`), so history is already there the moment
- * someone upgrades. */
+ * someone upgrades. `nodeContent` (the node's *current* content, not this
+ * version's) lets the UI diff every entry against what's there now — what
+ * restoring it would actually change. */
 export const listNodeVersions = requirePremium
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
@@ -24,8 +26,10 @@ export const listNodeVersions = requirePremium
 				id: nodeVersions.id,
 				content: nodeVersions.content,
 				createdAt: nodeVersions.createdAt,
+				nodeContent: nodes.content,
 			})
 			.from(nodeVersions)
+			.innerJoin(nodes, eq(nodes.id, nodeVersions.nodeId))
 			.where(
 				and(
 					eq(nodeVersions.nodeId, input.id),
