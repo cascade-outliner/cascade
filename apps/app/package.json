@@ -10,6 +10,7 @@
     "build": "vite build && tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:db": "vitest run --config vitest.db.config.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:perf:ui": "playwright test --config=playwright.perf.config.ts",
