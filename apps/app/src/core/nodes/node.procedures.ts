@@ -668,12 +668,14 @@ interface SubtreeRow {
 }
 
 // Postgres caps a single query at 65535 bind parameters. Chunk size is kept
-// well under that for every query below: the `nodes` insert (9 params/row),
-// the `node_tags` inArray lookup and insert (1-2 params/row), and the
-// eventual `node_tags` insert, so a large duplicated subtree can't blow past
-// the limit and fail the whole transaction (see apps/app/src/db/seed-tree.ts
-// for the same constraint on the interactive/perf seed inserts).
-const DUPLICATE_BATCH_SIZE = 5000;
+// well under that for every batched query in this file: `duplicateNode`'s
+// `nodes` insert (9 params/row) and `node_tags` inArray lookup/insert (1-2
+// params/row), and `deleteNode`/`restoreDeletedSubtree`'s descendant-id
+// inArray updates (1 param/row + a couple of fixed params), so a large
+// subtree can't blow past the limit and fail the whole transaction (see
+// apps/app/src/db/seed-tree.ts for the same constraint on the
+// interactive/perf seed inserts).
+const MAX_BATCH_SIZE = 5000;
 
 function chunk<T>(items: T[], size: number): T[][] {
 	const out: T[][] = [];
@@ -762,13 +764,13 @@ export const duplicateNode = authed
 				order: row.id === input.id ? newOrder : row.order,
 				dueDate: row.due_date,
 			}));
-			for (const batch of chunk(nodeValues, DUPLICATE_BATCH_SIZE)) {
+			for (const batch of chunk(nodeValues, MAX_BATCH_SIZE)) {
 				await tx.insert(nodes).values(batch);
 			}
 
 			const subtreeIds = subtree.map((row) => row.id);
 			const tagRows: { nodeId: string; tagId: string }[] = [];
-			for (const idBatch of chunk(subtreeIds, DUPLICATE_BATCH_SIZE)) {
+			for (const idBatch of chunk(subtreeIds, MAX_BATCH_SIZE)) {
 				tagRows.push(
 					...(await tx
 						.select({ nodeId: nodeTags.nodeId, tagId: nodeTags.tagId })
@@ -780,7 +782,7 @@ export const duplicateNode = authed
 				nodeId: idMap.get(row.nodeId) as string,
 				tagId: row.tagId,
 			}));
-			for (const batch of chunk(tagValues, DUPLICATE_BATCH_SIZE)) {
+			for (const batch of chunk(tagValues, MAX_BATCH_SIZE)) {
 				await tx.insert(nodeTags).values(batch);
 			}
 
@@ -804,37 +806,35 @@ export const duplicateNode = authed
  * keep their real `order` untouched, since nothing can be inserted under an
  * invisible (deleted) parent in the meantime, so there's no collision risk
  * for them to guard against.
+ *
+ * Takes the same per-user advisory lock `createNode`/`moveNode`/
+ * `duplicateNode` do, serializing this against any of them concurrently
+ * reparenting or inserting a node into the subtree being deleted — without
+ * it, a node moved/created under `input.id` after the descendant snapshot
+ * below but before this transaction commits would be silently orphaned
+ * (parented under a deleted node, but never itself marked deleted, so it's
+ * neither visible nor restorable, and would be permanently destroyed by
+ * `parentId`'s cascade delete once the ancestor is eventually purged).
+ *
+ * A no-op (`childrenDeleted: 0`) if the node doesn't exist, isn't owned by
+ * this user, or is already deleted — checked up front, before touching any
+ * descendants, so a repeated delete call can never re-stamp already-deleted
+ * descendants with a fresh `deletedAt`. Re-stamping them would desync their
+ * `deletedAt` from the top node's original instant and break
+ * `restoreDeletedSubtree`'s "restore the whole batch together" matching.
  */
 export const deleteNode = authed
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
 		const userId = context.user.id;
 		return await db.transaction(async (tx) => {
-			const descendantRows = (await tx.execute(sql`
-				WITH RECURSIVE ${descendantsOf(input.id, userId)}
-				SELECT id FROM descendants
-			`)) as unknown as { id: string }[];
+			await tx.execute(
+				sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
+			);
 
-			const deletedAt = new Date();
-
-			if (descendantRows.length > 0) {
-				await tx
-					.update(nodes)
-					.set({ deletedAt })
-					.where(
-						and(
-							inArray(
-								nodes.id,
-								descendantRows.map((row) => row.id),
-							),
-							eq(nodes.userId, userId),
-						),
-					);
-			}
-
-			const updated = await tx
-				.update(nodes)
-				.set({ deletedAt, order: input.id })
+			const [target] = await tx
+				.select({ id: nodes.id })
+				.from(nodes)
 				.where(
 					and(
 						eq(nodes.id, input.id),
@@ -842,11 +842,32 @@ export const deleteNode = authed
 						isNull(nodes.deletedAt),
 					),
 				)
-				.returning({ id: nodes.id });
+				.for("update");
+			if (!target) return { childrenDeleted: 0 };
 
-			return {
-				childrenDeleted: updated.length > 0 ? descendantRows.length : 0,
-			};
+			const descendantRows = (await tx.execute(sql`
+				WITH RECURSIVE ${descendantsOf(input.id, userId)}
+				SELECT id FROM descendants
+			`)) as unknown as { id: string }[];
+
+			const deletedAt = new Date();
+
+			for (const idBatch of chunk(
+				descendantRows.map((row) => row.id),
+				MAX_BATCH_SIZE,
+			)) {
+				await tx
+					.update(nodes)
+					.set({ deletedAt })
+					.where(and(inArray(nodes.id, idBatch), eq(nodes.userId, userId)));
+			}
+
+			await tx
+				.update(nodes)
+				.set({ deletedAt, order: input.id })
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
+
+			return { childrenDeleted: descendantRows.length };
 		});
 	});
 
@@ -923,16 +944,21 @@ export async function restoreDeletedSubtree(
 			SELECT id FROM descendants
 		`)) as unknown as { id: string }[];
 
-		await tx
-			.update(nodes)
-			.set({ deletedAt: null })
-			.where(
-				and(
-					inArray(nodes.id, [nodeId, ...descendantRows.map((row) => row.id)]),
-					eq(nodes.userId, userId),
-					eq(nodes.deletedAt, target.deletedAt),
-				),
-			);
+		for (const idBatch of chunk(
+			[nodeId, ...descendantRows.map((row) => row.id)],
+			MAX_BATCH_SIZE,
+		)) {
+			await tx
+				.update(nodes)
+				.set({ deletedAt: null })
+				.where(
+					and(
+						inArray(nodes.id, idBatch),
+						eq(nodes.userId, userId),
+						eq(nodes.deletedAt, target.deletedAt),
+					),
+				);
+		}
 
 		await tx
 			.update(nodes)

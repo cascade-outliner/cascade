@@ -27,9 +27,11 @@ export function useRemoveMutation(queryKey: QueryKey) {
 						? m.node_deleted_with_children({ count: childrenDeleted })
 						: m.node_deleted(),
 			);
-			// The deleted node (and any descendants) cascade-delete their
-			// node_versions rows too, so any cached version-history entries for
-			// them are now gone.
+			// The delete is a soft-delete, not a cascade — the node's
+			// node_versions survive so its history stays restorable — but its
+			// cached version list is now stale either way (it should show the
+			// "Deleted" badge, and the tree-wide list needs to reflect the node
+			// no longer being live).
 			invalidateVersionHistory(queryClient, id);
 		},
 	});

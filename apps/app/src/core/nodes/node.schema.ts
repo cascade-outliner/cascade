@@ -142,5 +142,12 @@ export const nodeVersions = pgTable(
 	},
 	(t) => [
 		index("node_versions_node_id_created_at_idx").on(t.nodeId, t.createdAt),
+		// Backs `listTreeVersions`' "every version across the whole tree,
+		// newest first" query: filtered by `userId` and ordered by `createdAt`
+		// globally, not per node, so the (nodeId, createdAt) index above can't
+		// help it. Without this, that query degrades to a full scan + sort of
+		// every version the user has as tree-wide history accumulates
+		// (unlike deleted nodes, active nodes' history is never pruned).
+		index("node_versions_user_id_created_at_idx").on(t.userId, t.createdAt),
 	],
 );

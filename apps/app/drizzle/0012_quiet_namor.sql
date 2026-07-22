@@ -1,0 +1,1 @@
+CREATE INDEX "node_versions_user_id_created_at_idx" ON "node_versions" USING btree ("user_id","created_at");

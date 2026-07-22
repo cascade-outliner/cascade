@@ -327,6 +327,40 @@ describe("deleting and restoring a node", () => {
 		expect(roots.map((r) => r.id)).toContain(parent.id);
 	});
 
+	it("deleting an already-deleted node is a no-op that doesn't disturb its descendants' deletedAt", async () => {
+		const parent = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: parent.id }, { context });
+		await call(
+			updateNodeContent,
+			{ id: parent.id, content: content("first") },
+			{ context },
+		);
+
+		const first = await call(deleteNode, { id: parent.id }, { context });
+		expect(first.childrenDeleted).toBe(1);
+
+		// A second delete of the same (already-deleted) node must not re-stamp
+		// the child's deletedAt with a fresh timestamp — if it did, the
+		// child's deletedAt would no longer match the parent's, and restoring
+		// the parent below would leave the child permanently stuck as deleted.
+		const second = await call(deleteNode, { id: parent.id }, { context });
+		expect(second.childrenDeleted).toBe(0);
+
+		const versions = await call(
+			listNodeVersions,
+			{ id: parent.id },
+			{ context },
+		);
+		await call(restoreNodeVersion, { id: versions[0].id }, { context });
+
+		const children = await call(
+			listNodes,
+			{ parentId: parent.id },
+			{ context },
+		);
+		expect(children.map((r) => r.id)).toContain(child.id);
+	});
+
 	it("lets a new sibling reuse a deleted node's old order slot without conflict", async () => {
 		const parentNode = await call(createNode, { parentId: null }, { context });
 		const a = await call(createNode, { parentId: parentNode.id }, { context });
