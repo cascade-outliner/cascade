@@ -38,6 +38,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		onSetTags: props.onSetTags,
 		onTagClick: props.onTagClick,
 		onDeleteTag: props.onDeleteTag,
+		onOpenVersionHistory: props.onOpenVersionHistory,
+		isPremium: props.isPremium,
 		onToggleTask: props.onToggleTask,
 	};
 	const menuItems = features.flatMap((feature) => {

@@ -61,20 +61,43 @@ export function ContextMenuContent({
 export interface ContextMenuItemProps
 	extends React.ComponentProps<typeof BaseContextMenu.Item> {
 	icon?: React.ReactNode;
+	/** Rendered at the far end of the item, e.g. a premium-feature badge. */
+	trailingIcon?: React.ReactNode;
 	variant?: "default" | "destructive";
 }
 
 export function ContextMenuItem({
 	icon,
+	trailingIcon,
 	variant,
 	className,
 	children,
 	...props
 }: ContextMenuItemProps) {
 	return (
-		<BaseContextMenu.Item className={item({ variant, className })} {...props}>
-			{icon}
-			{children}
+		<BaseContextMenu.Item
+			className={item({
+				variant,
+				className: trailingIcon
+					? `justify-between ${className ?? ""}`
+					: className,
+			})}
+			{...props}
+		>
+			{trailingIcon ? (
+				<>
+					<span className="flex items-center gap-2">
+						{icon}
+						{children}
+					</span>
+					{trailingIcon}
+				</>
+			) : (
+				<>
+					{icon}
+					{children}
+				</>
+			)}
 		</BaseContextMenu.Item>
 	);
 }
