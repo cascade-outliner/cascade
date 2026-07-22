@@ -10,17 +10,40 @@ export interface Theme {
 	label: string;
 	/** Whether the `.dark` class (and thus `dark:` variants) applies. */
 	dark: boolean;
+	/** Whether picking this theme requires a premium seat. The two built-in
+	 * Cascade palettes are free; every other theme is premium-only. */
+	premium: boolean;
 }
 
 export const themes = [
-	{ id: "light", label: "Cascade Light", dark: false },
-	{ id: "dark", label: "Cascade Dark", dark: true },
-	{ id: "catppuccin-latte", label: "Catppuccin Latte", dark: false },
-	{ id: "catppuccin-frappe", label: "Catppuccin Frappé", dark: true },
-	{ id: "catppuccin-macchiato", label: "Catppuccin Macchiato", dark: true },
-	{ id: "catppuccin-mocha", label: "Catppuccin Mocha", dark: true },
-	{ id: "nord", label: "Nord", dark: true },
-	{ id: "dracula", label: "Dracula", dark: true },
+	{ id: "light", label: "Cascade Light", dark: false, premium: false },
+	{ id: "dark", label: "Cascade Dark", dark: true, premium: false },
+	{
+		id: "catppuccin-latte",
+		label: "Catppuccin Latte",
+		dark: false,
+		premium: true,
+	},
+	{
+		id: "catppuccin-frappe",
+		label: "Catppuccin Frappé",
+		dark: true,
+		premium: true,
+	},
+	{
+		id: "catppuccin-macchiato",
+		label: "Catppuccin Macchiato",
+		dark: true,
+		premium: true,
+	},
+	{
+		id: "catppuccin-mocha",
+		label: "Catppuccin Mocha",
+		dark: true,
+		premium: true,
+	},
+	{ id: "nord", label: "Nord", dark: true, premium: true },
+	{ id: "dracula", label: "Dracula", dark: true, premium: true },
 ] as const satisfies readonly Theme[];
 
 export type ThemeId = (typeof themes)[number]["id"];
@@ -54,6 +77,10 @@ export const darkThemeIds = themeIdsWhere(true);
 
 export function isDarkTheme(id: ThemeId): boolean {
 	return themes.some((theme) => theme.id === id && theme.dark);
+}
+
+export function isPremiumTheme(id: ThemeId): boolean {
+	return themes.some((theme) => theme.id === id && theme.premium);
 }
 
 /**

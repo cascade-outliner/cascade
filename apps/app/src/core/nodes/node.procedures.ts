@@ -215,8 +215,8 @@ export const visibleTree = authed
 
 export const createNode = authed
 	.errors({
-		INVALID_ANCHOR: {
-			status: 422,
+		NOT_FOUND: {
+			status: 404,
 			message: "Anchor node is not a child of the requested parent",
 		},
 	})
@@ -248,7 +248,7 @@ export const createNode = authed
 					.from(nodes)
 					.where(and(parentFilter, eq(nodes.id, input.afterId)))
 					.limit(1);
-				if (!after) throw errors.INVALID_ANCHOR();
+				if (!after) throw errors.NOT_FOUND();
 				const [next] = await tx
 					.select({ order: nodes.order })
 					.from(nodes)
@@ -734,10 +734,10 @@ export const updateNodeContent = authed
 	})
 	.input(updateNodeContentInputSchema)
 	.handler(async ({ input, context, errors }) => {
-		const updated = await db
+		const [result] = await db
 			.update(nodes)
 			.set({ content: input.content })
 			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
 			.returning({ id: nodes.id });
-		if (updated.length === 0) throw errors.NOT_FOUND();
+		if (!result) throw errors.NOT_FOUND();
 	});

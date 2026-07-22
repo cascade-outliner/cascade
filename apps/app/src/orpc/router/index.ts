@@ -17,6 +17,11 @@ import {
 	visibleTree,
 } from "@/core/nodes/node.procedures";
 import {
+	getPremiumStatus,
+	requestPremiumSeat,
+	revokePremiumSeat,
+} from "@/core/premium/premium.procedures";
+import {
 	getSettings,
 	updateSettings,
 } from "@/core/settings/settings.procedures";
@@ -43,5 +48,10 @@ export default {
 	settings: {
 		get: getSettings,
 		update: updateSettings,
+	},
+	premium: {
+		get: getPremiumStatus,
+		requestSeat: requestPremiumSeat,
+		revokeSeat: revokePremiumSeat,
 	},
 };

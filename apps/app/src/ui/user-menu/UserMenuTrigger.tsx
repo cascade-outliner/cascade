@@ -1,6 +1,8 @@
 import { Menu } from "@base-ui/react";
 import { GearIcon, SignOutIcon } from "@phosphor-icons/react/ssr";
+import { useQuery } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
+import { orpc } from "@/orpc/client";
 import { Avatar } from "./Avatar";
 import { avatarTrigger, menuItem, menuPopup } from "./styles";
 import type { UserMenuUser } from "./types";
@@ -16,13 +18,19 @@ export function UserMenuTrigger({
 	onOpenSettings,
 	onSignOut,
 }: UserMenuTriggerProps) {
+	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
+
 	return (
 		<Menu.Root>
 			<Menu.Trigger
 				aria-label={m.user_menu_trigger_label()}
 				className={avatarTrigger()}
 			>
-				<Avatar user={user} className="size-10" />
+				<Avatar
+					user={user}
+					className="size-10"
+					isPremium={premium?.isPremium}
+				/>
 			</Menu.Trigger>
 			<Menu.Portal>
 				<Menu.Positioner

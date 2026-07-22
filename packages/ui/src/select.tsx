@@ -24,12 +24,16 @@ const item = cva({
 	base: [
 		"flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none",
 		"data-highlighted:bg-surface/70 dark:data-highlighted:bg-surface/20",
+		"data-disabled:cursor-not-allowed data-disabled:opacity-50 data-disabled:hover:bg-transparent",
 	],
 });
 
 export interface SelectOption<Value extends string> {
 	value: Value;
 	label: string;
+	/** Renders the option but blocks selecting it, e.g. for a theme that needs
+	 * a premium seat. */
+	disabled?: boolean;
 }
 
 export interface SelectProps<Value extends string> {
@@ -81,6 +85,7 @@ export function Select<Value extends string>({
 								<BaseSelect.Item
 									key={option.value}
 									value={option.value}
+									disabled={option.disabled}
 									className={item()}
 								>
 									<BaseSelect.ItemIndicator>

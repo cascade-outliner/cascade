@@ -38,11 +38,9 @@ export const Route = createFileRoute("/_authed/")({
 function RootTree() {
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
-	const tree = useVisibleTree(
-		null,
-		hasActiveDueDateFilter(filters),
-		activeDueDateRange(filters),
-	);
+	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
+	const dueDateRange = activeDueDateRange(filters);
+	const tree = useVisibleTree(null, includeCollapsedDescendants, dueDateRange);
 	const visibility = getRowVisibility(tree.rows, filters);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();

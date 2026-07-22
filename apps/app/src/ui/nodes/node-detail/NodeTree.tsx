@@ -21,10 +21,12 @@ export function NodeTree({
 }) {
 	const { settings } = useSettings();
 	const [filters, setFilters] = useNodeFilters();
+	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
+	const dueDateRange = activeDueDateRange(filters);
 	const tree = useVisibleTree(
 		nodeId,
-		hasActiveDueDateFilter(filters),
-		activeDueDateRange(filters),
+		includeCollapsedDescendants,
+		dueDateRange,
 	);
 	const visibility = getRowVisibility(tree.rows, filters);
 	const existingTags = useExistingTags();
