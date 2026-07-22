@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-22
+- Added a "Premium" tab in Settings where you can request a premium seat, granted immediately — the first step toward upcoming paid features. [#404](https://github.com/Patrickroelofs/cascade/issues/404)
 - Fixed `createNode` silently inserting a node into the wrong sibling list when `afterId` referenced a node that wasn't actually a child of the requested parent (e.g. a stale anchor after a concurrent move); it now rejects the create instead. [#317](https://github.com/Patrickroelofs/cascade/issues/317)
 
 ## 2026-07-21

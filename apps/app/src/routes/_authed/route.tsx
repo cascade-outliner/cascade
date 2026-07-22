@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { getSession } from "@/auth/session";
+import type { PremiumStatus } from "@/core/premium/premium.procedures";
 import type { SettingsPatch } from "@/core/settings/settings-patch-schema";
 import { orpc } from "@/orpc/client";
 import { AppHeader } from "@/ui/header/AppHeader";
@@ -17,7 +18,10 @@ export const Route = createFileRoute("/_authed")({
 		const settings = await queryClient
 			.ensureQueryData(orpc.settings.get.queryOptions())
 			.catch((): SettingsPatch => ({}));
-		return { settings };
+		const premium = await queryClient
+			.ensureQueryData(orpc.premium.get.queryOptions())
+			.catch((): PremiumStatus => ({ isPremium: false, grantedAt: null }));
+		return { settings, premium };
 	},
 	component: AuthedLayout,
 });

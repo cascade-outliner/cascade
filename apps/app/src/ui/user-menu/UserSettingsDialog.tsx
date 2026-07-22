@@ -23,6 +23,7 @@ import {
 import type { Settings } from "@/core/settings/settings-patch-schema";
 import { MAX_INDENT_SIZE, MIN_INDENT_SIZE } from "@/ui/settings-context";
 import { Avatar } from "./Avatar";
+import { PremiumTab } from "./PremiumTab";
 import {
 	iconButton,
 	indentSizeInput,
@@ -128,6 +129,9 @@ export function UserSettingsDialog({
 							</Tabs.Tab>
 							<Tabs.Tab value="user" className={tabTrigger()}>
 								{m.user_menu_user_tab()}
+							</Tabs.Tab>
+							<Tabs.Tab value="premium" className={tabTrigger()}>
+								{m.user_menu_premium_tab()}
 							</Tabs.Tab>
 							<Tabs.Tab value="links" className={tabTrigger()}>
 								{m.user_menu_quick_links()}
@@ -269,6 +273,9 @@ export function UserSettingsDialog({
 									{m.user_menu_delete_account()}
 								</Button>
 							</div>
+						</Tabs.Panel>
+						<Tabs.Panel value="premium">
+							<PremiumTab />
 						</Tabs.Panel>
 					</Tabs.Root>
 				</Dialog.Popup>
