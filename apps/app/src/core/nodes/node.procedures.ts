@@ -26,7 +26,12 @@ import {
 import { generateKeyBetween } from "fractional-indexing";
 import { z } from "zod";
 import { nodeColumns } from "@/core/nodes/node.queries";
-import { nodes, nodeTags, tags as tagsTable } from "@/core/nodes/node.schema";
+import {
+	nodes,
+	nodeTags,
+	nodeVersions,
+	tags as tagsTable,
+} from "@/core/nodes/node.schema";
 import { updateNodeContentInputSchema } from "@/core/nodes/node-content-schema";
 import { ancestorsOf, descendantsOf } from "@/core/nodes/node-tree-cte";
 import { setNodeTagsInputSchema } from "@/core/nodes/tag-name-schema";
@@ -728,16 +733,54 @@ export const deleteNode = authed
 		return { childrenDeleted: result?.count ?? 0 };
 	});
 
+/**
+ * Snapshots a node's current content into `node_versions` (unless it's
+ * `null` — a node's initial, never-edited state — which would otherwise
+ * leave a meaningless empty entry at the top of every node's first edit),
+ * then overwrites it with `content`. Shared by `updateNodeContent` and
+ * `restoreNodeVersion` (`node-version.procedures.ts`), which both need the
+ * same "preserve then overwrite" behavior. Returns `false` if the node
+ * doesn't exist or isn't owned by `userId`.
+ */
+export async function snapshotAndSetContent(
+	userId: string,
+	nodeId: string,
+	content: unknown,
+): Promise<boolean> {
+	return await db.transaction(async (tx) => {
+		const [current] = await tx
+			.select({ content: nodes.content })
+			.from(nodes)
+			.where(and(eq(nodes.id, nodeId), eq(nodes.userId, userId)))
+			.for("update");
+		if (!current) return false;
+
+		if (current.content !== null) {
+			await tx.insert(nodeVersions).values({
+				nodeId,
+				userId,
+				content: current.content,
+			});
+		}
+
+		await tx
+			.update(nodes)
+			.set({ content })
+			.where(and(eq(nodes.id, nodeId), eq(nodes.userId, userId)));
+		return true;
+	});
+}
+
 export const updateNodeContent = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
 	})
 	.input(updateNodeContentInputSchema)
 	.handler(async ({ input, context, errors }) => {
-		const updated = await db
-			.update(nodes)
-			.set({ content: input.content })
-			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
-			.returning({ id: nodes.id });
-		if (updated.length === 0) throw errors.NOT_FOUND();
+		const ok = await snapshotAndSetContent(
+			context.user.id,
+			input.id,
+			input.content,
+		);
+		if (!ok) throw errors.NOT_FOUND();
 	});

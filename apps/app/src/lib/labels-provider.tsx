@@ -96,6 +96,10 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersHideCompleted: m.filters_bar_hide_completed(),
 		filtersRemoveHideCompleted: m.filters_bar_remove_hide_completed(),
 		filtersClear: m.filters_bar_clear(),
+		versionHistory: m.outliner_version_history(),
+		versionHistoryCloseAria: m.outliner_version_history_close_aria(),
+		versionHistoryEmpty: m.outliner_version_history_empty(),
+		versionHistoryRestore: m.outliner_version_history_restore(),
 	};
 }
 
