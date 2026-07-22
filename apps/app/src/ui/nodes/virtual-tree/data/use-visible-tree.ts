@@ -1,16 +1,18 @@
 import type { DueDateRange } from "@cascade/outliner/node-filters";
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useCreateMutation } from "./mutations/use-create-mutation";
-import { useDuplicateMutation } from "./mutations/use-duplicate-mutation";
-import { useLoadMoreMutation } from "./mutations/use-load-more-mutation";
-import { useMoveMutation } from "./mutations/use-move-mutation";
-import { useRemoveMutation } from "./mutations/use-remove-mutation";
-import { useSetDueDateMutation } from "./mutations/use-set-due-date-mutation";
-import { useSetTagsMutation } from "./mutations/use-set-tags-mutation";
-import { useSetTypeMutation } from "./mutations/use-set-type-mutation";
-import { useToggleMutation } from "./mutations/use-toggle-mutation";
-import { useUpdateContentMutation } from "./mutations/use-update-content-mutation";
+import {
+	useCreateMutation,
+	useDuplicateMutation,
+	useLoadMoreMutation,
+	useMoveMutation,
+	useRemoveMutation,
+	useSetDueDateMutation,
+	useSetTagsMutation,
+	useSetTypeMutation,
+	useToggleMutation,
+	useUpdateContentMutation,
+} from "./mutations";
 import { visibleTreeOptions } from "./visible-tree-query";
 
 export { visibleTreeOptions } from "./visible-tree-query";
