@@ -2,20 +2,19 @@ import { Dialog } from "@base-ui/react";
 import { Button } from "@cascade/ui/button";
 import { CircleNotchIcon, TrashIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { type ReactNode, useEffect, useState } from "react";
-import DiffViewer from "react-diff-viewer-continued";
+import { type ReactNode, useState } from "react";
 import { useOutlinerLabels } from "../../labels-context";
-import { lexicalToPlainText } from "../../lexical/lexical-content";
+import { NodeContentPreview } from "./node-content-preview";
 import {
 	dialogBackdrop,
 	dialogPopup,
 	dialogTitle,
-	diffPane,
-	diffPaneHeader,
 	emptyState,
 	iconButton,
 	listPane,
 	listRow,
+	previewPane,
+	previewPaneHeader,
 	versionTimestamp,
 } from "./styles";
 
@@ -23,10 +22,8 @@ export interface NodeVersionSummary {
 	id: string;
 	content: unknown;
 	createdAt: Date;
-	/** The owning node's *current* content — not this version's. Used both
-	 * to diff every entry against "what's there now" (so the diff shows
-	 * exactly what a restore would change) and, in tree-wide history, as
-	 * the link's title. */
+	/** The owning node's *current* content — not this version's. Used as
+	 * the link's title in tree-wide history. */
 	nodeContent: unknown;
 	/** Present only for tree-wide history, to link back to the node.
 	 * Omitted for the single-node view, which has no need for a link back
@@ -39,9 +36,9 @@ export interface NodeVersionSummary {
 	nodeDeletedAt?: Date | null;
 	/** Set only on the single marker entry a whole-subtree deletion writes
 	 * (the count of descendants deleted alongside it, 0 for a leaf) —
-	 * `undefined`/`null` for a normal content-edit entry. Deletion didn't
-	 * change `content`, so this entry is shown via `renderDeletedPreview`
-	 * (falling back to a plain summary) instead of a diff. */
+	 * `undefined`/`null` for a normal content-edit entry. Shown via
+	 * `renderDeletedPreview` (falling back to a plain summary) instead of
+	 * the single-row `NodeContentPreview` a normal entry gets. */
 	descendantsDeleted?: number | null;
 }
 
@@ -66,11 +63,11 @@ export interface NodeVersionHistoryDialogProps {
 	/** Renders a link to a version's owning node. Required for tree-wide
 	 * history (where `versions` entries carry `nodeId`); unused otherwise. */
 	renderNodeLink?: (node: { id: string; content: unknown }) => ReactNode;
-	/** Renders a preview of a `descendantsDeleted` marker entry in place of
-	 * the diff viewer — typically a read-only recreation of the deleted
-	 * subtree as it looked in the outliner (see `DeletedTreePreview`),
-	 * fetched by the consumer since this package doesn't do data fetching
-	 * itself. Falls back to a plain text summary when omitted. */
+	/** Renders a preview of a `descendantsDeleted` marker entry — typically
+	 * a read-only recreation of the deleted subtree as it looked in the
+	 * outliner (see `NodeContentPreview`), fetched by the consumer since
+	 * this package doesn't do data fetching itself. Falls back to a plain
+	 * text summary when omitted. */
 	renderDeletedPreview?: (version: NodeVersionSummary) => ReactNode;
 }
 
@@ -78,30 +75,6 @@ const timestampFormatter = new Intl.DateTimeFormat(undefined, {
 	dateStyle: "medium",
 	timeStyle: "short",
 });
-
-/** `react-diff-viewer-continued` themes itself via a JS prop rather than
- * Tailwind's `dark:` variant, so it needs the app's actual dark-mode state
- * (driven by a `dark` class on `<html>`, toggled by user settings — see
- * `apps/app/src/routes/__root.tsx` — not just OS preference) read out of
- * the DOM directly. */
-function useIsDarkMode(): boolean {
-	const [isDark, setIsDark] = useState(
-		() =>
-			typeof document !== "undefined" &&
-			document.documentElement.classList.contains("dark"),
-	);
-
-	useEffect(() => {
-		const root = document.documentElement;
-		const observer = new MutationObserver(() =>
-			setIsDark(root.classList.contains("dark")),
-		);
-		observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-		return () => observer.disconnect();
-	}, []);
-
-	return isDark;
-}
 
 export function NodeVersionHistoryDialog({
 	open,
@@ -117,7 +90,6 @@ export function NodeVersionHistoryDialog({
 	renderDeletedPreview,
 }: NodeVersionHistoryDialogProps) {
 	const labels = useOutlinerLabels();
-	const isDarkMode = useIsDarkMode();
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	// A ref callback stored in state (rather than `useRef`) so mounting the
 	// scroll container — which only happens once `versions` finishes loading
@@ -250,8 +222,8 @@ export function NodeVersionHistoryDialog({
 								</div>
 							</div>
 							{selected && (
-								<div className={diffPane()}>
-									<div className={diffPaneHeader()}>
+								<div className={previewPane()}>
+									<div className={previewPaneHeader()}>
 										<div className="flex min-w-0 items-center gap-2">
 											<span className={versionTimestamp()}>
 												{timestampFormatter.format(selected.createdAt)}
@@ -267,14 +239,25 @@ export function NodeVersionHistoryDialog({
 											type="button"
 											size="sm"
 											onClick={() => onRestore(selected.id)}
-											disabled={restoringId === selected.id}
+											disabled={
+												restoringId === selected.id ||
+												// A deletion marker (see `descendantsDeleted`) whose
+												// node is no longer deleted has nothing left to
+												// restore — it was already brought back (via this
+												// same marker or a later one) since it was written.
+												// Without this, restoring it is a silent no-op:
+												// `restoreDeletedSubtree` no-ops on an already-active
+												// node, and a marker never touches `content`.
+												(selected.descendantsDeleted != null &&
+													!selected.nodeDeletedAt)
+											}
 										>
 											{labels.versionHistoryRestore}
 										</Button>
 									</div>
-									{selected.descendantsDeleted != null ? (
-										<div className="min-h-0 flex-1 overflow-auto rounded-md border border-ink/10 dark:border-surface/15">
-											{renderDeletedPreview ? (
+									<div className="min-h-0 flex-1 overflow-auto rounded-md border border-ink/10 dark:border-surface/15">
+										{selected.descendantsDeleted != null ? (
+											renderDeletedPreview ? (
 												renderDeletedPreview(selected)
 											) : (
 												<div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted dark:text-canvas/50">
@@ -284,25 +267,19 @@ export function NodeVersionHistoryDialog({
 															)
 														: labels.versionHistoryDeletedSummary}
 												</div>
-											)}
-										</div>
-									) : (
-										<div className="min-h-0 flex-1 overflow-auto rounded-md border border-ink/10 dark:border-surface/15">
-											<DiffViewer
-												key={selected.id}
-												oldValue={lexicalToPlainText(selected.content)}
-												newValue={lexicalToPlainText(selected.nodeContent)}
-												// Unified rather than side-by-side: the removed
-												// (before) line stacks directly above the added
-												// (after) one, which reads better for short prose
-												// than two side-by-side columns.
-												splitView={false}
-												hideLineNumbers
-												hideSummary
-												useDarkTheme={isDarkMode}
+											)
+										) : (
+											<NodeContentPreview
+												rows={[
+													{
+														id: selected.id,
+														content: selected.content,
+														depth: 0,
+													},
+												]}
 											/>
-										</div>
-									)}
+										)}
+									</div>
 								</div>
 							)}
 						</div>

@@ -9,9 +9,9 @@ import {
 import { PremiumUpsellNotice } from "@/ui/premium/PremiumUpsellNotice";
 import { usePremiumStatus } from "@/ui/premium/use-premium";
 
-// Dynamically imported (rather than a static import above) because it pulls
-// in react-diff-viewer-continued, which is sizable and only ever needed once
-// someone actually opens history — most page loads shouldn't pay for it.
+// Dynamically imported (rather than a static import above) since it's only
+// ever needed once someone actually opens history — most page loads
+// shouldn't pay for it.
 const NodeVersionHistoryDialog = lazy(() =>
 	import(
 		"@cascade/outliner/features/version-history/node-version-history-dialog"

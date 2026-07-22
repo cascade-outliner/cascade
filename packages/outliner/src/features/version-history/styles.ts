@@ -29,7 +29,7 @@ export const versionTimestamp = cva({
 });
 
 /** Scrollable index of every version on the left; a fixed width so the
- * diff pane next to it has stable room to work with regardless of how
+ * preview pane next to it has stable room to work with regardless of how
  * many entries are listed. */
 export const listPane = cva({
 	base: "flex w-72 shrink-0 flex-col overflow-y-auto border-ink/10 border-r dark:border-surface/15",
@@ -50,11 +50,12 @@ export const listRow = cva({
 });
 
 /** The right-hand pane: selected version's header (timestamp + restore)
- * above a diff of that version against the node's current content. */
-export const diffPane = cva({
+ * above a read-only preview of that version's content, as it looks in the
+ * outliner. */
+export const previewPane = cva({
 	base: "flex min-w-0 flex-1 flex-col gap-3 overflow-hidden p-4",
 });
 
-export const diffPaneHeader = cva({
+export const previewPaneHeader = cva({
 	base: "flex shrink-0 items-center justify-between gap-2",
 });

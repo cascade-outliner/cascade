@@ -1,9 +1,9 @@
-import { DeletedTreePreview } from "@cascade/outliner/features/version-history/deleted-tree-preview";
+import { NodeContentPreview } from "@cascade/outliner/features/version-history/node-content-preview";
 import { CircleNotchIcon } from "@phosphor-icons/react/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "@/orpc/client";
 
-/** Wraps the framework-agnostic `DeletedTreePreview` with this app's oRPC
+/** Wraps the framework-agnostic `NodeContentPreview` with this app's oRPC
  * data fetching, so `NodeVersionHistoryDialog`'s `renderDeletedPreview`
  * prop stays a plain synchronous render callback. Fetches lazily — only
  * once a `descendantsDeleted` marker entry is actually selected — since
@@ -24,5 +24,5 @@ export function DeletedSubtreePreview({ nodeId }: { nodeId: string }) {
 		);
 	}
 
-	return <DeletedTreePreview rows={data} />;
+	return <NodeContentPreview rows={data} />;
 }

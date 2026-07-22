@@ -340,6 +340,34 @@ describe("deleting and restoring a node", () => {
 		expect(children.map((r) => r.id)).toContain(child.id);
 	});
 
+	it("restoring a delete marker after the node is already active again is a safe no-op", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: node.id, content: content("original") },
+			{ context },
+		);
+		await call(deleteNode, { id: node.id }, { context });
+
+		const versions = await call(listNodeVersions, { id: node.id }, { context });
+		const marker = versions[0];
+		expect(marker.descendantsDeleted).toBe(0);
+
+		// Restore it once (the node is now active again), then try restoring
+		// the *same* marker a second time — this is exactly the stale-marker
+		// scenario the UI's disabled Restore button guards against.
+		await call(restoreNodeVersion, { id: marker.id }, { context });
+		const restoredAgain = await call(
+			restoreNodeVersion,
+			{ id: marker.id },
+			{ context },
+		);
+
+		expect(restoredAgain.content).toEqual(content("original"));
+		const roots = await call(listNodes, { parentId: null }, { context });
+		expect(roots.map((r) => r.id)).toContain(node.id);
+	});
+
 	it("restores as a root node when the original parent is also deleted", async () => {
 		const grandparent = await call(createNode, { parentId: null }, { context });
 		const parent = await call(
