@@ -72,6 +72,7 @@ export function PremiumTab() {
 				</div>
 				<ul className="mt-1 list-disc pl-5">
 					<li>{m.user_menu_premium_feature_version_history()}</li>
+					<li>{m.user_menu_premium_feature_themes()}</li>
 				</ul>
 			</div>
 			<p className="text-ink/60 dark:text-surface/60">

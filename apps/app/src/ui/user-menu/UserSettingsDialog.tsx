@@ -45,23 +45,36 @@ function themeLabel(theme: (typeof themes)[number]): string {
 	return theme.label;
 }
 
-function themeOptions() {
+/** Non-Cascade themes render as selectable-looking but disabled options for
+ * non-premium users, labeled so it's clear why they can't be picked. */
+function themeSelectOption(theme: (typeof themes)[number], isPremium: boolean) {
+	const locked = theme.premium && !isPremium;
+	return {
+		value: theme.id,
+		label: locked
+			? m.user_menu_theme_premium_option({ label: themeLabel(theme) })
+			: themeLabel(theme),
+		disabled: locked,
+	};
+}
+
+function themeOptions(isPremium: boolean) {
 	return [
 		{ value: SYSTEM_THEME, label: m.user_menu_theme_sync_system() },
-		...themes.map((theme) => ({ value: theme.id, label: themeLabel(theme) })),
+		...themes.map((theme) => themeSelectOption(theme, isPremium)),
 	];
 }
 
-function lightThemeOptions() {
+function lightThemeOptions(isPremium: boolean) {
 	return themes
 		.filter((theme) => !theme.dark)
-		.map((theme) => ({ value: theme.id, label: themeLabel(theme) }));
+		.map((theme) => themeSelectOption(theme, isPremium));
 }
 
-function darkThemeOptions() {
+function darkThemeOptions(isPremium: boolean) {
 	return themes
 		.filter((theme) => theme.dark)
-		.map((theme) => ({ value: theme.id, label: themeLabel(theme) }));
+		.map((theme) => themeSelectOption(theme, isPremium));
 }
 
 function fontOptions() {
@@ -109,6 +122,7 @@ export function UserSettingsDialog({
 	onOpenDeleteDialog,
 }: UserSettingsDialogProps) {
 	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
+	const isPremium = premium?.isPremium ?? false;
 
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -146,7 +160,7 @@ export function UserSettingsDialog({
 								{m.user_menu_theme()}
 								<Select
 									aria-label={m.user_menu_theme()}
-									options={themeOptions()}
+									options={themeOptions(isPremium)}
 									value={settings.theme}
 									onValueChange={(theme) => setSetting("theme", theme)}
 								/>
@@ -157,7 +171,7 @@ export function UserSettingsDialog({
 										{m.user_menu_theme_light_option()}
 										<Select
 											aria-label={m.user_menu_theme_light_option()}
-											options={lightThemeOptions()}
+											options={lightThemeOptions(isPremium)}
 											value={settings.lightTheme}
 											onValueChange={(theme) => setSetting("lightTheme", theme)}
 										/>
@@ -166,7 +180,7 @@ export function UserSettingsDialog({
 										{m.user_menu_theme_dark_option()}
 										<Select
 											aria-label={m.user_menu_theme_dark_option()}
-											options={darkThemeOptions()}
+											options={darkThemeOptions(isPremium)}
 											value={settings.darkTheme}
 											onValueChange={(theme) => setSetting("darkTheme", theme)}
 										/>
