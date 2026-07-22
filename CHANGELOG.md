@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-22
+- Fixed a filtered tree hiding the children of a matching node when they didn't themselves match the active tag or due-date filter; they now stay visible alongside their matching ancestor. [#375](https://github.com/Patrickroelofs/cascade/issues/375)
+
 ## 2026-07-21
 - Fixed node text being impossible to select with the mouse in Firefox: the whole row (not just its drag handle) was marked as a native drag source, and Firefox refuses to let you select text inside any draggable element. [#379](https://github.com/Patrickroelofs/cascade/issues/379)
 - Added a "Duplicate" action to the node context menu: it copies a node's content, tags, due date, and type, recursively copies its entire subtree preserving structure and order, and inserts the copy as the next sibling. [#272](https://github.com/Patrickroelofs/cascade/issues/272)

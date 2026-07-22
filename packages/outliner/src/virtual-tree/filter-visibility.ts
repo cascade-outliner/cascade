@@ -25,10 +25,11 @@ const emptyVisibility: RowVisibility = {
 };
 
 /**
- * Resolves which rows an active filter set hides. Matches and their ancestor
- * chain stay in the array at their original depth, so indent, outdent, and
- * drag-and-drop keep operating on the same contiguous rows they always have;
- * only rendering treats hidden/context rows differently.
+ * Resolves which rows an active filter set hides. Matches, their ancestor
+ * chain, and their descendants stay in the array at their original depth, so
+ * indent, outdent, and drag-and-drop keep operating on the same contiguous
+ * rows they always have; only rendering treats hidden/context rows
+ * differently.
  *
  * "Hide completed" is an exclusion rather than a match: completed tasks and
  * their entire subtrees are dropped up front, and any positive filters then
@@ -79,6 +80,9 @@ export function getRowVisibility(
 			parentId = parentById.get(parentId) ?? null;
 		}
 	}
+	for (const id of getMatchDescendantIds(candidates, matchIds)) {
+		if (!matchIds.has(id)) contextIds.add(id);
+	}
 
 	const hiddenIds = new Set(
 		rows
@@ -108,6 +112,22 @@ function getCompletedSubtreeIds(rows: VisibleNodeRow[]): Set<string> {
 
 function isCompletedTask(row: VisibleNodeRow): boolean {
 	return row.type === "task" && (row.metadata?.completed ?? false);
+}
+
+/** A match's descendants stay visible as context, even if they don't match themselves. */
+function getMatchDescendantIds(
+	rows: VisibleNodeRow[],
+	matchIds: Set<string>,
+): Set<string> {
+	const descendantIds = new Set<string>();
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i];
+		if (!matchIds.has(row.id)) continue;
+		let end = i + 1;
+		while (end < rows.length && rows[end].depth > row.depth) end++;
+		for (let j = i + 1; j < end; j++) descendantIds.add(rows[j].id);
+	}
+	return descendantIds;
 }
 
 /** Descendants of a collapsed node stay hidden, even if they match a filter. */
