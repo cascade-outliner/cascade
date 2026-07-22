@@ -4,6 +4,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
+import { invalidateVersionHistory } from "@/ui/nodes/invalidate-version-history";
 import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
 import { patchRows } from "@/ui/nodes/virtual-tree/data/cache-helpers";
 import type { VisibleTreeData } from "@/ui/nodes/virtual-tree/data/types";
@@ -33,9 +34,7 @@ export function useRestoreNodeVersion(queryKey: QueryKey) {
 			patchRows((rows) => patchRow(rows, nodeId, { content }), old),
 		onSuccess: (_data, { nodeId }) => {
 			toast.success(m.outliner_version_history_restored());
-			queryClient.invalidateQueries({
-				queryKey: orpc.nodes.listVersions.key({ input: { id: nodeId } }),
-			});
+			invalidateVersionHistory(queryClient, nodeId);
 			queryClient.invalidateQueries({
 				queryKey: orpc.nodes.ancestors.key(),
 				predicate: (query) => {

@@ -191,25 +191,24 @@ export function NodeVersionHistoryDialog({
 												}}
 											>
 												{/* A real <button> can't contain the <a> that
-												 * renderNodeLink renders below (invalid nesting of
-												 * interactive content), so selection is a separate,
-												 * full-row overlay button instead: the link (and the
-												 * plain timestamp text, via pointer-events-none) sit
-												 * visually on top of it and remain independently
-												 * clickable/focusable. */}
+												 * renderNodeLink renders (invalid nesting of
+												 * interactive content), so the link is a plain
+												 * sibling below it rather than overlapping it —
+												 * each has its own non-overlapping click target,
+												 * so there's no ambiguity about which one a click
+												 * lands on. The button's accessible name comes
+												 * from its own text, not a separate aria-label. */}
 												<button
 													type="button"
-													aria-label={timestamp}
 													onClick={() => setSelectedId(version.id)}
-													className="absolute inset-0 cursor-pointer bg-transparent outline-none"
-												/>
-												<span
-													className={`${versionTimestamp()} relative z-10 pointer-events-none`}
+													className="w-full cursor-pointer select-none text-left outline-none"
 												>
-													{timestamp}
-												</span>
+													<span className={versionTimestamp()}>
+														{timestamp}
+													</span>
+												</button>
 												{version.nodeId !== undefined && renderNodeLink && (
-													<span className="relative z-10 truncate text-xs">
+													<span className="truncate text-xs">
 														{renderNodeLink({
 															id: version.nodeId,
 															content: version.nodeContent,

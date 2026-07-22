@@ -6,6 +6,7 @@ import { UserMenuView } from "./UserMenuView";
 
 export function UserMenu() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [treeHistoryOpen, setTreeHistoryOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const { settings, setSetting, saveSettings } = useSettings();
 	const { user } = useRouteContext({ from: "/_authed" });
@@ -28,6 +29,9 @@ export function UserMenu() {
 				if (!open) saveSettings();
 			}}
 			onOpenSettings={() => setSettingsOpen(true)}
+			treeHistoryOpen={treeHistoryOpen}
+			onTreeHistoryOpenChange={setTreeHistoryOpen}
+			onOpenTreeHistory={() => setTreeHistoryOpen(true)}
 			deleteDialogOpen={deleteDialogOpen}
 			onDeleteDialogOpenChange={setDeleteDialogOpen}
 			onOpenDeleteDialog={() => setDeleteDialogOpen(true)}

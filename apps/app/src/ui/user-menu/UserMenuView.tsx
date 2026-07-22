@@ -1,4 +1,5 @@
 import type { Settings } from "@/core/settings/settings-patch-schema";
+import { TreeVersionHistoryModal } from "@/ui/nodes/tree-version-history";
 import { DeleteAccountDialog } from "./DeleteAccountDialog";
 import type { UserMenuUser } from "./types";
 import { UserMenuTrigger } from "./UserMenuTrigger";
@@ -11,6 +12,9 @@ export interface UserMenuViewProps {
 	settingsOpen: boolean;
 	onSettingsOpenChange: (open: boolean) => void;
 	onOpenSettings: () => void;
+	treeHistoryOpen: boolean;
+	onTreeHistoryOpenChange: (open: boolean) => void;
+	onOpenTreeHistory: () => void;
 	deleteDialogOpen: boolean;
 	onDeleteDialogOpenChange: (open: boolean) => void;
 	onOpenDeleteDialog: () => void;
@@ -26,6 +30,9 @@ export function UserMenuView({
 	settingsOpen,
 	onSettingsOpenChange,
 	onOpenSettings,
+	treeHistoryOpen,
+	onTreeHistoryOpenChange,
+	onOpenTreeHistory,
 	deleteDialogOpen,
 	onDeleteDialogOpenChange,
 	onOpenDeleteDialog,
@@ -38,6 +45,7 @@ export function UserMenuView({
 			<UserMenuTrigger
 				user={user}
 				onOpenSettings={onOpenSettings}
+				onOpenTreeHistory={onOpenTreeHistory}
 				onSignOut={onSignOut}
 			/>
 			<UserSettingsDialog
@@ -48,6 +56,10 @@ export function UserMenuView({
 				onOpenChange={onSettingsOpenChange}
 				onSignOut={onSignOut}
 				onOpenDeleteDialog={onOpenDeleteDialog}
+			/>
+			<TreeVersionHistoryModal
+				open={treeHistoryOpen}
+				onOpenChange={onTreeHistoryOpenChange}
 			/>
 			<DeleteAccountDialog
 				open={deleteDialogOpen}

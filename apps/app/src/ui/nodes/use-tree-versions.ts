@@ -2,6 +2,7 @@ import { toast } from "@cascade/ui/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
+import { invalidateVersionHistory } from "@/ui/nodes/invalidate-version-history";
 
 /** Every content version across the whole tree, newest first. `undefined`
  * while loading; skipped entirely while `enabled` is false (dialog closed
@@ -30,9 +31,10 @@ export function useRestoreTreeVersion() {
 				queryKey: orpc.nodes.visibleTree.key(),
 			});
 			queryClient.invalidateQueries({ queryKey: orpc.nodes.ancestors.key() });
-			queryClient.invalidateQueries({
-				queryKey: orpc.nodes.listTreeVersions.key(),
-			});
+			// Which node was restored isn't tracked client-side here (only the
+			// version id is), so this busts every node's cached version list
+			// broadly rather than a single one.
+			invalidateVersionHistory(queryClient);
 		},
 		onError: () => {
 			toast.error(m.node_save_failed());

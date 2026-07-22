@@ -4,6 +4,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
+import { invalidateVersionHistory } from "@/ui/nodes/invalidate-version-history";
 import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
 import { patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
@@ -30,6 +31,10 @@ export function useUpdateContentMutation(queryKey: QueryKey) {
 					return chain?.some((ancestor) => ancestor.id === id) ?? false;
 				},
 			});
+			// A content edit may have just snapshotted a new version, and always
+			// changes what "current content" means for any cached version-history
+			// entry belonging to this node.
+			invalidateVersionHistory(queryClient, id);
 		},
 		onError: () => {
 			toast.error(m.node_save_failed());
