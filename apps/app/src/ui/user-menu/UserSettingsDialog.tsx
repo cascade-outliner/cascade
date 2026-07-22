@@ -13,6 +13,7 @@ import {
 	TrashIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
+import { useQuery } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import {
 	getLocale,
@@ -21,6 +22,7 @@ import {
 	setLocale,
 } from "#/paraglide/runtime.js";
 import type { Settings } from "@/core/settings/settings-patch-schema";
+import { orpc } from "@/orpc/client";
 import { MAX_INDENT_SIZE, MIN_INDENT_SIZE } from "@/ui/settings-context";
 import { Avatar } from "./Avatar";
 import { PremiumTab } from "./PremiumTab";
@@ -106,6 +108,8 @@ export function UserSettingsDialog({
 	onSignOut,
 	onOpenDeleteDialog,
 }: UserSettingsDialogProps) {
+	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
+
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
@@ -243,7 +247,11 @@ export function UserSettingsDialog({
 						</Tabs.Panel>
 						<Tabs.Panel value="user">
 							<div className="flex items-center gap-3">
-								<Avatar user={user} className="size-12" />
+								<Avatar
+									user={user}
+									className="size-12"
+									isPremium={premium?.isPremium}
+								/>
 								<div className="min-w-0">
 									<div className="truncate text-sm font-semibold">
 										{user.name}

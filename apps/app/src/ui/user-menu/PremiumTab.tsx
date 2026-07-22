@@ -57,6 +57,7 @@ export function PremiumTab() {
 						variant="primary"
 						disabled={isPending}
 						onClick={() => mutate(undefined)}
+						className="self-start"
 					>
 						{m.user_menu_premium_request_button()}
 					</Button>
