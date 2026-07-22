@@ -262,6 +262,14 @@ describe("updateNodeContentInputSchema", () => {
 		expect(result.success).toBe(true);
 	});
 
+	it("accepts null content (reverting a freshly created node's first edit)", () => {
+		const result = updateNodeContentInputSchema.safeParse({
+			id: "some-id",
+			content: null,
+		});
+		expect(result.success).toBe(true);
+	});
+
 	it("rejects a link whose url is not http(s)", () => {
 		const link = {
 			type: "link",

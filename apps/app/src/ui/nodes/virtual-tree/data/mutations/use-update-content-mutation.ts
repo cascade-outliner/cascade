@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import { client, orpc } from "@/orpc/client";
 import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
+import { undoStore } from "@/ui/undo/undo-store";
 import { patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
 
@@ -12,7 +13,7 @@ export function useUpdateContentMutation(queryKey: QueryKey) {
 	const queryClient = useQueryClient();
 
 	const mutation = useOptimisticNodeMutation<
-		{ id: string; content: { root: unknown } },
+		{ id: string; content: { root: unknown } | null },
 		void,
 		VisibleTreeData
 	>({
@@ -37,6 +38,28 @@ export function useUpdateContentMutation(queryKey: QueryKey) {
 		},
 	});
 
-	return (id: string, content: { root: unknown }) =>
+	// Content coming off the cache can genuinely be `null` — a freshly created,
+	// never-yet-saved node — and undoing back to exactly that state (not just
+	// an empty document) needs to round-trip through updateContent too, so
+	// this accepts null even though real edits (the exposed function below)
+	// never produce one; Lexical always serializes to a real document.
+	const rawUpdateContent = (id: string, content: { root: unknown } | null) =>
 		mutation.mutate({ id, content });
+
+	return (id: string, content: { root: unknown }) => {
+		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
+		const previousContent = rows?.find((row) => row.id === id)?.content as
+			| { root: unknown }
+			| null
+			| undefined;
+
+		rawUpdateContent(id, content);
+
+		if (previousContent !== undefined) {
+			undoStore.push({
+				undo: () => rawUpdateContent(id, previousContent),
+				redo: () => rawUpdateContent(id, content),
+			});
+		}
+	};
 }

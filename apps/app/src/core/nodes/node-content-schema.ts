@@ -77,7 +77,9 @@ export type LexicalContentFromSchema = {
 export const updateNodeContentInputSchema = z
 	.object({
 		id: z.string(),
-		content: z.object({ root: lexicalElementNodeSchema }),
+		// Nullable so undoing a freshly created node's first edit can put it
+		// back in its pre-edit state exactly, not just an empty document.
+		content: z.object({ root: lexicalElementNodeSchema }).nullable(),
 	})
 	.refine(
 		(input) =>

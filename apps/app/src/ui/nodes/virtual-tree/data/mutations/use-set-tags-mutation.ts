@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { client } from "@/orpc/client";
 import { existingTagsOptions } from "@/ui/nodes/use-existing-tags";
 import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
+import { undoStore } from "@/ui/undo/undo-store";
 import { patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
 
@@ -28,5 +29,20 @@ export function useSetTagsMutation(queryKey: QueryKey) {
 		},
 	});
 
-	return (id: string, tags: string[]) => mutation.mutate({ id, tags });
+	const rawSetTags = (id: string, tags: string[]) =>
+		mutation.mutate({ id, tags });
+
+	return (id: string, tags: string[]) => {
+		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
+		const previousTags = rows?.find((row) => row.id === id)?.tags;
+
+		rawSetTags(id, tags);
+
+		if (previousTags !== undefined) {
+			undoStore.push({
+				undo: () => rawSetTags(id, previousTags),
+				redo: () => rawSetTags(id, tags),
+			});
+		}
+	};
 }

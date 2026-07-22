@@ -261,6 +261,63 @@ export function siblingPosition(
 }
 
 /**
+ * The `MoveTarget` that would put `id` back in its current slot among
+ * siblings: after its previous sibling if it has one, else before its next
+ * sibling, else appended as its parent's only child. Used to build the undo
+ * of a move (or of a delete, from a snapshot taken before it ran).
+ */
+export function captureCurrentPosition(
+	rows: VisibleNodeRow[],
+	id: string,
+): MoveTarget | null {
+	const range = subtreeRange(rows, id);
+	if (!range) return null;
+	const row = rows[range.start];
+
+	for (let i = range.start - 1; i >= 0; i--) {
+		if (rows[i].depth < row.depth) break;
+		if (rows[i].depth === row.depth) {
+			if (rows[i].parentId === row.parentId) {
+				return {
+					position: "after",
+					targetId: rows[i].id,
+					parentId: row.parentId,
+				};
+			}
+			break;
+		}
+	}
+
+	const next = rows[range.end];
+	if (next && next.depth === row.depth && next.parentId === row.parentId) {
+		return { position: "before", targetId: next.id, parentId: row.parentId };
+	}
+
+	return { position: "append", parentId: row.parentId };
+}
+
+/**
+ * Reinserts a previously-removed node and its descendants (as captured
+ * before a delete) at an arbitrary target position — the undo of
+ * `removeSubtree`. Appends the slice as a top-level subtree first, then
+ * reuses `moveSubtree` to relocate it, so the two functions can't drift on
+ * how depths/parent flags get recomputed.
+ */
+export function insertSubtreeAt(
+	rows: VisibleNodeRow[],
+	newRoot: VisibleNodeRow,
+	descendants: VisibleNodeRow[],
+	target: MoveTarget,
+): VisibleNodeRow[] {
+	const appended = recomputeIsLastChild([
+		...rows,
+		{ ...newRoot, parentId: null, depth: 0 },
+		...descendants.map((r) => ({ ...r, depth: r.depth + 1 })),
+	]);
+	return moveSubtree(appended, newRoot.id, target);
+}
+
+/**
  * Move a node (and its visible descendants) to a new location, re-depthing
  * the slice and repairing parent flags. Mirrors the server's moveNode
  * semantics so the optimistic result matches the refetched truth.

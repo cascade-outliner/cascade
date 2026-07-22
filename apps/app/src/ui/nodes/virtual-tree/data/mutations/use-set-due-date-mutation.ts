@@ -4,6 +4,7 @@ import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { client, orpc } from "@/orpc/client";
 import { useOptimisticNodeMutation } from "@/ui/nodes/use-optimistic-node-mutation";
+import { undoStore } from "@/ui/undo/undo-store";
 import { patchRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../types";
 
@@ -24,9 +25,21 @@ export function useSetDueDateMutation(queryKey: QueryKey) {
 			}),
 	});
 
-	return (id: string, dueDate: Date | null) =>
-		mutation.mutate({
-			id,
-			dueDate: dueDate ? formatCalendarDate(dueDate) : null,
-		});
+	const rawSetDueDate = (id: string, dueDate: string | null) =>
+		mutation.mutate({ id, dueDate });
+
+	return (id: string, dueDate: Date | null) => {
+		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
+		const previousDueDate = rows?.find((row) => row.id === id)?.dueDate;
+		const nextDueDate = dueDate ? formatCalendarDate(dueDate) : null;
+
+		rawSetDueDate(id, nextDueDate);
+
+		if (previousDueDate !== undefined) {
+			undoStore.push({
+				undo: () => rawSetDueDate(id, previousDueDate),
+				redo: () => rawSetDueDate(id, nextDueDate),
+			});
+		}
+	};
 }

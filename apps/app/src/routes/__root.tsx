@@ -20,6 +20,7 @@ import { getLocale } from "#/paraglide/runtime.js";
 import type { SettingsPatch } from "@/core/settings/settings-patch-schema";
 import { AppLabelsProvider } from "@/lib/labels-provider";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
+import { useUndoShortcuts } from "@/ui/undo/use-undo-shortcuts";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 import "@fontsource-variable/bitter/index.css";
@@ -128,6 +129,7 @@ function ssrThemeAttrs(settings: SettingsPatch) {
 function RootDocument({ children }: { children: React.ReactNode }) {
 	const settings = authedSettings(useMatches());
 	const { dark, themeAttr } = ssrThemeAttrs(settings);
+	useUndoShortcuts();
 	return (
 		<html
 			lang={getLocale()}

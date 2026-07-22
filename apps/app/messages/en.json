@@ -101,6 +101,10 @@
 		}
 	],
 	"node_deleted_with_many_children": "Node deleted along with many child nodes",
+	"node_delete_failed": "Failed to delete node",
+	"undo_action_undone": "Undone",
+	"undo_action_redone": "Redone",
+	"undo_restore_failed": "Couldn't restore node",
 	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Expand",
 	"outliner_toggle_collapse": "Collapse",

@@ -101,6 +101,10 @@
 		}
 	],
 	"node_deleted_with_many_children": "Node verwijderd samen met veel onderliggende nodes",
+	"node_delete_failed": "Verwijderen van node mislukt",
+	"undo_action_undone": "Ongedaan gemaakt",
+	"undo_action_redone": "Opnieuw uitgevoerd",
+	"undo_restore_failed": "Herstellen van node mislukt",
 	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Uitklappen",
 	"outliner_toggle_collapse": "Inklappen",

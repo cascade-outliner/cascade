@@ -1,12 +1,13 @@
 # Changelog
 
 ## 2026-07-22
+- Added undo/redo for creating, editing, moving, deleting, tagging, and setting due dates on nodes: press Cmd/Ctrl+Z to undo the last change and Shift+Cmd/Ctrl+Z to redo it. Undoing a delete restores the node and its full subtree, including content, tags, due date, and type, to its prior position. [#269](https://github.com/Patrickroelofs/cascade/issues/269)
 - [feat] Non-Cascade themes (Catppuccin, Nord, Dracula) now require a premium seat: the theme picker in Settings shows them as locked for non-premium users, and the server rejects saving one of them without an active seat. [#411](https://github.com/Patrickroelofs/cascade/issues/411)
 - [fix] Fixed `createNode` rejecting an invalid `afterId` with an inconsistent `INVALID_ANCHOR`/422 error instead of the `NOT_FOUND`/404 used by every other node procedure. [#398](https://github.com/Patrickroelofs/cascade/issues/398)
 - [fix] Fixed `createNode` silently inserting a node into the wrong sibling list when `afterId` referenced a node that wasn't actually a child of the requested parent (e.g. a stale anchor after a concurrent move); it now rejects the create instead. [#317](https://github.com/Patrickroelofs/cascade/issues/317)
 - [feat] Changelog entries are now labeled Feature, Fix, or Chore, making it easier to scan what changed at a glance. [#406](https://github.com/Patrickroelofs/cascade/issues/406)
 - [feat] Added a "Premium" tab in Settings where you can request (and remove) a premium seat, granted immediately, with a preview of what premium unlocks (starting with node version history) — the first step toward upcoming paid features. Premium users also get a small crown badge on their avatar. [#404](https://github.com/Patrickroelofs/cascade/issues/404)
-- 
+
 ## 2026-07-21
 - [fix] Fixed the tag and due-date filters taking seconds to apply on deeply nested outlines with many collapsed nodes: resolving which rows a collapsed ancestor hides re-scanned the same descendants for every collapsed node in a chain instead of skipping rows already known hidden. [#374](https://github.com/Patrickroelofs/cascade/issues/374)
 - [fix] Fixed node text being impossible to select with the mouse in Firefox: the whole row (not just its drag handle) was marked as a native drag source, and Firefox refuses to let you select text inside any draggable element. [#379](https://github.com/Patrickroelofs/cascade/issues/379)
