@@ -5,6 +5,7 @@ import {
 	listNodeVersions,
 	restoreNodeVersion,
 } from "@/core/nodes/node-version.procedures";
+import { requestPremiumSeat } from "@/core/premium/premium.procedures";
 import type { ORPCContext } from "@/orpc/context";
 import { createTestUser, deleteTestUser } from "@/test-db/harness";
 
@@ -15,6 +16,9 @@ beforeEach(async () => {
 	const testUser = await createTestUser();
 	userId = testUser.user.id;
 	context = testUser.context;
+	// Version history is premium-gated; grant a seat so the tests below
+	// (which aren't about the gate itself) exercise the real behavior.
+	await call(requestPremiumSeat, undefined, { context });
 });
 
 afterEach(async () => {
@@ -126,6 +130,7 @@ describe("restoreNodeVersion", () => {
 	it("rejects a version id belonging to another user with NOT_FOUND", async () => {
 		const other = await createTestUser();
 		try {
+			await call(requestPremiumSeat, undefined, { context: other.context });
 			const node = await call(
 				createNode,
 				{ parentId: null },
@@ -152,6 +157,50 @@ describe("restoreNodeVersion", () => {
 			).rejects.toMatchObject({ code: "NOT_FOUND" });
 		} finally {
 			await deleteTestUser(other.user.id);
+		}
+	});
+});
+
+describe("premium gate", () => {
+	it("rejects listNodeVersions/restoreNodeVersion with PREMIUM_REQUIRED for a user without a seat", async () => {
+		const nonPremium = await createTestUser();
+		try {
+			const node = await call(
+				createNode,
+				{ parentId: null },
+				{ context: nonPremium.context },
+			);
+			// Content is still snapshotted regardless of premium status (see
+			// updateNodeContent), so there'd be a version to see if the gate
+			// weren't in the way.
+			await call(
+				updateNodeContent,
+				{ id: node.id, content: content("first") },
+				{ context: nonPremium.context },
+			);
+			await call(
+				updateNodeContent,
+				{ id: node.id, content: content("second") },
+				{ context: nonPremium.context },
+			);
+
+			await expect(
+				call(
+					listNodeVersions,
+					{ id: node.id },
+					{ context: nonPremium.context },
+				),
+			).rejects.toMatchObject({ code: "PREMIUM_REQUIRED" });
+
+			await expect(
+				call(
+					restoreNodeVersion,
+					{ id: crypto.randomUUID() },
+					{ context: nonPremium.context },
+				),
+			).rejects.toMatchObject({ code: "PREMIUM_REQUIRED" });
+		} finally {
+			await deleteTestUser(nonPremium.user.id);
 		}
 	});
 });

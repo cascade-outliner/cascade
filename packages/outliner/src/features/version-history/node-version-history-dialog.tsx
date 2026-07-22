@@ -6,7 +6,7 @@ import {
 	CircleNotchIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useOutlinerLabels } from "../../labels-context";
 import { toLexicalContent } from "../../lexical/lexical-content";
 import { LexicalReadView } from "../../lexical/read/lexical-read-view";
@@ -31,8 +31,12 @@ export interface NodeVersionSummary {
 export interface NodeVersionHistoryDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	/** `undefined` while the list is loading. */
-	versions: NodeVersionSummary[] | undefined;
+	/** Replaces the version list/loading/empty states with arbitrary
+	 * content, e.g. an upsell notice when the viewer doesn't have access
+	 * to this feature. Leave unset to render the normal `versions` flow. */
+	locked?: ReactNode;
+	/** `undefined` while the list is loading. Ignored when `locked` is set. */
+	versions?: NodeVersionSummary[];
 	onRestore: (versionId: string) => void;
 	/** The version currently being restored, if any (disables its button). */
 	restoringId?: string | null;
@@ -56,6 +60,7 @@ const caret = cva({
 export function NodeVersionHistoryDialog({
 	open,
 	onOpenChange,
+	locked,
 	versions,
 	onRestore,
 	restoringId,
@@ -79,7 +84,9 @@ export function NodeVersionHistoryDialog({
 							<XIcon size={16} weight="bold" />
 						</Dialog.Close>
 					</div>
-					{versions === undefined ? (
+					{locked ? (
+						locked
+					) : versions === undefined ? (
 						<div className="flex justify-center py-8">
 							<CircleNotchIcon
 								size={24}

@@ -164,6 +164,7 @@
 	"outliner_version_history_empty": "No previous versions yet.",
 	"outliner_version_history_restore": "Restore",
 	"outliner_version_history_restored": "Version restored",
+	"premium_gate_version_history_description": "Version history is a premium feature. Request a premium seat to view and restore prior versions of this node.",
 	"ui_loading": "Loading",
 	"ui_dismiss_toast": "Dismiss",
 	"ui_calendar_today": "Today",

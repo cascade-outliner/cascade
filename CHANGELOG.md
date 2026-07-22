@@ -2,7 +2,7 @@
 
 ## 2026-07-22
 - Added a "Premium" tab in Settings where you can request (and remove) a premium seat, granted immediately, with a preview of what premium unlocks (starting with node version history) — the first step toward upcoming paid features. Premium users also get a small crown badge on their avatar. [#404](https://github.com/Patrickroelofs/cascade/issues/404)
-- Added a "Version history" node context-menu action: every content edit is now kept as a retrievable prior version with a timestamp, and you can restore any of them, which itself becomes a new entry so the rest of the timeline is never lost. [#392](https://github.com/Patrickroelofs/cascade/issues/392)
+- Added a "Version history" node context-menu action, gated behind a premium seat: every content edit is now kept as a retrievable prior version with a timestamp, and you can restore any of them, which itself becomes a new entry so the rest of the timeline is never lost. Non-premium users see an upsell in place of the version list. [#392](https://github.com/Patrickroelofs/cascade/issues/392)
 - Fixed `createNode` rejecting an invalid `afterId` with an inconsistent `INVALID_ANCHOR`/422 error instead of the `NOT_FOUND`/404 used by every other node procedure. [#398](https://github.com/Patrickroelofs/cascade/issues/398)
 - Fixed `createNode` silently inserting a node into the wrong sibling list when `afterId` referenced a node that wasn't actually a child of the requested parent (e.g. a stale anchor after a concurrent move); it now rejects the create instead. [#317](https://github.com/Patrickroelofs/cascade/issues/317)
 

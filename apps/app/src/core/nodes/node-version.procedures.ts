@@ -2,13 +2,17 @@ import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { snapshotAndSetContent } from "@/core/nodes/node.procedures";
 import { nodes, nodeVersions } from "@/core/nodes/node.schema";
+import { requirePremium } from "@/core/premium/premium.access";
 import { db } from "@/db";
-import { authed } from "@/orpc/context";
 
 /** Bounds the response size; version history isn't paginated for this pass. */
 const MAX_LISTED_VERSIONS = 200;
 
-export const listNodeVersions = authed
+/** Version history is a premium feature (see `requirePremium`); content
+ * edits are still snapshotted for every user regardless of seat status
+ * (see `updateNodeContent`), so history is already there the moment
+ * someone upgrades. */
+export const listNodeVersions = requirePremium
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
 		return await db
@@ -33,7 +37,7 @@ export const listNodeVersions = authed
  * is itself snapshotted first (via `snapshotAndSetContent`), so restoring
  * becomes a normal edit in the timeline rather than destroying it.
  */
-export const restoreNodeVersion = authed
+export const restoreNodeVersion = requirePremium
 	.errors({
 		NOT_FOUND: { status: 404, message: "Version not found" },
 	})

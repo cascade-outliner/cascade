@@ -1,9 +1,11 @@
 import { Button } from "@cascade/ui/button";
-import { toast } from "@cascade/ui/toast";
 import { CheckCircleIcon } from "@phosphor-icons/react/ssr";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
-import { orpc } from "@/orpc/client";
+import {
+	usePremiumStatus,
+	useRequestPremiumSeat,
+	useRevokePremiumSeat,
+} from "@/ui/premium/use-premium";
 
 const grantedDateFormatter = new Intl.DateTimeFormat(undefined, {
 	day: "numeric",
@@ -12,33 +14,9 @@ const grantedDateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 export function PremiumTab() {
-	const queryClient = useQueryClient();
-	const queryOptions = orpc.premium.get.queryOptions();
-	const { data } = useQuery(queryOptions);
-
-	const { mutate: requestSeat, isPending: isRequesting } = useMutation(
-		orpc.premium.requestSeat.mutationOptions({
-			onSuccess: (status) => {
-				queryClient.setQueryData(queryOptions.queryKey, status);
-				toast.success(m.user_menu_premium_request_success());
-			},
-			onError: () => {
-				toast.error(m.user_menu_premium_request_failed());
-			},
-		}),
-	);
-
-	const { mutate: revokeSeat, isPending: isRevoking } = useMutation(
-		orpc.premium.revokeSeat.mutationOptions({
-			onSuccess: (status) => {
-				queryClient.setQueryData(queryOptions.queryKey, status);
-				toast.success(m.user_menu_premium_remove_success());
-			},
-			onError: () => {
-				toast.error(m.user_menu_premium_remove_failed());
-			},
-		}),
-	);
+	const { data } = usePremiumStatus();
+	const { requestSeat, isRequesting } = useRequestPremiumSeat();
+	const { revokeSeat, isRevoking } = useRevokePremiumSeat();
 
 	return (
 		<div className="flex flex-col gap-3 text-sm">
@@ -68,7 +46,7 @@ export function PremiumTab() {
 						size="sm"
 						variant="dark"
 						disabled={isRevoking}
-						onClick={() => revokeSeat(undefined)}
+						onClick={revokeSeat}
 					>
 						{m.user_menu_premium_remove_button()}
 					</Button>
@@ -81,7 +59,7 @@ export function PremiumTab() {
 						size="sm"
 						variant="primary"
 						disabled={isRequesting}
-						onClick={() => requestSeat(undefined)}
+						onClick={requestSeat}
 						className="self-start"
 					>
 						{m.user_menu_premium_request_button()}
