@@ -1,5 +1,8 @@
 import { ContextMenuItem } from "@cascade/ui/context-menu";
-import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/ssr";
+import {
+	ClockCounterClockwiseIcon,
+	CrownIcon,
+} from "@phosphor-icons/react/ssr";
 import { useOutlinerLabels } from "../../labels-context";
 import type { VersionHistoryFeatureContext } from "./index";
 
@@ -13,6 +16,9 @@ export function VersionHistoryMenuItem({
 	return (
 		<ContextMenuItem
 			icon={<ClockCounterClockwiseIcon size={14} weight="bold" />}
+			trailingIcon={
+				<CrownIcon size={12} weight="fill" className="text-primary" />
+			}
 			onClick={() => ctx.onOpenVersionHistory?.(ctx.row.id)}
 		>
 			{labels.versionHistory}
