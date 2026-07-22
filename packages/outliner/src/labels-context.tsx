@@ -64,6 +64,7 @@ export interface OutlinerLabels {
 	versionHistoryDeletedBadge: string;
 	versionHistoryDeletedSummary: string;
 	versionHistoryDeletedSummaryWithDescendants: (count: number) => string;
+	versionHistoryCreatedSummary: string;
 }
 
 export const defaultOutlinerLabels: OutlinerLabels = {
@@ -138,6 +139,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	versionHistoryDeletedSummary: "This node was deleted.",
 	versionHistoryDeletedSummaryWithDescendants: (count) =>
 		`This node was deleted, along with ${count} other ${count === 1 ? "node" : "nodes"}.`,
+	versionHistoryCreatedSummary: "Node created.",
 };
 
 const OutlinerLabelsContext = createContext<OutlinerLabels | null>(null);

@@ -104,6 +104,7 @@ function createOutlinerLabels(): OutlinerLabels {
 		versionHistoryDeletedSummary: m.outliner_version_history_deleted_summary(),
 		versionHistoryDeletedSummaryWithDescendants: (count) =>
 			m.outliner_version_history_deleted_summary_with_descendants({ count }),
+		versionHistoryCreatedSummary: m.outliner_version_history_created_summary(),
 	};
 }
 

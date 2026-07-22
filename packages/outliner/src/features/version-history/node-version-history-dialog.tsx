@@ -268,6 +268,14 @@ export function NodeVersionHistoryDialog({
 														: labels.versionHistoryDeletedSummary}
 												</div>
 											)
+										) : selected.content === null ? (
+											// The node's very first version — a snapshot of its state
+											// *before* its first edit, which is always empty (see
+											// `snapshotAndSetContent`) — isn't a real prior content
+											// state to preview, just the node coming into existence.
+											<div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted dark:text-canvas/50">
+												{labels.versionHistoryCreatedSummary}
+											</div>
 										) : (
 											<NodeContentPreview
 												rows={[

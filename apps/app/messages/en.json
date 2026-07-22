@@ -177,6 +177,7 @@
 			}
 		}
 	],
+	"outliner_version_history_created_summary": "Node created.",
 	"premium_gate_version_history_description": "Version history is a premium feature. Request a premium seat to view and restore prior versions of this node.",
 	"outliner_tree_version_history": "Tree version history",
 	"outliner_tree_version_history_trigger": "Tree history",
