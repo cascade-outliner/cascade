@@ -18,8 +18,6 @@ export function VirtualTree({
 	existingTags,
 	onDeleteTag,
 	onTagClick,
-	onOpenVersionHistory,
-	isPremium,
 	features,
 }: VirtualTreeProps) {
 	const labels = useOutlinerLabels();
@@ -63,8 +61,6 @@ export function VirtualTree({
 			existingTags={existingTags}
 			onDeleteTag={onDeleteTag}
 			onTagClick={onTagClick}
-			onOpenVersionHistory={onOpenVersionHistory}
-			isPremium={isPremium}
 			features={features}
 			onAddRoot={handleAddRoot}
 			onMoveDrop={handleMoveDrop}

@@ -71,7 +71,6 @@ export function PremiumTab() {
 					{m.user_menu_premium_features_heading()}
 				</div>
 				<ul className="mt-1 list-disc pl-5">
-					<li>{m.user_menu_premium_feature_version_history()}</li>
 					<li>{m.user_menu_premium_feature_themes()}</li>
 				</ul>
 			</div>

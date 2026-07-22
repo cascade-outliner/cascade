@@ -92,28 +92,3 @@ export const nodeTags = pgTable(
 		index("node_tags_tag_id_idx").on(t.tagId),
 	],
 );
-
-/** A prior snapshot of a node's `content`, captured just before it gets
- * overwritten (see `updateNodeContent`/`restoreNodeVersion`). `userId` is
- * denormalized here (rather than requiring a join through `nodes`) so
- * version procedures can scope with a single `WHERE`, matching every other
- * node procedure. */
-export const nodeVersions = pgTable(
-	"node_versions",
-	{
-		id: text().primaryKey().default(sql`gen_random_uuid()`),
-		nodeId: text("node_id")
-			.notNull()
-			.references(() => nodes.id, { onDelete: "cascade" }),
-		userId: text("user_id")
-			.notNull()
-			.references(() => user.id, { onDelete: "cascade" }),
-		content: jsonb("content"),
-		createdAt: timestamp("created_at", { withTimezone: true })
-			.notNull()
-			.defaultNow(),
-	},
-	(t) => [
-		index("node_versions_node_id_created_at_idx").on(t.nodeId, t.createdAt),
-	],
-);

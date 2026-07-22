@@ -57,10 +57,6 @@ export interface OutlinerLabels {
 	filtersHideCompleted: string;
 	filtersRemoveHideCompleted: string;
 	filtersClear: string;
-	versionHistory: string;
-	versionHistoryCloseAria: string;
-	versionHistoryEmpty: string;
-	versionHistoryRestore: string;
 }
 
 export const defaultOutlinerLabels: OutlinerLabels = {
@@ -127,10 +123,6 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	filtersHideCompleted: "Hide completed",
 	filtersRemoveHideCompleted: "Remove Hide completed filter",
 	filtersClear: "Clear filters",
-	versionHistory: "Version history",
-	versionHistoryCloseAria: "Close version history",
-	versionHistoryEmpty: "No previous versions yet.",
-	versionHistoryRestore: "Restore",
 };
 
 const OutlinerLabelsContext = createContext<OutlinerLabels | null>(null);

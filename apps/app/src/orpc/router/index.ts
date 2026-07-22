@@ -17,10 +17,6 @@ import {
 	visibleTree,
 } from "@/core/nodes/node.procedures";
 import {
-	listNodeVersions,
-	restoreNodeVersion,
-} from "@/core/nodes/node-version.procedures";
-import {
 	getPremiumStatus,
 	requestPremiumSeat,
 	revokePremiumSeat,
@@ -43,8 +39,6 @@ export default {
 		delete: deleteNode,
 		duplicate: duplicateNode,
 		updateContent: updateNodeContent,
-		listVersions: listNodeVersions,
-		restoreVersion: restoreNodeVersion,
 		setType: setNodeType,
 		setDueDate: setNodeDueDate,
 		setTags: setNodeTags,

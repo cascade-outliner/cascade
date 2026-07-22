@@ -4,8 +4,8 @@ import { db } from "@/db";
 import { authed } from "@/orpc/context";
 
 /** Whether a user currently has an active premium seat. Shared by
- * `requirePremium` and by any write path (e.g. version-history snapshotting)
- * that needs to skip doing premium-only work for everyone else. */
+ * `requirePremium` and by any write path that needs to skip doing
+ * premium-only work for everyone else. */
 export async function isPremiumUser(userId: string): Promise<boolean> {
 	const [row] = await db
 		.select({ userId: premiumSeats.userId })
