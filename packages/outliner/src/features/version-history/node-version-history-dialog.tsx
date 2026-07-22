@@ -40,6 +40,11 @@ export interface NodeVersionSummary {
 	 * `renderDeletedPreview` (falling back to a plain summary) instead of
 	 * the single-row `NodeContentPreview` a normal entry gets. */
 	descendantsDeleted?: number | null;
+	/** Set only on the single marker entry a node's creation writes — not a
+	 * content state to preview or restore, just the moment the node came
+	 * into being. Only ever present in tree-wide history; a specific
+	 * node's own history never includes its own creation marker. */
+	created?: boolean;
 }
 
 export interface NodeVersionHistoryDialogProps {
@@ -241,6 +246,9 @@ export function NodeVersionHistoryDialog({
 											onClick={() => onRestore(selected.id)}
 											disabled={
 												restoringId === selected.id ||
+												// A creation marker (see `created`) isn't restorable
+												// at all — there's no prior state to go back to.
+												selected.created === true ||
 												// A deletion marker (see `descendantsDeleted`) whose
 												// node is no longer deleted has nothing left to
 												// restore — it was already brought back (via this
@@ -268,11 +276,9 @@ export function NodeVersionHistoryDialog({
 														: labels.versionHistoryDeletedSummary}
 												</div>
 											)
-										) : selected.content === null ? (
-											// The node's very first version — a snapshot of its state
-											// *before* its first edit, which is always empty (see
-											// `snapshotAndSetContent`) — isn't a real prior content
-											// state to preview, just the node coming into existence.
+										) : selected.created ? (
+											// The node's creation marker — not a content state to
+											// preview, just the moment the node came into being.
 											<div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted dark:text-canvas/50">
 												{labels.versionHistoryCreatedSummary}
 											</div>

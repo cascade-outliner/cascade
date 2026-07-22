@@ -25,7 +25,12 @@ const MAX_LISTED_TREE_VERSIONS = 200;
  * owning node is currently (soft-)deleted (see `deleteNode`) — its
  * `node_versions` rows survive a delete on purpose, so its history (and the
  * ability to restore it, undeleting the whole subtree — see
- * `restoreNodeVersion`) isn't lost along with it. */
+ * `restoreNodeVersion`) isn't lost along with it.
+ *
+ * The `created` marker (see the schema) is excluded: it's not a content
+ * state this node ever had, just the moment it came into being, which
+ * isn't useful in a *content* history for one specific node the way it is
+ * in `listTreeVersions`' timeline of everything that's happened. */
 export const listNodeVersions = requirePremium
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
@@ -44,6 +49,7 @@ export const listNodeVersions = requirePremium
 				and(
 					eq(nodeVersions.nodeId, input.id),
 					eq(nodeVersions.userId, context.user.id),
+					eq(nodeVersions.created, false),
 				),
 			)
 			.orderBy(desc(nodeVersions.createdAt))
@@ -58,12 +64,20 @@ export const listNodeVersions = requirePremium
  * `nodeDeletedAt` on `listNodeVersions`), so deleting a node doesn't take
  * its history down with it.
  *
- * A deleted node's *other* (non-marker) versions are excluded here: once a
- * node is gone, its individual edit history is no longer the useful signal
- * at the tree level — only the single `descendantsDeleted` marker row
- * `deleteNode` wrote for it is, so a whole subtree deletion shows up as one
- * entry instead of one per node that was in it. (`listNodeVersions`, for a
- * specific node's own history, keeps every version — deleted or not.) */
+ * Unlike `listNodeVersions`, this includes the `created` marker `createNode`
+ * writes (see the schema) — a brand new, never-edited node still shows up
+ * here immediately as "created", rather than being invisible until its
+ * first edit.
+ *
+ * A deleted node's *other* (non-marker, non-`created`) versions are
+ * excluded here: once a node is gone, its individual edit history is no
+ * longer the useful signal at the tree level — only the single
+ * `descendantsDeleted` marker row `deleteNode` wrote for it is, so a whole
+ * subtree deletion shows up as one entry instead of one per node that was
+ * in it. The `created` marker keeps showing regardless — a node being
+ * deleted later doesn't erase the record of when it came into being.
+ * (`listNodeVersions`, for a specific node's own history, keeps every
+ * ordinary version — deleted or not.) */
 export const listTreeVersions = requirePremium.handler(async ({ context }) => {
 	const userId = context.user.id;
 	return await db
@@ -75,6 +89,7 @@ export const listTreeVersions = requirePremium.handler(async ({ context }) => {
 			nodeContent: nodes.content,
 			nodeDeletedAt: nodes.deletedAt,
 			descendantsDeleted: nodeVersions.descendantsDeleted,
+			created: nodeVersions.created,
 		})
 		.from(nodeVersions)
 		.innerJoin(nodes, eq(nodes.id, nodeVersions.nodeId))
@@ -82,7 +97,11 @@ export const listTreeVersions = requirePremium.handler(async ({ context }) => {
 			and(
 				eq(nodeVersions.userId, userId),
 				eq(nodes.userId, userId),
-				or(isNull(nodes.deletedAt), isNotNull(nodeVersions.descendantsDeleted)),
+				or(
+					isNull(nodes.deletedAt),
+					isNotNull(nodeVersions.descendantsDeleted),
+					eq(nodeVersions.created, true),
+				),
 			),
 		)
 		.orderBy(desc(nodeVersions.createdAt))
@@ -101,7 +120,10 @@ export const listTreeVersions = requirePremium.handler(async ({ context }) => {
  * A `descendantsDeleted` marker row (see the schema) isn't a content edit —
  * `deleteNode` never touched the node's `content` — so restoring one only
  * undeletes the subtree and skips `snapshotAndSetContent` entirely, leaving
- * content exactly as it was.
+ * content exactly as it was. A `created` marker isn't restorable at all
+ * (the UI disables Restore for it) — this is a defensive no-op against a
+ * direct API call, since "restoring" the moment a node came into being
+ * doesn't mean anything.
  */
 export const restoreNodeVersion = requirePremium
 	.errors({
@@ -115,6 +137,7 @@ export const restoreNodeVersion = requirePremium
 				nodeId: nodeVersions.nodeId,
 				content: nodeVersions.content,
 				descendantsDeleted: nodeVersions.descendantsDeleted,
+				created: nodeVersions.created,
 			})
 			.from(nodeVersions)
 			.where(
@@ -127,7 +150,7 @@ export const restoreNodeVersion = requirePremium
 
 		// `restoreNodeVersion` is itself premium-gated (`requirePremium`
 		// above), so the caller is always a premium user here.
-		if (version.descendantsDeleted === null) {
+		if (version.descendantsDeleted === null && !version.created) {
 			const ok = await snapshotAndSetContent(
 				userId,
 				version.nodeId,

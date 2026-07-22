@@ -1,5 +1,5 @@
 import { call } from "@orpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	createNode,
@@ -179,7 +179,8 @@ describe("listTreeVersions", () => {
 		const nodeA = await call(createNode, { parentId: null }, { context });
 		const nodeB = await call(createNode, { parentId: null }, { context });
 		// A node's first edit now snapshots its creation (null content), so a
-		// single edit per node is enough to produce a version.
+		// single edit per node is enough to produce a version, on top of the
+		// `created` marker `createNode` already wrote for each.
 		await call(
 			updateNodeContent,
 			{ id: nodeA.id, content: content("a1") },
@@ -192,8 +193,14 @@ describe("listTreeVersions", () => {
 		);
 
 		const versions = await call(listTreeVersions, undefined, { context });
-		expect(versions.map((v) => v.content)).toEqual([null, null]);
-		expect(versions.map((v) => v.nodeId)).toEqual([nodeB.id, nodeA.id]);
+		expect(versions.map((v) => v.content)).toEqual([null, null, null, null]);
+		expect(versions.map((v) => v.nodeId)).toEqual([
+			nodeB.id,
+			nodeA.id,
+			nodeB.id,
+			nodeA.id,
+		]);
+		expect(versions.map((v) => v.created)).toEqual([false, false, true, true]);
 	});
 
 	it("does not include another user's versions", async () => {
@@ -228,12 +235,67 @@ describe("listTreeVersions", () => {
 				{ context },
 			);
 
+			// createNode's own `created` marker plus the two edits.
 			const versions = await call(listTreeVersions, undefined, { context });
-			expect(versions).toHaveLength(2);
+			expect(versions).toHaveLength(3);
 			expect(versions.every((v) => v.nodeId === node.id)).toBe(true);
 		} finally {
 			await deleteTestUser(other.user.id);
 		}
+	});
+});
+
+describe("node creation markers", () => {
+	it("shows up in tree-wide history immediately, before any edit, but not in the node's own history", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+
+		expect(
+			await call(listNodeVersions, { id: node.id }, { context }),
+		).toHaveLength(0);
+
+		const treeVersions = await call(listTreeVersions, undefined, { context });
+		expect(treeVersions).toHaveLength(1);
+		expect(treeVersions[0]).toMatchObject({
+			nodeId: node.id,
+			content: null,
+			created: true,
+		});
+	});
+
+	it("is not restorable and leaves content untouched", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: node.id, content: content("hello") },
+			{ context },
+		);
+
+		const [marker] = await db
+			.select({ id: nodeVersions.id })
+			.from(nodeVersions)
+			.where(
+				and(eq(nodeVersions.nodeId, node.id), eq(nodeVersions.created, true)),
+			);
+
+		const restored = await call(
+			restoreNodeVersion,
+			{ id: marker.id },
+			{ context },
+		);
+		expect(restored.content).toEqual(content("hello"));
+	});
+
+	it("keeps showing in tree-wide history once the node is deleted, alongside the delete marker", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(deleteNode, { id: node.id }, { context });
+
+		const treeVersions = await call(listTreeVersions, undefined, { context });
+		expect(treeVersions).toHaveLength(2);
+		expect(treeVersions.map((v) => v.created)).toEqual(
+			expect.arrayContaining([true, false]),
+		);
+		expect(treeVersions.find((v) => v.created)?.nodeId).toBe(node.id);
+		expect(treeVersions.find((v) => !v.created)?.descendantsDeleted).toBe(0);
 	});
 });
 
@@ -255,12 +317,15 @@ describe("deleting and restoring a node", () => {
 		expect(versions[0].nodeDeletedAt).not.toBeNull();
 		expect(versions[1].descendantsDeleted).toBeNull();
 
-		// The tree-wide view collapses down to just the marker — the node's
-		// own edit history isn't the useful signal anymore once it's gone.
+		// The tree-wide view collapses the edit history down to just the
+		// delete marker, plus the node's `created` marker (which keeps
+		// showing regardless of deletion) — the node's own edit history
+		// isn't the useful signal anymore once it's gone.
 		const treeVersions = await call(listTreeVersions, undefined, { context });
-		expect(treeVersions).toHaveLength(1);
-		expect(treeVersions[0].descendantsDeleted).toBe(0);
-		expect(treeVersions[0].nodeDeletedAt).not.toBeNull();
+		expect(treeVersions).toHaveLength(2);
+		const deleteMarker = treeVersions.find((v) => !v.created);
+		expect(deleteMarker?.descendantsDeleted).toBe(0);
+		expect(deleteMarker?.nodeDeletedAt).not.toBeNull();
 	});
 
 	it("collapses a whole subtree deletion into a single tree-wide history entry", async () => {
@@ -281,12 +346,16 @@ describe("deleting and restoring a node", () => {
 
 		await call(deleteNode, { id: parent.id }, { context });
 
-		// Three nodes' worth of "created" versions existed before the delete,
-		// but the deletion of the whole subtree shows up as exactly one entry.
+		// Three nodes' worth of edit history existed before the delete, but
+		// the deletion of the whole subtree shows up as exactly one entry
+		// (plus each of the three nodes' own `created` marker, which keeps
+		// showing regardless of deletion).
 		const treeVersions = await call(listTreeVersions, undefined, { context });
-		expect(treeVersions).toHaveLength(1);
-		expect(treeVersions[0].nodeId).toBe(parent.id);
-		expect(treeVersions[0].descendantsDeleted).toBe(2);
+		const deleteMarkers = treeVersions.filter((v) => !v.created);
+		expect(deleteMarkers).toHaveLength(1);
+		expect(deleteMarkers[0].nodeId).toBe(parent.id);
+		expect(deleteMarkers[0].descendantsDeleted).toBe(2);
+		expect(treeVersions.filter((v) => v.created)).toHaveLength(3);
 
 		// Each node's own history is untouched and still reachable directly.
 		expect(

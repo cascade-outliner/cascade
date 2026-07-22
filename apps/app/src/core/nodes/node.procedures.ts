@@ -285,6 +285,20 @@ export const createNode = authed
 					dueDate: input.dueDate ?? null,
 				})
 				.returning(nodeColumns(userId));
+
+			// A marker so this node shows up in tree-wide history immediately,
+			// even if it's never edited — see `created` on the schema. Gated
+			// behind premium the same way `updateNodeContent`/`deleteNode` gate
+			// their history writes.
+			if (await isPremiumUser(userId)) {
+				await tx.insert(nodeVersions).values({
+					nodeId: created.id,
+					userId,
+					content: null,
+					created: true,
+				});
+			}
+
 			return created;
 		});
 	});

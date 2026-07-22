@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2026-07-22
-- [fix] A node's "created" entry in version history (its state before its first-ever edit, always blank) now says "Node created." instead of showing a confusing empty content box. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
+- [fix] A brand new, never-edited node used to have no way to show up in tree-wide history at all, and its per-node version history showed a confusing "created" entry with empty content and a working Restore button before it had any real history. Creating a node now writes its own "Node created." marker (non-restorable) that shows up in tree-wide history immediately; a node's own version history stays empty until its first real edit, and only starts listing entries from there. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
 - [feat] Version history no longer shows a line-by-line content diff — every entry now renders as a read-only recreation of the node's content exactly as it looks in the outliner (rich text, headings, etc.), and a whole-subtree deletion entry shows the entire deleted subtree the same way, indentation included. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
 - [fix] The Restore button is now disabled for a deletion entry whose node has already been brought back — restoring it used to be a silent no-op. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
 - [feat] Deleting a whole tree (a node with descendants) now shows up as a single entry in version history — previously every node in the deleted subtree got its own flagged "Deleted" row, cluttering the tree-wide timeline with one line per node instead of one per deletion. [#408](https://github.com/Patrickroelofs/cascade/issues/408)

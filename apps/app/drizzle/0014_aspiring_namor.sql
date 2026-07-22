@@ -1,0 +1,1 @@
+ALTER TABLE "node_versions" ADD COLUMN "created" boolean DEFAULT false NOT NULL;

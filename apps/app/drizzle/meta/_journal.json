@@ -99,6 +99,13 @@
       "when": 1784745118972,
       "tag": "0013_stiff_human_robot",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1784750548151,
+      "tag": "0014_aspiring_namor",
+      "breakpoints": true
     }
   ]
 }

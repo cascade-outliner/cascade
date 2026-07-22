@@ -148,6 +148,17 @@ export const nodeVersions = pgTable(
 		 * favor of it.
 		 */
 		descendantsDeleted: integer("descendants_deleted"),
+		/**
+		 * Set only on the single marker row `createNode` inserts for a node at
+		 * the moment it's created — content is always `null` (nothing exists
+		 * yet). Unlike a content-edit snapshot, this marks a node's whole
+		 * lifetime starting, not a state to revert to, so it's excluded from
+		 * `listNodeVersions` (a specific node's own content history) and
+		 * non-restorable; `listTreeVersions` shows it so a brand new,
+		 * never-edited node still appears in tree-wide history immediately,
+		 * instead of being invisible until its first edit.
+		 */
+		created: boolean("created").notNull().default(false),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),
