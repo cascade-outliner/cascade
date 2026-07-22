@@ -7,6 +7,7 @@ import {
 	customType,
 	date,
 	index,
+	integer,
 	jsonb,
 	pgTable,
 	primaryKey,
@@ -136,6 +137,17 @@ export const nodeVersions = pgTable(
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
 		content: jsonb("content"),
+		/**
+		 * Set only on the single marker row `deleteNode` inserts for the node it
+		 * was directly called on — the count of descendants deleted alongside
+		 * it (0 for a leaf). `NULL` means this is a normal content-edit
+		 * snapshot. This is what lets a whole subtree deletion collapse into
+		 * one entry in version history instead of one per affected node: only
+		 * the direct target gets a marker, and `listTreeVersions` hides every
+		 * other (non-marker) version belonging to a currently-deleted node in
+		 * favor of it.
+		 */
+		descendantsDeleted: integer("descendants_deleted"),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),

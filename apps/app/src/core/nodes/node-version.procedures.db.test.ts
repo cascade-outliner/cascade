@@ -237,7 +237,7 @@ describe("listTreeVersions", () => {
 });
 
 describe("deleting and restoring a node", () => {
-	it("keeps a deleted node's versions listed, flagged with nodeDeletedAt", async () => {
+	it("keeps a deleted node's versions listed, and adds a single delete marker", async () => {
 		const node = await call(createNode, { parentId: null }, { context });
 		await call(
 			updateNodeContent,
@@ -246,13 +246,54 @@ describe("deleting and restoring a node", () => {
 		);
 		await call(deleteNode, { id: node.id }, { context });
 
+		// The per-node view keeps everything: the original "created" edit
+		// snapshot plus the new delete marker on top of it (newest first).
 		const versions = await call(listNodeVersions, { id: node.id }, { context });
-		expect(versions).toHaveLength(1);
+		expect(versions).toHaveLength(2);
+		expect(versions[0].descendantsDeleted).toBe(0);
 		expect(versions[0].nodeDeletedAt).not.toBeNull();
+		expect(versions[1].descendantsDeleted).toBeNull();
 
+		// The tree-wide view collapses down to just the marker — the node's
+		// own edit history isn't the useful signal anymore once it's gone.
 		const treeVersions = await call(listTreeVersions, undefined, { context });
 		expect(treeVersions).toHaveLength(1);
+		expect(treeVersions[0].descendantsDeleted).toBe(0);
 		expect(treeVersions[0].nodeDeletedAt).not.toBeNull();
+	});
+
+	it("collapses a whole subtree deletion into a single tree-wide history entry", async () => {
+		const parent = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: parent.id }, { context });
+		const grandchild = await call(
+			createNode,
+			{ parentId: child.id },
+			{ context },
+		);
+		for (const n of [parent, child, grandchild]) {
+			await call(
+				updateNodeContent,
+				{ id: n.id, content: content(`${n.id}-first`) },
+				{ context },
+			);
+		}
+
+		await call(deleteNode, { id: parent.id }, { context });
+
+		// Three nodes' worth of "created" versions existed before the delete,
+		// but the deletion of the whole subtree shows up as exactly one entry.
+		const treeVersions = await call(listTreeVersions, undefined, { context });
+		expect(treeVersions).toHaveLength(1);
+		expect(treeVersions[0].nodeId).toBe(parent.id);
+		expect(treeVersions[0].descendantsDeleted).toBe(2);
+
+		// Each node's own history is untouched and still reachable directly.
+		expect(
+			await call(listNodeVersions, { id: child.id }, { context }),
+		).toHaveLength(1);
+		expect(
+			await call(listNodeVersions, { id: grandchild.id }, { context }),
+		).toHaveLength(1);
 	});
 
 	it("restoring a deleted node's version brings back its whole subtree", async () => {
@@ -279,12 +320,14 @@ describe("deleting and restoring a node", () => {
 			{ id: parent.id },
 			{ context },
 		);
+		// versions[0] is the delete marker (newest) — restoring it undeletes
+		// without touching content, since `deleteNode` never changed it.
 		const restored = await call(
 			restoreNodeVersion,
 			{ id: versions[0].id },
 			{ context },
 		);
-		expect(restored.content).toBeNull();
+		expect(restored.content).toEqual(content("parent-first"));
 
 		const roots = await call(listNodes, { parentId: null }, { context });
 		expect(roots.map((r) => r.id)).toContain(parent.id);

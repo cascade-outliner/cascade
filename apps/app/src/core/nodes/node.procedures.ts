@@ -805,7 +805,10 @@ export const duplicateNode = authed
  * (userId, parentId, order) slot for a future sibling to reuse; descendants
  * keep their real `order` untouched, since nothing can be inserted under an
  * invisible (deleted) parent in the meantime, so there's no collision risk
- * for them to guard against.
+ * for them to guard against. Also inserts one `node_versions` marker row
+ * (see `descendantsDeleted` on the schema) for the directly-targeted node,
+ * so the whole batch shows up as a single entry in version history rather
+ * than one per node in the deleted subtree.
  *
  * Takes the same per-user advisory lock `createNode`/`moveNode`/
  * `duplicateNode` do, serializing this against any of them concurrently
@@ -816,12 +819,13 @@ export const duplicateNode = authed
  * neither visible nor restorable, and would be permanently destroyed by
  * `parentId`'s cascade delete once the ancestor is eventually purged).
  *
- * A no-op (`childrenDeleted: 0`) if the node doesn't exist, isn't owned by
- * this user, or is already deleted — checked up front, before touching any
- * descendants, so a repeated delete call can never re-stamp already-deleted
- * descendants with a fresh `deletedAt`. Re-stamping them would desync their
- * `deletedAt` from the top node's original instant and break
- * `restoreDeletedSubtree`'s "restore the whole batch together" matching.
+ * A no-op (`childrenDeleted: 0`, no marker written) if the node doesn't
+ * exist, isn't owned by this user, or is already deleted — checked up
+ * front, before touching any descendants, so a repeated delete call can
+ * never re-stamp already-deleted descendants with a fresh `deletedAt`.
+ * Re-stamping them would desync their `deletedAt` from the top node's
+ * original instant and break `restoreDeletedSubtree`'s "restore the whole
+ * batch together" matching.
  */
 export const deleteNode = authed
 	.input(z.object({ id: z.string() }))
@@ -866,6 +870,20 @@ export const deleteNode = authed
 				.update(nodes)
 				.set({ deletedAt, order: input.id })
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
+
+			// One marker version for the whole batch — see `descendantsDeleted`
+			// on the schema — so a subtree deletion shows up as a single entry
+			// in version history instead of one per affected node. Gated behind
+			// premium the same way `updateNodeContent` gates its snapshots: no
+			// point writing history nobody can see or restore.
+			if (await isPremiumUser(userId)) {
+				await tx.insert(nodeVersions).values({
+					nodeId: input.id,
+					userId,
+					content: null,
+					descendantsDeleted: descendantRows.length,
+				});
+			}
 
 			return { childrenDeleted: descendantRows.length };
 		});

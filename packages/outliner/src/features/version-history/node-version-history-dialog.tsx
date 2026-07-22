@@ -37,6 +37,12 @@ export interface NodeVersionSummary {
 	 * restore it, bringing the whole subtree back — isn't lost along with
 	 * it; restoring one of its versions is how you undelete it. */
 	nodeDeletedAt?: Date | null;
+	/** Set only on the single marker entry a whole-subtree deletion writes
+	 * (the count of descendants deleted alongside it, 0 for a leaf) —
+	 * `undefined`/`null` for a normal content-edit entry. Deletion didn't
+	 * change `content`, so this entry is shown as a plain summary instead of
+	 * a diff. */
+	descendantsDeleted?: number | null;
 }
 
 export interface NodeVersionHistoryDialogProps {
@@ -259,21 +265,31 @@ export function NodeVersionHistoryDialog({
 											{labels.versionHistoryRestore}
 										</Button>
 									</div>
-									<div className="min-h-0 flex-1 overflow-auto rounded-md border border-ink/10 dark:border-surface/15">
-										<DiffViewer
-											key={selected.id}
-											oldValue={lexicalToPlainText(selected.content)}
-											newValue={lexicalToPlainText(selected.nodeContent)}
-											// Unified rather than side-by-side: the removed
-											// (before) line stacks directly above the added
-											// (after) one, which reads better for short prose
-											// than two side-by-side columns.
-											splitView={false}
-											hideLineNumbers
-											hideSummary
-											useDarkTheme={isDarkMode}
-										/>
-									</div>
+									{selected.descendantsDeleted != null ? (
+										<div className="flex min-h-0 flex-1 items-center justify-center rounded-md border border-ink/10 p-4 text-center text-sm text-muted dark:border-surface/15 dark:text-canvas/50">
+											{selected.descendantsDeleted > 0
+												? labels.versionHistoryDeletedSummaryWithDescendants(
+														selected.descendantsDeleted,
+													)
+												: labels.versionHistoryDeletedSummary}
+										</div>
+									) : (
+										<div className="min-h-0 flex-1 overflow-auto rounded-md border border-ink/10 dark:border-surface/15">
+											<DiffViewer
+												key={selected.id}
+												oldValue={lexicalToPlainText(selected.content)}
+												newValue={lexicalToPlainText(selected.nodeContent)}
+												// Unified rather than side-by-side: the removed
+												// (before) line stacks directly above the added
+												// (after) one, which reads better for short prose
+												// than two side-by-side columns.
+												splitView={false}
+												hideLineNumbers
+												hideSummary
+												useDarkTheme={isDarkMode}
+											/>
+										</div>
+									)}
 								</div>
 							)}
 						</div>

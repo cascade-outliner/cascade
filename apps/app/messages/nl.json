@@ -166,6 +166,17 @@
 	"outliner_version_history_restore": "Herstellen",
 	"outliner_version_history_restored": "Versie hersteld",
 	"outliner_version_history_deleted_badge": "Verwijderd",
+	"outliner_version_history_deleted_summary": "Deze node is verwijderd.",
+	"outliner_version_history_deleted_summary_with_descendants": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "Deze node is verwijderd, samen met {count} andere node.",
+				"countPlural=other": "Deze node is verwijderd, samen met {count} andere nodes."
+			}
+		}
+	],
 	"premium_gate_version_history_description": "Versiegeschiedenis is een premiumfunctie. Vraag een premium-abonnement aan om eerdere versies van deze node te bekijken en te herstellen.",
 	"outliner_tree_version_history": "Versiegeschiedenis van de boom",
 	"outliner_tree_version_history_trigger": "Boomgeschiedenis",

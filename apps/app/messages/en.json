@@ -166,6 +166,17 @@
 	"outliner_version_history_restore": "Restore",
 	"outliner_version_history_restored": "Version restored",
 	"outliner_version_history_deleted_badge": "Deleted",
+	"outliner_version_history_deleted_summary": "This node was deleted.",
+	"outliner_version_history_deleted_summary_with_descendants": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "This node was deleted, along with {count} other node.",
+				"countPlural=other": "This node was deleted, along with {count} other nodes."
+			}
+		}
+	],
 	"premium_gate_version_history_description": "Version history is a premium feature. Request a premium seat to view and restore prior versions of this node.",
 	"outliner_tree_version_history": "Tree version history",
 	"outliner_tree_version_history_trigger": "Tree history",

@@ -101,6 +101,9 @@ function createOutlinerLabels(): OutlinerLabels {
 		versionHistoryEmpty: m.outliner_version_history_empty(),
 		versionHistoryRestore: m.outliner_version_history_restore(),
 		versionHistoryDeletedBadge: m.outliner_version_history_deleted_badge(),
+		versionHistoryDeletedSummary: m.outliner_version_history_deleted_summary(),
+		versionHistoryDeletedSummaryWithDescendants: (count) =>
+			m.outliner_version_history_deleted_summary_with_descendants({ count }),
 	};
 }
 
