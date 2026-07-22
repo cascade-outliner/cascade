@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-22
+- Fixed `createNode` rejecting an invalid `afterId` with an inconsistent `INVALID_ANCHOR`/422 error instead of the `NOT_FOUND`/404 used by every other node procedure. [#398](https://github.com/Patrickroelofs/cascade/issues/398)
 - Fixed `createNode` silently inserting a node into the wrong sibling list when `afterId` referenced a node that wasn't actually a child of the requested parent (e.g. a stale anchor after a concurrent move); it now rejects the create instead. [#317](https://github.com/Patrickroelofs/cascade/issues/317)
 
 ## 2026-07-21
