@@ -61,6 +61,7 @@ export interface OutlinerLabels {
 	versionHistoryCloseAria: string;
 	versionHistoryEmpty: string;
 	versionHistoryRestore: string;
+	versionHistoryDeletedBadge: string;
 }
 
 export const defaultOutlinerLabels: OutlinerLabels = {
@@ -131,6 +132,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	versionHistoryCloseAria: "Close version history",
 	versionHistoryEmpty: "No previous versions yet.",
 	versionHistoryRestore: "Restore",
+	versionHistoryDeletedBadge: "Deleted",
 };
 
 const OutlinerLabelsContext = createContext<OutlinerLabels | null>(null);

@@ -50,12 +50,31 @@ export const nodes = pgTable(
 		 * the app, so the day it names never shifts under conversion. See #323.
 		 */
 		dueDate: date("due_date", { mode: "string" }),
+		/**
+		 * Soft-delete marker: set (to the same instant for the whole subtree,
+		 * one UPDATE per `deleteNode` call) instead of removing the row, so a
+		 * deleted node's `node_versions` survive and it can be brought back
+		 * (see `restoreNodeVersion`). `NULL` means active/visible. Deleted rows
+		 * are excluded from every normal read (`visibleTree`, `listNodes`,
+		 * `getNode`, `resolveNodeSlug`) and from sibling-order lookups
+		 * (`createNode`/`moveNode`/`duplicateNode`), so they're fully invisible
+		 * until restored.
+		 */
+		deletedAt: timestamp("deleted_at", { withTimezone: true }),
 	},
 	(t) => [
 		index("nodes_parent_id_idx").on(t.parentId),
 		index("nodes_parent_order_idx").on(t.parentId, t.order),
 		index("nodes_user_id_idx").on(t.userId),
 		index("nodes_user_due_date_idx").on(t.userId, t.dueDate),
+		// Deleted nodes keep their row (and `order`) around, but the
+		// top-of-subtree node being deleted gets its `order` rewritten to a
+		// value derived from its own id (see `deleteNode`) precisely so it
+		// can never collide with this constraint once a new sibling reuses
+		// that slot — descendants keep their real `order` untouched, since
+		// nothing can be inserted under an invisible (deleted) parent in the
+		// meantime. That means this constraint doesn't need to be scoped to
+		// active rows only.
 		unique("nodes_user_parent_order_unique")
 			.on(t.userId, t.parentId, t.order)
 			.nullsNotDistinct(),

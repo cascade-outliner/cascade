@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-22
+- [feat] Deleting a node no longer erases its version history: the node (and everything under it) is now soft-deleted, so it still shows up in tree-wide and per-node version history — flagged with a "Deleted" badge — and restoring any of its versions brings back the whole subtree exactly as it was, reattaching it under its original parent or at the root if that parent is gone too. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
 - [fix] Version history (both per-node and tree-wide) now includes a node's creation as its earliest entry — previously only edits after the first one were kept, so a node's original content vanished from its history the moment it had only been edited once. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
 - [feat] Added a "Tree history" item to the user menu, gated behind the same premium seat as per-node version history: it lists every content edit across your entire tree in one place, newest first, each linking back to its node. Picking an entry shows a diff of what changed against the node's current content, with Restore right next to it. [#408](https://github.com/Patrickroelofs/cascade/issues/408)
 - [feat] Added a "Premium" tab in Settings where you can request (and remove) a premium seat, granted immediately, with a preview of what premium unlocks (starting with node version history) — the first step toward upcoming paid features. Premium users also get a small crown badge on their avatar. [#404](https://github.com/Patrickroelofs/cascade/issues/404)

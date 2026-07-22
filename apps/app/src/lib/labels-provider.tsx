@@ -100,6 +100,7 @@ function createOutlinerLabels(): OutlinerLabels {
 		versionHistoryCloseAria: m.outliner_version_history_close_aria(),
 		versionHistoryEmpty: m.outliner_version_history_empty(),
 		versionHistoryRestore: m.outliner_version_history_restore(),
+		versionHistoryDeletedBadge: m.outliner_version_history_deleted_badge(),
 	};
 }
 

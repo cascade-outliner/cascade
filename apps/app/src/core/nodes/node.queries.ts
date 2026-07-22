@@ -2,7 +2,7 @@ import { type SQL, sql } from "drizzle-orm";
 import { nodes } from "@/core/nodes/node.schema";
 
 export const hasChildren = (userId: string) =>
-	sql<boolean>`EXISTS (SELECT 1 FROM nodes c WHERE c.parent_id = nodes.id AND c.user_id = ${userId})`;
+	sql<boolean>`EXISTS (SELECT 1 FROM nodes c WHERE c.parent_id = nodes.id AND c.user_id = ${userId} AND c.deleted_at IS NULL)`;
 
 export const nodeTagNames = (nodeId: SQL) =>
 	sql<

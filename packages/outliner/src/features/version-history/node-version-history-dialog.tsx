@@ -1,6 +1,6 @@
 import { Dialog } from "@base-ui/react";
 import { Button } from "@cascade/ui/button";
-import { CircleNotchIcon, XIcon } from "@phosphor-icons/react/ssr";
+import { CircleNotchIcon, TrashIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { type ReactNode, useEffect, useState } from "react";
 import DiffViewer from "react-diff-viewer-continued";
@@ -32,6 +32,11 @@ export interface NodeVersionSummary {
 	 * Omitted for the single-node view, which has no need for a link back
 	 * to the node it's already open on. */
 	nodeId?: string;
+	/** Set when the owning node is currently deleted. Its `node_versions`
+	 * survive a delete on purpose, so its history — and the ability to
+	 * restore it, bringing the whole subtree back — isn't lost along with
+	 * it; restoring one of its versions is how you undelete it. */
+	nodeDeletedAt?: Date | null;
 }
 
 export interface NodeVersionHistoryDialogProps {
@@ -210,14 +215,22 @@ export function NodeVersionHistoryDialog({
 												>
 													{timestamp}
 												</span>
-												{version.nodeId !== undefined && renderNodeLink && (
-													<span className="relative z-10 truncate text-xs">
-														{renderNodeLink({
-															id: version.nodeId,
-															content: version.nodeContent,
-														})}
-													</span>
-												)}
+												{version.nodeId !== undefined &&
+													(version.nodeDeletedAt ? (
+														<span className="relative z-10 flex items-center gap-1 truncate text-danger text-xs dark:text-accent">
+															<TrashIcon size={11} weight="bold" />
+															{labels.versionHistoryDeletedBadge}
+														</span>
+													) : (
+														renderNodeLink && (
+															<span className="relative z-10 truncate text-xs">
+																{renderNodeLink({
+																	id: version.nodeId,
+																	content: version.nodeContent,
+																})}
+															</span>
+														)
+													))}
 											</div>
 										);
 									})}
@@ -226,9 +239,17 @@ export function NodeVersionHistoryDialog({
 							{selected && (
 								<div className={diffPane()}>
 									<div className={diffPaneHeader()}>
-										<span className={versionTimestamp()}>
-											{timestampFormatter.format(selected.createdAt)}
-										</span>
+										<div className="flex min-w-0 items-center gap-2">
+											<span className={versionTimestamp()}>
+												{timestampFormatter.format(selected.createdAt)}
+											</span>
+											{selected.nodeDeletedAt && (
+												<span className="flex shrink-0 items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-danger text-xs dark:bg-accent/15 dark:text-accent">
+													<TrashIcon size={11} weight="bold" />
+													{labels.versionHistoryDeletedBadge}
+												</span>
+											)}
+										</div>
 										<Button
 											type="button"
 											size="sm"

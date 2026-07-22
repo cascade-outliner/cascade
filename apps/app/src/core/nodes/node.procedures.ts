@@ -58,6 +58,7 @@ export const listNodes = authed
 			.where(
 				and(
 					eq(nodes.userId, context.user.id),
+					isNull(nodes.deletedAt),
 					input.parentId === null
 						? isNull(nodes.parentId)
 						: eq(nodes.parentId, input.parentId),
@@ -133,6 +134,7 @@ export const visibleTree = authed
 					ARRAY[n."order"] AS path
 				FROM nodes n, params
 				WHERE n.user_id = ${userId}
+					AND n.deleted_at IS NULL
 					AND ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
 					AND (params.cursor IS NULL OR ARRAY[n."order"] >= params.cursor[1:1])
 				UNION ALL
@@ -143,6 +145,7 @@ export const visibleTree = authed
 				JOIN visible v ON c.parent_id = v.id
 				CROSS JOIN params
 				WHERE c.user_id = ${userId}
+					AND c.deleted_at IS NULL
 					AND (${includeCollapsedDescendants} = true OR v.expanded = true)
 					AND (
 						params.cursor IS NULL
@@ -182,7 +185,7 @@ export const visibleTree = authed
 			LEFT JOIN (
 				SELECT n.parent_id, true AS has_children
 				FROM nodes n
-				WHERE n.user_id = ${userId} AND n.parent_id IN (SELECT id FROM page)
+				WHERE n.user_id = ${userId} AND n.deleted_at IS NULL AND n.parent_id IN (SELECT id FROM page)
 				GROUP BY n.parent_id
 			) hc ON hc.parent_id = p.id
 			LEFT JOIN (
@@ -237,6 +240,7 @@ export const createNode = authed
 		const userId = context.user.id;
 		const parentFilter = and(
 			eq(nodes.userId, userId),
+			isNull(nodes.deletedAt),
 			input.parentId === null
 				? isNull(nodes.parentId)
 				: eq(nodes.parentId, input.parentId),
@@ -294,7 +298,13 @@ export const getNode = authed
 		const [node] = await db
 			.select(nodeColumns(context.user.id))
 			.from(nodes)
-			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
+			.where(
+				and(
+					eq(nodes.id, input.id),
+					eq(nodes.userId, context.user.id),
+					isNull(nodes.deletedAt),
+				),
+			)
 			.limit(1);
 		if (!node) throw errors.NOT_FOUND();
 		return node;
@@ -312,7 +322,11 @@ export const resolveNodeSlug = authed
 				.select({ id: nodes.id })
 				.from(nodes)
 				.where(
-					and(eq(nodes.id, input.slugId), eq(nodes.userId, context.user.id)),
+					and(
+						eq(nodes.id, input.slugId),
+						eq(nodes.userId, context.user.id),
+						isNull(nodes.deletedAt),
+					),
 				)
 				.limit(1);
 			if (!node) throw errors.NOT_FOUND();
@@ -326,6 +340,7 @@ export const resolveNodeSlug = authed
 				.where(
 					and(
 						eq(nodes.userId, context.user.id),
+						isNull(nodes.deletedAt),
 						like(nodes.id, `${input.slugId}-%`),
 					),
 				)
@@ -350,7 +365,13 @@ export const resolveNodeSlug = authed
 		const [node] = await db
 			.select({ id: nodes.id })
 			.from(nodes)
-			.where(and(eq(nodes.id, input.slugId), eq(nodes.userId, context.user.id)))
+			.where(
+				and(
+					eq(nodes.id, input.slugId),
+					eq(nodes.userId, context.user.id),
+					isNull(nodes.deletedAt),
+				),
+			)
 			.limit(1);
 		if (!node) throw errors.NOT_FOUND();
 		return node;
@@ -376,7 +397,13 @@ export const toggleNodeExpanded = authed
 		const updated = await db
 			.update(nodes)
 			.set({ expanded: input.expanded })
-			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
+			.where(
+				and(
+					eq(nodes.id, input.id),
+					eq(nodes.userId, context.user.id),
+					isNull(nodes.deletedAt),
+				),
+			)
 			.returning({ id: nodes.id });
 		if (updated.length === 0) throw errors.NOT_FOUND();
 	});
@@ -390,7 +417,13 @@ export const setNodeDueDate = authed
 		const updated = await db
 			.update(nodes)
 			.set({ dueDate: input.dueDate })
-			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
+			.where(
+				and(
+					eq(nodes.id, input.id),
+					eq(nodes.userId, context.user.id),
+					isNull(nodes.deletedAt),
+				),
+			)
 			.returning({ id: nodes.id });
 		if (updated.length === 0) throw errors.NOT_FOUND();
 	});
@@ -438,7 +471,13 @@ export const setNodeTags = authed
 			const [node] = await tx
 				.select({ id: nodes.id })
 				.from(nodes)
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
+				.where(
+					and(
+						eq(nodes.id, input.id),
+						eq(nodes.userId, userId),
+						isNull(nodes.deletedAt),
+					),
+				)
 				.limit(1);
 			if (!node) throw errors.NOT_FOUND();
 
@@ -475,7 +514,13 @@ export const setNodeType = authed
 		const updated = await db
 			.update(nodes)
 			.set({ type: input.type, metadata: input.metadata })
-			.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.user.id)))
+			.where(
+				and(
+					eq(nodes.id, input.id),
+					eq(nodes.userId, context.user.id),
+					isNull(nodes.deletedAt),
+				),
+			)
 			.returning({ id: nodes.id });
 		if (updated.length === 0) throw errors.NOT_FOUND();
 	});
@@ -515,18 +560,37 @@ export const moveNode = authed
 			const [moved] = await tx
 				.select({ id: nodes.id })
 				.from(nodes)
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
+				.where(
+					and(
+						eq(nodes.id, input.id),
+						eq(nodes.userId, userId),
+						isNull(nodes.deletedAt),
+					),
+				)
 				.for("update");
 			if (!moved) throw errors.NOT_FOUND();
 
 			if (input.parentId) {
-				// The anchor also verifies the target parent exists and belongs to
-				// this user; an empty result means it doesn't.
+				// Confirms the target parent exists, belongs to this user, and
+				// isn't itself (soft-)deleted — an invisible node isn't a valid
+				// move target.
+				const [parent] = await tx
+					.select({ id: nodes.id })
+					.from(nodes)
+					.where(
+						and(
+							eq(nodes.id, input.parentId),
+							eq(nodes.userId, userId),
+							isNull(nodes.deletedAt),
+						),
+					)
+					.limit(1);
+				if (!parent) throw errors.NOT_FOUND();
+
 				const ancestors = (await tx.execute(sql`
 					WITH RECURSIVE ${ancestorsOf(input.parentId, userId)}
 					SELECT id FROM chain
 				`)) as unknown as { id: string }[];
-				if (ancestors.length === 0) throw errors.NOT_FOUND();
 				if (ancestors.some((a) => a.id === input.id)) {
 					throw errors.INVALID_MOVE({
 						message: "Cannot move a node into its own subtree",
@@ -536,6 +600,7 @@ export const moveNode = authed
 
 			const parentFilter = and(
 				eq(nodes.userId, userId),
+				isNull(nodes.deletedAt),
 				input.parentId === null
 					? isNull(nodes.parentId)
 					: eq(nodes.parentId, input.parentId),
@@ -642,19 +707,25 @@ export const duplicateNode = authed
 			const [original] = await tx
 				.select({ parentId: nodes.parentId, order: nodes.order })
 				.from(nodes)
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
+				.where(
+					and(
+						eq(nodes.id, input.id),
+						eq(nodes.userId, userId),
+						isNull(nodes.deletedAt),
+					),
+				)
 				.for("update");
 			if (!original) throw errors.NOT_FOUND();
 
 			const subtree = (await tx.execute(sql`
 				WITH RECURSIVE subtree AS (
 					SELECT id, parent_id, content, type, metadata, expanded, "order", due_date
-					FROM nodes WHERE id = ${input.id} AND user_id = ${userId}
+					FROM nodes WHERE id = ${input.id} AND user_id = ${userId} AND deleted_at IS NULL
 					UNION ALL
 					SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date
 					FROM nodes c
 					JOIN subtree s ON c.parent_id = s.id
-					WHERE c.user_id = ${userId}
+					WHERE c.user_id = ${userId} AND c.deleted_at IS NULL
 				)
 				SELECT * FROM subtree
 			`)) as unknown as SubtreeRow[];
@@ -664,6 +735,7 @@ export const duplicateNode = authed
 
 			const parentFilter = and(
 				eq(nodes.userId, userId),
+				isNull(nodes.deletedAt),
 				original.parentId === null
 					? isNull(nodes.parentId)
 					: eq(nodes.parentId, original.parentId),
@@ -721,18 +793,153 @@ export const duplicateNode = authed
 		});
 	});
 
+/**
+ * Soft-deletes a node and its whole subtree: marks every row with
+ * `deletedAt` (one instant shared across the whole batch) instead of
+ * removing them, so their `node_versions` survive and the subtree can be
+ * brought back later (see `restoreNodeVersion`). The deleted node itself
+ * also gets its `order` rewritten to its own id — a value that can never
+ * collide with a real fractional-index key — freeing its old
+ * (userId, parentId, order) slot for a future sibling to reuse; descendants
+ * keep their real `order` untouched, since nothing can be inserted under an
+ * invisible (deleted) parent in the meantime, so there's no collision risk
+ * for them to guard against.
+ */
 export const deleteNode = authed
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
 		const userId = context.user.id;
-		const [result] = (await db.execute(sql`
-			WITH RECURSIVE ${descendantsOf(input.id, userId)}
-			DELETE FROM nodes WHERE id = ${input.id} AND user_id = ${userId}
-			RETURNING (SELECT count(*) FROM descendants)::int AS count
-		`)) as unknown as { count: number }[];
+		return await db.transaction(async (tx) => {
+			const descendantRows = (await tx.execute(sql`
+				WITH RECURSIVE ${descendantsOf(input.id, userId)}
+				SELECT id FROM descendants
+			`)) as unknown as { id: string }[];
 
-		return { childrenDeleted: result?.count ?? 0 };
+			const deletedAt = new Date();
+
+			if (descendantRows.length > 0) {
+				await tx
+					.update(nodes)
+					.set({ deletedAt })
+					.where(
+						and(
+							inArray(
+								nodes.id,
+								descendantRows.map((row) => row.id),
+							),
+							eq(nodes.userId, userId),
+						),
+					);
+			}
+
+			const updated = await tx
+				.update(nodes)
+				.set({ deletedAt, order: input.id })
+				.where(
+					and(
+						eq(nodes.id, input.id),
+						eq(nodes.userId, userId),
+						isNull(nodes.deletedAt),
+					),
+				)
+				.returning({ id: nodes.id });
+
+			return {
+				childrenDeleted: updated.length > 0 ? descendantRows.length : 0,
+			};
+		});
 	});
+
+/**
+ * Un-deletes a soft-deleted subtree (see `deleteNode`) and reattaches its
+ * top node — the rest of a version-history restore (see `restoreNodeVersion`
+ * in `node-version.procedures.ts`) for a node that's currently deleted.
+ *
+ * Every row that was deleted together with `nodeId` (matched by the exact
+ * `deletedAt` instant `deleteNode` gave the whole batch) has its `deletedAt`
+ * cleared. Only the top node gets a freshly computed `order`, appended
+ * under its original parent — or promoted to a root node if that parent is
+ * itself currently deleted, since sibling positions there no longer make
+ * sense — because it's the only one whose old slot was freed for reuse by a
+ * new sibling (see `deleteNode`); descendants keep their exact original
+ * `order`/`parentId` relationships to each other, which were never up for
+ * grabs while the whole subtree was invisible.
+ *
+ * A no-op if the node isn't currently deleted (e.g. the version being
+ * restored belongs to a node that's still around).
+ */
+export async function restoreDeletedSubtree(
+	userId: string,
+	nodeId: string,
+): Promise<void> {
+	await db.transaction(async (tx) => {
+		await tx.execute(
+			sql`SELECT pg_advisory_xact_lock(hashtext('nodes'), hashtext(${userId}))`,
+		);
+
+		const [target] = await tx
+			.select({ deletedAt: nodes.deletedAt, parentId: nodes.parentId })
+			.from(nodes)
+			.where(and(eq(nodes.id, nodeId), eq(nodes.userId, userId)))
+			.for("update");
+		if (!target || target.deletedAt === null) return;
+
+		// Resolved and computed before anything is un-deleted: `nodeId` itself
+		// is still deleted (and still holds the sentinel `order` `deleteNode`
+		// gave it, not a real fractional-index key) at this point, so it can't
+		// accidentally be picked up as its own "last sibling" once it's active
+		// again.
+		let parentId = target.parentId;
+		if (parentId !== null) {
+			const [parent] = await tx
+				.select({ id: nodes.id })
+				.from(nodes)
+				.where(
+					and(
+						eq(nodes.id, parentId),
+						eq(nodes.userId, userId),
+						isNull(nodes.deletedAt),
+					),
+				)
+				.limit(1);
+			if (!parent) parentId = null;
+		}
+
+		const parentFilter = and(
+			eq(nodes.userId, userId),
+			isNull(nodes.deletedAt),
+			parentId === null ? isNull(nodes.parentId) : eq(nodes.parentId, parentId),
+		);
+		const [last] = await tx
+			.select({ order: nodes.order })
+			.from(nodes)
+			.where(parentFilter)
+			.orderBy(desc(nodes.order))
+			.limit(1);
+		const order = generateKeyBetween(last?.order ?? null, null);
+
+		const descendantRows = (await tx.execute(sql`
+			WITH RECURSIVE ${descendantsOf(nodeId, userId)}
+			SELECT id FROM descendants
+		`)) as unknown as { id: string }[];
+
+		await tx
+			.update(nodes)
+			.set({ deletedAt: null })
+			.where(
+				and(
+					inArray(nodes.id, [nodeId, ...descendantRows.map((row) => row.id)]),
+					eq(nodes.userId, userId),
+					eq(nodes.deletedAt, target.deletedAt),
+				),
+			);
+
+		await tx
+			.update(nodes)
+			.set({ parentId, order })
+			.where(and(eq(nodes.id, nodeId), eq(nodes.userId, userId)));
+	});
+}
 
 /**
  * Overwrites a node's content, first snapshotting the current value into

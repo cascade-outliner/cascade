@@ -1,6 +1,9 @@
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { snapshotAndSetContent } from "@/core/nodes/node.procedures";
+import {
+	restoreDeletedSubtree,
+	snapshotAndSetContent,
+} from "@/core/nodes/node.procedures";
 import { nodes, nodeVersions } from "@/core/nodes/node.schema";
 import { requirePremium } from "@/core/premium/premium.access";
 import { db } from "@/db";
@@ -17,7 +20,11 @@ const MAX_LISTED_TREE_VERSIONS = 200;
  * (see `updateNodeContent`), so history is already there the moment
  * someone upgrades. `nodeContent` (the node's *current* content, not this
  * version's) lets the UI diff every entry against what's there now — what
- * restoring it would actually change. */
+ * restoring it would actually change. `nodeDeletedAt` is set when the
+ * owning node is currently (soft-)deleted (see `deleteNode`) — its
+ * `node_versions` rows survive a delete on purpose, so its history (and the
+ * ability to restore it, undeleting the whole subtree — see
+ * `restoreNodeVersion`) isn't lost along with it. */
 export const listNodeVersions = requirePremium
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context }) => {
@@ -27,6 +34,7 @@ export const listNodeVersions = requirePremium
 				content: nodeVersions.content,
 				createdAt: nodeVersions.createdAt,
 				nodeContent: nodes.content,
+				nodeDeletedAt: nodes.deletedAt,
 			})
 			.from(nodeVersions)
 			.innerJoin(nodes, eq(nodes.id, nodeVersions.nodeId))
@@ -44,7 +52,9 @@ export const listNodeVersions = requirePremium
  * each owning node's current content so the UI can link to it and show a
  * title without a second round trip. Lets a user browse and restore recent
  * edits anywhere in the tree instead of opening each node's history one at
- * a time. */
+ * a time — including versions belonging to a deleted node (see
+ * `nodeDeletedAt` on `listNodeVersions`), so deleting a node doesn't take
+ * its history down with it. */
 export const listTreeVersions = requirePremium.handler(async ({ context }) => {
 	const userId = context.user.id;
 	return await db
@@ -54,6 +64,7 @@ export const listTreeVersions = requirePremium.handler(async ({ context }) => {
 			content: nodeVersions.content,
 			createdAt: nodeVersions.createdAt,
 			nodeContent: nodes.content,
+			nodeDeletedAt: nodes.deletedAt,
 		})
 		.from(nodeVersions)
 		.innerJoin(nodes, eq(nodes.id, nodeVersions.nodeId))
@@ -66,6 +77,10 @@ export const listTreeVersions = requirePremium.handler(async ({ context }) => {
  * Restores a node's content to a prior version. The node's current content
  * is itself snapshotted first (via `snapshotAndSetContent`), so restoring
  * becomes a normal edit in the timeline rather than destroying it.
+ *
+ * If the node is currently deleted, this first brings back its whole
+ * subtree (see `restoreDeletedSubtree`) — otherwise there'd be no way to
+ * restore a version belonging to a node you can no longer see or reach.
  */
 export const restoreNodeVersion = requirePremium
 	.errors({
@@ -82,6 +97,8 @@ export const restoreNodeVersion = requirePremium
 			)
 			.limit(1);
 		if (!version) throw errors.NOT_FOUND();
+
+		await restoreDeletedSubtree(userId, version.nodeId);
 
 		// `restoreNodeVersion` is itself premium-gated (`requirePremium`
 		// above), so the caller is always a premium user here.

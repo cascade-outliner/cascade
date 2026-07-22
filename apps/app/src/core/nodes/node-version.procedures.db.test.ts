@@ -1,7 +1,12 @@
 import { call } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createNode, updateNodeContent } from "@/core/nodes/node.procedures";
+import {
+	createNode,
+	deleteNode,
+	listNodes,
+	updateNodeContent,
+} from "@/core/nodes/node.procedures";
 import { nodeVersions } from "@/core/nodes/node.schema";
 import {
 	listNodeVersions,
@@ -228,6 +233,117 @@ describe("listTreeVersions", () => {
 		} finally {
 			await deleteTestUser(other.user.id);
 		}
+	});
+});
+
+describe("deleting and restoring a node", () => {
+	it("keeps a deleted node's versions listed, flagged with nodeDeletedAt", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: node.id, content: content("first") },
+			{ context },
+		);
+		await call(deleteNode, { id: node.id }, { context });
+
+		const versions = await call(listNodeVersions, { id: node.id }, { context });
+		expect(versions).toHaveLength(1);
+		expect(versions[0].nodeDeletedAt).not.toBeNull();
+
+		const treeVersions = await call(listTreeVersions, undefined, { context });
+		expect(treeVersions).toHaveLength(1);
+		expect(treeVersions[0].nodeDeletedAt).not.toBeNull();
+	});
+
+	it("restoring a deleted node's version brings back its whole subtree", async () => {
+		const parent = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: parent.id }, { context });
+		await call(
+			updateNodeContent,
+			{ id: parent.id, content: content("parent-first") },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: child.id, content: content("child-first") },
+			{ context },
+		);
+
+		await call(deleteNode, { id: parent.id }, { context });
+		expect(
+			await call(listNodes, { parentId: null }, { context }),
+		).not.toContainEqual(expect.objectContaining({ id: parent.id }));
+
+		const versions = await call(
+			listNodeVersions,
+			{ id: parent.id },
+			{ context },
+		);
+		const restored = await call(
+			restoreNodeVersion,
+			{ id: versions[0].id },
+			{ context },
+		);
+		expect(restored.content).toBeNull();
+
+		const roots = await call(listNodes, { parentId: null }, { context });
+		expect(roots.map((r) => r.id)).toContain(parent.id);
+		const children = await call(
+			listNodes,
+			{ parentId: parent.id },
+			{ context },
+		);
+		expect(children.map((r) => r.id)).toContain(child.id);
+	});
+
+	it("restores as a root node when the original parent is also deleted", async () => {
+		const grandparent = await call(createNode, { parentId: null }, { context });
+		const parent = await call(
+			createNode,
+			{ parentId: grandparent.id },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: parent.id, content: content("first") },
+			{ context },
+		);
+
+		// Delete just the parent (and its version's still-active grandparent),
+		// then separately delete the grandparent too, so by the time the
+		// parent is restored, its original parent (the grandparent) is itself
+		// deleted.
+		await call(deleteNode, { id: parent.id }, { context });
+		await call(deleteNode, { id: grandparent.id }, { context });
+
+		const versions = await call(
+			listNodeVersions,
+			{ id: parent.id },
+			{ context },
+		);
+		await call(restoreNodeVersion, { id: versions[0].id }, { context });
+
+		const roots = await call(listNodes, { parentId: null }, { context });
+		expect(roots.map((r) => r.id)).toContain(parent.id);
+	});
+
+	it("lets a new sibling reuse a deleted node's old order slot without conflict", async () => {
+		const parentNode = await call(createNode, { parentId: null }, { context });
+		const a = await call(createNode, { parentId: parentNode.id }, { context });
+		const b = await call(
+			createNode,
+			{ parentId: parentNode.id, afterId: a.id },
+			{ context },
+		);
+		await call(deleteNode, { id: b.id }, { context });
+
+		// Creating another node right after `a` recomputes a fractional-index
+		// key from the same (a, next) bounds `b` was originally generated
+		// from — if `b`'s deleted row still held that exact slot, this would
+		// violate the (userId, parentId, order) unique constraint.
+		await expect(
+			call(createNode, { parentId: parentNode.id, afterId: a.id }, { context }),
+		).resolves.toBeDefined();
 	});
 });
 
