@@ -1,4 +1,5 @@
-import type { NodeTypeName } from "@cascade/outliner/node-types";
+import type { CalendarDateString } from "@cascade/outliner/calendar-date";
+import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
 import { and, desc, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -174,6 +175,9 @@ export interface DeletedSubtreePreviewRow {
 	content: unknown;
 	type: NodeTypeName;
 	depth: number;
+	dueDate: CalendarDateString | null;
+	completed: boolean;
+	tags: string[];
 }
 
 /**
@@ -183,8 +187,10 @@ export interface DeletedSubtreePreviewRow {
  * instead of a content diff (deletion never changed any node's `content`,
  * so there'd be nothing to diff). Deleted rows stay in place until
  * `purge-deleted-nodes.ts` is next run, so their real `content`/`type`/
- * `parentId`/`order` are still there to read directly — nothing needs to
- * have been snapshotted specifically for this.
+ * `dueDate`/tags/`parentId`/`order` are still there to read directly —
+ * nothing needs to have been snapshotted specifically for this, and the
+ * result carries the same fields `visibleTree` does so the preview can
+ * render due-date and tag pills exactly like the live outliner does.
  *
  * Rejects with NOT_FOUND unless `nodeId` is owned by the caller and
  * currently deleted, so this can't be used as a side door to preview an
@@ -206,20 +212,33 @@ export const getDeletedSubtreePreview = requirePremium
 
 		const rows = (await db.execute(sql`
 			WITH RECURSIVE subtree AS (
-				SELECT id, content, type, 0 AS depth, ARRAY["order"] AS path
+				SELECT id, content, type, metadata, due_date, 0 AS depth, ARRAY["order"] AS path
 				FROM nodes WHERE id = ${input.nodeId} AND user_id = ${userId}
 				UNION ALL
-				SELECT c.id, c.content, c.type, s.depth + 1, s.path || c."order"
+				SELECT c.id, c.content, c.type, c.metadata, c.due_date, s.depth + 1, s.path || c."order"
 				FROM nodes c
 				JOIN subtree s ON c.parent_id = s.id
 				WHERE c.user_id = ${userId}
 			)
-			SELECT id, content, type, depth FROM subtree ORDER BY path
+			SELECT s.id, s.content, s.type, s.metadata, s.due_date::text AS due_date, s.depth,
+				COALESCE(t.tags, '{}') AS tags
+			FROM subtree s
+			LEFT JOIN (
+				SELECT nt.node_id, array_agg(tg.name ORDER BY tg.name) AS tags
+				FROM node_tags nt
+				JOIN tags tg ON tg.id = nt.tag_id
+				WHERE nt.node_id IN (SELECT id FROM subtree)
+				GROUP BY nt.node_id
+			) t ON t.node_id = s.id
+			ORDER BY s.path
 		`)) as unknown as {
 			id: string;
 			content: unknown;
 			type: NodeTypeName;
+			metadata: NodeMetadata | null;
+			due_date: CalendarDateString | null;
 			depth: number;
+			tags: string[];
 		}[];
 
 		return rows.map(
@@ -228,6 +247,9 @@ export const getDeletedSubtreePreview = requirePremium
 				content: row.content,
 				type: row.type,
 				depth: Number(row.depth),
+				dueDate: row.due_date,
+				completed: row.type === "task" && (row.metadata?.completed ?? false),
+				tags: row.tags,
 			}),
 		);
 	});

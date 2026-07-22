@@ -263,7 +263,7 @@ export function NodeVersionHistoryDialog({
 											{labels.versionHistoryRestore}
 										</Button>
 									</div>
-									<div className="min-h-0 flex-1 overflow-auto rounded-md border border-ink/10 dark:border-surface/15">
+									<div className="min-h-0 flex-1 overflow-hidden rounded-md border border-ink/10 dark:border-surface/15">
 										{selected.descendantsDeleted != null ? (
 											renderDeletedPreview ? (
 												renderDeletedPreview(selected)

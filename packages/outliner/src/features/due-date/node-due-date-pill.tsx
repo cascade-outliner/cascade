@@ -73,23 +73,38 @@ const pill = cva({
 	},
 });
 
+/** The pill's visual content (icon + label) shared between the interactive
+ * `NodeDueDatePill` and the read-only `StaticDueDatePill` (used in version
+ * history previews, where there's nothing to click into). */
+export function DueDatePillContent({ dueDate }: { dueDate: Date }) {
+	const labels = useOutlinerLabels();
+	return (
+		<>
+			<span className="shrink-0">{pillIcon(dueDate)}</span>
+			<span className="truncate">{formatDuePill(dueDate, labels)}</span>
+		</>
+	);
+}
+
+export function duePillClassName(dueDate: Date, completed: boolean): string {
+	return pill({ bucket: dueBucket(dueDate, completed) });
+}
+
 export function NodeDueDatePill({
 	dueDate,
 	completed,
 	onChange,
 }: NodeDueDatePillProps) {
 	const labels = useOutlinerLabels();
-	const bucket = dueBucket(dueDate, completed);
 
 	return (
 		<Popover>
 			<PopoverTrigger
-				className={pill({ bucket })}
+				className={duePillClassName(dueDate, completed)}
 				aria-label={labels.changeDueDateAria}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<span className="shrink-0">{pillIcon(dueDate)}</span>
-				<span className="truncate">{formatDuePill(dueDate, labels)}</span>
+				<DueDatePillContent dueDate={dueDate} />
 			</PopoverTrigger>
 			<PopoverContent>
 				<Calendar
@@ -99,5 +114,22 @@ export function NodeDueDatePill({
 				/>
 			</PopoverContent>
 		</Popover>
+	);
+}
+
+/** Read-only due-date pill: same look as `NodeDueDatePill`, no popover to
+ * edit it, for contexts like a deleted-subtree preview where the node isn't
+ * live and there's nothing to change. */
+export function StaticDueDatePill({
+	dueDate,
+	completed,
+}: {
+	dueDate: Date;
+	completed: boolean;
+}) {
+	return (
+		<span className={duePillClassName(dueDate, completed)}>
+			<DueDatePillContent dueDate={dueDate} />
+		</span>
 	);
 }

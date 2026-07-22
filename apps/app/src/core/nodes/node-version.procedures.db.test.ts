@@ -5,6 +5,8 @@ import {
 	createNode,
 	deleteNode,
 	listNodes,
+	setNodeDueDate,
+	setNodeTags,
 	updateNodeContent,
 } from "@/core/nodes/node.procedures";
 import { nodeVersions } from "@/core/nodes/node.schema";
@@ -548,8 +550,54 @@ describe("deleting and restoring a node", () => {
 				content: content("parent-text"),
 				type: "text",
 				depth: 0,
+				dueDate: null,
+				completed: false,
+				tags: [],
 			},
-			{ id: child.id, content: content("child-text"), type: "text", depth: 1 },
+			{
+				id: child.id,
+				content: content("child-text"),
+				type: "text",
+				depth: 1,
+				dueDate: null,
+				completed: false,
+				tags: [],
+			},
+		]);
+	});
+
+	it("previews a deleted node's due date and tags alongside its content", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			setNodeDueDate,
+			{ id: node.id, dueDate: "2026-08-01" },
+			{ context },
+		);
+		await call(
+			setNodeTags,
+			{ id: node.id, tags: ["work", "urgent"] },
+			{
+				context,
+			},
+		);
+
+		await call(deleteNode, { id: node.id }, { context });
+
+		const preview = await call(
+			getDeletedSubtreePreview,
+			{ nodeId: node.id },
+			{ context },
+		);
+		expect(preview).toEqual([
+			{
+				id: node.id,
+				content: null,
+				type: "text",
+				depth: 0,
+				dueDate: "2026-08-01",
+				completed: false,
+				tags: ["urgent", "work"],
+			},
 		]);
 	});
 
