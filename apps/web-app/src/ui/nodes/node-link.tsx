@@ -10,6 +10,7 @@ interface NodeLinkProps {
 export function NodeLink({ id, content }: NodeLinkProps) {
 	return (
 		<Link
+			viewTransition
 			to="/$nodeSlug"
 			params={{ nodeSlug: toNodeSlug({ id, content }) }}
 			search={true}
