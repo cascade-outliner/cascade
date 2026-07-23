@@ -65,6 +65,15 @@ export function NodeTree({
 						: [...filters.tags, tag],
 				})
 			}
+			onDueDateClick={(date) =>
+				setFilters({
+					...filters,
+					dueToday: false,
+					dueThisWeek: false,
+					dueOnDate: date,
+					dueDateRange: null,
+				})
+			}
 		/>
 	);
 }

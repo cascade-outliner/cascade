@@ -45,6 +45,7 @@ function createOutlinerLabels(): OutlinerLabels {
 		setDueDate: m.outliner_set_due_date(),
 		changeDueDate: m.outliner_change_due_date(),
 		changeDueDateAria: m.outliner_change_due_date_aria(),
+		filterDueOnDateAria: m.outliner_filter_due_on_date_aria(),
 		dueToday: m.outliner_due_today(),
 		dueTomorrow: m.outliner_due_tomorrow(),
 		dueYesterday: m.outliner_due_yesterday(),

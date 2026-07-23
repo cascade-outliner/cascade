@@ -52,6 +52,7 @@ export interface CalendarNodeActions {
 	existingTags: TagSummary[];
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onTagClick?: (tag: string) => void;
+	onDueDateClick?: (date: Date) => void;
 	onSaveContent: (
 		id: string,
 		content: { root: LexicalElementNode },
@@ -242,6 +243,7 @@ function DueNodeRow({
 				existingTags={actions.existingTags}
 				onDeleteTag={actions.onDeleteTag}
 				onTagClick={actions.onTagClick}
+				onDueDateClick={actions.onDueDateClick}
 				editing={editing}
 				focusPoint={editing ? focusPoint : null}
 				onStartEdit={(point) => onStartEdit(node.id, point)}

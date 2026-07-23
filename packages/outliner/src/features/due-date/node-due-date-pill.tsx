@@ -13,6 +13,10 @@ interface NodeDueDatePillProps {
 	dueDate: Date;
 	completed: boolean;
 	onChange: (date: Date | null) => void;
+	/** When provided, clicking the pill activates a "due on this date"
+	 * filter instead of opening the change-date popover — changing the date
+	 * still works via the row's "Change date" context-menu item. */
+	onDueDateClick?: (date: Date) => void;
 }
 
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -70,6 +74,9 @@ const pill = cva({
 			completed:
 				"border-ink/10 bg-transparent text-muted opacity-70 dark:border-surface/10 dark:text-canvas/30",
 		},
+		filterable: {
+			true: "cursor-pointer focus-visible:ring-2 focus-visible:ring-danger/50",
+		},
 	},
 });
 
@@ -77,9 +84,27 @@ export function NodeDueDatePill({
 	dueDate,
 	completed,
 	onChange,
+	onDueDateClick,
 }: NodeDueDatePillProps) {
 	const labels = useOutlinerLabels();
 	const bucket = dueBucket(dueDate, completed);
+
+	if (onDueDateClick) {
+		return (
+			<button
+				type="button"
+				className={pill({ bucket, filterable: true })}
+				aria-label={labels.filterDueOnDateAria}
+				onClick={(e) => {
+					e.stopPropagation();
+					onDueDateClick(dueDate);
+				}}
+			>
+				<span className="shrink-0">{pillIcon(dueDate)}</span>
+				<span className="truncate">{formatDuePill(dueDate, labels)}</span>
+			</button>
+		);
+	}
 
 	return (
 		<Popover>

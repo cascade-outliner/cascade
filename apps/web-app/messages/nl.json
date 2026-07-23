@@ -128,6 +128,7 @@
 	"outliner_set_due_date": "Datum instellen",
 	"outliner_change_due_date": "Datum wijzigen",
 	"outliner_change_due_date_aria": "Vervaldatum wijzigen",
+	"outliner_filter_due_on_date_aria": "Filteren op deze vervaldatum",
 	"outliner_due_today": "Vandaag",
 	"outliner_due_tomorrow": "Morgen",
 	"outliner_due_yesterday": "Gisteren",

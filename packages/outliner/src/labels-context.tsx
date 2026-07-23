@@ -19,6 +19,7 @@ export interface OutlinerLabels {
 	setDueDate: string;
 	changeDueDate: string;
 	changeDueDateAria: string;
+	filterDueOnDateAria: string;
 	dueToday: string;
 	dueTomorrow: string;
 	dueYesterday: string;
@@ -77,6 +78,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	setDueDate: "Set date",
 	changeDueDate: "Change date",
 	changeDueDateAria: "Change due date",
+	filterDueOnDateAria: "Filter by this due date",
 	dueToday: "Today",
 	dueTomorrow: "Tomorrow",
 	dueYesterday: "Yesterday",

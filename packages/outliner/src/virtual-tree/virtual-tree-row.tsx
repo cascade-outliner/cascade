@@ -40,6 +40,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 				existingTags={props.existingTags}
 				onDeleteTag={props.onDeleteTag}
 				onTagClick={props.onTagClick}
+				onDueDateClick={props.onDueDateClick}
 				editing={props.editing}
 				focusPoint={props.focusPoint}
 				onStartEdit={props.onStartEdit}

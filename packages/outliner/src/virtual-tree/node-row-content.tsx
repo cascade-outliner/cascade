@@ -24,6 +24,7 @@ export interface NodeRowContentProps {
 	existingTags: TagSummary[];
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onTagClick?: (tag: string) => void;
+	onDueDateClick?: (date: Date) => void;
 	editing: boolean;
 	focusPoint: FocusPoint | null;
 	onStartEdit: (point?: FocusPoint) => void;
@@ -79,6 +80,7 @@ export function NodeRowContent(props: NodeRowContentProps) {
 		onSetDueDate: props.onSetDueDate,
 		onSetTags: props.onSetTags,
 		onTagClick: props.onTagClick,
+		onDueDateClick: props.onDueDateClick,
 		onDeleteTag: props.onDeleteTag,
 		onToggleTask: props.onToggleTask,
 	};

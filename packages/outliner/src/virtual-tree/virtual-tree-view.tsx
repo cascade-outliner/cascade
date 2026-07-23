@@ -31,6 +31,7 @@ export function VirtualTreeView({
 	existingTags = [],
 	onDeleteTag,
 	onTagClick,
+	onDueDateClick,
 	features,
 	onAddRoot,
 	onMoveDrop,
@@ -58,6 +59,7 @@ export function VirtualTreeView({
 	| "existingTags"
 	| "onDeleteTag"
 	| "onTagClick"
+	| "onDueDateClick"
 	| "features"
 > & {
 	tree: VisibleTree;
@@ -119,6 +121,7 @@ export function VirtualTreeView({
 										existingTags={existingTags}
 										onDeleteTag={onDeleteTag}
 										onTagClick={onTagClick}
+										onDueDateClick={onDueDateClick}
 										features={features}
 										isHidden={hiddenRowIds?.has(row.id) ?? false}
 										isContext={contextRowIds?.has(row.id) ?? false}

@@ -61,6 +61,16 @@ function RootTree() {
 		});
 	}
 
+	function handleDueDateClick(date: Date) {
+		setFilters({
+			...filters,
+			dueToday: false,
+			dueThisWeek: false,
+			dueOnDate: date,
+			dueDateRange: null,
+		});
+	}
+
 	return (
 		<VirtualTree
 			tree={tree}
@@ -87,6 +97,7 @@ function RootTree() {
 					existingTags={existingTags}
 					onDeleteTag={deleteTag}
 					onTagClick={handleTagClick}
+					onDueDateClick={handleDueDateClick}
 					refreshToken={calendarRefreshToken}
 				/>
 			}
@@ -96,6 +107,7 @@ function RootTree() {
 			existingTags={existingTags}
 			onDeleteTag={deleteTag}
 			onTagClick={handleTagClick}
+			onDueDateClick={handleDueDateClick}
 		/>
 	);
 }

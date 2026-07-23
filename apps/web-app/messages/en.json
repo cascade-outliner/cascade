@@ -128,6 +128,7 @@
 	"outliner_set_due_date": "Set date",
 	"outliner_change_due_date": "Change date",
 	"outliner_change_due_date_aria": "Change due date",
+	"outliner_filter_due_on_date_aria": "Filter by this due date",
 	"outliner_due_today": "Today",
 	"outliner_due_tomorrow": "Tomorrow",
 	"outliner_due_yesterday": "Yesterday",

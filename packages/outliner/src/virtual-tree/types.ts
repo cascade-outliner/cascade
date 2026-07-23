@@ -39,6 +39,10 @@ export interface VirtualTreeProps {
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	/** Handles clicking a tag pill on a tree row, e.g. to activate a filter. */
 	onTagClick?: (tag: string) => void;
+	/** Handles clicking a node's due-date pill, e.g. to activate a "due on
+	 * this date" filter. Changing the date itself still happens via the
+	 * row's "Change date" context-menu item. */
+	onDueDateClick?: (date: Date) => void;
 	/** Row/context-menu features to render, in order. Defaults to the
 	 * built-in task, due-date, and tags features (`defaultOutlinerFeatures`). */
 	features?: OutlinerFeature[];
@@ -71,6 +75,7 @@ export interface VirtualTreeRowProps {
 	onSetDueDate: (date: Date | null) => void;
 	onSetTags: (tags: string[]) => void;
 	onTagClick?: (tag: string) => void;
+	onDueDateClick?: (date: Date) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDuplicate: () => void;
 	onDelete: () => void;
