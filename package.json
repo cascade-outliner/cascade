@@ -28,6 +28,7 @@
     "perf:query:app": "pnpm --filter app perf:query",
     "perf:mutate:app": "pnpm --filter app perf:mutate",
     "perf:filter:app": "pnpm --filter app perf:filter",
+    "perf:workflow:app": "pnpm --filter app perf:workflow",
     "perf:report:app": "pnpm --filter app perf:report",
     "------": "--------------------------",
     "dev:web": "pnpm --filter web dev",

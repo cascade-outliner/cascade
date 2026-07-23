@@ -1,10 +1,12 @@
 name: perf
 
-# Compares apps/app's visibleTree query latency, createNode/moveNode mutation
-# latency, and tag/due-date filter latency between the PR's base and head,
-# then posts/updates a single comment on the PR with the results. Scoped to
-# paths that can actually affect this so doc-only or apps/web-only PRs don't
-# pay for it.
+# Compares apps/app's visibleTree query latency, createNode/moveNode/
+# duplicateNode mutation latency, tag/due-date filter latency, and a combined
+# end-to-end workflow latency (create/edit/retype/tag/due-date/move/
+# duplicate/query/delete, see #425) between the PR's base and head, then
+# posts/updates a single comment on the PR with the results. Scoped to paths
+# that can actually affect this so doc-only or apps/web-only PRs don't pay
+# for it.
 #
 # Both runs happen on shared, variably-loaded GitHub-hosted runners, so
 # small deltas between base and head are expected noise rather than a real
@@ -90,6 +92,11 @@ jobs:
           else
             echo "has-filter-bench=false" >> "$GITHUB_OUTPUT"
           fi
+          if [ -f apps/app/e2e-perf/workflow-bench.ts ]; then
+            echo "has-workflow-bench=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-workflow-bench=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run perf suite (base)
         if: steps.base-has-perf.outputs.exists == 'true'
@@ -109,6 +116,9 @@ jobs:
           if [ "${{ steps.base-has-perf.outputs.has-filter-bench }}" = "true" ]; then
             pnpm --filter app perf:filter -- --count="$PERF_SEED_COUNT" --shape=balanced
           fi
+          if [ "${{ steps.base-has-perf.outputs.has-workflow-bench }}" = "true" ]; then
+            pnpm --filter app perf:workflow
+          fi
           kill "$server_pid"
           mkdir -p "$RUNNER_TEMP/perf-before"
           cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-before/"
@@ -117,6 +127,9 @@ jobs:
           fi
           if [ -f apps/app/perf-results/filter-bench.json ]; then
             cp apps/app/perf-results/filter-bench.json "$RUNNER_TEMP/perf-before/"
+          fi
+          if [ -f apps/app/perf-results/workflow-bench.json ]; then
+            cp apps/app/perf-results/workflow-bench.json "$RUNNER_TEMP/perf-before/"
           fi
 
       - name: Checkout PR head
@@ -138,11 +151,13 @@ jobs:
           pnpm --filter app perf:query
           pnpm --filter app perf:mutate
           pnpm --filter app perf:filter -- --count="$PERF_SEED_COUNT" --shape=balanced
+          pnpm --filter app perf:workflow
           kill "$server_pid"
           mkdir -p "$RUNNER_TEMP/perf-after"
           cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-after/"
           cp apps/app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-after/"
           cp apps/app/perf-results/filter-bench.json "$RUNNER_TEMP/perf-after/"
+          cp apps/app/perf-results/workflow-bench.json "$RUNNER_TEMP/perf-after/"
 
       - name: Build comparison report
         run: |

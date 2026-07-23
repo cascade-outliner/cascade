@@ -25,6 +25,7 @@
     "perf:query": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/query-bench.ts",
     "perf:mutate": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/mutation-bench.ts",
     "perf:filter": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/filter-bench.ts",
+    "perf:workflow": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/workflow-bench.ts",
     "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/report.ts"
   },
   "dependencies": {

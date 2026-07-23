@@ -28,6 +28,10 @@ interface FilterBenchResult {
 	dueTodayFilter: LatencySummary;
 }
 
+interface WorkflowBenchResult {
+	fullWorkflow: LatencySummary;
+}
+
 async function readJson<T>(filePath: string): Promise<T | null> {
 	try {
 		return JSON.parse(await readFile(filePath, "utf-8")) as T;
@@ -78,6 +82,12 @@ async function main() {
 	);
 	const afterFilter = await readJson<FilterBenchResult>(
 		path.join(values.afterDir, "filter-bench.json"),
+	);
+	const beforeWorkflow = await readJson<WorkflowBenchResult>(
+		path.join(values.beforeDir, "workflow-bench.json"),
+	);
+	const afterWorkflow = await readJson<WorkflowBenchResult>(
+		path.join(values.afterDir, "workflow-bench.json"),
 	);
 
 	const lines: string[] = [];
@@ -176,6 +186,27 @@ async function main() {
 		);
 	} else {
 		lines.push("| filter-bench results missing | — | — | — |");
+	}
+
+	if (beforeWorkflow || afterWorkflow) {
+		lines.push(
+			row(
+				"fullWorkflow p50",
+				beforeWorkflow?.fullWorkflow.p50Ms,
+				afterWorkflow?.fullWorkflow.p50Ms,
+				"ms",
+			),
+		);
+		lines.push(
+			row(
+				"fullWorkflow p95",
+				beforeWorkflow?.fullWorkflow.p95Ms,
+				afterWorkflow?.fullWorkflow.p95Ms,
+				"ms",
+			),
+		);
+	} else {
+		lines.push("| workflow-bench results missing | — | — | — |");
 	}
 
 	if (!beforeQuery) {
