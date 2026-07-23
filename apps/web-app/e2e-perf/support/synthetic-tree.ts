@@ -10,7 +10,7 @@ interface ShapeConfig {
 	maxChildren: number;
 }
 
-// Same three shapes as apps/app/e2e-perf/seed.ts's shapeConfig, so `--shape`
+// Same three shapes as apps/web-app/e2e-perf/seed.ts's shapeConfig, so `--shape`
 // means the same thing across the whole perf harness.
 export function shapeConfig(shape: Shape, count: number): ShapeConfig {
 	switch (shape) {

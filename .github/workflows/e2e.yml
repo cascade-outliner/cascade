@@ -51,5 +51,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: apps/app/playwright-report/
+          path: apps/web-app/playwright-report/
           retention-days: 7

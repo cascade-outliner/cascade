@@ -3,7 +3,7 @@ import type { MoveTarget } from "./virtual-tree/visible-rows";
 
 /**
  * Data + mutation contract VirtualTree renders against. The real app backs
- * this with oRPC + TanStack Query (see apps/app's use-visible-tree.ts); a
+ * this with oRPC + TanStack Query (see apps/web-app's use-visible-tree.ts); a
  * demo can back it with plain in-memory state instead.
  */
 export interface VisibleTree {

@@ -74,7 +74,7 @@ function visibleRowsForRoot(
 }
 
 /**
- * In-memory stand-in for apps/app's virtual-tree/data/use-visible-tree.ts:
+ * In-memory stand-in for apps/web-app's virtual-tree/data/use-visible-tree.ts:
  * same VisibleTree
  * contract and the same pure splice helpers, but mutating a local table of
  * every node instead of an oRPC-backed query cache. Nothing here persists or

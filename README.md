@@ -4,8 +4,8 @@ Cascade is a fast, tree-based outliner for organizing ideas, notes, and structur
 
 ## What it includes
 
-- `apps/app` - outliner app, including login/register (`localhost:3001`)
-- `apps/web` - marketing + legal pages (`localhost:3000`)
+- `apps/web-app` - outliner app, including login/register (`localhost:3001`)
+- `apps/website` - marketing + legal pages (`localhost:3000`)
 - Shared packages for auth, UI, theme, outliner UI, and HTTP helpers
 
 ## Features
@@ -32,11 +32,11 @@ docker compose up -d
 Create env files:
 
 ```bash
-cp apps/app/.env.local.example apps/app/.env.local
-cp apps/web/.env.local.example apps/web/.env.local
+cp apps/web-app/.env.local.example apps/web-app/.env.local
+cp apps/website/.env.local.example apps/website/.env.local
 ```
 
-Only `apps/app`'s env file needs `BETTER_AUTH_SECRET` set to a real value; `apps/web` just needs `VITE_APP_URL` pointing at `apps/app`.
+Only `apps/web-app`'s env file needs `BETTER_AUTH_SECRET` set to a real value; `apps/website` just needs `VITE_APP_URL` pointing at `apps/web-app`.
 
 Prepare the database and start both apps:
 
@@ -73,7 +73,7 @@ pnpm check
 pnpm lint
 pnpm format:write
 
-# Database (apps/app)
+# Database (apps/web-app)
 pnpm db:push:app
 pnpm db:generate:app
 pnpm db:migrate:app
@@ -91,7 +91,7 @@ The text part is normalized (lowercase, punctuation stripped, spaces collapsed t
 
 ## End-to-end tests
 
-Playwright tests live in `apps/app/e2e`.
+Playwright tests live in `apps/web-app/e2e`.
 
 Requirements:
 

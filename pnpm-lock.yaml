@@ -15,7 +15,7 @@ importers:
         specifier: 2.5.3
         version: 2.5.3
 
-  apps/app:
+  apps/web-app:
     dependencies:
       '@base-ui/react':
         specifier: ^1.6.0
@@ -217,7 +217,7 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(jsdom@29.1.1(@noble/hashes@2.2.0))(vite@8.1.4(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1))
 
-  apps/web:
+  apps/website:
     dependencies:
       '@base-ui/react':
         specifier: ^1.6.0

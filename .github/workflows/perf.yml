@@ -1,11 +1,11 @@
 name: perf
 
-# Compares apps/app's visibleTree query latency, createNode/moveNode/
+# Compares apps/web-app's visibleTree query latency, createNode/moveNode/
 # duplicateNode mutation latency, tag/due-date filter latency, and a combined
 # end-to-end workflow latency (create/edit/retype/tag/due-date/move/
 # duplicate/query/delete, see #425) between the PR's base and head, then
 # posts/updates a single comment on the PR with the results. Scoped to paths
-# that can actually affect this so doc-only or apps/web-only PRs don't pay
+# that can actually affect this so doc-only or apps/website-only PRs don't pay
 # for it.
 #
 # Both runs happen on shared, variably-loaded GitHub-hosted runners, so
@@ -15,7 +15,7 @@ name: perf
 on:
   pull_request:
     paths:
-      - "apps/app/**"
+      - "apps/web-app/**"
       - "packages/outliner/**"
       - "packages/auth/**"
       - "packages/http/**"
@@ -77,22 +77,22 @@ jobs:
       - name: Check whether the base branch has the perf harness
         id: base-has-perf
         run: |
-          if [ -f apps/app/e2e-perf/seed.ts ]; then
+          if [ -f apps/web-app/e2e-perf/seed.ts ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
-          if [ -f apps/app/e2e-perf/mutation-bench.ts ]; then
+          if [ -f apps/web-app/e2e-perf/mutation-bench.ts ]; then
             echo "has-mutation-bench=true" >> "$GITHUB_OUTPUT"
           else
             echo "has-mutation-bench=false" >> "$GITHUB_OUTPUT"
           fi
-          if [ -f apps/app/e2e-perf/filter-bench.ts ]; then
+          if [ -f apps/web-app/e2e-perf/filter-bench.ts ]; then
             echo "has-filter-bench=true" >> "$GITHUB_OUTPUT"
           else
             echo "has-filter-bench=false" >> "$GITHUB_OUTPUT"
           fi
-          if [ -f apps/app/e2e-perf/workflow-bench.ts ]; then
+          if [ -f apps/web-app/e2e-perf/workflow-bench.ts ]; then
             echo "has-workflow-bench=true" >> "$GITHUB_OUTPUT"
           else
             echo "has-workflow-bench=false" >> "$GITHUB_OUTPUT"
@@ -105,7 +105,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm --filter app exec drizzle-kit push --force
           pnpm build:app
-          node --env-file-if-exists=.env.local apps/app/.output/server/index.mjs &
+          node --env-file-if-exists=.env.local apps/web-app/.output/server/index.mjs &
           server_pid=$!
           for i in $(seq 1 60); do curl -sf http://localhost:3001/ >/dev/null && break; sleep 2; done
           pnpm --filter app perf:seed -- --count="$PERF_SEED_COUNT" --shape=balanced
@@ -121,15 +121,15 @@ jobs:
           fi
           kill "$server_pid"
           mkdir -p "$RUNNER_TEMP/perf-before"
-          cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-before/"
-          if [ -f apps/app/perf-results/mutation-bench.json ]; then
-            cp apps/app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-before/"
+          cp apps/web-app/perf-results/query-bench.json "$RUNNER_TEMP/perf-before/"
+          if [ -f apps/web-app/perf-results/mutation-bench.json ]; then
+            cp apps/web-app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-before/"
           fi
-          if [ -f apps/app/perf-results/filter-bench.json ]; then
-            cp apps/app/perf-results/filter-bench.json "$RUNNER_TEMP/perf-before/"
+          if [ -f apps/web-app/perf-results/filter-bench.json ]; then
+            cp apps/web-app/perf-results/filter-bench.json "$RUNNER_TEMP/perf-before/"
           fi
-          if [ -f apps/app/perf-results/workflow-bench.json ]; then
-            cp apps/app/perf-results/workflow-bench.json "$RUNNER_TEMP/perf-before/"
+          if [ -f apps/web-app/perf-results/workflow-bench.json ]; then
+            cp apps/web-app/perf-results/workflow-bench.json "$RUNNER_TEMP/perf-before/"
           fi
 
       - name: Checkout PR head
@@ -144,7 +144,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm --filter app exec drizzle-kit push --force
           pnpm build:app
-          node --env-file-if-exists=.env.local apps/app/.output/server/index.mjs &
+          node --env-file-if-exists=.env.local apps/web-app/.output/server/index.mjs &
           server_pid=$!
           for i in $(seq 1 60); do curl -sf http://localhost:3001/ >/dev/null && break; sleep 2; done
           pnpm --filter app perf:seed -- --count="$PERF_SEED_COUNT" --shape=balanced
@@ -154,10 +154,10 @@ jobs:
           pnpm --filter app perf:workflow
           kill "$server_pid"
           mkdir -p "$RUNNER_TEMP/perf-after"
-          cp apps/app/perf-results/query-bench.json "$RUNNER_TEMP/perf-after/"
-          cp apps/app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-after/"
-          cp apps/app/perf-results/filter-bench.json "$RUNNER_TEMP/perf-after/"
-          cp apps/app/perf-results/workflow-bench.json "$RUNNER_TEMP/perf-after/"
+          cp apps/web-app/perf-results/query-bench.json "$RUNNER_TEMP/perf-after/"
+          cp apps/web-app/perf-results/mutation-bench.json "$RUNNER_TEMP/perf-after/"
+          cp apps/web-app/perf-results/filter-bench.json "$RUNNER_TEMP/perf-after/"
+          cp apps/web-app/perf-results/workflow-bench.json "$RUNNER_TEMP/perf-after/"
 
       - name: Build comparison report
         run: |

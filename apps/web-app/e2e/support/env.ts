@@ -11,5 +11,5 @@ export const env = {
 	testUserName: "E2E Test User",
 };
 
-/** Relative to the Playwright rootDir (apps/app); shared by the config and auth.setup.ts. */
+/** Relative to the Playwright rootDir (apps/web-app); shared by the config and auth.setup.ts. */
 export const authFile = "e2e/.auth/state.json";
