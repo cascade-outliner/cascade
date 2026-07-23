@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-23
+- [chore] Reorganized the web app around feature boundaries, split node operations into focused modules, and extracted shared ordering, subtree, settings, authentication, and app-shell responsibilities. No behavior change.
 - [chore] Renamed `apps/app` to `apps/web-app` and `apps/web` to `apps/website` for clearer app names. No behavior change. [#426](https://github.com/Patrickroelofs/cascade/issues/426)
 - [chore] Added a combined end-to-end perf benchmark (`pnpm perf:workflow:app`) that times a single realistic workflow — create, edit, retype, set due date, tag, move, duplicate, query, and delete — as one unit, and wired its `fullWorkflow` p50/p95 numbers into the `perf.yml` PR comment alongside the existing query/mutation/filter benchmarks. [#425](https://github.com/Patrickroelofs/cascade/issues/425)
 - [chore] Split the 900-line `node.procedures.ts` data-access file into six sub-domain files (`node-tree-read`, `node-crud`, `node-slug`, `node-structure`, `node-tags`, `node-due-date`) under `apps/app/src/core/nodes/`, with shared helpers extracted into `node-batch.ts` and `node-due-date-schema.ts`. No behavior change.

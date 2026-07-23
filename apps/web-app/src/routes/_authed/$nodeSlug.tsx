@@ -1,9 +1,9 @@
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
+import { GenericErrorComponent } from "#/app/generic-error";
+import { splitNodeSlug } from "#/features/nodes/model/node-slug";
+import { loadNodeDetail, NodeDetailPage } from "#/features/nodes/ui/detail";
 import { orpc } from "#/orpc/client";
-import { GenericErrorComponent } from "#/ui/error/generic-error";
-import { loadNodeDetail, NodeDetailPage } from "#/ui/nodes/node-detail";
-import { splitNodeSlug } from "#/ui/nodes/node-slug";
 
 export const Route = createFileRoute("/_authed/$nodeSlug")({
 	loader: async ({ context: { queryClient }, params: { nodeSlug } }) => {

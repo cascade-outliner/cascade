@@ -1,4 +1,4 @@
 export * from "@cascade/auth/schema";
-export * from "../core/nodes/node.schema";
-export * from "../core/premium/premium.schema";
-export * from "../core/settings/settings.schema";
+export * from "../features/nodes/server/persistence/node-tables";
+export * from "../features/premium/server/premium-table";
+export * from "../features/settings/server/settings-table";

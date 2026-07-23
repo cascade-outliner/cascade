@@ -4,8 +4,8 @@ import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
 import { cliArgs } from "./support/cli-args";
 import { config } from "./support/config";
-import { auth } from "@/auth";
-import { nodes } from "@/core/nodes/node.schema";
+import { auth } from "@/features/auth/server/auth";
+import { nodes } from "@/features/nodes/server/persistence/node-tables";
 import { db } from "@/db";
 import {
 	assertNotProduction,

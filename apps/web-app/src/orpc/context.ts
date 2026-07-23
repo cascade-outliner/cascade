@@ -1,6 +1,6 @@
 import type { Session } from "@cascade/auth/server";
 import { ORPCError, os } from "@orpc/server";
-import { auth } from "@/auth";
+import { auth } from "@/features/auth/server/auth";
 
 export interface ORPCContext {
 	request: Request;

@@ -1,10 +1,10 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { getSession } from "@/auth/session";
-import type { PremiumStatus } from "@/core/premium/premium.procedures";
-import type { SettingsPatch } from "@/core/settings/settings-patch-schema";
+import { AppHeader } from "@/app/app-header";
+import { getSession } from "@/features/auth/server/get-session";
+import type { PremiumStatus } from "@/features/premium/server/premium-procedures";
+import { SettingsProvider } from "@/features/settings/client/settings-context";
+import type { SettingsPatch } from "@/features/settings/model/settings.schema";
 import { orpc } from "@/orpc/client";
-import { AppHeader } from "@/ui/header/AppHeader";
-import { SettingsProvider } from "@/ui/settings-context";
 
 export const Route = createFileRoute("/_authed")({
 	beforeLoad: async () => {

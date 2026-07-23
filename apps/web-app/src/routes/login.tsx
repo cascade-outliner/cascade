@@ -2,21 +2,21 @@ import { authClient } from "@cascade/auth/client";
 import { Button } from "@cascade/ui/button";
 import { Input } from "@cascade/ui/input";
 import { ArrowRightIcon } from "@phosphor-icons/react";
-import { GithubLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react/ssr";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { m } from "#/paraglide/messages.js";
-import { getSession } from "@/auth/session";
-import { oauthErrorMessage } from "@/lib/oauth-error";
+import { oauthErrorMessage } from "@/features/auth/model/oauth-error-message";
+import { getSession } from "@/features/auth/server/get-session";
+import { AuthPageLayout } from "@/features/auth/ui/auth-page-layout";
+import { AuthSubmitError } from "@/features/auth/ui/auth-submit-error";
+import { SocialSignInButtons } from "@/features/auth/ui/social-sign-in-buttons";
 
 export const Route = createFileRoute("/login")({
 	validateSearch: z.object({ error: z.string().optional() }),
 	beforeLoad: async () => {
 		const session = await getSession();
-		if (session) {
-			throw redirect({ to: "/" });
-		}
+		if (session) throw redirect({ to: "/" });
 	},
 	component: Login,
 });
@@ -38,7 +38,6 @@ function Login() {
 			email: String(form.get("email")),
 			password: String(form.get("password")),
 		});
-
 		if (signInError) {
 			setSubmitting(false);
 			setError(signInError.message ?? m.login_error_fallback());
@@ -47,59 +46,23 @@ function Login() {
 		window.location.href = "/";
 	}
 
-	async function handleGithub() {
-		await authClient.signIn.social({
-			provider: "github",
-			callbackURL: `${window.location.origin}/`,
-			errorCallbackURL: window.location.origin + Route.fullPath,
-		});
-	}
-
-	async function handleGoogle() {
-		await authClient.signIn.social({
-			provider: "google",
-			callbackURL: `${window.location.origin}/`,
-			errorCallbackURL: window.location.origin + Route.fullPath,
-		});
-	}
-
 	return (
-		<main className="mx-auto max-w-md w-full px-8 pt-16 pb-24 min-h-128">
-			<Link
-				to="/"
-				className="font-serif text-2xl italic flex items-center gap-4 justify-center pb-12"
-			>
-				<img width={48} height={48} alt="" src="/logo192.png" />
-				cascade
-			</Link>
-			<h1 className="mb-8 text-center font-serif text-4xl italic">
-				{m.login_heading()}
-			</h1>
-			<button
-				type="button"
-				onClick={handleGithub}
-				className="cursor-pointer mb-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3 text-sm font-bold text-white"
-			>
-				<GithubLogoIcon className="size-4" weight="bold" />
-				{m.login_continue_github()}
-			</button>
-			<button
-				type="button"
-				onClick={handleGoogle}
-				className="cursor-pointer mb-6 flex w-full items-center justify-center gap-2 rounded-full border border-muted/30 py-3 text-sm font-bold"
-			>
-				<GoogleLogoIcon className="size-4" weight="bold" />
-				{m.login_continue_google()}
-			</button>
-			<div className="mb-6 flex items-center gap-3 text-xs text-muted">
-				<hr className="grow border-muted/30" />
-				{m.login_or()}
-				<hr className="grow border-muted/30" />
-			</div>
+		<AuthPageLayout
+			heading={m.login_heading()}
+			footer={
+				<>
+					{m.login_no_account()}
+					<Link to="/register" className="pl-1 font-bold text-danger">
+						{m.login_create_one()}
+					</Link>
+				</>
+			}
+		>
+			<SocialSignInButtons errorPath={Route.fullPath} />
 			<form
 				method="post"
 				onSubmit={handleSubmit}
-				className="flex flex-col gap-4 rr-block"
+				className="rr-block flex flex-col gap-4"
 			>
 				<Input
 					label={m.login_email_label()}
@@ -115,11 +78,7 @@ function Login() {
 					autoComplete="current-password"
 					required
 				/>
-				{error && (
-					<p role="alert" className="text-sm text-danger">
-						{error}
-					</p>
-				)}
+				<AuthSubmitError message={error} />
 				<Button
 					type="submit"
 					disabled={submitting}
@@ -129,12 +88,6 @@ function Login() {
 					{m.login_submit()}
 				</Button>
 			</form>
-			<p className="mt-8 text-center text-sm text-muted">
-				{m.login_no_account()}
-				<Link to="/register" className="font-bold text-danger pl-1">
-					{m.login_create_one()}
-				</Link>
-			</p>
-		</main>
+		</AuthPageLayout>
 	);
 }

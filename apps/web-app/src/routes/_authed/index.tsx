@@ -8,19 +8,19 @@ import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
-import { GenericErrorComponent } from "@/ui/error/generic-error";
-import { NodeLink } from "@/ui/nodes/node-link";
+import { GenericErrorComponent } from "@/app/generic-error";
+import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
 	existingTagsOptions,
 	useDeleteTag,
 	useExistingTags,
-} from "@/ui/nodes/use-existing-tags";
-import { useNodeFilters } from "@/ui/nodes/use-node-filters";
+} from "@/features/nodes/client/tags/use-existing-tags";
 import {
 	useVisibleTree,
 	visibleTreeOptions,
-} from "@/ui/nodes/virtual-tree/data/use-visible-tree";
-import { useSettings } from "@/ui/settings-context";
+} from "@/features/nodes/client/tree/use-visible-tree";
+import { NodeLink } from "@/features/nodes/ui/node-link";
+import { useSettings } from "@/features/settings/client/settings-context";
 
 export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {

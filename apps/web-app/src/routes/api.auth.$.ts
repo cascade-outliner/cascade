@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { auth } from "@/auth";
+import { auth } from "@/features/auth/server/auth";
 
 function handle({ request }: { request: Request }) {
 	return auth.handler(request);
