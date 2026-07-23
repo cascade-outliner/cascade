@@ -1,9 +1,25 @@
-import { CalendarIcon, CircleNotchIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import { type ReactNode, useState } from "react";
 import type { CalendarDateString } from "./calendar-date";
 import { useOutlinerLabels } from "./labels-context";
-import { lexicalToPlainText } from "./lexical/lexical-content";
+import type { BlockType } from "./lexical/lexical-content";
+import { setBlockType } from "./lexical/lexical-content";
+import type { LexicalElementNode } from "./lexical/read/lexical-read-view";
+import type { FocusPoint } from "./node-editor";
+import { DefaultNodeLink } from "./node-link-slot";
+import type { TagSummary } from "./node-tags";
 import { NodeToggle } from "./node-toggle";
+import {
+	defaultTypedMetadata,
+	type NodeMetadata,
+	type NodeTypeName,
+	type TypedMetadata,
+	type VisibleNodeRow,
+} from "./node-types";
+import {
+	NodeRowContent,
+	StaticRowShell,
+} from "./virtual-tree/node-row-content";
 
 export interface CalendarYearCount {
 	year: number;
@@ -20,16 +36,50 @@ export interface CalendarDayCount {
 export interface CalendarDueNode {
 	id: string;
 	content: unknown;
+	type: NodeTypeName;
+	metadata: NodeMetadata;
+	tags: string[];
 }
 
-export interface CalendarNodeProps {
+/** Real node mutations for the Calendar entry's due-node rows: the exact
+ * same operations `VirtualTree` exposes, scoped by node id instead of
+ * flowing through a shared tree cache, since a due node can live anywhere
+ * in the outline, not just wherever is currently loaded. Content/type/tags/
+ * due-date changes pass the pre-mutation value too (this component already
+ * has it in hand) so the app can register an undo entry the same way it
+ * does for the real tree, without needing a cache lookup of its own. */
+export interface CalendarNodeActions {
+	existingTags: TagSummary[];
+	onDeleteTag?: (name: string) => void | Promise<void>;
+	onTagClick?: (tag: string) => void;
+	onSaveContent: (
+		id: string,
+		content: { root: LexicalElementNode },
+		previousContent: { root: LexicalElementNode } | null,
+	) => void;
+	onSetType: (
+		id: string,
+		typed: TypedMetadata,
+		previous: TypedMetadata,
+	) => void;
+	onSetDueDate: (
+		id: string,
+		date: Date | null,
+		previousDate: CalendarDateString,
+	) => void;
+	onSetTags: (id: string, tags: string[], previousTags: string[]) => void;
+	onDuplicate: (id: string) => void;
+	onDelete: (id: string) => void;
+}
+
+export interface CalendarNodeProps extends CalendarNodeActions {
 	loadYears: () => Promise<CalendarYearCount[]>;
 	loadMonths: (year: number) => Promise<CalendarMonthCount[]>;
 	loadDays: (year: number, month: number) => Promise<CalendarDayCount[]>;
 	loadDayNodes: (date: CalendarDateString) => Promise<CalendarDueNode[]>;
 	/** Same contract as `VirtualTreeProps.renderNodeLink`: the app supplies a
 	 * link to a due node's real position in the outline. */
-	renderNodeLink: (node: CalendarDueNode) => ReactNode;
+	renderNodeLink?: (node: Pick<CalendarDueNode, "id" | "content">) => ReactNode;
 	indentSize?: number;
 }
 
@@ -47,54 +97,199 @@ function toDateString(
 	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-interface CalendarRowProps {
+/** Wraps a row (structural or due-node) in the same `role="treeitem"`
+ * semantics `VirtualTreeRow` uses for real rows. */
+function CalendarTreeItem({
+	depth,
+	hasChildren,
+	expanded,
+	selected,
+	children,
+}: {
+	depth: number;
+	hasChildren: boolean;
+	expanded: boolean;
+	selected?: boolean;
+	children: ReactNode;
+}) {
+	return (
+		<div
+			role="treeitem"
+			tabIndex={-1}
+			aria-level={depth + 1}
+			aria-expanded={hasChildren ? expanded : undefined}
+			aria-selected={selected}
+		>
+			{children}
+		</div>
+	);
+}
+
+interface StructuralRowProps {
 	depth: number;
 	indentSize: number;
-	icon?: ReactNode;
 	label: ReactNode;
 	count?: number;
-	hasChildren: boolean;
 	expanded: boolean;
 	loading: boolean;
 	onToggle: (expanded: boolean) => void;
 }
 
-function CalendarRow({
+/** A Calendar/Year/Month/Day entry: styled identically to a real node row
+ * (same shell, same link marker, same text) since it isn't one — it has no
+ * content of its own to edit, just a label and a count of due nodes. */
+function StructuralRow({
 	depth,
 	indentSize,
-	icon,
 	label,
 	count,
-	hasChildren,
 	expanded,
 	loading,
 	onToggle,
-}: CalendarRowProps) {
+}: StructuralRowProps) {
 	return (
-		<div
-			role="treeitem"
-			// Focus lives on the nested toggle button, same as VirtualTreeRow.
-			tabIndex={-1}
-			aria-level={depth + 1}
-			aria-expanded={hasChildren ? expanded : undefined}
-			className="flex items-center gap-1.5 px-2 py-1.5 text-ink dark:text-surface"
-			style={{ paddingLeft: depth * indentSize + 8 }}
+		<CalendarTreeItem depth={depth} hasChildren expanded={expanded}>
+			<StaticRowShell depth={depth} indentSize={indentSize}>
+				<NodeToggle hasChildren expanded={expanded} onToggle={onToggle} />
+				<DefaultNodeLink />
+				<span className="flex-1 min-w-0 truncate">{label}</span>
+				<div className="flex gap-1 pr-1">
+					{loading ? (
+						<CircleNotchIcon size={12} className="animate-spin opacity-60" />
+					) : count !== undefined ? (
+						<span className="inline-flex items-center rounded-full border border-ink/15 dark:border-surface/15 px-2 py-0.5 text-xs text-muted dark:text-surface/60 tabular-nums">
+							{count}
+						</span>
+					) : null}
+				</div>
+			</StaticRowShell>
+		</CalendarTreeItem>
+	);
+}
+
+interface DueNodeRowProps {
+	node: CalendarDueNode;
+	dueDate: CalendarDateString;
+	depth: number;
+	indentSize: number;
+	renderNodeLink?: (node: Pick<CalendarDueNode, "id" | "content">) => ReactNode;
+	actions: CalendarNodeActions;
+	editingNodeId: string | null;
+	focusPoint: FocusPoint | null;
+	onStartEdit: (id: string, point?: FocusPoint) => void;
+	onExitEdit: (id: string) => void;
+	onPatch: (id: string, patch: Partial<CalendarDueNode>) => void;
+	onRemove: (id: string) => void;
+}
+
+/** A due node's row, rendered with the exact same `NodeRowContent` real
+ * tree rows use — same look, same editing, same context menu — just not
+ * draggable (it isn't part of an orderable sibling list here) and scoped to
+ * this one node rather than a shared tree cache. */
+function DueNodeRow({
+	node,
+	dueDate,
+	depth,
+	indentSize,
+	renderNodeLink,
+	actions,
+	editingNodeId,
+	focusPoint,
+	onStartEdit,
+	onExitEdit,
+	onPatch,
+	onRemove,
+}: DueNodeRowProps) {
+	const row: VisibleNodeRow = {
+		id: node.id,
+		parentId: null,
+		content: node.content,
+		type: node.type,
+		metadata: node.metadata,
+		expanded: false,
+		order: node.id,
+		dueDate,
+		tags: node.tags,
+		depth,
+		path: [],
+		hasChildren: false,
+		isLastChild: true,
+	};
+	const editing = editingNodeId === node.id;
+
+	return (
+		<CalendarTreeItem
+			depth={depth}
+			hasChildren={false}
+			expanded={false}
+			selected={editing}
 		>
-			<NodeToggle
-				hasChildren={hasChildren}
-				expanded={expanded}
-				onToggle={onToggle}
+			<NodeRowContent
+				row={row}
+				rows={[]}
+				indentSize={indentSize}
+				renderNodeLink={renderNodeLink}
+				existingTags={actions.existingTags}
+				onDeleteTag={actions.onDeleteTag}
+				onTagClick={actions.onTagClick}
+				editing={editing}
+				focusPoint={editing ? focusPoint : null}
+				onStartEdit={(point) => onStartEdit(node.id, point)}
+				onExitEdit={() => onExitEdit(node.id)}
+				onToggle={() => {}}
+				onConvert={(type: NodeTypeName) => {
+					const previous = {
+						type: node.type,
+						metadata: node.metadata,
+					} as TypedMetadata;
+					const typed = defaultTypedMetadata(type);
+					onPatch(node.id, { type: typed.type, metadata: typed.metadata });
+					actions.onSetType(node.id, typed, previous);
+				}}
+				onTurnInto={(blockType: BlockType) => {
+					const previousContent = node.content as {
+						root: LexicalElementNode;
+					} | null;
+					const updated = setBlockType(node.content, blockType);
+					onPatch(node.id, { content: updated });
+					actions.onSaveContent(node.id, updated, previousContent);
+				}}
+				onToggleTask={(completed: boolean) => {
+					const previous = {
+						type: node.type,
+						metadata: node.metadata,
+					} as TypedMetadata;
+					onPatch(node.id, { type: "task", metadata: { completed } });
+					actions.onSetType(
+						node.id,
+						{ type: "task", metadata: { completed } },
+						previous,
+					);
+				}}
+				onSetDueDate={(date: Date | null) => {
+					onRemove(node.id);
+					actions.onSetDueDate(node.id, date, dueDate);
+				}}
+				onSetTags={(tags: string[]) => {
+					const previousTags = node.tags;
+					onPatch(node.id, { tags });
+					actions.onSetTags(node.id, tags, previousTags);
+				}}
+				onDuplicate={() => actions.onDuplicate(node.id)}
+				onDelete={() => {
+					onRemove(node.id);
+					actions.onDelete(node.id);
+				}}
+				onSaveContent={(content) => {
+					const previousContent = node.content as {
+						root: LexicalElementNode;
+					} | null;
+					onPatch(node.id, { content });
+					actions.onSaveContent(node.id, content, previousContent);
+				}}
+				draggable={false}
 			/>
-			{icon}
-			<span className="truncate font-medium">{label}</span>
-			{loading ? (
-				<CircleNotchIcon size={12} className="animate-spin opacity-60" />
-			) : count !== undefined ? (
-				<span className="text-xs text-muted dark:text-surface/60 tabular-nums">
-					{count}
-				</span>
-			) : null}
-		</div>
+		</CalendarTreeItem>
 	);
 }
 
@@ -106,7 +301,12 @@ interface CalendarDayRowProps {
 	depth: number;
 	indentSize: number;
 	loadDayNodes: (date: CalendarDateString) => Promise<CalendarDueNode[]>;
-	renderNodeLink: (node: CalendarDueNode) => ReactNode;
+	renderNodeLink?: (node: Pick<CalendarDueNode, "id" | "content">) => ReactNode;
+	actions: CalendarNodeActions;
+	editingNodeId: string | null;
+	focusPoint: FocusPoint | null;
+	onStartEdit: (id: string, point?: FocusPoint) => void;
+	onExitEdit: (id: string) => void;
 }
 
 function CalendarDayRow({
@@ -118,50 +318,70 @@ function CalendarDayRow({
 	indentSize,
 	loadDayNodes,
 	renderNodeLink,
+	actions,
+	editingNodeId,
+	focusPoint,
+	onStartEdit,
+	onExitEdit,
 }: CalendarDayRowProps) {
 	const [expanded, setExpanded] = useState(false);
 	const [dueNodes, setDueNodes] = useState<CalendarDueNode[] | null>(null);
 	const [loading, setLoading] = useState(false);
+	const dueDate = toDateString(year, month, day);
 
 	async function handleToggle(next: boolean) {
 		setExpanded(next);
 		if (next && dueNodes === null && !loading) {
 			setLoading(true);
 			try {
-				setDueNodes(await loadDayNodes(toDateString(year, month, day)));
+				setDueNodes(await loadDayNodes(dueDate));
 			} finally {
 				setLoading(false);
 			}
 		}
 	}
 
+	function patchNode(id: string, patch: Partial<CalendarDueNode>) {
+		setDueNodes(
+			(current) =>
+				current?.map((n) => (n.id === id ? { ...n, ...patch } : n)) ?? current,
+		);
+	}
+
+	// A due-date change or delete means the node no longer belongs in this
+	// day's bucket; drop it locally instead of waiting on a refetch.
+	function removeNode(id: string) {
+		setDueNodes((current) => current?.filter((n) => n.id !== id) ?? current);
+	}
+
 	return (
 		<>
-			<CalendarRow
+			<StructuralRow
 				depth={depth}
 				indentSize={indentSize}
 				label={dayFormatter.format(new Date(year, month - 1, day))}
 				count={count}
-				hasChildren
 				expanded={expanded}
 				loading={loading}
 				onToggle={handleToggle}
 			/>
 			{expanded &&
 				dueNodes?.map((node) => (
-					<div
+					<DueNodeRow
 						key={node.id}
-						role="treeitem"
-						tabIndex={-1}
-						aria-level={depth + 2}
-						className="flex items-center gap-2 px-2 py-1.5 text-ink dark:text-surface"
-						style={{ paddingLeft: (depth + 1) * indentSize + 8 }}
-					>
-						{renderNodeLink(node)}
-						<span className="truncate">
-							{lexicalToPlainText(node.content, 120)}
-						</span>
-					</div>
+						node={node}
+						dueDate={dueDate}
+						depth={depth + 1}
+						indentSize={indentSize}
+						renderNodeLink={renderNodeLink}
+						actions={actions}
+						editingNodeId={editingNodeId}
+						focusPoint={focusPoint}
+						onStartEdit={onStartEdit}
+						onExitEdit={onExitEdit}
+						onPatch={patchNode}
+						onRemove={removeNode}
+					/>
 				))}
 		</>
 	);
@@ -175,7 +395,12 @@ interface CalendarMonthRowProps {
 	indentSize: number;
 	loadDays: (year: number, month: number) => Promise<CalendarDayCount[]>;
 	loadDayNodes: (date: CalendarDateString) => Promise<CalendarDueNode[]>;
-	renderNodeLink: (node: CalendarDueNode) => ReactNode;
+	renderNodeLink?: (node: Pick<CalendarDueNode, "id" | "content">) => ReactNode;
+	actions: CalendarNodeActions;
+	editingNodeId: string | null;
+	focusPoint: FocusPoint | null;
+	onStartEdit: (id: string, point?: FocusPoint) => void;
+	onExitEdit: (id: string) => void;
 }
 
 function CalendarMonthRow({
@@ -187,6 +412,11 @@ function CalendarMonthRow({
 	loadDays,
 	loadDayNodes,
 	renderNodeLink,
+	actions,
+	editingNodeId,
+	focusPoint,
+	onStartEdit,
+	onExitEdit,
 }: CalendarMonthRowProps) {
 	const [expanded, setExpanded] = useState(false);
 	const [days, setDays] = useState<CalendarDayCount[] | null>(null);
@@ -206,12 +436,11 @@ function CalendarMonthRow({
 
 	return (
 		<>
-			<CalendarRow
+			<StructuralRow
 				depth={depth}
 				indentSize={indentSize}
 				label={monthFormatter.format(new Date(year, month - 1, 1))}
 				count={count}
-				hasChildren
 				expanded={expanded}
 				loading={loading}
 				onToggle={handleToggle}
@@ -228,6 +457,11 @@ function CalendarMonthRow({
 						indentSize={indentSize}
 						loadDayNodes={loadDayNodes}
 						renderNodeLink={renderNodeLink}
+						actions={actions}
+						editingNodeId={editingNodeId}
+						focusPoint={focusPoint}
+						onStartEdit={onStartEdit}
+						onExitEdit={onExitEdit}
 					/>
 				))}
 		</>
@@ -242,7 +476,12 @@ interface CalendarYearRowProps {
 	loadMonths: (year: number) => Promise<CalendarMonthCount[]>;
 	loadDays: (year: number, month: number) => Promise<CalendarDayCount[]>;
 	loadDayNodes: (date: CalendarDateString) => Promise<CalendarDueNode[]>;
-	renderNodeLink: (node: CalendarDueNode) => ReactNode;
+	renderNodeLink?: (node: Pick<CalendarDueNode, "id" | "content">) => ReactNode;
+	actions: CalendarNodeActions;
+	editingNodeId: string | null;
+	focusPoint: FocusPoint | null;
+	onStartEdit: (id: string, point?: FocusPoint) => void;
+	onExitEdit: (id: string) => void;
 }
 
 function CalendarYearRow({
@@ -254,6 +493,11 @@ function CalendarYearRow({
 	loadDays,
 	loadDayNodes,
 	renderNodeLink,
+	actions,
+	editingNodeId,
+	focusPoint,
+	onStartEdit,
+	onExitEdit,
 }: CalendarYearRowProps) {
 	const [expanded, setExpanded] = useState(false);
 	const [months, setMonths] = useState<CalendarMonthCount[] | null>(null);
@@ -273,12 +517,11 @@ function CalendarYearRow({
 
 	return (
 		<>
-			<CalendarRow
+			<StructuralRow
 				depth={depth}
 				indentSize={indentSize}
 				label={year}
 				count={count}
-				hasChildren
 				expanded={expanded}
 				loading={loading}
 				onToggle={handleToggle}
@@ -295,6 +538,11 @@ function CalendarYearRow({
 						loadDays={loadDays}
 						loadDayNodes={loadDayNodes}
 						renderNodeLink={renderNodeLink}
+						actions={actions}
+						editingNodeId={editingNodeId}
+						focusPoint={focusPoint}
+						onStartEdit={onStartEdit}
+						onExitEdit={onExitEdit}
 					/>
 				))}
 		</>
@@ -302,13 +550,13 @@ function CalendarYearRow({
 }
 
 /**
- * Always-present, read-only "Calendar" entry: drills down Year → Month →
- * Day, populated live from nodes' due dates (only buckets that actually
- * have a due node appear at any level — see `node-calendar.procedures.ts`).
- * A due node keeps living at its real position in the outline; this is an
- * alternate projection over the same rows, not a second copy, so clicking
- * a node here navigates to it via `renderNodeLink` rather than editing it
- * in place.
+ * Always-present "Calendar" entry: drills down Year → Month → Day,
+ * populated live from nodes' due dates (only buckets that actually have a
+ * due node appear at any level — see `node-calendar.procedures.ts`). A due
+ * node keeps living at its real position in the outline; this is an
+ * alternate projection over the same rows, not a second copy — but its rows
+ * render with the same `NodeRowContent` real tree rows do, so a due node
+ * shown here is fully editable in place.
  *
  * Meant to be passed as `VirtualTreeProps.treeLeading`, not rendered
  * standalone: it has no `role="tree"`/wrapper of its own so its rows read
@@ -321,11 +569,14 @@ export function CalendarNode({
 	loadDayNodes,
 	renderNodeLink,
 	indentSize = 16,
+	...actions
 }: CalendarNodeProps) {
 	const labels = useOutlinerLabels();
 	const [expanded, setExpanded] = useState(false);
 	const [years, setYears] = useState<CalendarYearCount[] | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
 
 	async function handleToggle(next: boolean) {
 		setExpanded(next);
@@ -339,14 +590,20 @@ export function CalendarNode({
 		}
 	}
 
+	const handleStartEdit = (id: string, point?: FocusPoint) => {
+		setEditingNodeId(id);
+		setFocusPoint(point ?? null);
+	};
+	const handleExitEdit = (id: string) => {
+		setEditingNodeId((current) => (current === id ? null : current));
+	};
+
 	return (
 		<>
-			<CalendarRow
+			<StructuralRow
 				depth={0}
 				indentSize={indentSize}
-				icon={<CalendarIcon size={14} weight="bold" />}
 				label={labels.calendarTitle}
-				hasChildren
 				expanded={expanded}
 				loading={loading}
 				onToggle={handleToggle}
@@ -371,6 +628,11 @@ export function CalendarNode({
 						loadDays={loadDays}
 						loadDayNodes={loadDayNodes}
 						renderNodeLink={renderNodeLink}
+						actions={actions}
+						editingNodeId={editingNodeId}
+						focusPoint={focusPoint}
+						onStartEdit={handleStartEdit}
+						onExitEdit={handleExitEdit}
 					/>
 				))}
 		</>

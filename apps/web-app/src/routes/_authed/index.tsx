@@ -10,7 +10,7 @@ import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
-import { calendarNodeData } from "@/ui/nodes/calendar-node-data";
+import { useCalendarNodeData } from "@/ui/nodes/calendar-node-data";
 import { NodeLink } from "@/ui/nodes/node-link";
 import {
 	existingTagsOptions,
@@ -46,6 +46,18 @@ function RootTree() {
 	const visibility = getRowVisibility(tree.rows, filters);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const calendarNodeData = useCalendarNodeData();
+
+	function handleTagClick(tag: string) {
+		setFilters({
+			...filters,
+			tags: filters.tags.some(
+				(name) => name.toLowerCase() === tag.toLowerCase(),
+			)
+				? filters.tags
+				: [...filters.tags, tag],
+		});
+	}
 
 	return (
 		<VirtualTree
@@ -70,6 +82,9 @@ function RootTree() {
 						<NodeLink id={node.id} content={node.content} />
 					)}
 					indentSize={settings.indentSize}
+					existingTags={existingTags}
+					onDeleteTag={deleteTag}
+					onTagClick={handleTagClick}
 				/>
 			}
 			hiddenRowIds={visibility.hiddenIds}
@@ -77,16 +92,7 @@ function RootTree() {
 			newNodeDueDate={filters.dueToday ? new Date() : undefined}
 			existingTags={existingTags}
 			onDeleteTag={deleteTag}
-			onTagClick={(tag) =>
-				setFilters({
-					...filters,
-					tags: filters.tags.some(
-						(name) => name.toLowerCase() === tag.toLowerCase(),
-					)
-						? filters.tags
-						: [...filters.tags, tag],
-				})
-			}
+			onTagClick={handleTagClick}
 		/>
 	);
 }
