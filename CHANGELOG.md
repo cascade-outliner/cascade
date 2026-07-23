@@ -1,8 +1,5 @@
 # Changelog
 
-## 2026-07-23
-- [chore] The perf comparison comment posted on PRs now notes that small deltas between runs are expected noise from shared CI runners rather than a real regression. [#397](https://github.com/Patrickroelofs/cascade/issues/397)
-
 ## 2026-07-22
 - Added undo/redo for creating, editing, moving, deleting, tagging, and setting due dates on nodes: press Cmd/Ctrl+Z to undo the last change and Shift+Cmd/Ctrl+Z to redo it. Undoing a delete restores the node and its full subtree, including content, tags, due date, and type, to its prior position. [#269](https://github.com/Patrickroelofs/cascade/issues/269)
 - [feat] Non-Cascade themes (Catppuccin, Nord, Dracula) now require a premium seat: the theme picker in Settings shows them as locked for non-premium users, and the server rejects saving one of them without an active seat. [#411](https://github.com/Patrickroelofs/cascade/issues/411)
