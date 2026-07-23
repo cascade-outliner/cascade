@@ -6,6 +6,10 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
+	// The e2e suite intentionally exercises account-wide settings and premium
+	// state. It authenticates through one shared account, so concurrent workers
+	// would race while changing that state.
+	workers: 1,
 	reporter: process.env.CI ? "html" : "list",
 	timeout: 30_000,
 	expect: {

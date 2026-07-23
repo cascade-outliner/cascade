@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { expect, test } from "./support/fixtures";
 
 const content = (text: string) => ({
@@ -16,6 +17,10 @@ test("tree history restores an edit and a deleted node across reloads", async ({
 	page,
 	orpcClient,
 }) => {
+	const runId = randomUUID();
+	const firstVersion = `first version ${runId}`;
+	const secondVersion = `second version ${runId}`;
+	const deletedTitle = `deleted child ${runId}`;
 	const before = await orpcClient.premium.get();
 	if (!before.isPremium) await orpcClient.premium.requestSeat();
 	const scratchNode = await orpcClient.nodes.create({ parentId: null });
@@ -26,11 +31,11 @@ test("tree history restores an edit and a deleted node across reloads", async ({
 		});
 		await orpcClient.nodes.updateContent({
 			id: edited.id,
-			content: content("first version"),
+			content: content(firstVersion),
 		});
 		await orpcClient.nodes.updateContent({
 			id: edited.id,
-			content: content("second version"),
+			content: content(secondVersion),
 		});
 
 		const deleted = await orpcClient.nodes.create({
@@ -38,7 +43,7 @@ test("tree history restores an edit and a deleted node across reloads", async ({
 		});
 		await orpcClient.nodes.updateContent({
 			id: deleted.id,
-			content: content("deleted child"),
+			content: content(deletedTitle),
 		});
 		await orpcClient.nodes.delete({ id: deleted.id });
 
@@ -47,17 +52,33 @@ test("tree history restores an edit and a deleted node across reloads", async ({
 		await page.getByRole("menuitem", { name: "Tree history" }).click();
 
 		await page
-			.getByRole("button", { name: /Edited content · second version/ })
+			.getByRole("button", {
+				name: new RegExp(`Edited content · ${secondVersion}`),
+			})
 			.click();
-		await page.getByRole("button", { name: "Restore" }).click();
-		await expect(page.getByText("History entry restored")).toBeVisible();
-		expect(await orpcClient.nodes.get({ id: edited.id })).toMatchObject({
-			content: content("first version"),
-		});
+		const detail = page.getByTestId("tree-history-detail");
+		await expect(
+			detail.getByText(secondVersion, { exact: true }),
+		).toBeVisible();
+		await detail.getByRole("button", { name: "Restore" }).click();
+		await expect
+			.poll(async () => (await orpcClient.nodes.get({ id: edited.id })).content)
+			.toEqual(content(firstVersion));
 
-		await page.getByRole("button", { name: /Deleted · deleted child/ }).click();
-		await page.getByRole("button", { name: "Restore" }).click();
-		await expect(page.getByText("History entry restored")).toBeVisible();
+		await page
+			.getByRole("button", {
+				name: new RegExp(`Deleted · ${deletedTitle}`),
+			})
+			.click();
+		await expect(detail.getByText(deletedTitle, { exact: true })).toBeVisible();
+		await detail.getByRole("button", { name: "Restore" }).click();
+		await expect
+			.poll(async () =>
+				(await orpcClient.nodes.list({ parentId: scratchNode.id })).some(
+					({ id }) => id === deleted.id,
+				),
+			)
+			.toBe(true);
 
 		await page.reload();
 		const children = await orpcClient.nodes.list({

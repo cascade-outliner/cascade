@@ -329,7 +329,10 @@ export function TreeHistoryDialog({
 								</div>
 							</div>
 
-							<div className="min-h-0 overflow-auto p-5">
+							<div
+								className="min-h-0 overflow-auto p-5"
+								data-testid="tree-history-detail"
+							>
 								{detail.isPending || !detail.data ? (
 									<div className="flex h-full items-center justify-center">
 										<CircleNotchIcon size={24} className="animate-spin" />
