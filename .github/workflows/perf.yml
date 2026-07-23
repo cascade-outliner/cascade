@@ -5,6 +5,11 @@ name: perf
 # then posts/updates a single comment on the PR with the results. Scoped to
 # paths that can actually affect this so doc-only or apps/web-only PRs don't
 # pay for it.
+#
+# Both runs happen on shared, variably-loaded GitHub-hosted runners, so
+# small deltas between base and head are expected noise rather than a real
+# regression — the posted comment (see report.ts) calls this out explicitly
+# so it doesn't need repeating in review.
 on:
   pull_request:
     paths:

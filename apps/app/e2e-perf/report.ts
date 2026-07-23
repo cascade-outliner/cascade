@@ -189,7 +189,10 @@ async function main() {
 	lines.push("");
 	lines.push(
 		"_Lower is better. Measured against a fixed-size seeded tree " +
-			"(see `.github/workflows/perf.yml`) — this is a comparison, not a pass/fail gate._",
+			"(see `.github/workflows/perf.yml`) — this is a comparison, not a pass/fail gate. " +
+			"Each run seeds and queries fresh on shared CI runners, so small deltas " +
+			"(roughly ±10-15%) are normal run-to-run noise, not a regression — " +
+			"look for changes well outside that range or a consistent trend across runs._",
 	);
 
 	const markdown = lines.join("\n");
