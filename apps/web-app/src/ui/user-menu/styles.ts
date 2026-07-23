@@ -41,8 +41,8 @@ export const stepperButton = cva({
 
 export const settingsDialogPopup = cva({
 	base: [
-		"fixed inset-0 top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-0 bg-white p-6 text-ink shadow-lg shadow-ink/15 outline-none",
-		"sm:right-auto sm:bottom-auto sm:h-auto sm:rounded-lg sm:border sm:border-ink/10 sm:dark:border-surface/15",
+		"fixed top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-0 bg-white p-6 text-ink shadow-lg shadow-ink/15 outline-none",
+		"sm:h-auto sm:rounded-lg sm:border sm:border-ink/10 sm:dark:border-surface/15",
 		"dark:bg-ink dark:text-surface",
 	],
 });

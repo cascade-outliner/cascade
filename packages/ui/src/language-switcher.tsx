@@ -77,8 +77,18 @@ export function LanguageSwitcher({
 				</Select.Icon>
 			</Select.Trigger>
 			<Select.Portal>
-				{/* z-60: must outrank the app's z-50 dialogs/menus when nested inside one */}
-				<Select.Positioner sideOffset={6} align="end" className="z-[60]">
+				{/* z-60: must outrank the app's z-50 dialogs/menus when nested inside one.
+				alignItemWithTrigger (on by default) overlaps the popup with the trigger so
+				the selected item lines up with it, ignoring sideOffset/align - and only
+				falls back to plain anchored positioning for touch opens, so opening the
+				same dropdown with a mouse vs. a finger renders it in two different places.
+				We want one consistent, predictable position everywhere, so opt out. */}
+				<Select.Positioner
+					sideOffset={6}
+					align="end"
+					alignItemWithTrigger={false}
+					className="z-[60]"
+				>
 					<Select.Popup className={popup()}>
 						<Select.List>
 							{locales.map((locale) => (
