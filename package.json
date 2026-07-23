@@ -47,10 +47,5 @@
   },
   "engines": {
     "node": ">=22.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "kysely": "0.28.17"
-    }
   }
 }
