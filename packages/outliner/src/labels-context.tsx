@@ -57,6 +57,8 @@ export interface OutlinerLabels {
 	filtersHideCompleted: string;
 	filtersRemoveHideCompleted: string;
 	filtersClear: string;
+	calendarTitle: string;
+	calendarEmpty: string;
 }
 
 export const defaultOutlinerLabels: OutlinerLabels = {
@@ -123,6 +125,8 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	filtersHideCompleted: "Hide completed",
 	filtersRemoveHideCompleted: "Remove Hide completed filter",
 	filtersClear: "Clear filters",
+	calendarTitle: "Calendar",
+	calendarEmpty: "No nodes have due dates yet.",
 };
 
 const OutlinerLabelsContext = createContext<OutlinerLabels | null>(null);

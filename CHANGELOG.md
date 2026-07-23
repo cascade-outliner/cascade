@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-23
+- [feat] Added an always-present "Calendar" entry above the outline: expand it to drill down Year → Month → Day, populated live from nodes' due dates — only years, months, and days that actually have a due node ever appear, and clicking one jumps straight to that node in the outline. [#344](https://github.com/cascade-outliner/cascade/issues/344)
 - [chore] Renamed `apps/app` to `apps/web-app` and `apps/web` to `apps/website` for clearer app names. No behavior change. [#426](https://github.com/Patrickroelofs/cascade/issues/426)
 - [chore] Added a combined end-to-end perf benchmark (`pnpm perf:workflow:app`) that times a single realistic workflow — create, edit, retype, set due date, tag, move, duplicate, query, and delete — as one unit, and wired its `fullWorkflow` p50/p95 numbers into the `perf.yml` PR comment alongside the existing query/mutation/filter benchmarks. [#425](https://github.com/Patrickroelofs/cascade/issues/425)
 - [chore] Split the 900-line `node.procedures.ts` data-access file into six sub-domain files (`node-tree-read`, `node-crud`, `node-slug`, `node-structure`, `node-tags`, `node-due-date`) under `apps/app/src/core/nodes/`, with shared helpers extracted into `node-batch.ts` and `node-due-date-schema.ts`. No behavior change.

@@ -1,7 +1,14 @@
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { call } from "@orpc/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+	calendarDayNodes,
+	calendarDays,
+	calendarMonths,
+	calendarYears,
+} from "@/core/nodes/node-calendar.procedures";
 import { createNode, deleteNode } from "@/core/nodes/node-crud.procedures";
+import { setNodeDueDate } from "@/core/nodes/node-due-date.procedures";
 import {
 	moveNode,
 	toggleNodeExpanded,
@@ -275,5 +282,70 @@ describe("setNodeTags / listTags / deleteTag", () => {
 		await expect(
 			call(deleteTag, { name: "does-not-exist" }, { context }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
+});
+
+describe("calendarYears / calendarMonths / calendarDays / calendarDayNodes", () => {
+	it("only surfaces years, months, and days that have a due node, with counts", async () => {
+		const a = await call(createNode, { parentId: null }, { context });
+		const b = await call(createNode, { parentId: null }, { context });
+		const c = await call(createNode, { parentId: null }, { context });
+		await call(createNode, { parentId: null }, { context }); // no due date: excluded everywhere
+
+		await call(
+			setNodeDueDate,
+			{ id: a.id, dueDate: "2026-07-23" },
+			{ context },
+		);
+		await call(
+			setNodeDueDate,
+			{ id: b.id, dueDate: "2026-07-23" },
+			{ context },
+		);
+		await call(
+			setNodeDueDate,
+			{ id: c.id, dueDate: "2027-01-05" },
+			{ context },
+		);
+
+		const years = await call(calendarYears, undefined, { context });
+		expect(years).toEqual([
+			{ year: 2026, count: 2 },
+			{ year: 2027, count: 1 },
+		]);
+
+		const months2026 = await call(calendarMonths, { year: 2026 }, { context });
+		expect(months2026).toEqual([{ month: 7, count: 2 }]);
+		const months2027 = await call(calendarMonths, { year: 2027 }, { context });
+		expect(months2027).toEqual([{ month: 1, count: 1 }]);
+
+		const days = await call(
+			calendarDays,
+			{ year: 2026, month: 7 },
+			{ context },
+		);
+		expect(days).toEqual([{ day: 23, count: 2 }]);
+
+		const dayNodes = await call(
+			calendarDayNodes,
+			{ date: "2026-07-23" },
+			{ context },
+		);
+		expect(dayNodes.map((n) => n.id).sort()).toEqual([a.id, b.id].sort());
+	});
+
+	it("stops surfacing a bucket once its last due node is cleared", async () => {
+		const a = await call(createNode, { parentId: null }, { context });
+		await call(
+			setNodeDueDate,
+			{ id: a.id, dueDate: "2026-03-10" },
+			{ context },
+		);
+		expect(await call(calendarYears, undefined, { context })).toEqual([
+			{ year: 2026, count: 1 },
+		]);
+
+		await call(setNodeDueDate, { id: a.id, dueDate: null }, { context });
+		expect(await call(calendarYears, undefined, { context })).toEqual([]);
 	});
 });

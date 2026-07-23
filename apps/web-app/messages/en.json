@@ -164,6 +164,8 @@
 	"filters_bar_hide_completed": "Hide completed",
 	"filters_bar_remove_hide_completed": "Remove Hide completed filter",
 	"filters_bar_clear": "Clear filters",
+	"outliner_calendar_title": "Calendar",
+	"outliner_calendar_empty": "No nodes have due dates yet.",
 	"ui_loading": "Loading",
 	"ui_dismiss_toast": "Dismiss",
 	"ui_calendar_today": "Today",

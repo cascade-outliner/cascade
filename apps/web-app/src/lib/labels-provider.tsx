@@ -96,6 +96,8 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersHideCompleted: m.filters_bar_hide_completed(),
 		filtersRemoveHideCompleted: m.filters_bar_remove_hide_completed(),
 		filtersClear: m.filters_bar_clear(),
+		calendarTitle: m.outliner_calendar_title(),
+		calendarEmpty: m.outliner_calendar_empty(),
 	};
 }
 

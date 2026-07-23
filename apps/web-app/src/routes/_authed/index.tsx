@@ -1,3 +1,4 @@
+import { CalendarNode } from "@cascade/outliner/calendar-node";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import {
@@ -9,6 +10,7 @@ import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/ui/error/generic-error";
+import { calendarNodeData } from "@/ui/nodes/calendar-node-data";
 import { NodeLink } from "@/ui/nodes/node-link";
 import {
 	existingTagsOptions,
@@ -55,11 +57,20 @@ function RootTree() {
 			)}
 			contentClassName="rr-block"
 			header={
-				<FiltersBar
-					filters={filters}
-					existingTags={existingTags}
-					onFiltersChange={setFilters}
-				/>
+				<>
+					<CalendarNode
+						{...calendarNodeData}
+						renderNodeLink={(node) => (
+							<NodeLink id={node.id} content={node.content} />
+						)}
+						indentSize={settings.indentSize}
+					/>
+					<FiltersBar
+						filters={filters}
+						existingTags={existingTags}
+						onFiltersChange={setFilters}
+					/>
+				</>
 			}
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}

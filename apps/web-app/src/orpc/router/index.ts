@@ -1,4 +1,10 @@
 import {
+	calendarDayNodes,
+	calendarDays,
+	calendarMonths,
+	calendarYears,
+} from "@/core/nodes/node-calendar.procedures";
+import {
 	createNode,
 	deleteNode,
 	getNode,
@@ -49,6 +55,12 @@ export default {
 		setTags: setNodeTags,
 		listTags,
 		deleteTag,
+	},
+	calendar: {
+		years: calendarYears,
+		months: calendarMonths,
+		days: calendarDays,
+		dayNodes: calendarDayNodes,
 	},
 	settings: {
 		get: getSettings,
