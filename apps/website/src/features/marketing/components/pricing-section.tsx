@@ -1,10 +1,10 @@
 import { Button } from "@cascade/ui/button";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { AsteriskIcon } from "@phosphor-icons/react/ssr";
-import { appRegisterUrl } from "#/lib/app-url";
+import { externalAppUrls } from "#/config/external-app";
 import { m } from "#/paraglide/messages.js";
 
-export function Pricing() {
+export function PricingSection() {
 	return (
 		<section id="pricing" className="bg-surface">
 			<div className="mx-auto max-w-3xl px-8 py-24 text-center">
@@ -21,7 +21,7 @@ export function Pricing() {
 					className="mt-6"
 					nativeButton={false}
 					variant="dark"
-					render={<a href={appRegisterUrl} />}
+					render={<a href={externalAppUrls.register} />}
 					icon={<ArrowRightIcon className="size-4" weight="bold" />}
 				>
 					{m.pricing_cta()}

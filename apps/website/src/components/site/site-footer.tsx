@@ -3,7 +3,7 @@ import { LanguageSwitcher } from "@cascade/ui/language-switcher";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import { HeartIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
-import { appRegisterUrl } from "#/lib/app-url";
+import { externalAppUrls } from "#/config/external-app";
 import { m } from "#/paraglide/messages.js";
 import {
 	getLocale,
@@ -12,7 +12,7 @@ import {
 	setLocale,
 } from "#/paraglide/runtime.js";
 
-export function Footer() {
+export function SiteFooter() {
 	return (
 		<footer className="mx-auto max-w-3xl px-8 pt-6 pb-12 text-center">
 			<h2 className="mb-16 font-serif text-4xl md:text-6xl font-light italic">
@@ -21,7 +21,7 @@ export function Footer() {
 			<div className="flex justify-center">
 				<Button
 					nativeButton={false}
-					render={<a href={appRegisterUrl} />}
+					render={<a href={externalAppUrls.register} />}
 					icon={<ArrowRightIcon className="size-4" weight="bold" />}
 				>
 					{m.footer_cta()}

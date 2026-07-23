@@ -6,7 +6,7 @@ const faqs = [
 	{ question: m.faq_q3_question(), answer: m.faq_q3_answer() },
 ];
 
-export function Faq() {
+export function FaqSection() {
 	return (
 		<section className="mx-auto max-w-3xl px-8 py-26">
 			<h2 className="mb-12 text-center font-serif text-4xl md:text-6xl font-light">

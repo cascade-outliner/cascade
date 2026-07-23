@@ -38,6 +38,7 @@ function toRow(
 	isLastChild: boolean,
 ): VisibleNodeRow {
 	const type = node.type ?? "text";
+
 	return {
 		id: node.id,
 		parentId,
@@ -55,25 +56,20 @@ function toRow(
 	};
 }
 
-/**
- * Flattens the whole seed tree depth-first, regardless of each node's
- * intended `expanded` state every node is always in this array so the
- * demo can switch which node is the current "root" without re-fetching.
- * Each row still carries its intended `expanded` flag; view-time filtering
- * (see use-demo-tree.ts's `visibleRowsForRoot`) decides what's shown.
- */
 function collectAll(
 	nodes: SeedNode[],
 	parentId: string | null,
 	depth: number,
 ): VisibleNodeRow[] {
 	const rows: VisibleNodeRow[] = [];
+
 	nodes.forEach((node, index) => {
 		rows.push(toRow(node, parentId, depth, index, index === nodes.length - 1));
 		if (node.children?.length) {
 			rows.push(...collectAll(node.children, node.id, depth + 1));
 		}
 	});
+
 	return rows;
 }
 

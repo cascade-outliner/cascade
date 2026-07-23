@@ -1,15 +1,15 @@
 import { Dialog } from "@base-ui/react";
 import { ArrowUpRightIcon, ListIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
-import { appLoginUrl } from "#/lib/app-url";
+import { externalAppUrls } from "#/config/external-app";
 import { m } from "#/paraglide/messages.js";
 
-function NavLinks() {
+function NavigationLinks() {
 	return (
 		<>
 			<Link to="/changelog">{m.nav_changelog()}</Link>
 			<a
-				href={appLoginUrl}
+				href={externalAppUrls.login}
 				className="font-bold text-danger inline-flex items-center gap-2"
 			>
 				{m.nav_go_to_app()} <ArrowUpRightIcon size={24} />
@@ -18,7 +18,7 @@ function NavLinks() {
 	);
 }
 
-export function Nav() {
+export function SiteNavigation() {
 	return (
 		<nav className="mx-auto flex max-w-6xl items-center justify-between p-8">
 			<Link
@@ -29,7 +29,7 @@ export function Nav() {
 				cascade
 			</Link>
 			<div className="hidden md:flex items-baseline gap-8 text-sm">
-				<NavLinks />
+				<NavigationLinks />
 			</div>
 			<Dialog.Root>
 				<Dialog.Trigger className="md:hidden" aria-label={m.nav_open_menu()}>
@@ -42,7 +42,7 @@ export function Nav() {
 							<XIcon size={28} />
 						</Dialog.Close>
 						<div className="flex gap-6 text-sm flex-col-reverse">
-							<NavLinks />
+							<NavigationLinks />
 						</div>
 					</Dialog.Popup>
 				</Dialog.Portal>

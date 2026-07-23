@@ -5,7 +5,7 @@ import { m } from "#/paraglide/messages.js";
 const kbdClassName =
 	"rounded-md border border-ink/18 border-b-2 bg-[#fffcf9] px-2.5 py-1 font-mono text-xs";
 
-export function Features() {
+export function FeaturesSection() {
 	return (
 		<section id="features" className="mx-auto max-w-6xl px-8 pt-8 pb-48">
 			<div className="flex flex-col items-center pb-4">
