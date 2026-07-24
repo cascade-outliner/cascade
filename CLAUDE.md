@@ -87,15 +87,7 @@ Reads for the tree view go through a single recursive CTE (`visibleTree` in `app
 
 Node procedures live one operation per file under `apps/web-app/src/features/nodes/server/procedures/` and are exported through that folder's `index.ts`. Shared transaction-level behavior—sibling ordering, recursive CTEs, batched inserts, and subtree copy/restore persistence—lives under `features/nodes/server/persistence/`.
 
-Premium users' semantic node mutations are also recorded atomically in
-`tree_history_events`; large create/delete/duplicate previews use normalized
-`tree_history_snapshots` rows rather than one oversized JSON payload. History is
-visible for 30 days and should be purged periodically by a deployment cron or
-systemd timer with `pnpm db:purge-tree-history:app` (pass `-- --dry-run` to
-preview or `-- --days=N` to override the maintenance cutoff). Deployments can
-instead set a 32+ character `TREE_HISTORY_PURGE_TOKEN` and schedule an
-authenticated `POST /api/maintenance/purge-tree-history` request with JSON
-`{"days":30,"dryRun":false}`; `days: 0` removes all existing history.
+Premium users' semantic node mutations are also recorded atomically in `tree_history_events`; large create/delete/duplicate previews use normalized `tree_history_snapshots` rows rather than one oversized JSON payload. History is visible for 30 days and should be purged periodically by a deployment cron or systemd timer with `pnpm db:purge-tree-history:app` (pass `-- --dry-run` to preview or `-- --days=N` to override the maintenance cutoff). Deployments can instead set a 32+ character `TREE_HISTORY_PURGE_TOKEN` and schedule an authenticated `POST /api/maintenance/purge-tree-history` request with JSON `{"days":30,"dryRun":false}`; `days: 0` removes all existing history.
 
 ### API: oRPC, not REST
 
@@ -124,5 +116,6 @@ Both apps use `@inlang/paraglide-js` (English + Dutch). Generated message functi
 - **Formatting/linting**: Biome (tabs, double quotes, import organization on save). `pnpm check` is what CI runs — run it before considering a change done.
 - **Commits / PR titles**: Conventional Commits (`feat:`, `fix:`, `chore:`, etc.), lowercase subject. PR titles are linted in CI.
 - **CHANGELOG.md**: CI requires every PR that touches `apps/web-app` to also touch `CHANGELOG.md` with a user-facing entry (dated, newest on top), unless labeled `skip-changelog`. PRs that don't touch `apps/web-app` (e.g. `apps/website`-only or package-only changes) skip this check.
+- **Screenshots**: if a PR changes the UI, include before/after screenshots in the PR description.
 - **Linked issues**: CI requires every PR to close a linked issue.
 - **AI-assisted changes**: per the README, use AI to execute a solution you already understand, not to figure out what to build — know the problem and the intended fix before generating code.
