@@ -55,7 +55,8 @@ export function NodeTree({
 			}
 			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
-			newNodeDueDate={filters.dueToday ? new Date() : undefined}
+			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
+			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
 			onDeleteTag={deleteTag}
 			onTagClick={(tag) =>

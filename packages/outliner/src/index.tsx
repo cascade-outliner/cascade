@@ -19,13 +19,14 @@ export function Outliner({
 	hiddenRowIds,
 	contextRowIds,
 	newNodeDueDate,
+	newNodeTags,
 	existingTags,
 	onDeleteTag,
 	onTagClick,
 	features,
 }: OutlinerProps) {
 	const labels = useOutlinerLabels();
-	const interactions = useTreeInteractions(tree, newNodeDueDate);
+	const interactions = useTreeInteractions(tree, newNodeDueDate, newNodeTags);
 
 	return (
 		<VirtualTreeView

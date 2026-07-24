@@ -21,6 +21,7 @@ type TreeViewport = ReturnType<typeof useTreeVirtualizer>;
 export function useTreeEditing(
 	tree: VisibleTree,
 	newNodeDueDate: VirtualTreeProps["newNodeDueDate"],
+	newNodeTags: VirtualTreeProps["newNodeTags"],
 	viewport: TreeViewport,
 ) {
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
@@ -38,11 +39,13 @@ export function useTreeEditing(
 	};
 
 	const handleAddRoot = async () => {
-		editNewNode(await tree.add({ dueDate: newNodeDueDate }));
+		editNewNode(await tree.add({ dueDate: newNodeDueDate, tags: newNodeTags }));
 	};
 
 	const handleCreateBelow = async (id: string) => {
-		editNewNode(await tree.addAfter(id, { dueDate: newNodeDueDate }));
+		editNewNode(
+			await tree.addAfter(id, { dueDate: newNodeDueDate, tags: newNodeTags }),
+		);
 	};
 
 	const handleDeleteEmpty = (id: string) => {

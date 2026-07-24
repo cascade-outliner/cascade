@@ -8,12 +8,14 @@ export const tagNameSchema = z
 
 export const MAX_TAGS_PER_NODE = 50;
 
+export const tagsArraySchema = z
+	.array(tagNameSchema)
+	.max(
+		MAX_TAGS_PER_NODE,
+		`cannot set more than ${MAX_TAGS_PER_NODE} tags on a node`,
+	);
+
 export const setNodeTagsInputSchema = z.object({
 	id: z.string(),
-	tags: z
-		.array(tagNameSchema)
-		.max(
-			MAX_TAGS_PER_NODE,
-			`cannot set more than ${MAX_TAGS_PER_NODE} tags on a node`,
-		),
+	tags: tagsArraySchema,
 });

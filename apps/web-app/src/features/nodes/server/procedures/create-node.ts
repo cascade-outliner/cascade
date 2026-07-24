@@ -1,3 +1,5 @@
+import { normalizeTags } from "@cascade/outliner/node-tags";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
@@ -7,8 +9,9 @@ import {
 } from "@/features/tree-history/server/history-persistence";
 import { authed } from "@/orpc/context";
 import { dueDateSchema } from "../../model/due-date.schema";
+import { tagsArraySchema } from "../../model/tag-name.schema";
 import { nodeColumns } from "../persistence/node-columns";
-import { nodes } from "../persistence/node-tables";
+import { nodes, nodeTags, tags } from "../persistence/node-tables";
 import {
 	lockNodeOrdering,
 	orderAtTarget,
@@ -27,6 +30,7 @@ export const createNode = authed
 			parentId: z.string().nullable(),
 			afterId: z.string().nullable().optional(),
 			dueDate: dueDateSchema.nullable().optional(),
+			tags: tagsArraySchema.optional(),
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
@@ -45,7 +49,7 @@ export const createNode = authed
 			);
 			if (order === undefined) throw errors.NOT_FOUND();
 
-			const [created] = await transaction
+			const [inserted] = await transaction
 				.insert(nodes)
 				.values({
 					parentId: input.parentId,
@@ -53,7 +57,31 @@ export const createNode = authed
 					userId,
 					dueDate: input.dueDate ?? null,
 				})
-				.returning(nodeColumns(userId));
+				.returning({ id: nodes.id });
+
+			const tagNames = normalizeTags(input.tags ?? []);
+			if (tagNames.length > 0) {
+				const tagIds = (
+					await transaction
+						.insert(tags)
+						.values(tagNames.map((name) => ({ userId, name })))
+						.onConflictDoUpdate({
+							target: [tags.userId, tags.name],
+							set: { name: sql`excluded.name` },
+						})
+						.returning({ id: tags.id })
+				).map(({ id }) => id);
+				await transaction
+					.insert(nodeTags)
+					.values(tagIds.map((tagId) => ({ nodeId: inserted.id, tagId })));
+			}
+
+			const [created] = await transaction
+				.select(nodeColumns(userId))
+				.from(nodes)
+				.where(eq(nodes.id, inserted.id))
+				.limit(1);
+
 			if (created) {
 				await history.record({
 					nodeId: created.id,

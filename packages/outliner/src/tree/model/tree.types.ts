@@ -40,4 +40,6 @@ export interface VisibleTree {
 export interface AddNodeOptions {
 	/** Stamped onto the new node at creation, e.g. to match an active due-date filter. */
 	dueDate?: Date | null;
+	/** Stamped onto the new node at creation, e.g. to match an active tag filter. */
+	tags?: string[];
 }

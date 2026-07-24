@@ -67,6 +67,21 @@ describe("createNode", () => {
 			),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
+
+	it("stamps tags onto the new node so it matches an active tag filter immediately", async () => {
+		const created = await call(
+			createNode,
+			{ parentId: null, tags: ["urgent", "Work"] },
+			{ context },
+		);
+		expect(created.tags).toEqual(["Work", "urgent"]);
+
+		const [listed] = await call(listNodes, { parentId: null }, { context });
+		expect(listed.tags).toEqual(["Work", "urgent"]);
+
+		const allTags = await call(listTags, undefined, { context });
+		expect(allTags.map((t) => t.name).sort()).toEqual(["Work", "urgent"]);
+	});
 });
 
 describe("moveNode", () => {

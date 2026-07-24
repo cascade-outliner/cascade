@@ -27,8 +27,11 @@ export interface VirtualTreeProps {
 	/** Row ids to render dimmed but still visible, e.g. ancestors kept for context. */
 	contextRowIds?: Set<string>;
 	/** Stamped onto nodes created here, e.g. so a node added under an active
-	 * "Due today" filter matches it instead of immediately being hidden. */
+	 * due-date filter matches it instead of immediately being hidden. */
 	newNodeDueDate?: Date | null;
+	/** Stamped onto nodes created here, e.g. so a node added under an active
+	 * tag filter matches it instead of immediately being hidden. */
+	newNodeTags?: string[];
 	/** All of this user's tags with usage counts, for the tag editor. */
 	existingTags?: TagSummary[];
 	/** Deletes a tag outright (every node that has it loses it), not just
