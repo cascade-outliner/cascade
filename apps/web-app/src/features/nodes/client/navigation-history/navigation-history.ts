@@ -2,13 +2,38 @@
  * The in-app navigation history model: a browser-style back/forward stack over
  * the *nodes* a user has visited, independent of the browser's own history.
  *
- * A visited location is the `$nodeSlug` route param, or `null` for the root
- * outline (`/`). Identity is the raw slug string, so a node whose title (and
- * therefore slug) changed between two visits counts as two entries — the stale
- * slug still resolves to the same node through `resolveNodeSlug`, so stepping
- * back to it works, it just shows the older title in the URL.
+ * A visited location is a node's slug, or `null` for the root outline (`/`).
+ * Identity is the raw slug string, so a node whose title (and therefore slug)
+ * changed between two visits counts as two entries — the stale slug still
+ * resolves to the same node through `resolveNodeSlug`, so stepping back to it
+ * works, it just shows the older title in the URL.
  */
 export type VisitedLocation = string | null;
+
+/**
+ * Reads the visited location out of a pathname.
+ *
+ * Deliberately derived from the URL rather than from `useParams`: route params
+ * come from the *committed* match, which under `$nodeSlug`'s `pendingMinMs`
+ * lands a few hundred ms after the URL changes. Recording that late would drop
+ * a second back/forward press issued before the loader resolved, since the
+ * cursor would not have moved yet. The pathname updates as soon as the
+ * navigation starts.
+ *
+ * Only `/` and `/$nodeSlug` live under `_authed`, so the first segment is the
+ * whole story.
+ */
+export function pathnameToVisitedLocation(pathname: string): VisitedLocation {
+	const segment = pathname.split("/")[1] ?? "";
+	if (!segment) return null;
+	try {
+		return decodeURIComponent(segment);
+	} catch {
+		// A malformed escape can't match a real slug, but it's still a distinct
+		// place the user navigated to, so keep it rather than collapsing to root.
+		return segment;
+	}
+}
 
 export interface NavigationHistoryState {
 	readonly entries: readonly VisitedLocation[];

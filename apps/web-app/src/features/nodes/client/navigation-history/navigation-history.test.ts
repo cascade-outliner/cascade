@@ -6,6 +6,7 @@ import {
 	MAX_HISTORY_ENTRIES,
 	type NavigationHistoryState,
 	nextLocation,
+	pathnameToVisitedLocation,
 	previousLocation,
 	type VisitedLocation,
 	visit,
@@ -15,6 +16,29 @@ const visitAll = (...locations: VisitedLocation[]) =>
 	locations.reduce(visit, emptyNavigationHistory);
 
 const at = (state: NavigationHistoryState) => state.entries[state.index];
+
+describe("pathnameToVisitedLocation", () => {
+	it("reads the root outline as the null location", () => {
+		expect(pathnameToVisitedLocation("/")).toBeNull();
+		expect(pathnameToVisitedLocation("")).toBeNull();
+	});
+
+	it("reads a node slug out of the pathname", () => {
+		expect(pathnameToVisitedLocation("/my-node-1111aaaa")).toBe(
+			"my-node-1111aaaa",
+		);
+	});
+
+	it("decodes an escaped slug so it matches the param form", () => {
+		expect(pathnameToVisitedLocation("/caf%C3%A9-1111aaaa")).toBe(
+			"café-1111aaaa",
+		);
+	});
+
+	it("keeps a malformed escape as its own distinct location", () => {
+		expect(pathnameToVisitedLocation("/%E0%A4%A")).toBe("%E0%A4%A");
+	});
+});
 
 describe("visit", () => {
 	it("pushes each newly visited node onto the stack", () => {

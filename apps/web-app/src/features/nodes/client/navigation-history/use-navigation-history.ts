@@ -1,9 +1,10 @@
-import { useParams, useRouter } from "@tanstack/react-router";
+import { useRouter, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import {
 	canStepBack,
 	canStepForward,
 	nextLocation,
+	pathnameToVisitedLocation,
 	previousLocation,
 	type VisitedLocation,
 } from "./navigation-history";
@@ -28,16 +29,14 @@ export function useNavigationHistory() {
 		navigationHistoryStore.getServerSnapshot,
 	);
 
-	// `strict: false` because this renders above the route match: `/$nodeSlug`
-	// supplies a slug, the root outline (`/`) supplies nothing.
-	const nodeSlug = useParams({
-		strict: false,
-		select: (params) => params.nodeSlug ?? null,
+	const location = useRouterState({
+		select: (routerState) =>
+			pathnameToVisitedLocation(routerState.location.pathname),
 	});
 
 	useEffect(() => {
-		navigationHistoryStore.record(nodeSlug);
-	}, [nodeSlug]);
+		navigationHistoryStore.record(location);
+	}, [location]);
 
 	const go = useCallback(
 		(location: VisitedLocation | undefined) => {

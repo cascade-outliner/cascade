@@ -9,13 +9,13 @@ let currentSlug: string | undefined;
 
 vi.mock("@tanstack/react-router", () => ({
 	useRouter: () => ({ navigate }),
-	// Mirrors the real `useParams({ strict: false, select })`: the root outline
-	// route supplies no `nodeSlug`, `/$nodeSlug` supplies one.
-	useParams: ({
+	// Mirrors the real `useRouterState({ select })`: the root outline route is
+	// `/`, a node detail route is `/<slug>`.
+	useRouterState: ({
 		select,
 	}: {
-		select: (params: { nodeSlug?: string }) => string | null;
-	}) => select(currentSlug === undefined ? {} : { nodeSlug: currentSlug }),
+		select: (state: { location: { pathname: string } }) => string | null;
+	}) => select({ location: { pathname: `/${currentSlug ?? ""}` } }),
 }));
 
 beforeEach(() => {
