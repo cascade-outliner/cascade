@@ -1,5 +1,6 @@
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { TreeHistoryDialog } from "@/features/tree-history/ui/tree-history-dialog";
+import { KeyboardShortcutsDialog } from "../../keyboard-shortcuts/ui/keyboard-shortcuts-dialog";
 import type { UserMenuUser } from "../model/user-menu.types";
 import { DeleteAccountDialog } from "./delete-account-dialog";
 import { UserMenuTrigger } from "./user-menu-trigger";
@@ -15,6 +16,9 @@ export interface UserMenuViewProps {
 	treeHistoryOpen: boolean;
 	onTreeHistoryOpenChange: (open: boolean) => void;
 	onOpenTreeHistory: () => void;
+	keyboardShortcutsOpen: boolean;
+	onKeyboardShortcutsOpenChange: (open: boolean) => void;
+	onOpenKeyboardShortcuts: () => void;
 	deleteDialogOpen: boolean;
 	onDeleteDialogOpenChange: (open: boolean) => void;
 	onOpenDeleteDialog: () => void;
@@ -33,6 +37,9 @@ export function UserMenuView({
 	treeHistoryOpen,
 	onTreeHistoryOpenChange,
 	onOpenTreeHistory,
+	keyboardShortcutsOpen,
+	onKeyboardShortcutsOpenChange,
+	onOpenKeyboardShortcuts,
 	deleteDialogOpen,
 	onDeleteDialogOpenChange,
 	onOpenDeleteDialog,
@@ -46,11 +53,16 @@ export function UserMenuView({
 				user={user}
 				onOpenSettings={onOpenSettings}
 				onOpenTreeHistory={onOpenTreeHistory}
+				onOpenKeyboardShortcuts={onOpenKeyboardShortcuts}
 				onSignOut={onSignOut}
 			/>
 			<TreeHistoryDialog
 				open={treeHistoryOpen}
 				onOpenChange={onTreeHistoryOpenChange}
+			/>
+			<KeyboardShortcutsDialog
+				open={keyboardShortcutsOpen}
+				onOpenChange={onKeyboardShortcutsOpenChange}
 			/>
 			<UserSettingsDialog
 				user={user}

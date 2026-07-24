@@ -2,6 +2,7 @@ import { Menu } from "@base-ui/react";
 import {
 	ClockCounterClockwiseIcon,
 	GearIcon,
+	KeyboardIcon,
 	SignOutIcon,
 } from "@phosphor-icons/react/ssr";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ export interface UserMenuTriggerProps {
 	user: UserMenuUser;
 	onOpenSettings: () => void;
 	onOpenTreeHistory: () => void;
+	onOpenKeyboardShortcuts: () => void;
 	onSignOut: () => void;
 }
 
@@ -22,6 +24,7 @@ export function UserMenuTrigger({
 	user,
 	onOpenSettings,
 	onOpenTreeHistory,
+	onOpenKeyboardShortcuts,
 	onSignOut,
 }: UserMenuTriggerProps) {
 	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
@@ -52,6 +55,10 @@ export function UserMenuTrigger({
 						<Menu.Item className={menuItem()} onClick={onOpenTreeHistory}>
 							<ClockCounterClockwiseIcon size={14} weight="bold" />
 							{m.tree_history_menu_item()}
+						</Menu.Item>
+						<Menu.Item className={menuItem()} onClick={onOpenKeyboardShortcuts}>
+							<KeyboardIcon size={14} weight="bold" />
+							{m.keyboard_shortcuts_menu_item()}
 						</Menu.Item>
 						<Menu.Item className={menuItem()} onClick={onSignOut}>
 							<SignOutIcon size={14} weight="bold" />
