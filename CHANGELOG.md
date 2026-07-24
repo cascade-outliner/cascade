@@ -1,8 +1,5 @@
 # Changelog
 
-## 2026-07-24
-- [fix] Fixed a blank screen on the very first load of the outliner: the layout that checks your session and loads settings/premium status had no loading indicator, so slow session checks showed nothing until the outliner popped in. It now shows the same loading spinner used elsewhere while checking. [#440](https://github.com/cascade-outliner/cascade/issues/440)
-
 ## 2026-07-23
 - [feat] Added a premium Tree history timeline that keeps 30 days of node creation, editing, moving, deletion, type, due-date, and tag changes across the entire outline. Restorable entries roll back only the affected field, while deleted subtrees can be recreated with their original structure and metadata. [#408](https://github.com/cascade-outliner/cascade/issues/408)
 - [chore] Reorganized the web app around feature boundaries, split node operations into focused modules, and extracted shared ordering, subtree, settings, authentication, and app-shell responsibilities. No behavior change.
