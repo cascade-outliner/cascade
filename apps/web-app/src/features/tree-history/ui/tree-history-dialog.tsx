@@ -1,4 +1,11 @@
 import { Dialog } from "@base-ui/react";
+import type {
+	TreeHistoryCursor,
+	TreeHistoryDetail,
+	TreeHistoryEventKind,
+	TreeHistoryPayload,
+	TreeHistorySnapshot,
+} from "@cascade/api/tree-history-schema";
 import type { LexicalElementNode } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { Button } from "@cascade/ui/button";
@@ -20,13 +27,6 @@ import { useEffect, useMemo, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import { usePremiumStatus } from "@/features/premium/client/use-premium";
 import { PremiumUpsellNotice } from "@/features/premium/ui/premium-upsell-notice";
-import type {
-	TreeHistoryCursor,
-	TreeHistoryDetail,
-	TreeHistoryEventKind,
-	TreeHistoryPayload,
-	TreeHistorySnapshot,
-} from "@/features/tree-history/model/tree-history.schema";
 import { client, orpc } from "@/orpc/client";
 
 const timestampFormatter = new Intl.DateTimeFormat(undefined, {

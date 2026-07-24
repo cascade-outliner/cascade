@@ -1,5 +1,5 @@
+import type { SettingsPatch } from "@cascade/api/settings-schema";
 import { SYSTEM_THEME } from "@cascade/theme/themes";
-import type { SettingsPatch } from "@/features/settings/model/settings.schema";
 import appCss from "../styles.css?url";
 
 interface RouteMatch {

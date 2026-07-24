@@ -1,6 +1,6 @@
+import { toNodeSlug } from "@cascade/api/node-slug";
 import { Link } from "@tanstack/react-router";
 import { m } from "#/paraglide/messages.js";
-import { toNodeSlug } from "../model/node-slug";
 
 interface NodeLinkProps {
 	id: string;

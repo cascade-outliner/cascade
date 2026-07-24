@@ -1,8 +1,8 @@
 import { Dialog, Tabs } from "@base-ui/react";
+import type { Settings } from "@cascade/api/settings-schema";
 import { XIcon } from "@phosphor-icons/react/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
-import type { Settings } from "@/features/settings/model/settings.schema";
 import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-settings-panel";
 import { orpc } from "@/orpc/client";
 import { PremiumTab } from "../../premium/ui/premium-tab";

@@ -1,11 +1,10 @@
+import type router from "@cascade/api/router";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-
-import type router from "@/orpc/router";
 
 const getLink = createIsomorphicFn()
 	.server(

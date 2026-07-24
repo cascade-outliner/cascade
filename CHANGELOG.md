@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-24
+- [chore] Extracted the database schema, oRPC router, and all node/premium/settings/tree-history server procedures out of `apps/web-app` into a new `@cascade/api` workspace package, so a second app can mount the same API. No behavior change. [#444](https://github.com/cascade-outliner/cascade/issues/444)
 - [feat] Added a keyboard shortcuts reference: press `?` (or open it from the user menu) to see the outliner's navigation, editing, and reordering shortcuts grouped by category. [#437](https://github.com/cascade-outliner/cascade/issues/437)
 - [fix] A node created while a tag filter or a non-"due today" due-date filter (due this week, a specific date, a date range) was active is no longer immediately hidden by that same filter: it now inherits the active filter's tag(s)/due date at creation, matching the existing behavior for the "due today" filter. [#416](https://github.com/cascade-outliner/cascade/issues/416)
 

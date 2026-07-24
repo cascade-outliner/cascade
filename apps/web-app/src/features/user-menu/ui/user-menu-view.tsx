@@ -1,4 +1,4 @@
-import type { Settings } from "@/features/settings/model/settings.schema";
+import type { Settings } from "@cascade/api/settings-schema";
 import { TreeHistoryDialog } from "@/features/tree-history/ui/tree-history-dialog";
 import { KeyboardShortcutsDialog } from "../../keyboard-shortcuts/ui/keyboard-shortcuts-dialog";
 import type { UserMenuUser } from "../model/user-menu.types";

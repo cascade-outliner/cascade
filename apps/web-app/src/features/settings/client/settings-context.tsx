@@ -1,15 +1,15 @@
+import { defaultSettings } from "@cascade/api/default-settings";
+import {
+	type Settings,
+	type SettingsPatch,
+	settingsPatchSchema,
+} from "@cascade/api/settings-schema";
 import { resolveThemeId } from "@cascade/theme/themes";
 import { toast } from "@cascade/ui/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, use, useEffect, useState } from "react";
 import { m } from "#/paraglide/messages.js";
-import {
-	type Settings,
-	type SettingsPatch,
-	settingsPatchSchema,
-} from "@/features/settings/model/settings.schema";
 import { orpc } from "@/orpc/client";
-import { defaultSettings } from "../model/default-settings";
 import {
 	applyDocumentFont,
 	applyDocumentFontSize,
@@ -20,7 +20,7 @@ import { useSystemPrefersDark } from "./use-system-theme";
 export {
 	MAX_INDENT_SIZE,
 	MIN_INDENT_SIZE,
-} from "@/features/settings/model/settings.schema";
+} from "@cascade/api/settings-schema";
 
 const SettingsContext = createContext<{
 	settings: Settings;

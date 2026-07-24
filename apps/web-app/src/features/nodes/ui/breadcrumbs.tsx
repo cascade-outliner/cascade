@@ -1,11 +1,11 @@
 import { Menu } from "@base-ui/react";
+import { toNodeSlug } from "@cascade/api/node-slug";
 import { lexicalToPlainText } from "@cascade/outliner/lexical-content";
 import { DotsThreeIcon, HouseIcon } from "@phosphor-icons/react/ssr";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { orpc } from "#/orpc/client";
 import { m } from "#/paraglide/messages.js";
-import { toNodeSlug } from "../model/node-slug";
 
 interface BreadcrumbsProps {
 	nodeId: string;

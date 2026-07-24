@@ -1,4 +1,4 @@
-import { toNodeSlug } from "@/features/nodes/model/node-slug";
+import { toNodeSlug } from "@cascade/api/node-slug";
 import { expect, test } from "./support/fixtures";
 
 const lexicalContent = (text: string) => ({

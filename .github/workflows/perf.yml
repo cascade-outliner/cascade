@@ -16,6 +16,7 @@ on:
   pull_request:
     paths:
       - "apps/web-app/**"
+      - "packages/api/**"
       - "packages/outliner/**"
       - "packages/auth/**"
       - "packages/http/**"

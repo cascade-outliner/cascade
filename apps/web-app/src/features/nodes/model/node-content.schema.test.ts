@@ -1,4 +1,10 @@
 import {
+	MAX_CHILDREN_PER_NODE,
+	MAX_LEXICAL_DEPTH,
+	MAX_TEXT_LENGTH,
+	updateNodeContentInputSchema,
+} from "@cascade/api/node-content-schema";
+import {
 	$createAutoLinkNode,
 	$createLinkNode,
 	AutoLinkNode,
@@ -12,12 +18,6 @@ import {
 	createEditor,
 } from "lexical";
 import { describe, expect, it } from "vitest";
-import {
-	MAX_CHILDREN_PER_NODE,
-	MAX_LEXICAL_DEPTH,
-	MAX_TEXT_LENGTH,
-	updateNodeContentInputSchema,
-} from "@/features/nodes/model/node-content.schema";
 
 function textNode(text: string) {
 	return {

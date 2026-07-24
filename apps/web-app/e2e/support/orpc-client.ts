@@ -1,8 +1,8 @@
+import type router from "@cascade/api/router";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import type { BrowserContext } from "@playwright/test";
-import type router from "@/orpc/router";
 import { env } from "./env";
 
 export type OrpcClient = RouterClient<typeof router>;

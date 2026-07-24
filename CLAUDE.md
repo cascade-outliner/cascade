@@ -6,9 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Cascade is a self-hosted, tree-based outliner (infinitely nestable nodes, virtualized for large trees). It's a pnpm monorepo with two TanStack Start apps and several shared packages, backed by PostgreSQL via Drizzle.
 
-- `apps/web-app` — the outliner itself (`app.cascadelist.com`, dev port 3001). Owns the database schema, the oRPC API, auth session creation, and the login/register UI.
+- `apps/web-app` — the outliner itself (`app.cascadelist.com`, dev port 3001). Owns the UI, routing, SSR, and the login/register screens; it mounts the API from `@cascade/api` rather than defining it.
 - `apps/website` — marketing site + legal pages (`cascadelist.com`, dev port 3000). No database access of its own; its `/login` and `/register` routes are pure redirects to `apps/web-app`.
 - `packages/auth` — better-auth setup (`createAuth(db)`), used by `apps/web-app`; the resulting session cookie is scoped to span both origins in production (`COOKIE_DOMAIN`).
+- `packages/api` — the backend: the Drizzle schema, the oRPC router and its `authed` procedure builder, and every node/premium/settings/tree-history procedure. Framework-agnostic (no TanStack Start imports), so any app can mount it — that's what makes a second API-serving app possible without forking the procedures.
 - `packages/http` — shared HTTP concerns (e.g. security headers).
 - `packages/outliner` — the tree/editor UI: virtualized tree rendering, drag-and-drop, Lexical-based node editor, node/tree types, filters. Framework-agnostic React, no oRPC/data-fetching code — consumers pass in data and callbacks.
 - `packages/ui` — generic design-system primitives (button, input, checkbox, popover, calendar, toast, etc.) built on `@base-ui/react` + `cva`.
@@ -32,6 +33,9 @@ pnpm build:web
 
 pnpm test:app           # vitest run (apps/web-app)
 pnpm test:web           # vitest run (apps/website)
+pnpm test:api           # vitest run (packages/api)
+pnpm test:db:api        # vitest run against a real database (packages/api)
+pnpm tsc:api            # tsc --noEmit (packages/api)
 pnpm test:e2e:app       # Playwright e2e suite (apps/web-app only, see below)
 
 pnpm check              # biome check (lint + format), the CI gate
@@ -74,24 +78,24 @@ Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:54
 - `pnpm perf:workflow:app -- --iterations=20 --warmup=2` benchmarks a single combined end-to-end pass — create, edit content, retype, set due date, set tags, toggle expanded, move, duplicate, read ancestors, re-query the visible tree, then delete — timed as one unit per iteration rather than per-step, over real HTTP calls against two scratch parent nodes (cleaned up via `deleteNode`'s cascade when the run finishes), same server/auth requirements as `perf:query:app`. Where `perf:query`/`perf:mutate`/`perf:filter` isolate individual procedures, this exists to catch regressions in the combined path a real editing session actually takes (see #425). Reports `fullWorkflow` latency percentiles to `apps/web-app/perf-results/` (`workflow-bench.json`).
 - `pnpm perf:report:app -- --beforeDir=<dir> --afterDir=<dir>` diffs two `perf-results/` snapshots (`query-bench.json` and, if present, `mutation-bench.json`/`filter-bench.json`/`workflow-bench.json`) into a markdown comparison table.
 - `pnpm test:perf:ui:app` is a separate Playwright config/project (`playwright.perf.config.ts`, testing `e2e-perf/`) that loads the seeded tree in a real browser and asserts the number of mounted `role="treeitem"` rows stays small and roughly constant regardless of total tree size — a regression here means virtualization itself broke.
-- `.github/workflows/perf.yml` runs `perf:seed`/`perf:query`/`perf:mutate`/`perf:filter`/`perf:workflow` against both a PR's base and head commit and posts a single comment on the PR with the `visibleTree`, `createNode`/`moveNode`/`duplicateNode`, filter (`tagFilter`/`dueTodayFilter`), and combined-workflow (`fullWorkflow`) before/after comparison. It's a comparison for a human to read, not a merge gate, and only triggers on changes to `apps/web-app`/`packages/outliner`/`packages/auth`/`packages/http`.
+- `.github/workflows/perf.yml` runs `perf:seed`/`perf:query`/`perf:mutate`/`perf:filter`/`perf:workflow` against both a PR's base and head commit and posts a single comment on the PR with the `visibleTree`, `createNode`/`moveNode`/`duplicateNode`, filter (`tagFilter`/`dueTodayFilter`), and combined-workflow (`fullWorkflow`) before/after comparison. It's a comparison for a human to read, not a merge gate, and only triggers on changes to `apps/web-app`/`packages/api`/`packages/outliner`/`packages/auth`/`packages/http`.
 - **Not yet measured, and why**: drag-and-drop latency (mouse-up to rendered result) and mutation reconciliation (server response to visible-tree update in TanStack Query) are both client-side/browser timings, closer in kind to `test:perf:ui:app`'s Playwright approach than to the pure-function/HTTP scripts above — neither has a harness yet.
 
 ## Architecture notes
 
 ### Data layer: fractional indexing + recursive CTEs
 
-`nodes` (`apps/web-app/src/db/schema.ts`) is a self-referencing tree table (`parent_id` FK to `nodes.id`, cascade delete). Sibling order is a fractional index string (`order`, via `fractional-indexing`'s `generateKeyBetween`), stored with a custom `COLLATE "C"` text type so that byte-order comparison matches the fractional-indexing library's ordering. Because of that, moves and inserts only ever need to touch the moved/inserted row.
+`nodes` (`packages/api/src/db/schema.ts`, a barrel over the per-feature `*-table.ts` files) is a self-referencing tree table (`parent_id` FK to `nodes.id`, cascade delete). Sibling order is a fractional index string (`order`, via `fractional-indexing`'s `generateKeyBetween`), stored with a custom `COLLATE "C"` text type so that byte-order comparison matches the fractional-indexing library's ordering. Because of that, moves and inserts only ever need to touch the moved/inserted row.
 
-Reads for the tree view go through a single recursive CTE (`visibleTree` in `apps/web-app/src/features/nodes/server/procedures/visible-tree.ts`) that walks expanded nodes depth-first server-side, building a `path` array of `order` values per row for cursor pagination (`WHERE path > cursor`) and correct DFS ordering. `moveNode` (`move-node.ts`) uses the shared sibling-order persistence helpers to take a `pg_advisory_xact_lock` keyed on the user id, validate that the destination isn't inside the moved node's own subtree, and recompute the fractional index.
+Reads for the tree view go through a single recursive CTE (`visibleTree` in `packages/api/src/features/nodes/server/procedures/visible-tree.ts`) that walks expanded nodes depth-first server-side, building a `path` array of `order` values per row for cursor pagination (`WHERE path > cursor`) and correct DFS ordering. `moveNode` (`move-node.ts`) uses the shared sibling-order persistence helpers to take a `pg_advisory_xact_lock` keyed on the user id, validate that the destination isn't inside the moved node's own subtree, and recompute the fractional index.
 
-Node procedures live one operation per file under `apps/web-app/src/features/nodes/server/procedures/` and are exported through that folder's `index.ts`. Shared transaction-level behavior—sibling ordering, recursive CTEs, batched inserts, and subtree copy/restore persistence—lives under `features/nodes/server/persistence/`.
+Node procedures live one operation per file under `packages/api/src/features/nodes/server/procedures/` and are exported through that folder's `index.ts`. Shared transaction-level behavior—sibling ordering, recursive CTEs, batched inserts, and subtree copy/restore persistence—lives under `features/nodes/server/persistence/`.
 
 Premium users' semantic node mutations are also recorded atomically in `tree_history_events`; large create/delete/duplicate previews use normalized `tree_history_snapshots` rows rather than one oversized JSON payload. History is visible for 30 days and should be purged periodically by a deployment cron or systemd timer with `pnpm db:purge-tree-history:app` (pass `-- --dry-run` to preview or `-- --days=N` to override the maintenance cutoff). Deployments can instead set a 32+ character `TREE_HISTORY_PURGE_TOKEN` and schedule an authenticated `POST /api/maintenance/purge-tree-history` request with JSON `{"days":30,"dryRun":false}`; `days: 0` removes all existing history.
 
 ### API: oRPC, not REST
 
-`apps/web-app/src/orpc/router.ts` assembles the full router from procedures defined in each feature's `server/` folder. Procedures are built from `authed` (`apps/web-app/src/orpc/context.ts`), which requires a valid better-auth session and injects `context.user`. All node procedures re-scope every query by `userId` — there's no separate authorization layer, so a new procedure that queries `nodes` must filter by the current user itself. The web client (`apps/web-app/src/orpc/client.ts`) is consumed through `@orpc/tanstack-query` — route loaders call `queryClient.ensureQueryData(orpc.<x>.queryOptions(...))`, and one-off mutations go through the plain `client.<x>(...)` call, both from the same generated proxy.
+`packages/api/src/orpc/router.ts` assembles the full router from procedures defined in each feature's `server/` folder, and `apps/web-app` mounts it at `src/routes/api.rpc.$.ts` (RPC) and `src/routes/api.$.ts` (OpenAPI). Procedures are built from `authed` (`packages/api/src/orpc/context.ts`), which requires a valid better-auth session and injects `context.user`. All node procedures re-scope every query by `userId` — there's no separate authorization layer, so a new procedure that queries `nodes` must filter by the current user itself. The web client (`apps/web-app/src/orpc/client.ts`) is consumed through `@orpc/tanstack-query` — route loaders call `queryClient.ensureQueryData(orpc.<x>.queryOptions(...))`, and one-off mutations go through the plain `client.<x>(...)` call, both from the same generated proxy.
 
 ### Routing: TanStack Start, file-based
 
@@ -105,7 +109,7 @@ Node text is stored as serialized Lexical editor state (`jsonb` `content` column
 
 ### Node URL slugs
 
-Node detail URLs are `/<slug-from-content>-<uuid-first-block>` (see `apps/web-app/src/features/nodes/model/node-slug.ts`). The content-derived slug is normalized (lowercased, diacritics stripped, non-alphanumerics collapsed to hyphens) and capped in length; the trailing UUID-first-block suffix disambiguates duplicate titles while keeping links stable. `resolveNodeSlug` (`features/nodes/server/procedures/resolve-node-slug.ts`) resolves a slug back to a node id, falling back to a full-UUID match and, when the first-block prefix is ambiguous, filtering candidates by the slug text before raising `SLUG_AMBIGUOUS`.
+Node detail URLs are `/<slug-from-content>-<uuid-first-block>` (see `packages/api/src/features/nodes/model/node-slug.ts`). The content-derived slug is normalized (lowercased, diacritics stripped, non-alphanumerics collapsed to hyphens) and capped in length; the trailing UUID-first-block suffix disambiguates duplicate titles while keeping links stable. `resolveNodeSlug` (`features/nodes/server/procedures/resolve-node-slug.ts`) resolves a slug back to a node id, falling back to a full-UUID match and, when the first-block prefix is ambiguous, filtering candidates by the slug text before raising `SLUG_AMBIGUOUS`.
 
 ### i18n
 

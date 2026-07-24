@@ -4,9 +4,9 @@ import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
 import { cliArgs } from "./support/cli-args";
 import { config } from "./support/config";
-import { auth } from "@/features/auth/server/auth";
-import { nodes } from "@/features/nodes/server/persistence/node-tables";
-import { db } from "@/db";
+import { auth } from "@cascade/api/auth";
+import { nodes } from "@cascade/api/node-tables";
+import { db } from "@cascade/api/db";
 import {
 	assertNotProduction,
 	buildTree,

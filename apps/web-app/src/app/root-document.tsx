@@ -1,3 +1,4 @@
+import type { SettingsPatch } from "@cascade/api/settings-schema";
 import { fontSizeAttribute } from "@cascade/theme/font-sizes";
 import { fontAttribute } from "@cascade/theme/fonts";
 import {
@@ -12,7 +13,6 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { getLocale } from "#/paraglide/runtime.js";
 import { useUndoShortcuts } from "@/features/nodes/client/undo/use-undo-shortcuts";
-import type { SettingsPatch } from "@/features/settings/model/settings.schema";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
 import { AppLabelsProvider } from "./app-labels-provider";
 import { authedSettings } from "./root-head";

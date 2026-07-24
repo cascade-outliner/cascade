@@ -18,6 +18,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:app
       - run: pnpm test:web
+      - run: pnpm test:api
 
   test-db:
     runs-on: ubuntu-24.04
@@ -51,4 +52,4 @@ jobs:
       - name: Apply database schema
         run: pnpm db:push:app
 
-      - run: pnpm test:db:app
+      - run: pnpm test:db:api

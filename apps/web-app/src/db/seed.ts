@@ -1,7 +1,9 @@
 import { createInterface } from "node:readline/promises";
+import { auth } from "@cascade/api/auth";
+import { db } from "@cascade/api/db";
+import { nodes } from "@cascade/api/node-tables";
 import { user } from "@cascade/auth/schema";
 import { eq } from "drizzle-orm";
-import { db } from "@/db";
 import {
 	assertNotProduction,
 	buildTree,
@@ -9,8 +11,6 @@ import {
 	insertRows,
 	type TreeShapeConfig,
 } from "@/db/seed-tree";
-import { auth } from "@/features/auth/server/auth";
-import { nodes } from "@/features/nodes/server/persistence/node-tables";
 
 // This seed-user can only be used in a local environment, and will be deleted and recreated each time the seed script is run.
 // The password being visible is intentional to make development easy and have a predictable user available.

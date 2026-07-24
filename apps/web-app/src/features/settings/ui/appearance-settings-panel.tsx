@@ -1,4 +1,9 @@
 import { NumberField } from "@base-ui/react";
+import {
+	MAX_INDENT_SIZE,
+	MIN_INDENT_SIZE,
+	type Settings,
+} from "@cascade/api/settings-schema";
 import { SYSTEM_THEME } from "@cascade/theme/themes";
 import { LanguageSwitcher } from "@cascade/ui/language-switcher";
 import { Select } from "@cascade/ui/select";
@@ -10,11 +15,6 @@ import {
 	locales,
 	setLocale,
 } from "#/paraglide/runtime.js";
-import {
-	MAX_INDENT_SIZE,
-	MIN_INDENT_SIZE,
-	type Settings,
-} from "../model/settings.schema";
 import {
 	darkThemeOptions,
 	fontOptions,

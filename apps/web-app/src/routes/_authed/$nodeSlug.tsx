@@ -1,7 +1,7 @@
+import { splitNodeSlug } from "@cascade/api/node-slug";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { GenericErrorComponent } from "#/app/generic-error";
-import { splitNodeSlug } from "#/features/nodes/model/node-slug";
 import { loadNodeDetail, NodeDetailPage } from "#/features/nodes/ui/detail";
 import { orpc } from "#/orpc/client";
 

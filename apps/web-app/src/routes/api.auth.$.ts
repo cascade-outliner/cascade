@@ -1,5 +1,5 @@
+import { auth } from "@cascade/api/auth";
 import { createFileRoute } from "@tanstack/react-router";
-import { auth } from "@/features/auth/server/auth";
 
 function handle({ request }: { request: Request }) {
 	return auth.handler(request);
