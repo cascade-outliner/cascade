@@ -219,5 +219,9 @@
 	"keyboard_shortcuts_indent": "Indent, making it a child of the node above",
 	"keyboard_shortcuts_outdent": "Outdent, moving it up a level",
 	"keyboard_shortcuts_move_up": "Move the node up among its siblings",
-	"keyboard_shortcuts_move_down": "Move the node down among its siblings"
+	"keyboard_shortcuts_move_down": "Move the node down among its siblings",
+	"navigation_history_back": "Go back to the previously visited node",
+	"navigation_history_forward": "Go forward to the next visited node",
+	"keyboard_shortcuts_navigate_back": "Go back to the previously visited node",
+	"keyboard_shortcuts_navigate_forward": "Go forward to the next visited node"
 }

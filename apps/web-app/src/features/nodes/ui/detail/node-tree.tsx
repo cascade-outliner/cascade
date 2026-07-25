@@ -12,6 +12,7 @@ import {
 	useExistingTags,
 } from "#/features/nodes/client/tags/use-existing-tags";
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
+import { NavigationHistoryControls } from "#/features/nodes/ui/navigation-history-controls";
 import { NodeLink } from "#/features/nodes/ui/node-link";
 import { useSettings } from "#/features/settings/client/settings-context";
 
@@ -50,6 +51,7 @@ export function NodeTree({
 						filters={filters}
 						existingTags={existingTags}
 						onFiltersChange={setFilters}
+						leading={[<NavigationHistoryControls key="nav-history" />]}
 					/>
 				</>
 			}

@@ -219,5 +219,9 @@
 	"keyboard_shortcuts_indent": "Inspringen, als kind van de node erboven",
 	"keyboard_shortcuts_outdent": "Uitspringen, een niveau omhoog",
 	"keyboard_shortcuts_move_up": "De node omhoog verplaatsen tussen zijn broers/zussen",
-	"keyboard_shortcuts_move_down": "De node omlaag verplaatsen tussen zijn broers/zussen"
+	"keyboard_shortcuts_move_down": "De node omlaag verplaatsen tussen zijn broers/zussen",
+	"navigation_history_back": "Terug naar de vorige bezochte node",
+	"navigation_history_forward": "Vooruit naar de volgende bezochte node",
+	"keyboard_shortcuts_navigate_back": "Terug naar de vorige bezochte node",
+	"keyboard_shortcuts_navigate_forward": "Vooruit naar de volgende bezochte node"
 }

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-24
+- [feat] Added back/forward navigation across the nodes you've visited: use the arrow buttons in the header or press `Alt+Left`/`Alt+Right` to retrace your steps after following a chain of node links. The stack tracks node-to-node navigation only — changing a filter or opening a dialog doesn't count as a step — and it moves in step with the browser's own back/forward button rather than fighting it. History is session-local and resets on a full page reload. [#452](https://github.com/cascade-outliner/cascade/issues/452)
 - [feat] Added a keyboard shortcuts reference: press `?` (or open it from the user menu) to see the outliner's navigation, editing, and reordering shortcuts grouped by category. [#437](https://github.com/cascade-outliner/cascade/issues/437)
 - [fix] A node created while a tag filter or a non-"due today" due-date filter (due this week, a specific date, a date range) was active is no longer immediately hidden by that same filter: it now inherits the active filter's tag(s)/due date at creation, matching the existing behavior for the "due today" filter. [#416](https://github.com/cascade-outliner/cascade/issues/416)
 
