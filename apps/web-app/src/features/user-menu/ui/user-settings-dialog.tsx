@@ -2,6 +2,7 @@ import { Dialog, Tabs } from "@base-ui/react";
 import { XIcon } from "@phosphor-icons/react/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
+import { SecuritySettingsPanel } from "@/features/sessions/ui/security-settings-panel";
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-settings-panel";
 import { orpc } from "@/orpc/client";
@@ -28,6 +29,7 @@ export interface UserSettingsDialogProps {
 const tabs = [
 	{ value: "general", label: () => m.user_menu_general_tab() },
 	{ value: "user", label: () => m.user_menu_user_tab() },
+	{ value: "security", label: () => m.security_tab() },
 	{ value: "premium", label: () => m.user_menu_premium_tab() },
 	{ value: "links", label: () => m.user_menu_quick_links() },
 ] as const;
@@ -60,12 +62,12 @@ export function UserSettingsDialog({
 						</Dialog.Close>
 					</div>
 					<Tabs.Root defaultValue="general">
-						<Tabs.List className="mb-4 flex gap-4 border-b border-ink/10 dark:border-surface/15">
+						<Tabs.List className="mb-4 flex gap-4 overflow-x-auto border-b border-ink/10 dark:border-surface/15">
 							{tabs.map((tab) => (
 								<Tabs.Tab
 									key={tab.value}
 									value={tab.value}
-									className={tabTrigger()}
+									className={tabTrigger({ className: "shrink-0" })}
 								>
 									{tab.label()}
 								</Tabs.Tab>
@@ -85,6 +87,9 @@ export function UserSettingsDialog({
 								onSignOut={onSignOut}
 								onOpenDeleteDialog={onOpenDeleteDialog}
 							/>
+						</Tabs.Panel>
+						<Tabs.Panel value="security">
+							<SecuritySettingsPanel />
 						</Tabs.Panel>
 						<Tabs.Panel value="premium">
 							<PremiumTab />
