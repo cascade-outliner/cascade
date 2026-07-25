@@ -1,5 +1,6 @@
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
+import { useExportMutation } from "@/features/nodes/client/tree/mutations";
 import { useSettings } from "@/features/settings/client/settings-context";
 import { useKeyboardShortcutsHotkey } from "../../keyboard-shortcuts/ui/use-keyboard-shortcuts-hotkey";
 import { useDeleteAccount, useSignOut } from "../client/use-account-actions";
@@ -15,6 +16,7 @@ export function UserMenu() {
 
 	const signOut = useSignOut();
 	const deleteAccount = useDeleteAccount();
+	const exportTree = useExportMutation();
 
 	useKeyboardShortcutsHotkey(() => setKeyboardShortcutsOpen(true));
 
@@ -39,6 +41,7 @@ export function UserMenu() {
 			keyboardShortcutsOpen={keyboardShortcutsOpen}
 			onKeyboardShortcutsOpenChange={setKeyboardShortcutsOpen}
 			onOpenKeyboardShortcuts={() => setKeyboardShortcutsOpen(true)}
+			onExportTree={(format) => exportTree(null, format)}
 			deleteDialogOpen={deleteDialogOpen}
 			onDeleteDialogOpenChange={setDeleteDialogOpen}
 			onOpenDeleteDialog={() => setDeleteDialogOpen(true)}

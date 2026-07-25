@@ -1,3 +1,4 @@
+import type { ExportFormat } from "@cascade/outliner/node-types";
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { TreeHistoryDialog } from "@/features/tree-history/ui/tree-history-dialog";
 import { KeyboardShortcutsDialog } from "../../keyboard-shortcuts/ui/keyboard-shortcuts-dialog";
@@ -19,6 +20,7 @@ export interface UserMenuViewProps {
 	keyboardShortcutsOpen: boolean;
 	onKeyboardShortcutsOpenChange: (open: boolean) => void;
 	onOpenKeyboardShortcuts: () => void;
+	onExportTree: (format: ExportFormat) => void;
 	deleteDialogOpen: boolean;
 	onDeleteDialogOpenChange: (open: boolean) => void;
 	onOpenDeleteDialog: () => void;
@@ -40,6 +42,7 @@ export function UserMenuView({
 	keyboardShortcutsOpen,
 	onKeyboardShortcutsOpenChange,
 	onOpenKeyboardShortcuts,
+	onExportTree,
 	deleteDialogOpen,
 	onDeleteDialogOpenChange,
 	onOpenDeleteDialog,
@@ -54,6 +57,7 @@ export function UserMenuView({
 				onOpenSettings={onOpenSettings}
 				onOpenTreeHistory={onOpenTreeHistory}
 				onOpenKeyboardShortcuts={onOpenKeyboardShortcuts}
+				onExportTree={onExportTree}
 				onSignOut={onSignOut}
 			/>
 			<TreeHistoryDialog

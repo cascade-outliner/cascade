@@ -11,6 +11,7 @@ import {
 import {
 	CheckSquareIcon,
 	CopyIcon,
+	DownloadSimpleIcon,
 	ParagraphIcon,
 	TextHFiveIcon,
 	TextHFourIcon,
@@ -23,7 +24,7 @@ import {
 import { Fragment, type ReactNode } from "react";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
-import type { NodeTypeName } from "../model/node-types";
+import type { ExportFormat, NodeTypeName } from "../model/node-types";
 
 /** Every option in the merged "Convert into" menu: the row-level `task` type,
  * plus every Lexical block type ("text" is represented by `blockType`
@@ -59,6 +60,7 @@ interface NodeActionsProps {
 	onConvert: (type: NodeTypeName) => void;
 	onTurnInto: (blockType: BlockType) => void;
 	onDuplicate: () => void;
+	onExport: (format: ExportFormat) => void;
 	onDelete: () => void;
 	/** Feature-contributed menu entries (due date, tags, …), rendered in
 	 * order before the core "Convert into"/"Delete" entries. */
@@ -73,6 +75,7 @@ export function NodeActions({
 	onConvert,
 	onTurnInto,
 	onDuplicate,
+	onExport,
 	onDelete,
 	menuItems,
 	viewTransitionName,
@@ -144,6 +147,21 @@ export function NodeActions({
 				>
 					{labels.duplicate}
 				</ContextMenuItem>
+				<ContextMenuSub>
+					<ContextMenuSubTrigger
+						icon={<DownloadSimpleIcon size={14} weight="bold" />}
+					>
+						{labels.exportMenu}
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent>
+						<ContextMenuItem onClick={() => onExport("markdown")}>
+							{labels.exportMarkdown}
+						</ContextMenuItem>
+						<ContextMenuItem onClick={() => onExport("opml")}>
+							{labels.exportOpml}
+						</ContextMenuItem>
+					</ContextMenuSubContent>
+				</ContextMenuSub>
 				<ContextMenuSeparator />
 				<ContextMenuItem
 					variant="destructive"

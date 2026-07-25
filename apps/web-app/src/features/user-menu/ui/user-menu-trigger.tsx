@@ -1,6 +1,8 @@
 import { Menu } from "@base-ui/react";
+import type { ExportFormat } from "@cascade/outliner/node-types";
 import {
 	ClockCounterClockwiseIcon,
+	DownloadSimpleIcon,
 	GearIcon,
 	KeyboardIcon,
 	SignOutIcon,
@@ -17,6 +19,7 @@ export interface UserMenuTriggerProps {
 	onOpenSettings: () => void;
 	onOpenTreeHistory: () => void;
 	onOpenKeyboardShortcuts: () => void;
+	onExportTree: (format: ExportFormat) => void;
 	onSignOut: () => void;
 }
 
@@ -25,6 +28,7 @@ export function UserMenuTrigger({
 	onOpenSettings,
 	onOpenTreeHistory,
 	onOpenKeyboardShortcuts,
+	onExportTree,
 	onSignOut,
 }: UserMenuTriggerProps) {
 	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
@@ -59,6 +63,20 @@ export function UserMenuTrigger({
 						<Menu.Item className={menuItem()} onClick={onOpenKeyboardShortcuts}>
 							<KeyboardIcon size={14} weight="bold" />
 							{m.keyboard_shortcuts_menu_item()}
+						</Menu.Item>
+						<Menu.Item
+							className={menuItem()}
+							onClick={() => onExportTree("markdown")}
+						>
+							<DownloadSimpleIcon size={14} weight="bold" />
+							{m.user_menu_export_markdown()}
+						</Menu.Item>
+						<Menu.Item
+							className={menuItem()}
+							onClick={() => onExportTree("opml")}
+						>
+							<DownloadSimpleIcon size={14} weight="bold" />
+							{m.user_menu_export_opml()}
 						</Menu.Item>
 						<Menu.Item className={menuItem()} onClick={onSignOut}>
 							<SignOutIcon size={14} weight="bold" />

@@ -10,6 +10,9 @@ export interface OutlinerLabels {
 	editNodeText: string;
 	convertInto: string;
 	duplicate: string;
+	exportMenu: string;
+	exportMarkdown: string;
+	exportOpml: string;
 	delete: string;
 	emptyTree: string;
 	emptyFilterResults: string;

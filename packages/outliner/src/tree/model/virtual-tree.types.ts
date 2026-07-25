@@ -5,6 +5,7 @@ import type { FocusPoint } from "../../editor/model/focus-point";
 import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
 import type { TagSummary } from "../../nodes/model/node-tags";
 import type {
+	ExportFormat,
 	NodeTypeName,
 	VisibleNodeRow,
 } from "../../nodes/model/node-types";
@@ -74,6 +75,7 @@ export interface VirtualTreeRowProps {
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDuplicate: () => void;
+	onExport: (format: ExportFormat) => void;
 	onDelete: () => void;
 	onSaveContent: (content: { root: LexicalElementNode }) => void;
 	onCreateBelow: () => void;

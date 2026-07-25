@@ -136,6 +136,7 @@ export function VirtualTreeView({
 									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
 									onSetTags={(tags) => tree.setTags(row.id, tags)}
 									onDuplicate={() => tree.duplicate(row.id)}
+									onExport={(format) => tree.exportSubtree(row.id, format)}
 									onDelete={() => tree.remove(row.id)}
 									onSaveContent={(content) =>
 										tree.updateContent(row.id, content)

@@ -9,6 +9,8 @@
     "./node-tags-editor": "./src/features/tags/components/node-tags-editor/node-tags-editor.tsx",
     "./filters-bar": "./src/filters/components/filters-bar.tsx",
     "./node-types": "./src/nodes/model/node-types.ts",
+    "./export-format": "./src/nodes/model/export-format.ts",
+    "./download-text-file": "./src/nodes/model/download-text-file.ts",
     "./features": "./src/features/index.ts",
     "./node-tags": "./src/nodes/model/node-tags.ts",
     "./tree-types": "./src/tree/model/tree.types.ts",

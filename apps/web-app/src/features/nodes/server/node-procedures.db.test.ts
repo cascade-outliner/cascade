@@ -6,12 +6,14 @@ import {
 	deleteNode,
 	deleteTag,
 	duplicateNode,
+	exportTree,
 	listNodes,
 	listTags,
 	moveNode,
 	restoreNode,
 	setNodeTags,
 	toggleNodeExpanded,
+	updateNodeContent,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
 import type { ORPCContext } from "@/orpc/context";
@@ -357,6 +359,103 @@ describe("setNodeTags / listTags / deleteTag", () => {
 	it("rejects deleting an unknown tag with NOT_FOUND", async () => {
 		await expect(
 			call(deleteTag, { name: "does-not-exist" }, { context }),
+		).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
+});
+
+function textContent(text: string) {
+	return {
+		root: {
+			type: "root",
+			children: [{ type: "paragraph", children: [{ type: "text", text }] }],
+		},
+	};
+}
+
+describe("exportTree", () => {
+	it("exports every root node's subtree as nested Markdown when rootId is null", async () => {
+		const a = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: a.id, content: textContent("Root A") },
+			{ context },
+		);
+		const child = await call(createNode, { parentId: a.id }, { context });
+		await call(
+			updateNodeContent,
+			{ id: child.id, content: textContent("Child of A") },
+			{ context },
+		);
+		const b = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: b.id, content: textContent("Root B") },
+			{ context },
+		);
+
+		const { content } = await call(
+			exportTree,
+			{ rootId: null, format: "markdown" },
+			{ context },
+		);
+		expect(content).toBe("- Root A\n  - Child of A\n- Root B");
+	});
+
+	it("scopes the export to a single node's subtree when rootId is given", async () => {
+		const a = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: a.id, content: textContent("Root A") },
+			{ context },
+		);
+		const child = await call(createNode, { parentId: a.id }, { context });
+		await call(
+			updateNodeContent,
+			{ id: child.id, content: textContent("Child of A") },
+			{ context },
+		);
+		await call(createNode, { parentId: null }, { context }); // unrelated root, excluded
+
+		const { content } = await call(
+			exportTree,
+			{ rootId: a.id, format: "opml" },
+			{ context },
+		);
+		expect(content).toBe(
+			'<?xml version="1.0" encoding="UTF-8"?><opml version="2.0"><head><title>Cascade export</title></head><body><outline text="Root A"><outline text="Child of A" /></outline></body></opml>',
+		);
+	});
+
+	it("includes collapsed descendants, unlike the paginated visibleTree query", async () => {
+		const a = await call(createNode, { parentId: null }, { context });
+		await call(
+			updateNodeContent,
+			{ id: a.id, content: textContent("Collapsed parent") },
+			{ context },
+		);
+		await call(toggleNodeExpanded, { id: a.id, expanded: false }, { context });
+		const child = await call(createNode, { parentId: a.id }, { context });
+		await call(
+			updateNodeContent,
+			{ id: child.id, content: textContent("Still exported") },
+			{ context },
+		);
+
+		const { content } = await call(
+			exportTree,
+			{ rootId: null, format: "markdown" },
+			{ context },
+		);
+		expect(content).toBe("- Collapsed parent\n  - Still exported");
+	});
+
+	it("rejects an unknown rootId with NOT_FOUND", async () => {
+		await expect(
+			call(
+				exportTree,
+				{ rootId: crypto.randomUUID(), format: "markdown" },
+				{ context },
+			),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 });

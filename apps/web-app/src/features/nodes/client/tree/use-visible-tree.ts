@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import {
 	useCreateMutation,
 	useDuplicateMutation,
+	useExportMutation,
 	useLoadMoreMutation,
 	useMoveMutation,
 	useRemoveMutation,
@@ -43,6 +44,7 @@ export function useVisibleTree(
 	const move = useMoveMutation(options.queryKey);
 	const remove = useRemoveMutation(options.queryKey);
 	const duplicate = useDuplicateMutation(options.queryKey);
+	const exportNode = useExportMutation();
 	const updateContent = useUpdateContentMutation(options.queryKey);
 	const setType = useSetTypeMutation(options.queryKey);
 	const setDueDate = useSetDueDateMutation(options.queryKey);
@@ -67,6 +69,7 @@ export function useVisibleTree(
 		move,
 		remove,
 		duplicate,
+		exportSubtree: exportNode,
 		updateContent,
 		setType,
 		setDueDate,

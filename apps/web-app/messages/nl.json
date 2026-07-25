@@ -76,6 +76,8 @@
 	"user_menu_language": "Taal",
 	"user_menu_quick_links": "Snelle links",
 	"user_menu_changelog_link": "Changelog",
+	"user_menu_export_markdown": "Boom exporteren als Markdown",
+	"user_menu_export_opml": "Boom exporteren als OPML",
 	"user_menu_sign_out": "Uitloggen",
 	"user_menu_delete_account": "Account verwijderen",
 	"user_menu_delete_confirm_body": "Dit verwijdert permanent je account en alle informatie die we hebben, zoals je nodes.",
@@ -116,6 +118,9 @@
 	"node_duplicating": "Node dupliceren…",
 	"node_duplicated": "Node gedupliceerd",
 	"node_duplicate_failed": "Dupliceren van node mislukt",
+	"node_exporting": "Exporteren…",
+	"node_exported": "Export gedownload",
+	"node_export_failed": "Exporteren mislukt",
 	"node_deleted_with_children": [
 		{
 			"declarations": ["input count", "local countPlural = count: plural"],
@@ -139,6 +144,9 @@
 	"outliner_edit_node_text": "Nodetekst bewerken",
 	"outliner_convert_into": "Omzetten naar",
 	"outliner_duplicate": "Dupliceren",
+	"outliner_export_menu": "Exporteren",
+	"outliner_export_markdown": "Markdown",
+	"outliner_export_opml": "OPML",
 	"outliner_delete": "Verwijderen",
 	"outliner_empty_tree": "Deze boomstructuur is leeg. Voeg een node toe om te beginnen.",
 	"outliner_empty_filter_results": "Geen nodes voldoen aan de huidige filters.",

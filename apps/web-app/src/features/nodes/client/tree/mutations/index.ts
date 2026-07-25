@@ -1,5 +1,6 @@
 export { useCreateMutation } from "./use-create-node";
 export { useDuplicateMutation } from "./use-duplicate-node";
+export { useExportMutation } from "./use-export-node";
 export { useLoadMoreMutation } from "./use-load-more-nodes";
 export { useMoveMutation } from "./use-move-node";
 export { useRemoveMutation } from "./use-remove-node";

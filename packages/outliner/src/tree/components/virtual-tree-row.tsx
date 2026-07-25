@@ -79,6 +79,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					onConvert={props.onConvert}
 					onTurnInto={props.onTurnInto}
 					onDuplicate={props.onDuplicate}
+					onExport={props.onExport}
 					onDelete={props.onDelete}
 					menuItems={menuItems}
 					viewTransitionName={`node-${row.id}`}

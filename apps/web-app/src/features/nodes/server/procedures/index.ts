@@ -2,6 +2,7 @@ export { createNode } from "./create-node";
 export { deleteNode } from "./delete-node";
 export { deleteTag } from "./delete-tag";
 export { duplicateNode } from "./duplicate-node";
+export { exportTree } from "./export-tree";
 export { getNode } from "./get-node";
 export { getNodeAncestors } from "./get-node-ancestors";
 export { listNodes } from "./list-nodes";

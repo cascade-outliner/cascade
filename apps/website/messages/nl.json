@@ -111,6 +111,7 @@
 	"untitled_node": "Naamloos",
 	"node_deleted": "Node verwijderd",
 	"node_duplicated": "Node gedupliceerd",
+	"node_exported": "Export gedownload",
 	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Uitklappen",
 	"outliner_toggle_collapse": "Inklappen",

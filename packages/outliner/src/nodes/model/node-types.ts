@@ -58,6 +58,9 @@ export const typedMetadataSchema = z.discriminatedUnion("type", [
 
 export type TypedMetadata = z.infer<typeof typedMetadataSchema>;
 
+/** Portable formats a tree/subtree can be exported to (see nodes.export). */
+export type ExportFormat = "markdown" | "opml";
+
 /** Union of every type's `metadata` shape, e.g. for the `nodes.metadata` column. */
 export type NodeMetadata = TypedMetadata["metadata"];
 

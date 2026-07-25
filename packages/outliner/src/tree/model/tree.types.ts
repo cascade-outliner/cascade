@@ -1,4 +1,5 @@
 import type {
+	ExportFormat,
 	TypedMetadata,
 	VisibleNodeRow,
 } from "../../nodes/model/node-types";
@@ -21,6 +22,8 @@ export interface VisibleTree {
 	remove: (id: string) => void | Promise<void>;
 	/** Copies a node and its full subtree, inserting the copy as a sibling immediately after it. */
 	duplicate: (id: string) => void | Promise<void>;
+	/** Exports a node and its full subtree to a portable format and downloads it. */
+	exportSubtree: (id: string, format: ExportFormat) => void | Promise<void>;
 	updateContent: (
 		id: string,
 		content: { root: unknown },

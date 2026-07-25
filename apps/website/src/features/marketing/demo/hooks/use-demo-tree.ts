@@ -1,4 +1,7 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
+import { downloadTextFile } from "@cascade/outliner/download-text-file";
+import { formatExport } from "@cascade/outliner/export-format";
+import { lexicalToPlainText } from "@cascade/outliner/lexical-content";
 import type { AddNodeOptions, VisibleTree } from "@cascade/outliner/tree-types";
 import {
 	appendRow,
@@ -6,6 +9,7 @@ import {
 	moveSubtree,
 	patchRow,
 	removeSubtree,
+	subtreeRange,
 } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
 import { useMemo, useState } from "react";
@@ -19,6 +23,9 @@ import {
 	getDemoTreeAncestors,
 	getVisibleDemoRows,
 } from "../model/demo-tree-queries";
+
+const EXTENSIONS = { markdown: "md", opml: "opml" } as const;
+const MIME_TYPES = { markdown: "text/markdown", opml: "text/x-opml" } as const;
 
 /**
  * Provides the outliner's VisibleTree contract using local, non-persistent
@@ -58,6 +65,26 @@ export function useDemoTree(rootId: string | null) {
 	const duplicate: VisibleTree["duplicate"] = (id) => {
 		setAllNodes((current) => duplicateDemoSubtree(current, id));
 		toast.success(m.node_duplicated());
+	};
+
+	const exportSubtree: VisibleTree["exportSubtree"] = (id, format) => {
+		const range = subtreeRange(allNodes, id);
+		if (!range) return;
+
+		const rootDepth = allNodes[range.start].depth;
+		const content = formatExport(
+			allNodes.slice(range.start, range.end).map((row) => ({
+				depth: row.depth - rootDepth,
+				text: lexicalToPlainText(row.content, Number.MAX_SAFE_INTEGER),
+			})),
+			format,
+		);
+		downloadTextFile(
+			`cascade-export.${EXTENSIONS[format]}`,
+			content,
+			MIME_TYPES[format],
+		);
+		toast.success(m.node_exported());
 	};
 
 	const updateContent: VisibleTree["updateContent"] = (id, content) => {
@@ -130,6 +157,7 @@ export function useDemoTree(rootId: string | null) {
 		move,
 		remove,
 		duplicate,
+		exportSubtree,
 		updateContent,
 		setType,
 		setDueDate,

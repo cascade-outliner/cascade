@@ -111,6 +111,7 @@
 	"untitled_node": "Untitled",
 	"node_deleted": "Node deleted",
 	"node_duplicated": "Node duplicated",
+	"node_exported": "Export downloaded",
 	"outliner_tree_label": "Nodes",
 	"outliner_toggle_expand": "Expand",
 	"outliner_toggle_collapse": "Collapse",
