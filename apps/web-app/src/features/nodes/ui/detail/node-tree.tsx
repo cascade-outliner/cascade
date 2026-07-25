@@ -46,13 +46,13 @@ export function NodeTree({
 			)}
 			header={
 				<>
-					{header}
 					<FiltersBar
 						filters={filters}
 						existingTags={existingTags}
 						onFiltersChange={setFilters}
 						leading={[<NavigationHistoryControls key="nav-history" />]}
 					/>
+					{header}
 				</>
 			}
 			hiddenRowIds={visibility.hiddenIds}
