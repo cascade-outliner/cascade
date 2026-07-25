@@ -10,12 +10,14 @@ export function FiltersBar({
 	filters,
 	existingTags = [],
 	onFiltersChange,
+	leading,
 }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 
 	return (
-		<div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 pb-3 dark:border-surface/10">
+		<div className="sticky top-0 z-10 mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 bg-canvas py-1 dark:border-surface/10 dark:bg-ink">
 			<div className="flex flex-wrap items-center gap-1.5">
+				{leading}
 				<FiltersMenu
 					filters={filters}
 					existingTags={existingTags}
