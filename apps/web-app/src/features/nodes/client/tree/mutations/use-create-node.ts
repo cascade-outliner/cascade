@@ -33,6 +33,7 @@ export function useCreateMutation(
 		mutationFn: (vars: {
 			parentId: string | null;
 			afterId?: string;
+			initialType?: AddNodeOptions["initialType"];
 			dueDate?: string | null;
 			tags?: string[];
 		}) => client.nodes.create(vars),
@@ -51,11 +52,16 @@ export function useCreateMutation(
 		});
 	};
 
-	const add = async ({ dueDate = null, tags }: AddNodeOptions = {}) => {
+	const add = async ({
+		initialType,
+		dueDate = null,
+		tags,
+	}: AddNodeOptions = {}) => {
 		let created: Awaited<ReturnType<typeof mutation.mutateAsync>>;
 		try {
 			created = await mutation.mutateAsync({
 				parentId: rootId,
+				initialType,
 				dueDate: dueDate ? formatCalendarDate(dueDate) : null,
 				tags,
 			});
@@ -86,7 +92,7 @@ export function useCreateMutation(
 	};
 
 	const addAfter = async (afterId: string, addOptions: AddNodeOptions = {}) => {
-		const { dueDate = null, tags } = addOptions;
+		const { initialType, dueDate = null, tags } = addOptions;
 		const liveRows =
 			queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows ?? rows;
 		const sibling = liveRows.find((r) => r.id === afterId);
@@ -97,6 +103,7 @@ export function useCreateMutation(
 			created = await mutation.mutateAsync({
 				parentId: sibling.parentId,
 				afterId,
+				initialType,
 				dueDate: dueDate ? formatCalendarDate(dueDate) : null,
 				tags,
 			});
