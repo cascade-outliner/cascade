@@ -23,6 +23,11 @@ import {
 	revokePremiumSeat,
 } from "@/features/premium/server/premium-procedures";
 import {
+	listSessions,
+	revokeOtherSessions,
+	revokeSession,
+} from "@/features/sessions/server/session-procedures";
+import {
 	getSettings,
 	updateSettings,
 } from "@/features/settings/server/settings-procedures";
@@ -55,6 +60,11 @@ export default {
 	settings: {
 		get: getSettings,
 		update: updateSettings,
+	},
+	sessions: {
+		list: listSessions,
+		revoke: revokeSession,
+		revokeOthers: revokeOtherSessions,
 	},
 	premium: {
 		get: getPremiumStatus,
