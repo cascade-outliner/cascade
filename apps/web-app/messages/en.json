@@ -6,7 +6,6 @@
 	"settings_invalid_reset": "Your settings couldn't be loaded and were reset to their defaults.",
 	"header_logo_alt": "Cascade Logo",
 	"login_heading": "Log in",
-	"login_continue_github": "Continue with GitHub",
 	"login_continue_google": "Continue with Google",
 	"login_or": "or",
 	"login_email_label": "Email",
