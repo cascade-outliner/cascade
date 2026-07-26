@@ -84,6 +84,23 @@ describe("createNode", () => {
 		const allTags = await call(listTags, undefined, { context });
 		expect(allTags.map((t) => t.name).sort()).toEqual(["Work", "urgent"]);
 	});
+
+	it("creates a node with the requested conversion", async () => {
+		const created = await call(
+			createNode,
+			{
+				parentId: null,
+				initialType: { type: "task", metadata: { completed: false } },
+			},
+			{ context },
+		);
+
+		expect(created).toMatchObject({
+			type: "task",
+			metadata: { completed: false },
+			content: null,
+		});
+	});
 });
 
 describe("moveNode", () => {
