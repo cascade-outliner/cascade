@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-26
+- [feat] Redesigned Settings as a spacious panel with grouped sidebar navigation, structured content cards, and tag management.
 - [fix] Pressing Enter on a task now creates another task; pressing Enter on paragraphs or headings still creates a paragraph.
 - [feat] Added a Security tab in Settings showing every active login with its device, IP address, last activity, and current-session status. Unrecognized sessions can be revoked individually, or all other devices can be signed out at once. [#451](https://github.com/cascade-outliner/cascade/issues/451)
 
