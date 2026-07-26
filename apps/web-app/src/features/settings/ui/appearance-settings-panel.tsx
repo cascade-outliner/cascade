@@ -22,6 +22,11 @@ import {
 	lightThemeOptions,
 	themeOptions,
 } from "./settings-options";
+import {
+	SettingsPageDescription,
+	SettingsRow,
+	SettingsSection,
+} from "./settings-panel";
 
 interface AppearanceSettingsPanelProps {
 	settings: Settings;
@@ -47,89 +52,105 @@ export function AppearanceSettingsPanel({
 }: AppearanceSettingsPanelProps) {
 	return (
 		<>
-			<div className="flex items-center justify-between text-sm">
-				{m.user_menu_theme()}
-				<Select
-					aria-label={m.user_menu_theme()}
-					options={themeOptions(isPremium)}
-					value={settings.theme}
-					onValueChange={(theme) => setSetting("theme", theme)}
-				/>
-			</div>
-			{settings.theme === SYSTEM_THEME && (
-				<>
-					<div className="mt-3 flex items-center justify-between pl-4 text-sm">
-						{m.user_menu_theme_light_option()}
-						<Select
-							aria-label={m.user_menu_theme_light_option()}
-							options={lightThemeOptions(isPremium)}
-							value={settings.lightTheme}
-							onValueChange={(theme) => setSetting("lightTheme", theme)}
-						/>
-					</div>
-					<div className="mt-3 flex items-center justify-between pl-4 text-sm">
-						{m.user_menu_theme_dark_option()}
-						<Select
-							aria-label={m.user_menu_theme_dark_option()}
-							options={darkThemeOptions(isPremium)}
-							value={settings.darkTheme}
-							onValueChange={(theme) => setSetting("darkTheme", theme)}
-						/>
-					</div>
-				</>
-			)}
-			<div className="mt-3 flex items-center justify-between text-sm">
-				{m.user_menu_font()}
-				<Select
-					aria-label={m.user_menu_font()}
-					options={fontOptions()}
-					value={settings.font}
-					onValueChange={(font) => setSetting("font", font)}
-				/>
-			</div>
-			<div className="mt-3 flex items-center justify-between text-sm">
-				{m.user_menu_font_size()}
-				<Select
-					aria-label={m.user_menu_font_size()}
-					options={fontSizeOptions()}
-					value={settings.fontSize}
-					onValueChange={(fontSize) => setSetting("fontSize", fontSize)}
-				/>
-			</div>
-			<div className="mt-3 flex items-center justify-between text-sm">
-				{m.user_menu_indent_size()}
-				<NumberField.Root
-					aria-label={m.user_menu_indent_size()}
-					value={settings.indentSize}
-					min={MIN_INDENT_SIZE}
-					max={MAX_INDENT_SIZE}
-					step={2}
-					snapOnStep
-					onValueChange={(value) => {
-						if (value != null) {
-							setSetting("indentSize", normalizeIndentSize(value));
-						}
-					}}
-				>
-					<NumberField.Group className="flex items-center gap-1">
-						<NumberField.Decrement className={stepperClass}>
-							<MinusIcon size={12} weight="bold" />
-						</NumberField.Decrement>
-						<NumberField.Input className={indentInputClass} />
-						<NumberField.Increment className={stepperClass}>
-							<PlusIcon size={12} weight="bold" />
-						</NumberField.Increment>
-					</NumberField.Group>
-				</NumberField.Root>
-			</div>
-			<div className="mt-3 flex items-center justify-between text-sm">
-				{m.user_menu_language()}
-				<LanguageSwitcher
-					locales={locales}
-					currentLocale={getLocale()}
-					onSelect={(locale) => setLocale(locale as Locale)}
-				/>
-			</div>
+			<SettingsPageDescription>
+				{m.settings_appearance_description()}
+			</SettingsPageDescription>
+			<SettingsSection
+				title={m.settings_theme_section()}
+				description={m.settings_theme_description()}
+			>
+				<SettingsRow title={m.user_menu_theme()}>
+					<Select
+						aria-label={m.user_menu_theme()}
+						options={themeOptions(isPremium)}
+						value={settings.theme}
+						onValueChange={(theme) => setSetting("theme", theme)}
+					/>
+				</SettingsRow>
+				{settings.theme === SYSTEM_THEME && (
+					<>
+						<SettingsRow title={m.user_menu_theme_light_option()}>
+							<Select
+								aria-label={m.user_menu_theme_light_option()}
+								options={lightThemeOptions(isPremium)}
+								value={settings.lightTheme}
+								onValueChange={(theme) => setSetting("lightTheme", theme)}
+							/>
+						</SettingsRow>
+						<SettingsRow title={m.user_menu_theme_dark_option()}>
+							<Select
+								aria-label={m.user_menu_theme_dark_option()}
+								options={darkThemeOptions(isPremium)}
+								value={settings.darkTheme}
+								onValueChange={(theme) => setSetting("darkTheme", theme)}
+							/>
+						</SettingsRow>
+					</>
+				)}
+			</SettingsSection>
+			<SettingsSection
+				title={m.settings_typography_section()}
+				description={m.settings_typography_description()}
+			>
+				<SettingsRow title={m.user_menu_font()}>
+					<Select
+						aria-label={m.user_menu_font()}
+						options={fontOptions()}
+						value={settings.font}
+						onValueChange={(font) => setSetting("font", font)}
+					/>
+				</SettingsRow>
+				<SettingsRow title={m.user_menu_font_size()}>
+					<Select
+						aria-label={m.user_menu_font_size()}
+						options={fontSizeOptions()}
+						value={settings.fontSize}
+						onValueChange={(fontSize) => setSetting("fontSize", fontSize)}
+					/>
+				</SettingsRow>
+			</SettingsSection>
+			<SettingsSection
+				title={m.settings_layout_section()}
+				description={m.settings_layout_description()}
+			>
+				<SettingsRow title={m.user_menu_indent_size()}>
+					<NumberField.Root
+						aria-label={m.user_menu_indent_size()}
+						value={settings.indentSize}
+						min={MIN_INDENT_SIZE}
+						max={MAX_INDENT_SIZE}
+						step={2}
+						snapOnStep
+						onValueChange={(value) => {
+							if (value != null) {
+								setSetting("indentSize", normalizeIndentSize(value));
+							}
+						}}
+					>
+						<NumberField.Group className="flex items-center gap-1">
+							<NumberField.Decrement className={stepperClass}>
+								<MinusIcon size={12} weight="bold" />
+							</NumberField.Decrement>
+							<NumberField.Input className={indentInputClass} />
+							<NumberField.Increment className={stepperClass}>
+								<PlusIcon size={12} weight="bold" />
+							</NumberField.Increment>
+						</NumberField.Group>
+					</NumberField.Root>
+				</SettingsRow>
+			</SettingsSection>
+			<SettingsSection
+				title={m.settings_language_section()}
+				description={m.settings_language_description()}
+			>
+				<SettingsRow title={m.user_menu_language()}>
+					<LanguageSwitcher
+						locales={locales}
+						currentLocale={getLocale()}
+						onSelect={(locale) => setLocale(locale as Locale)}
+					/>
+				</SettingsRow>
+			</SettingsSection>
 		</>
 	);
 }
