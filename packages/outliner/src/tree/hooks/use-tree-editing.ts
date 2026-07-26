@@ -43,8 +43,14 @@ export function useTreeEditing(
 	};
 
 	const handleCreateBelow = async (id: string) => {
+		const source = tree.rows.find((row) => row.id === id);
 		editNewNode(
-			await tree.addAfter(id, { dueDate: newNodeDueDate, tags: newNodeTags }),
+			await tree.addAfter(id, {
+				initialType:
+					source?.type === "task" ? defaultTypedMetadata("task") : undefined,
+				dueDate: newNodeDueDate,
+				tags: newNodeTags,
+			}),
 		);
 	};
 

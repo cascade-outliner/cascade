@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-26
+- [fix] Pressing Enter on a task now creates another task; pressing Enter on paragraphs or headings still creates a paragraph.
+
 ## 2026-07-24
 - [feat] Added back/forward navigation across the nodes you've visited: use the arrow buttons in the header or press `Alt+Left`/`Alt+Right` to retrace your steps after following a chain of node links. The stack tracks node-to-node navigation only — changing a filter or opening a dialog doesn't count as a step — and it moves in step with the browser's own back/forward button rather than fighting it. History is session-local and resets on a full page reload. [#452](https://github.com/cascade-outliner/cascade/issues/452)
 - [feat] Added a keyboard shortcuts reference: press `?` (or open it from the user menu) to see the outliner's navigation, editing, and reordering shortcuts grouped by category. [#437](https://github.com/cascade-outliner/cascade/issues/437)
