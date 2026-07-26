@@ -4,12 +4,14 @@ import {
 	LinkIcon,
 	PaletteIcon,
 	ShieldCheckIcon,
+	TagIcon,
 	UserCircleIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import { useQuery } from "@tanstack/react-query";
 import type { ComponentType } from "react";
 import { m } from "#/paraglide/messages.js";
+import { TagSettingsPanel } from "@/features/nodes/ui/tag-settings-panel";
 import { SecuritySettingsPanel } from "@/features/sessions/ui/security-settings-panel";
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-settings-panel";
@@ -35,7 +37,7 @@ export interface UserSettingsDialogProps {
 }
 
 interface SettingsTab {
-	value: "appearance" | "user" | "security" | "premium" | "links";
+	value: "appearance" | "tags" | "user" | "security" | "premium" | "links";
 	label: () => string;
 	icon: ComponentType<{ size?: number; weight?: "bold" }>;
 }
@@ -48,6 +50,11 @@ const tabGroups: { label: () => string; tabs: SettingsTab[] }[] = [
 				value: "appearance",
 				label: () => m.settings_appearance_tab(),
 				icon: PaletteIcon,
+			},
+			{
+				value: "tags",
+				label: () => m.settings_tags_tab(),
+				icon: TagIcon,
 			},
 		],
 	},
@@ -163,6 +170,14 @@ export function UserSettingsDialog({
 										onSignOut={onSignOut}
 										onOpenDeleteDialog={onOpenDeleteDialog}
 									/>
+								</div>
+							</Tabs.Panel>
+							<Tabs.Panel value="tags" className="p-5 sm:p-8">
+								<div className="w-full">
+									<h2 className="mb-2 text-xl font-semibold">
+										{m.settings_tags_tab()}
+									</h2>
+									<TagSettingsPanel />
 								</div>
 							</Tabs.Panel>
 							<Tabs.Panel value="security" className="p-5 sm:p-8">

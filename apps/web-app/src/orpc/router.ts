@@ -1,5 +1,6 @@
 import {
 	createNode,
+	createTag,
 	deleteNode,
 	deleteTag,
 	duplicateNode,
@@ -8,6 +9,7 @@ import {
 	listNodes,
 	listTags,
 	moveNode,
+	renameTag,
 	resolveNodeSlug,
 	restoreNode,
 	setNodeDueDate,
@@ -45,6 +47,7 @@ export default {
 		ancestors: getNodeAncestors,
 		visibleTree,
 		create: createNode,
+		createTag,
 		move: moveNode,
 		toggleExpanded: toggleNodeExpanded,
 		delete: deleteNode,
@@ -55,6 +58,7 @@ export default {
 		setDueDate: setNodeDueDate,
 		setTags: setNodeTags,
 		listTags,
+		renameTag,
 		deleteTag,
 	},
 	settings: {
