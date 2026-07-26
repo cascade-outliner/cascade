@@ -1,4 +1,5 @@
 import {
+	applyNodeShorthand,
 	createNode,
 	deleteNode,
 	deleteTag,
@@ -39,6 +40,7 @@ import {
 
 export default {
 	nodes: {
+		applyShorthand: applyNodeShorthand,
 		list: listNodes,
 		get: getNode,
 		resolveSlug: resolveNodeSlug,

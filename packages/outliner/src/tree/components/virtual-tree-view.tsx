@@ -44,6 +44,7 @@ export function VirtualTreeView({
 	onExitEdit,
 	onConvert,
 	onToggleTask,
+	shorthand,
 }: Pick<
 	VirtualTreeProps,
 	| "indentSize"
@@ -57,6 +58,7 @@ export function VirtualTreeView({
 	| "onDeleteTag"
 	| "onTagClick"
 	| "features"
+	| "shorthand"
 > & {
 	tree: VisibleTree;
 	labels: OutlinerLabels;
@@ -139,6 +141,13 @@ export function VirtualTreeView({
 									onDelete={() => tree.remove(row.id)}
 									onSaveContent={(content) =>
 										tree.updateContent(row.id, content)
+									}
+									shorthand={shorthand}
+									onApplyShorthand={
+										tree.applyShorthand
+											? (application) =>
+													tree.applyShorthand?.(row.id, application)
+											: undefined
 									}
 									onCreateBelow={() => onCreateBelow(row.id)}
 									onDeleteEmpty={() => onDeleteEmpty(row.id)}

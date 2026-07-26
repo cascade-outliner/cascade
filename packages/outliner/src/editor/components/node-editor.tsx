@@ -8,6 +8,8 @@ import { LexicalEditView } from "../lexical/edit/lexical-edit-view";
 import type { LexicalElementNode } from "../lexical/model/lexical-node.types";
 import { LexicalReadView } from "../lexical/read/lexical-read-view";
 import type { FocusPoint } from "../model/focus-point";
+import type { ShorthandConfig } from "../shorthand/shorthand-parser";
+import type { ShorthandApplication } from "../shorthand/use-shorthand";
 
 export type { FocusPoint } from "../model/focus-point";
 
@@ -28,6 +30,10 @@ interface NodeEditorProps {
 	onMoveDown?: () => void;
 	onFocusNext?: () => void;
 	onFocusPrevious?: () => void;
+	shorthand?: ShorthandConfig;
+	onApplyShorthand?: (
+		application: ShorthandApplication,
+	) => Promise<void> | void;
 }
 
 export function NodeEditor({
@@ -47,6 +53,8 @@ export function NodeEditor({
 	onMoveDown,
 	onFocusNext,
 	onFocusPrevious,
+	shorthand,
+	onApplyShorthand,
 }: NodeEditorProps) {
 	const labels = useOutlinerLabels();
 	if (editing) {
@@ -63,6 +71,8 @@ export function NodeEditor({
 				onOutdent={onOutdent}
 				onFocusNext={onFocusNext}
 				onFocusPrevious={onFocusPrevious}
+				shorthand={shorthand}
+				onApplyShorthand={onApplyShorthand}
 			/>
 		);
 	}

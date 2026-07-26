@@ -1,3 +1,4 @@
+export { applyNodeShorthand } from "./apply-node-shorthand";
 export { createNode } from "./create-node";
 export { deleteNode } from "./delete-node";
 export { deleteTag } from "./delete-tag";

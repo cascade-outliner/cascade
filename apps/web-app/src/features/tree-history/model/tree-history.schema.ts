@@ -12,6 +12,7 @@ export const treeHistoryEventKindSchema = z.enum([
 	"tags_changed",
 	"tag_deleted",
 	"tag_restored",
+	"shorthand_applied",
 ]);
 
 export type TreeHistoryEventKind = z.infer<typeof treeHistoryEventKindSchema>;
@@ -32,6 +33,19 @@ const locationSchema = z.object({
 const basePayloadSchema = z.object({ label: z.string() });
 
 export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
+	basePayloadSchema.extend({
+		kind: z.literal("shorthand_applied"),
+		before: z.object({
+			content: z.unknown().nullable(),
+			tags: z.array(z.string()),
+			dueDate: z.string().nullable(),
+		}),
+		after: z.object({
+			content: z.unknown().nullable(),
+			tags: z.array(z.string()),
+			dueDate: z.string().nullable(),
+		}),
+	}),
 	basePayloadSchema.extend({
 		kind: z.literal("node_created"),
 	}),
@@ -137,4 +151,5 @@ export const RESTORABLE_HISTORY_KINDS = new Set<TreeHistoryEventKind>([
 	"due_date_changed",
 	"tags_changed",
 	"tag_deleted",
+	"shorthand_applied",
 ]);

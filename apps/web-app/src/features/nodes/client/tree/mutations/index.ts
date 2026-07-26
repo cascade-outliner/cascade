@@ -1,3 +1,4 @@
+export { useApplyShorthandMutation } from "./use-apply-shorthand";
 export { useCreateMutation } from "./use-create-node";
 export { useDuplicateMutation } from "./use-duplicate-node";
 export { useLoadMoreMutation } from "./use-load-more-nodes";

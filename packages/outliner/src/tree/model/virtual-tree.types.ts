@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
 import type { FocusPoint } from "../../editor/model/focus-point";
+import type { ShorthandConfig } from "../../editor/shorthand/shorthand-parser";
 import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
 import type { TagSummary } from "../../nodes/model/node-tags";
 import type {
@@ -43,6 +44,8 @@ export interface VirtualTreeProps {
 	/** Row/context-menu features to render, in order. Defaults to the
 	 * built-in task, due-date, and tags features (`defaultOutlinerFeatures`). */
 	features?: OutlinerFeature[];
+	/** Locale-specific inline metadata vocabulary supplied by the consumer. */
+	shorthand?: ShorthandConfig;
 }
 
 export interface VirtualTreeRowProps {
@@ -85,4 +88,10 @@ export interface VirtualTreeRowProps {
 	onFocusNext: () => void;
 	onFocusPrevious: () => void;
 	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
+	shorthand?: ShorthandConfig;
+	onApplyShorthand?: (application: {
+		content: { root: unknown };
+		tags: string[];
+		dueDate?: Date;
+	}) => Promise<void> | void;
 }

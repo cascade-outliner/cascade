@@ -28,6 +28,14 @@ export interface VisibleTree {
 	setType: (id: string, typed: TypedMetadata) => void | Promise<void>;
 	setDueDate: (id: string, dueDate: Date | null) => void | Promise<void>;
 	setTags: (id: string, tags: string[]) => void | Promise<void>;
+	applyShorthand?: (
+		id: string,
+		application: {
+			content: { root: unknown };
+			tags: string[];
+			dueDate?: Date;
+		},
+	) => Promise<void>;
 	/** Resolves to `null` if the create fails, so callers can skip focusing a node that was never made. */
 	add: (options?: AddNodeOptions) => Promise<string | null>;
 	addAfter: (

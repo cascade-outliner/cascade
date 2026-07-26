@@ -20,6 +20,7 @@
     "./lexical-content": "./src/editor/lexical/content/lexical-content.ts",
     "./lexical/link-url": "./src/editor/lexical/content/link-url.ts",
     "./lexical/link-content": "./src/editor/lexical/content/link-content.ts",
+    "./shorthand": "./src/editor/shorthand/shorthand-parser.ts",
     "./labels-context": "./src/i18n/outliner-labels-context.tsx",
     "./node-actions": "./src/nodes/components/node-actions.tsx",
     "./node-drag-handle": "./src/tree/drag-and-drop/node-drag-handle.tsx",

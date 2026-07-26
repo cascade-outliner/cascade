@@ -2,6 +2,7 @@ import type { DueDateRange } from "@cascade/outliner/node-filters";
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
+	useApplyShorthandMutation,
 	useCreateMutation,
 	useDuplicateMutation,
 	useLoadMoreMutation,
@@ -47,6 +48,7 @@ export function useVisibleTree(
 	const setType = useSetTypeMutation(options.queryKey);
 	const setDueDate = useSetDueDateMutation(options.queryKey);
 	const setTags = useSetTagsMutation(options.queryKey);
+	const applyShorthand = useApplyShorthandMutation(options.queryKey);
 	const { add, addAfter } = useCreateMutation(
 		options.queryKey,
 		rootId,
@@ -71,6 +73,7 @@ export function useVisibleTree(
 		setType,
 		setDueDate,
 		setTags,
+		applyShorthand,
 		add,
 		addAfter,
 		loadMore,

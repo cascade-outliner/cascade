@@ -116,6 +116,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 							onMoveDown={props.onMoveDown}
 							onFocusNext={props.onFocusNext}
 							onFocusPrevious={props.onFocusPrevious}
+							shorthand={props.shorthand}
+							onApplyShorthand={props.onApplyShorthand}
 						/>
 					</div>
 					<div className="flex gap-1 pr-1">

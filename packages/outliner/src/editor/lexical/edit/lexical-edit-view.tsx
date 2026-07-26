@@ -6,6 +6,8 @@ import {
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { HeadingNode } from "@lexical/rich-text";
 import type { FocusPoint } from "../../model/focus-point";
+import type { ShorthandConfig } from "../../shorthand/shorthand-parser";
+import type { ShorthandApplication } from "../../shorthand/use-shorthand";
 import { HEADING_CLASSES } from "../model/heading-styles";
 import type { LexicalElementNode } from "../model/lexical-node.types";
 import { EditableContent } from "./editable-content";
@@ -34,6 +36,10 @@ export interface LexicalEditViewProps {
 	onOutdent?: () => void;
 	onFocusNext?: () => void;
 	onFocusPrevious?: () => void;
+	shorthand?: ShorthandConfig;
+	onApplyShorthand?: (
+		application: ShorthandApplication,
+	) => Promise<void> | void;
 }
 
 export function LexicalEditView({
@@ -48,6 +54,8 @@ export function LexicalEditView({
 	onOutdent,
 	onFocusNext,
 	onFocusPrevious,
+	shorthand,
+	onApplyShorthand,
 }: LexicalEditViewProps) {
 	return (
 		<LexicalComposer
@@ -73,6 +81,8 @@ export function LexicalEditView({
 				onOutdent={onOutdent}
 				onFocusNext={onFocusNext}
 				onFocusPrevious={onFocusPrevious}
+				shorthand={shorthand}
+				onApplyShorthand={onApplyShorthand}
 			/>
 		</LexicalComposer>
 	);

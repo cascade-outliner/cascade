@@ -58,6 +58,8 @@ function actionLabel(kind: TreeHistoryEventKind): string {
 			return m.tree_history_action_tag_deleted();
 		case "tag_restored":
 			return m.tree_history_action_tag_restored();
+		case "shorthand_applied":
+			return m.tree_history_action_shorthand();
 	}
 }
 
@@ -126,6 +128,25 @@ function EventPreview({ detail }: { detail: TreeHistoryDetail }) {
 					before={payload.before}
 					after={payload.after}
 					render={(value) => <ContentPreview content={value} />}
+				/>
+			);
+		case "shorthand_applied":
+			return (
+				<BeforeAfter
+					before={payload.before}
+					after={payload.after}
+					render={(value) => {
+						const state = value as typeof payload.before;
+						return (
+							<div className="space-y-2">
+								<ContentPreview content={state.content} />
+								<p className="text-sm">
+									{state.tags.join(", ") || m.tree_history_none()} ·{" "}
+									{state.dueDate ?? m.tree_history_none()}
+								</p>
+							</div>
+						);
+					}}
 				/>
 			);
 		case "type_changed":

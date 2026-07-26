@@ -52,6 +52,8 @@
 	"tree_history_action_tags": "Changed tags",
 	"tree_history_action_tag_deleted": "Deleted tag",
 	"tree_history_action_tag_restored": "Restored tag",
+	"tree_history_action_shorthand": "Applied shorthand",
+	"node_shorthand_failed": "Couldn't apply shorthand",
 	"user_menu_close_settings": "Close settings",
 	"user_menu_general_tab": "General",
 	"user_menu_user_tab": "User",

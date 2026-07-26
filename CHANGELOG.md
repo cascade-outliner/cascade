@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-26
+- [feat] Type or paste inline shorthand such as `#tag`, `!tomorrow`, or their Dutch equivalents to apply tags and due dates without leaving the node editor. Shorthand conversion is atomic, undoable, and included in premium Tree history. [#449](https://github.com/cascade-outliner/cascade/issues/449)
 - [feat] Added a Security tab in Settings showing every active login with its device, IP address, last activity, and current-session status. Unrecognized sessions can be revoked individually, or all other devices can be signed out at once. [#451](https://github.com/cascade-outliner/cascade/issues/451)
 
 ## 2026-07-24

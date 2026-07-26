@@ -2,6 +2,7 @@ import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { call } from "@orpc/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+	applyNodeShorthand,
 	createNode,
 	deleteNode,
 	deleteTag,
@@ -43,6 +44,88 @@ describe("createNode", () => {
 		expect(rows.map((r) => r.id)).toEqual([a.id, b.id, c.id]);
 		expect(rows[0].order < rows[1].order).toBe(true);
 		expect(rows[1].order < rows[2].order).toBe(true);
+	});
+
+	describe("applyNodeShorthand", () => {
+		const content = (text: string) => ({
+			root: {
+				type: "root",
+				children: [
+					{
+						type: "paragraph",
+						children: [{ type: "text", text }],
+					},
+				],
+			},
+		});
+
+		it("atomically merges tags, reuses canonical casing, and sets the due date", async () => {
+			const node = await call(createNode, { parentId: null }, { context });
+			await call(setNodeTags, { id: node.id, tags: ["Work"] }, { context });
+
+			const result = await call(
+				applyNodeShorthand,
+				{
+					operation: "apply",
+					id: node.id,
+					content: content("clean"),
+					addedTags: ["work", "New_Tag"],
+					dueDate: "2026-07-27",
+				},
+				{ context },
+			);
+
+			expect(result).toMatchObject({
+				content: content("clean"),
+				tags: ["New_Tag", "Work"],
+				dueDate: "2026-07-27",
+			});
+			const [stored] = await call(listNodes, { parentId: null }, { context });
+			expect(stored).toMatchObject(result);
+		});
+
+		it("is user scoped", async () => {
+			const node = await call(createNode, { parentId: null }, { context });
+			const other = await createTestUser();
+			try {
+				await expect(
+					call(
+						applyNodeShorthand,
+						{
+							operation: "apply",
+							id: node.id,
+							content: content("clean"),
+							addedTags: ["private"],
+						},
+						{ context: other.context },
+					),
+				).rejects.toMatchObject({ code: "NOT_FOUND" });
+			} finally {
+				await deleteTestUser(other.user.id);
+			}
+		});
+
+		it("rolls back content when the merged tag limit is exceeded", async () => {
+			const node = await call(createNode, { parentId: null }, { context });
+			const existing = Array.from({ length: 50 }, (_, index) => `tag-${index}`);
+			await call(setNodeTags, { id: node.id, tags: existing }, { context });
+
+			await expect(
+				call(
+					applyNodeShorthand,
+					{
+						operation: "apply",
+						id: node.id,
+						content: content("must rollback"),
+						addedTags: ["overflow"],
+					},
+					{ context },
+				),
+			).rejects.toThrow("cannot set more than 50 tags");
+			const [stored] = await call(listNodes, { parentId: null }, { context });
+			expect(stored.content).toBeNull();
+			expect(stored.tags).toHaveLength(50);
+		});
 	});
 
 	it("inserts after a given afterId, between it and the next sibling", async () => {

@@ -8,6 +8,7 @@ import {
 import { authed } from "@/orpc/context";
 import { setNodeTagsInputSchema } from "../../model/tag-name.schema";
 import { nodes, nodeTags, tags } from "../persistence/node-tables";
+import { lockNodeOrdering } from "../persistence/sibling-order";
 
 export const setNodeTags = authed
 	.errors({
@@ -19,11 +20,12 @@ export const setNodeTags = authed
 		const names = normalizeTags(input.tags).sort((a, b) => a.localeCompare(b));
 
 		await db.transaction(async (transaction) => {
+			await lockNodeOrdering(transaction, userId);
 			const [node] = await transaction
 				.select({ id: nodes.id, content: nodes.content })
 				.from(nodes)
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
-				.limit(1);
+				.for("update");
 			if (!node) throw errors.NOT_FOUND();
 			const before = (
 				await transaction

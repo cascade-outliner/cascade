@@ -9,6 +9,7 @@ import {
 	KEY_ARROW_UP_COMMAND,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
+	KEY_SPACE_COMMAND,
 	KEY_TAB_COMMAND,
 	type LexicalEditor,
 	PASTE_COMMAND,
@@ -23,6 +24,8 @@ interface EditorCommandHandlers {
 	onOutdent?: () => void;
 	onFocusNext?: () => void;
 	onFocusPrevious?: () => void;
+	onCommitShorthand?: () => boolean;
+	onCommitPastedShorthand?: () => boolean;
 }
 
 export function useEditorCommands(
@@ -55,20 +58,45 @@ export function useEditorCommands(
 	useEffect(
 		() =>
 			editor.registerCommand(
+				KEY_SPACE_COMMAND,
+				(event) => {
+					if (
+						event?.isComposing ||
+						!handlersRef.current.onCommitShorthand?.()
+					) {
+						return false;
+					}
+					event?.preventDefault();
+					return true;
+				},
+				COMMAND_PRIORITY_HIGH,
+			),
+		[editor],
+	);
+
+	useEffect(
+		() =>
+			editor.registerCommand(
 				PASTE_COMMAND,
 				(event) => {
 					if (!(event instanceof ClipboardEvent)) return false;
-					const pasted =
-						event.clipboardData?.getData("text/plain").trim() ?? "";
-					if (!isHttpUrl(pasted)) return false;
+					const rawPasted = event.clipboardData?.getData("text/plain") ?? "";
+					const pasted = rawPasted.trim();
 
 					const selection = $getSelection();
 					if (!$isRangeSelection(selection)) return false;
 
+					if (isHttpUrl(pasted)) {
+						event.preventDefault();
+						const link = $createLinkNode(pasted);
+						link.append($createTextNode(tidyUrlLabel(pasted)));
+						selection.insertNodes([link]);
+						return true;
+					}
+					if (!/(^|\s)[#!]/u.test(rawPasted)) return false;
 					event.preventDefault();
-					const link = $createLinkNode(pasted);
-					link.append($createTextNode(tidyUrlLabel(pasted)));
-					selection.insertNodes([link]);
+					selection.insertRawText(rawPasted);
+					queueMicrotask(() => handlersRef.current.onCommitPastedShorthand?.());
 					return true;
 				},
 				COMMAND_PRIORITY_HIGH,
@@ -82,6 +110,9 @@ export function useEditorCommands(
 				KEY_ENTER_COMMAND,
 				(event) => {
 					if (event?.shiftKey) return false;
+					if (!event?.isComposing) {
+						handlersRef.current.onCommitShorthand?.();
+					}
 					event?.preventDefault();
 					saveRef.current();
 					handlersRef.current.onCreateBelow?.();

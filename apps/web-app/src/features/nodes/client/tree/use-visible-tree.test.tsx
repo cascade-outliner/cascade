@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { m } from "#/paraglide/messages.js";
+import { undoStore } from "@/features/nodes/client/undo/undo-store";
 import { client, orpc } from "@/orpc/client";
+import type { VisibleTreeData } from "./tree-data.types";
 import { useVisibleTree, visibleTreeOptions } from "./use-visible-tree";
 
 vi.mock("@/orpc/client", () => ({
@@ -14,6 +16,7 @@ vi.mock("@/orpc/client", () => ({
 			create: vi.fn(),
 			updateContent: vi.fn(),
 			setDueDate: vi.fn(),
+			applyShorthand: vi.fn(),
 			move: vi.fn(),
 			toggleExpanded: vi.fn(),
 			visibleTree: vi.fn(),
@@ -28,6 +31,9 @@ vi.mock("@/orpc/client", () => ({
 			ancestors: {
 				key: vi.fn(() => ["nodes", "ancestors"]),
 			},
+			listTags: {
+				queryOptions: vi.fn(() => ({ queryKey: ["nodes", "tags"] })),
+			},
 		},
 	},
 }));
@@ -36,6 +42,7 @@ vi.mock("@cascade/ui/toast", () => ({
 	toast: {
 		success: vi.fn(),
 		error: vi.fn(),
+		info: vi.fn(),
 	},
 }));
 
@@ -75,6 +82,8 @@ function renderVisibleTree(
 describe("useVisibleTree.updateContent", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(client.nodes.applyShorthand).mockReset();
+		undoStore.reset();
 		vi.mocked(orpc.nodes.visibleTree.queryOptions).mockImplementation(
 			({ input }) =>
 				({
@@ -82,6 +91,75 @@ describe("useVisibleTree.updateContent", () => {
 					queryFn: () => Promise.resolve({ rows: [row], nextCursor: null }),
 				}) as never,
 		);
+	});
+
+	it("applies shorthand atomically and undo restores the compound state", async () => {
+		const queryClient = new QueryClient();
+		const queryKey = visibleTreeOptions(null).queryKey;
+		queryClient.setQueryData(queryKey, {
+			rows: [{ ...row, tags: ["Work"], dueDate: "2026-07-26" }],
+			nextCursor: null,
+		});
+		const clean = { root: { type: "root", children: [] } };
+		vi.mocked(client.nodes.applyShorthand)
+			.mockResolvedValueOnce({
+				content: clean,
+				tags: ["New", "Work"],
+				dueDate: "2026-07-27",
+			})
+			.mockResolvedValueOnce({
+				content: row.content as never,
+				tags: ["Work"],
+				dueDate: "2026-07-26",
+			});
+		const { result } = renderVisibleTree(queryClient);
+
+		await result.current.applyShorthand?.("node-1", {
+			content: clean,
+			tags: ["New"],
+			dueDate: new Date(2026, 6, 27),
+		});
+		expect(
+			queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows[0],
+		).toMatchObject({
+			content: clean,
+			tags: ["New", "Work"],
+			dueDate: "2026-07-27",
+		});
+
+		undoStore.undo();
+		await waitFor(() =>
+			expect(client.nodes.applyShorthand).toHaveBeenCalledTimes(2),
+		);
+		expect(
+			vi.mocked(client.nodes.applyShorthand).mock.calls[1]?.[0],
+		).toMatchObject({
+			operation: "restore",
+			tags: ["Work"],
+			dueDate: "2026-07-26",
+		});
+	});
+
+	it("rolls shorthand back and shows one localized error on failure", async () => {
+		const queryClient = new QueryClient();
+		const queryKey = visibleTreeOptions(null).queryKey;
+		queryClient.setQueryData(queryKey, { rows: [row], nextCursor: null });
+		vi.mocked(client.nodes.applyShorthand).mockRejectedValueOnce(
+			new Error("failed"),
+		);
+		const { result } = renderVisibleTree(queryClient);
+
+		await expect(
+			result.current.applyShorthand?.("node-1", {
+				content: { root: { type: "root", children: [] } },
+				tags: ["New"],
+			}),
+		).rejects.toThrow("failed");
+		expect(
+			queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows[0],
+		).toEqual(row);
+		expect(toast.error).toHaveBeenCalledTimes(1);
+		expect(toast.error).toHaveBeenCalledWith(m.node_shorthand_failed());
 	});
 
 	it("shows an error toast and reverts when the server rejects the update", async () => {

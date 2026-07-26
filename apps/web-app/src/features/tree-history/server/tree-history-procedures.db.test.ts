@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import {
+	applyNodeShorthand,
 	createNode,
 	deleteNode,
 	deleteTag,
@@ -192,6 +193,59 @@ describe("tree history recording", () => {
 });
 
 describe("tree history restoration", () => {
+	it("restores shorthand content, tags, and due date together", async () => {
+		await call(requestPremiumSeat, undefined, { context });
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(setNodeTags, { id: node.id, tags: ["Before"] }, { context });
+		await call(
+			setNodeDueDate,
+			{ id: node.id, dueDate: "2026-07-26" },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: node.id, content: content("raw #After !tomorrow") },
+			{ context },
+		);
+		await call(
+			applyNodeShorthand,
+			{
+				operation: "apply",
+				id: node.id,
+				content: content("raw  "),
+				addedTags: ["After"],
+				dueDate: "2026-07-27",
+			},
+			{ context },
+		);
+		const history = await call(listTreeHistory, { limit: 100 }, { context });
+		const shorthand = history.items.find(
+			({ kind }) => kind === "shorthand_applied",
+		);
+		expect(shorthand?.restorable).toBe(true);
+
+		const restored = await call(
+			restoreTreeHistoryEntry,
+			{ id: shorthand?.id as string },
+			{ context },
+		);
+		const [stored] = await call(listNodes, { parentId: null }, { context });
+		expect(stored).toMatchObject({
+			content: content("raw #After !tomorrow"),
+			tags: ["Before"],
+			dueDate: "2026-07-26",
+		});
+		const restoreEvent = await call(
+			getTreeHistoryEntry,
+			{ id: restored.eventId },
+			{ context },
+		);
+		expect(restoreEvent).toMatchObject({
+			kind: "shorthand_applied",
+			restoredFromEventId: shorthand?.id,
+		});
+	});
+
 	it("restores only content and records the restoration as a linked event", async () => {
 		await call(requestPremiumSeat, undefined, { context });
 		const node = await call(createNode, { parentId: null }, { context });

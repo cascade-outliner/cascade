@@ -465,6 +465,37 @@ export const restoreTreeHistoryEntry = requirePremium
 							after: payload.before,
 						};
 						break;
+					case "shorthand_applied": {
+						const before = {
+							content: current.content,
+							tags: await currentTags(transaction, nodeId),
+							dueDate: current.dueDate,
+						};
+						const restoredTags = await setTags(
+							transaction,
+							userId,
+							nodeId,
+							payload.before.tags,
+						);
+						await transaction
+							.update(nodes)
+							.set({
+								content: payload.before.content,
+								dueDate: payload.before.dueDate,
+							})
+							.where(eq(nodes.id, nodeId));
+						nextPayload = {
+							kind: "shorthand_applied",
+							label: historyNodeLabel(payload.before.content),
+							before,
+							after: {
+								content: payload.before.content,
+								tags: restoredTags,
+								dueDate: payload.before.dueDate,
+							},
+						};
+						break;
+					}
 					case "type_changed":
 						await transaction
 							.update(nodes)

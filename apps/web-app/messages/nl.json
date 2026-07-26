@@ -52,6 +52,8 @@
 	"tree_history_action_tags": "Labels gewijzigd",
 	"tree_history_action_tag_deleted": "Label verwijderd",
 	"tree_history_action_tag_restored": "Label hersteld",
+	"tree_history_action_shorthand": "Snelcode toegepast",
+	"node_shorthand_failed": "Snelcode kon niet worden toegepast",
 	"user_menu_close_settings": "Instellingen sluiten",
 	"user_menu_general_tab": "Algemeen",
 	"user_menu_user_tab": "Gebruiker",
