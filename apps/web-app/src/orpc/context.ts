@@ -19,6 +19,9 @@ export const authed = base.use(({ context, next }) => {
 		throw new ORPCError("UNAUTHORIZED", { status: 401 });
 	}
 	return next({
-		context: { user: context.session.user },
+		context: {
+			user: context.session.user,
+			currentSession: context.session.session,
+		},
 	});
 });
