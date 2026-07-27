@@ -42,6 +42,7 @@ export function useDuplicateMutation(queryKey: QueryKey) {
 						expanded: created.expanded,
 						order: created.order,
 						dueDate: created.dueDate,
+						recurrence: created.recurrence,
 						tags: created.tags,
 						depth: source.depth,
 						path: [...source.path.slice(0, -1), created.order],

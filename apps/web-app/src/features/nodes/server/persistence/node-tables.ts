@@ -1,5 +1,6 @@
 import { user } from "@cascade/auth/schema";
 import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
+import type { RecurrenceRule } from "@cascade/outliner/recurrence";
 import { sql } from "drizzle-orm";
 import {
 	type AnyPgColumn,
@@ -51,6 +52,7 @@ export const nodes = pgTable(
 		 * the app, so the day it names never shifts under conversion. See #323.
 		 */
 		dueDate: date("due_date", { mode: "string" }),
+		recurrence: jsonb("recurrence").$type<RecurrenceRule>(),
 	},
 	(t) => [
 		index("nodes_parent_id_idx").on(t.parentId),

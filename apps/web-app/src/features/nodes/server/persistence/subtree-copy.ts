@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { CalendarDateString } from "@cascade/outliner/calendar-date";
 import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
+import type { RecurrenceRule } from "@cascade/outliner/recurrence";
 import { inArray, sql } from "drizzle-orm";
 import { chunk, DUPLICATE_BATCH_SIZE } from "./batch-inserts";
 import { nodes, nodeTags } from "./node-tables";
@@ -16,6 +17,7 @@ interface SubtreeRow {
 	expanded: boolean;
 	order: string;
 	due_date: CalendarDateString | null;
+	recurrence: RecurrenceRule | null;
 }
 
 export interface PreparedSubtreeCopy {
@@ -31,10 +33,10 @@ export async function prepareSubtreeCopy(
 ): Promise<PreparedSubtreeCopy> {
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
-			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date
+			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date, recurrence
 			FROM nodes WHERE id = ${sourceId} AND user_id = ${userId}
 			UNION ALL
-			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date
+			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date, c.recurrence
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
@@ -103,6 +105,7 @@ export async function insertSubtreeCopy(
 		expanded: row.expanded,
 		order: row.id === sourceId ? rootOrder : row.order,
 		dueDate: row.due_date,
+		recurrence: row.recurrence,
 	}));
 	for (const batch of chunk(copiedNodes, DUPLICATE_BATCH_SIZE)) {
 		await transaction.insert(nodes).values(batch);

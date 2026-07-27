@@ -48,6 +48,7 @@ const row: VisibleNodeRow = {
 	expanded: false,
 	order: "a0",
 	dueDate: null,
+	recurrence: null,
 	tags: [],
 	depth: 0,
 	path: ["a0"],
@@ -253,6 +254,7 @@ describe("useVisibleTree.add/addAfter", () => {
 		expanded: false,
 		order: "b0",
 		dueDate: null,
+		recurrence: null,
 		tags: [],
 		hasChildren: false,
 	};

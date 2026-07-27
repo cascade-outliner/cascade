@@ -134,6 +134,9 @@ export function VirtualTreeView({
 									}
 									onToggleTask={(completed) => onToggleTask(row.id, completed)}
 									onSetDueDate={(date) => tree.setDueDate(row.id, date)}
+									onSetRecurrence={(recurrence) =>
+										tree.setRecurrence(row.id, recurrence)
+									}
 									onSetTags={(tags) => tree.setTags(row.id, tags)}
 									onDuplicate={() => tree.duplicate(row.id)}
 									onDelete={() => tree.remove(row.id)}

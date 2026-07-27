@@ -1,9 +1,11 @@
 import { lexicalToPlainText } from "@cascade/outliner/lexical-content";
 import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
+import type { RecurrenceRule } from "@cascade/outliner/recurrence";
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 import {
 	chunk,
 	DUPLICATE_BATCH_SIZE,
+	postgresBatchSize,
 } from "@/features/nodes/server/persistence/batch-inserts";
 import { nodes } from "@/features/nodes/server/persistence/node-tables";
 import {
@@ -26,6 +28,7 @@ export interface CapturedHistoryNode {
 	expanded: boolean;
 	order: string;
 	dueDate: string | null;
+	recurrence: RecurrenceRule | null;
 	tags: string[];
 	depth: number;
 	isRoot: boolean;
@@ -41,6 +44,7 @@ interface CapturedSqlRow {
 	expanded: boolean;
 	order: string;
 	due_date: string | null;
+	recurrence: RecurrenceRule | null;
 	depth: number;
 	tags: string[];
 }
@@ -54,18 +58,18 @@ export async function captureSubtree(
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
 			SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded,
-				n."order", n.due_date, 0 AS depth, ARRAY[n."order"] AS path
+				n."order", n.due_date, n.recurrence, 0 AS depth, ARRAY[n."order"] AS path
 			FROM nodes n
 			WHERE n.id = ${rootId} AND n.user_id = ${userId}
 			UNION ALL
 			SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded,
-				c."order", c.due_date, s.depth + 1, s.path || c."order"
+				c."order", c.due_date, c.recurrence, s.depth + 1, s.path || c."order"
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
 		)
 		SELECT s.id, s.parent_id, s.content, s.type, s.metadata, s.expanded,
-			s."order", s.due_date::text AS due_date, s.depth,
+			s."order", s.due_date::text AS due_date, s.recurrence, s.depth,
 			COALESCE(t.tags, '{}') AS tags
 		FROM subtree s
 		LEFT JOIN (
@@ -87,6 +91,7 @@ export async function captureSubtree(
 		expanded: row.expanded,
 		order: row.order,
 		dueDate: row.due_date,
+		recurrence: row.recurrence,
 		tags: row.tags,
 		depth: Number(row.depth),
 		isRoot: row.id === rootId,
@@ -165,24 +170,32 @@ export async function createHistoryRecorder(
 				.returning({ id: treeHistoryEvents.id });
 			if (!event) return null;
 
-			for (const batch of chunk(snapshots, DUPLICATE_BATCH_SIZE)) {
-				await transaction.insert(treeHistorySnapshots).values(
-					batch.map((snapshot) => ({
-						eventId: event.id,
-						phase: snapshot.phase,
-						nodeId: snapshot.nodeId,
-						parentId: snapshot.parentId,
-						content: snapshot.content,
-						type: snapshot.type,
-						metadata: snapshot.metadata,
-						expanded: snapshot.expanded,
-						order: snapshot.order,
-						dueDate: snapshot.dueDate,
-						tags: snapshot.tags,
-						depth: snapshot.depth,
-						isRoot: snapshot.isRoot,
-					})),
-				);
+			const snapshotValues = snapshots.map((snapshot) => ({
+				eventId: event.id,
+				phase: snapshot.phase,
+				nodeId: snapshot.nodeId,
+				parentId: snapshot.parentId,
+				content: snapshot.content,
+				type: snapshot.type,
+				metadata: snapshot.metadata,
+				expanded: snapshot.expanded,
+				order: snapshot.order,
+				dueDate: snapshot.dueDate,
+				recurrence: snapshot.recurrence,
+				tags: snapshot.tags,
+				depth: snapshot.depth,
+				isRoot: snapshot.isRoot,
+			}));
+			const parametersPerSnapshot = Object.keys(snapshotValues[0] ?? {}).length;
+			const snapshotBatchSize =
+				parametersPerSnapshot > 0
+					? Math.min(
+							DUPLICATE_BATCH_SIZE,
+							postgresBatchSize(parametersPerSnapshot),
+						)
+					: DUPLICATE_BATCH_SIZE;
+			for (const batch of chunk(snapshotValues, snapshotBatchSize)) {
+				await transaction.insert(treeHistorySnapshots).values(batch);
 			}
 			return event.id;
 		},

@@ -1,5 +1,4 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
-import { patchRow } from "@cascade/outliner/visible-rows";
 import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutations/use-node-mutation";
@@ -18,7 +17,25 @@ export function useSetDueDateMutation(queryKey: QueryKey) {
 		queryKey,
 		mutationFn: (vars) => client.nodes.setDueDate(vars),
 		patch: (old, { id, dueDate }) =>
-			patchRows((rows) => patchRow(rows, id, { dueDate }), old),
+			patchRows(
+				(rows) =>
+					rows.map((row) =>
+						row.id === id
+							? {
+									...row,
+									dueDate,
+									recurrence:
+										dueDate && row.recurrence
+											? {
+													...row.recurrence,
+													anchorDay: Number(dueDate.slice(8, 10)),
+												}
+											: null,
+								}
+							: row,
+					),
+				old,
+			),
 		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: orpc.nodes.visibleTree.key(),

@@ -22,16 +22,28 @@ export const setNodeDueDate = authed
 					id: nodes.id,
 					content: nodes.content,
 					dueDate: nodes.dueDate,
+					recurrence: nodes.recurrence,
 				})
 				.from(nodes)
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
 				.for("update");
 			if (!before) throw errors.NOT_FOUND();
-			if (before.dueDate === input.dueDate) return;
+			const recurrence =
+				input.dueDate && before.recurrence
+					? {
+							...before.recurrence,
+							anchorDay: Number(input.dueDate.slice(8, 10)),
+						}
+					: null;
+			if (
+				before.dueDate === input.dueDate &&
+				JSON.stringify(before.recurrence) === JSON.stringify(recurrence)
+			)
+				return;
 			const history = await createHistoryRecorder(transaction, userId);
 			await transaction
 				.update(nodes)
-				.set({ dueDate: input.dueDate })
+				.set({ dueDate: input.dueDate, recurrence })
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
 			await history.record({
 				nodeId: input.id,
@@ -40,6 +52,8 @@ export const setNodeDueDate = authed
 					label: historyNodeLabel(before.content),
 					before: before.dueDate,
 					after: input.dueDate,
+					beforeRecurrence: before.recurrence,
+					afterRecurrence: recurrence,
 				},
 			});
 		});

@@ -56,6 +56,10 @@ function actionLabel(kind: TreeHistoryEventKind): string {
 			return m.tree_history_action_type();
 		case "due_date_changed":
 			return m.tree_history_action_due_date();
+		case "recurrence_changed":
+			return m.tree_history_action_recurrence();
+		case "recurring_task_completed":
+			return m.tree_history_action_recurring_completed();
 		case "tags_changed":
 			return m.tree_history_action_tags();
 		case "tag_created":
@@ -142,6 +146,20 @@ function EventPreview({ detail }: { detail: TreeHistoryDetail }) {
 			);
 		case "due_date_changed":
 			return <BeforeAfter before={payload.before} after={payload.after} />;
+		case "recurrence_changed":
+			return (
+				<BeforeAfter
+					before={JSON.stringify(payload.before.recurrence)}
+					after={JSON.stringify(payload.after.recurrence)}
+				/>
+			);
+		case "recurring_task_completed":
+			return (
+				<BeforeAfter
+					before={payload.before.dueDate}
+					after={payload.after.dueDate}
+				/>
+			);
 		case "tags_changed":
 			return (
 				<BeforeAfter
