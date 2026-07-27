@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-27
+- [fix] Settings now opens as a full-screen mobile panel with grouped category navigation, focused detail pages, and layouts that remain readable on narrow screens.
+
 ## 2026-07-26
 - [chore] Removed GitHub as a sign-in option from the login and registration pages.
 - [feat] Redesigned Settings as a spacious panel with grouped sidebar navigation, structured content cards, and tag management.
