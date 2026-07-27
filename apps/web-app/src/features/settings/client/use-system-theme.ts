@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const DARK_MODE_QUERY = "(prefers-color-scheme: dark)";
 
@@ -8,16 +8,13 @@ function systemPrefersDark(): boolean {
 	);
 }
 
+function subscribe(onStoreChange: () => void): () => void {
+	if (typeof matchMedia === "undefined") return () => undefined;
+	const media = matchMedia(DARK_MODE_QUERY);
+	media.addEventListener("change", onStoreChange);
+	return () => media.removeEventListener("change", onStoreChange);
+}
+
 export function useSystemPrefersDark(): boolean {
-	const [prefersDark, setPrefersDark] = useState(systemPrefersDark);
-
-	useEffect(() => {
-		if (typeof matchMedia === "undefined") return;
-		const media = matchMedia(DARK_MODE_QUERY);
-		const updatePreference = () => setPrefersDark(media.matches);
-		media.addEventListener("change", updatePreference);
-		return () => media.removeEventListener("change", updatePreference);
-	}, []);
-
-	return prefersDark;
+	return useSyncExternalStore(subscribe, systemPrefersDark, () => false);
 }
