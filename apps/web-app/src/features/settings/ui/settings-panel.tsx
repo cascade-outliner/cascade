@@ -14,7 +14,7 @@ export function SettingsSection({
 	tone = "default",
 }: SettingsSectionProps) {
 	return (
-		<section className="mt-8">
+		<section className="mt-6 sm:mt-8">
 			<div className="mb-3">
 				<h3
 					className={

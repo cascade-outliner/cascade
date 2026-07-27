@@ -73,7 +73,7 @@ function SessionRow({
 	);
 
 	return (
-		<li className="flex items-start gap-3 border-b border-ink/10 px-5 py-4 last:border-b-0 dark:border-surface/15">
+		<li className="flex flex-wrap items-start gap-3 border-b border-ink/10 px-4 py-4 last:border-b-0 sm:flex-nowrap sm:px-5 dark:border-surface/15">
 			<div className="mt-0.5 text-ink/60 dark:text-surface/60">
 				<DeviceIcon type={device.type} />
 			</div>
@@ -103,7 +103,7 @@ function SessionRow({
 					variant="dark"
 					disabled={disabled}
 					onClick={onRevoke}
-					className="shrink-0"
+					className="ml-8 shrink-0 sm:ml-0"
 				>
 					{isRevoking ? m.security_revoking() : m.security_revoke()}
 				</Button>

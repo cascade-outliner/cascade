@@ -28,7 +28,7 @@ export function PremiumTab() {
 				{m.user_menu_premium_description()}
 			</SettingsPageDescription>
 			<SettingsSection title={m.settings_premium_status_section()}>
-				<div className="flex items-center justify-between gap-4 px-5 py-5 text-sm">
+				<div className="flex flex-col items-start gap-4 px-4 py-5 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
 					{data?.isPremium ? (
 						<>
 							<div className="flex items-center gap-3">
