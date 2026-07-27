@@ -38,6 +38,7 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 						existingTags={existingTags}
 						onToggleTask={mutations.toggleTask}
 						onDueDateChange={mutations.setDueDate}
+						onRecurrenceChange={mutations.setRecurrence}
 						onTagsChange={mutations.setTags}
 						onDeleteTag={deleteTag}
 					/>

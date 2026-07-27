@@ -1,4 +1,8 @@
 import { Dialog } from "@base-ui/react";
+import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
 import { XIcon } from "@phosphor-icons/react/ssr";
 import { m } from "#/paraglide/messages.js";
 import { keyboardShortcutGroups } from "../model/keyboard-shortcuts-data";
@@ -14,8 +18,10 @@ export function KeyboardShortcutsDialog({
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-				<Dialog.Popup className="fixed top-1/2 left-1/2 z-50 flex max-h-[min(700px,calc(100vh-1rem))] w-[min(640px,calc(100vw-1rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface">
+				<Dialog.Backdrop className={dialogBackdropMotion()} />
+				<Dialog.Popup
+					className={`fixed top-1/2 left-1/2 z-50 flex max-h-[min(700px,calc(100vh-1rem))] w-[min(640px,calc(100vw-1rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface ${dialogPopupMotion()}`}
+				>
 					<header className="flex items-center justify-between border-ink/10 border-b px-5 py-4 dark:border-surface/15">
 						<Dialog.Title className="font-semibold text-lg">
 							{m.keyboard_shortcuts_title()}

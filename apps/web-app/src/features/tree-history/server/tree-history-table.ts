@@ -1,5 +1,6 @@
 import { user } from "@cascade/auth/schema";
 import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
+import type { RecurrenceRule } from "@cascade/outliner/recurrence";
 import { sql } from "drizzle-orm";
 import {
 	boolean,
@@ -57,6 +58,7 @@ export const treeHistorySnapshots = pgTable(
 		expanded: boolean().notNull(),
 		order: text().notNull(),
 		dueDate: date("due_date", { mode: "string" }),
+		recurrence: jsonb("recurrence").$type<RecurrenceRule>(),
 		tags: jsonb().notNull().$type<string[]>(),
 		depth: integer().notNull(),
 		isRoot: boolean("is_root").notNull(),

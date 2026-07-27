@@ -1,4 +1,5 @@
 import { typedMetadataSchema } from "@cascade/outliner/node-types";
+import { recurrenceRuleSchema } from "@cascade/outliner/recurrence";
 import { z } from "zod";
 import { dueDateSchema } from "./due-date.schema";
 import { lexicalElementNodeSchema } from "./node-content.schema";
@@ -15,9 +16,19 @@ const nodeSnapshotSchema = z
 		content: z.object({ root: lexicalElementNodeSchema }).nullable(),
 		expanded: z.boolean(),
 		dueDate: dueDateSchema.nullable(),
+		recurrence: recurrenceRuleSchema.nullable().default(null),
 		tags: z.array(z.string()),
 	})
-	.and(typedMetadataSchema);
+	.and(typedMetadataSchema)
+	.superRefine((node, context) => {
+		if (node.recurrence && (node.type !== "task" || !node.dueDate)) {
+			context.addIssue({
+				code: "custom",
+				path: ["recurrence"],
+				message: "Recurrence requires a task with a due date",
+			});
+		}
+	});
 
 const descendantSnapshotSchema = nodeSnapshotSchema.and(
 	z.object({ parentId: z.string(), order: z.string() }),

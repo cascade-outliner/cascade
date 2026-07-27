@@ -9,7 +9,9 @@ import {
 	useMoveMutation,
 	useRemoveMutation,
 	useSetDueDateMutation,
+	useSetRecurrenceMutation,
 	useSetTagsMutation,
+	useSetTaskCompletedMutation,
 	useSetTypeMutation,
 	useToggleMutation,
 	useUpdateContentMutation,
@@ -47,6 +49,8 @@ export function useVisibleTree(
 	const updateContent = useUpdateContentMutation(options.queryKey);
 	const setType = useSetTypeMutation(options.queryKey);
 	const setDueDate = useSetDueDateMutation(options.queryKey);
+	const setRecurrence = useSetRecurrenceMutation(options.queryKey);
+	const setTaskCompleted = useSetTaskCompletedMutation(options.queryKey);
 	const setTags = useSetTagsMutation(options.queryKey);
 	const applyShorthand = useApplyShorthandMutation(options.queryKey);
 	const { add, addAfter } = useCreateMutation(
@@ -72,6 +76,8 @@ export function useVisibleTree(
 		updateContent,
 		setType,
 		setDueDate,
+		setRecurrence,
+		setTaskCompleted,
 		setTags,
 		applyShorthand,
 		add,

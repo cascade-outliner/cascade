@@ -1,6 +1,10 @@
 import { Dialog } from "@base-ui/react";
 import { Button } from "@cascade/ui/button";
 import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
+import {
 	ArrowRightIcon,
 	MagnifyingGlassIcon,
 	XIcon,
@@ -161,10 +165,10 @@ export function QuickOpen() {
 				</span>
 			</Dialog.Trigger>
 			<Dialog.Portal>
-				<Dialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
+				<Dialog.Backdrop className={dialogBackdropMotion()} />
 				<Dialog.Popup
 					initialFocus={inputRef}
-					className="fixed top-[min(18vh,9rem)] left-1/2 z-50 flex max-h-[min(620px,calc(100vh-1rem))] w-[min(680px,calc(100vw-1rem))] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface"
+					className={`fixed top-[min(18vh,9rem)] left-1/2 z-50 flex max-h-[min(620px,calc(100vh-1rem))] w-[min(680px,calc(100vw-1rem))] -translate-x-1/2 origin-top flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface ${dialogPopupMotion()}`}
 				>
 					<Dialog.Title className="sr-only">
 						{m.quick_open_title()}

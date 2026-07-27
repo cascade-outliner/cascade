@@ -89,10 +89,6 @@ export const footer = cva({
 	],
 });
 
-export const dialogBackdrop = cva({
-	base: "fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm",
-});
-
 export const dialogPopup = cva({
 	base: [
 		"fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border p-6 shadow-lg outline-none",

@@ -1,3 +1,4 @@
+import type { RecurrenceInput } from "../../dates/recurrence";
 import type {
 	TypedMetadata,
 	VisibleNodeRow,
@@ -27,6 +28,15 @@ export interface VisibleTree {
 	) => void | Promise<void>;
 	setType: (id: string, typed: TypedMetadata) => void | Promise<void>;
 	setDueDate: (id: string, dueDate: Date | null) => void | Promise<void>;
+	setRecurrence: (
+		id: string,
+		recurrence: RecurrenceInput | null,
+	) => void | Promise<void>;
+	setTaskCompleted: (
+		id: string,
+		completed: boolean,
+		expectedDueDate: string | null,
+	) => void | Promise<void>;
 	setTags: (id: string, tags: string[]) => void | Promise<void>;
 	applyShorthand?: (
 		id: string,

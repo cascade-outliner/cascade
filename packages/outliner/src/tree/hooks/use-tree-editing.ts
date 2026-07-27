@@ -137,6 +137,10 @@ export function useTreeEditing(
 		handleConvert: (id: string, type: NodeTypeName) =>
 			tree.setType(id, defaultTypedMetadata(type)),
 		handleToggleTask: (id: string, completed: boolean) =>
-			tree.setType(id, { type: "task", metadata: { completed } }),
+			tree.setTaskCompleted(
+				id,
+				completed,
+				tree.rows.find((row) => row.id === id)?.dueDate ?? null,
+			),
 	};
 }

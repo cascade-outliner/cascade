@@ -4,6 +4,7 @@ import type {
 	NodeTypeName,
 	VisibleNodeRow,
 } from "@cascade/outliner/node-types";
+import type { RecurrenceRule } from "@cascade/outliner/recurrence";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -19,6 +20,7 @@ interface VisibleTreeSqlRow {
 	expanded: boolean;
 	order: string;
 	due_date: CalendarDateString | null;
+	recurrence: RecurrenceRule | null;
 	depth: number;
 	path: string[];
 	has_children: boolean;
@@ -72,7 +74,7 @@ export const visibleTree = authed
 				SELECT ${cursorArray} AS cursor
 				),
 				visible AS (
-				SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order", n.due_date,
+				SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order", n.due_date, n.recurrence,
 					0 AS depth,
 					ARRAY[n."order"] AS path
 				FROM nodes n, params
@@ -80,7 +82,7 @@ export const visibleTree = authed
 					AND ${rootId === null ? sql`n.parent_id IS NULL` : sql`n.parent_id = ${rootId}`}
 					AND (params.cursor IS NULL OR ARRAY[n."order"] >= params.cursor[1:1])
 				UNION ALL
-				SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date,
+				SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date, c.recurrence,
 					v.depth + 1,
 					v.path || c."order"
 				FROM nodes c
@@ -112,14 +114,14 @@ export const visibleTree = authed
 					}
 				),
 				page AS MATERIALIZED (
-					SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.depth, v.path,
+					SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.recurrence, v.depth, v.path,
 						(lead(v.id) OVER (PARTITION BY v.parent_id ORDER BY v."order")) IS NULL AS is_last_child
 					FROM filtered v
 					${cursor ? sql`WHERE v.path > (SELECT cursor FROM params)` : sql``}
 					ORDER BY v.path
 					LIMIT ${limit + 1}
 				)
-			SELECT p.id, p.parent_id, p.content, p.type, p.metadata, p.expanded, p."order", p.due_date::text AS due_date, p.depth, p.path, p.is_last_child,
+			SELECT p.id, p.parent_id, p.content, p.type, p.metadata, p.expanded, p."order", p.due_date::text AS due_date, p.recurrence, p.depth, p.path, p.is_last_child,
 				COALESCE(hc.has_children, false) AS has_children,
 				COALESCE(t.tags, '{}') AS tags
 			FROM page p
@@ -149,6 +151,7 @@ export const visibleTree = authed
 			expanded: r.expanded,
 			order: r.order,
 			dueDate: r.due_date,
+			recurrence: r.recurrence,
 			tags: r.tags,
 			depth: Number(r.depth),
 			path: r.path,

@@ -31,10 +31,13 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const featureCtx = {
 		row,
 		dueDate,
+		recurrence: row.recurrence ?? null,
+		isTask: row.type === "task",
 		completed,
 		tags: row.tags,
 		existingTags: props.existingTags,
 		onSetDueDate: props.onSetDueDate,
+		onSetRecurrence: props.onSetRecurrence,
 		onSetTags: props.onSetTags,
 		onTagClick: props.onTagClick,
 		onDeleteTag: props.onDeleteTag,

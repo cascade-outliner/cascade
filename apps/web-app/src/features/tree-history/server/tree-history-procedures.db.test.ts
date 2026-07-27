@@ -8,11 +8,14 @@ import {
 	deleteNode,
 	deleteTag,
 	duplicateNode,
+	getNode,
 	listNodes,
 	moveNode,
 	setNodeDueDate,
+	setNodeRecurrence,
 	setNodeTags,
 	setNodeType,
+	setTaskCompleted,
 	updateNodeContent,
 } from "@/features/nodes/server/procedures";
 import { requestPremiumSeat } from "@/features/premium/server/premium-procedures";
@@ -94,6 +97,47 @@ describe("tree history recording", () => {
 		expect(
 			new Set([...first.items, ...second.items].map(({ id }) => id)).size,
 		).toBe(3);
+	});
+
+	it("restores recurring completion as one atomic event", async () => {
+		await call(requestPremiumSeat, undefined, { context });
+		const task = await call(
+			createNode,
+			{
+				parentId: null,
+				initialType: { type: "task", metadata: { completed: false } },
+				dueDate: "2026-07-20",
+			},
+			{ context },
+		);
+		await call(
+			setNodeRecurrence,
+			{ id: task.id, recurrence: { unit: "week", interval: 1 } },
+			{ context },
+		);
+		await call(
+			setTaskCompleted,
+			{
+				id: task.id,
+				completed: true,
+				today: "2026-07-27",
+				expectedDueDate: "2026-07-20",
+			},
+			{ context },
+		);
+
+		const history = await call(listTreeHistory, { limit: 10 }, { context });
+		expect(history.items[0]?.kind).toBe("recurring_task_completed");
+		await call(
+			restoreTreeHistoryEntry,
+			{ id: history.items[0]?.id as string },
+			{ context },
+		);
+		expect(await call(getNode, { id: task.id }, { context })).toMatchObject({
+			dueDate: "2026-07-20",
+			metadata: { completed: false },
+			recurrence: { unit: "week", interval: 1, anchorDay: 20 },
+		});
 	});
 
 	it("never exposes another user's timeline", async () => {

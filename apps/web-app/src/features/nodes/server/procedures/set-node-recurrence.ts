@@ -1,4 +1,7 @@
-import { typedMetadataSchema } from "@cascade/outliner/node-types";
+import {
+	type RecurrenceRule,
+	recurrenceInputSchema,
+} from "@cascade/outliner/recurrence";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -9,55 +12,71 @@ import {
 import { authed } from "@/orpc/context";
 import { nodes } from "../persistence/node-tables";
 
-export const setNodeType = authed
+export const setNodeRecurrence = authed
 	.errors({
 		NOT_FOUND: { status: 404, message: "Node not found" },
+		INVALID_NODE: {
+			status: 400,
+			message: "Recurrence requires a task with a due date",
+		},
 	})
-	.input(z.object({ id: z.string() }).and(typedMetadataSchema))
+	.input(
+		z.object({
+			id: z.string(),
+			recurrence: recurrenceInputSchema.nullable(),
+		}),
+	)
 	.handler(async ({ input, context, errors }) => {
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [before] = await transaction
 				.select({
-					id: nodes.id,
 					content: nodes.content,
 					type: nodes.type,
 					metadata: nodes.metadata,
+					dueDate: nodes.dueDate,
 					recurrence: nodes.recurrence,
 				})
 				.from(nodes)
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
 				.for("update");
 			if (!before) throw errors.NOT_FOUND();
+			if (input.recurrence && (before.type !== "task" || !before.dueDate)) {
+				throw errors.INVALID_NODE();
+			}
+
+			const recurrence: RecurrenceRule | null =
+				input.recurrence && before.dueDate
+					? {
+							...input.recurrence,
+							anchorDay: Number(before.dueDate.slice(8, 10)),
+						}
+					: null;
+			const metadata =
+				recurrence && before.type === "task"
+					? { completed: false }
+					: before.metadata;
 			if (
-				before.type === input.type &&
-				JSON.stringify(before.metadata) === JSON.stringify(input.metadata)
+				JSON.stringify(before.recurrence) === JSON.stringify(recurrence) &&
+				JSON.stringify(before.metadata) === JSON.stringify(metadata)
 			)
 				return;
+
 			const history = await createHistoryRecorder(transaction, userId);
 			await transaction
 				.update(nodes)
-				.set({
-					type: input.type,
-					metadata: input.metadata,
-					recurrence: input.type === "task" ? before.recurrence : null,
-				})
+				.set({ recurrence, metadata })
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
 			await history.record({
 				nodeId: input.id,
 				payload: {
-					kind: "type_changed",
+					kind: "recurrence_changed",
 					label: historyNodeLabel(before.content),
-					after: {
-						type: input.type,
-						metadata: input.metadata,
-						recurrence: input.type === "task" ? before.recurrence : null,
-					},
 					before: {
-						type: before.type,
-						metadata: before.metadata,
 						recurrence: before.recurrence,
+						metadata: before.metadata,
 					},
+					after: { recurrence, metadata },
 				},
 			});
 		});

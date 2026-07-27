@@ -1,5 +1,9 @@
 import { Dialog, Tabs } from "@base-ui/react";
 import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
+import {
 	ArrowLeftIcon,
 	CaretRightIcon,
 	CrownIcon,
@@ -25,6 +29,7 @@ import { UserAccountPanel } from "./user-account-panel";
 import {
 	iconButton,
 	settingsDialogPopup,
+	settingsPanel,
 	tabTrigger,
 } from "./user-menu.styles";
 
@@ -108,11 +113,21 @@ export function UserSettingsDialog({
 	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
 	const [activeTab, setActiveTab] =
 		useState<SettingsTab["value"]>("appearance");
+	const [visitedTabs, setVisitedTabs] = useState<
+		ReadonlySet<SettingsTab["value"]>
+	>(() => new Set(["appearance"]));
 	const [mobilePageOpen, setMobilePageOpen] = useState(false);
 	const activeTabLabel = tabGroups
 		.flatMap((group) => group.tabs)
 		.find((tab) => tab.value === activeTab)
 		?.label();
+	const selectTab = (value: SettingsTab["value"]) => {
+		setVisitedTabs((current) => {
+			if (current.has(value)) return current;
+			return new Set(current).add(value);
+		});
+		setActiveTab(value);
+	};
 
 	return (
 		<Dialog.Root
@@ -123,8 +138,10 @@ export function UserSettingsDialog({
 			}}
 		>
 			<Dialog.Portal>
-				<Dialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-				<Dialog.Popup className={settingsDialogPopup()}>
+				<Dialog.Backdrop className={dialogBackdropMotion()} />
+				<Dialog.Popup
+					className={`${settingsDialogPopup()} ${dialogPopupMotion({ variant: "fullscreen" })}`}
+				>
 					<div className="flex h-14 shrink-0 items-center justify-between border-b border-ink/10 px-4 sm:h-16 sm:px-6 dark:border-surface/15">
 						<Dialog.Title className="text-lg font-semibold">
 							{m.user_menu_settings()}
@@ -138,15 +155,15 @@ export function UserSettingsDialog({
 					</div>
 					<Tabs.Root
 						value={activeTab}
-						onValueChange={(value) =>
-							setActiveTab(value as SettingsTab["value"])
-						}
+						onValueChange={(value) => selectTab(value as SettingsTab["value"])}
 						orientation="vertical"
-						className="flex min-h-0 flex-1 flex-col sm:grid sm:grid-cols-[14rem_minmax(0,1fr)]"
+						className="relative flex min-h-0 flex-1 flex-col sm:grid sm:grid-cols-[14rem_minmax(0,1fr)]"
 					>
 						<div
-							className={`min-h-0 flex-1 overflow-y-auto bg-white px-4 py-5 sm:hidden dark:bg-surface/5 ${
-								mobilePageOpen ? "hidden" : "block"
+							className={`absolute inset-0 overflow-y-auto bg-white px-4 py-5 transition-[transform,opacity,visibility] duration-200 ease-out sm:hidden dark:bg-surface/5 motion-reduce:transition-opacity motion-reduce:duration-75 ${
+								mobilePageOpen
+									? "pointer-events-none invisible -translate-x-1/4 opacity-0 motion-reduce:translate-x-0"
+									: "visible translate-x-0 opacity-100"
 							}`}
 						>
 							{tabGroups.map((group) => (
@@ -161,9 +178,9 @@ export function UserSettingsDialog({
 												<button
 													type="button"
 													key={tab.value}
-													className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink/10 px-4 text-left outline-none last:border-b-0 hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger/50 dark:border-surface/15 dark:hover:bg-surface/10"
+													className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink/10 px-4 text-left outline-none transition-colors duration-150 last:border-b-0 hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger/50 dark:border-surface/15 dark:hover:bg-surface/10"
 													onClick={() => {
-														setActiveTab(tab.value);
+														selectTab(tab.value);
 														setMobilePageOpen(true);
 													}}
 												>
@@ -212,8 +229,10 @@ export function UserSettingsDialog({
 							))}
 						</Tabs.List>
 						<div
-							className={`min-h-0 min-w-0 flex-1 flex-col sm:flex sm:overflow-y-auto ${
-								mobilePageOpen ? "flex" : "hidden"
+							className={`absolute inset-0 flex min-h-0 min-w-0 flex-1 flex-col transition-[transform,opacity,visibility] duration-200 ease-out sm:visible sm:relative sm:inset-auto sm:transition-none motion-reduce:transition-opacity motion-reduce:duration-75 ${
+								mobilePageOpen
+									? "visible translate-x-0 opacity-100"
+									: "pointer-events-none invisible translate-x-full opacity-0 motion-reduce:translate-x-0 sm:pointer-events-auto sm:translate-x-0 sm:opacity-100"
 							}`}
 						>
 							<div className="flex h-12 shrink-0 items-center gap-2 border-b border-ink/10 px-3 sm:hidden dark:border-surface/15">
@@ -227,10 +246,11 @@ export function UserSettingsDialog({
 								</button>
 								<span className="truncate font-semibold">{activeTabLabel}</span>
 							</div>
-							<div className="min-h-0 flex-1 overflow-y-auto sm:contents">
+							<div className="relative min-h-0 flex-1">
 								<Tabs.Panel
 									value="appearance"
-									className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8"
+									keepMounted={visitedTabs.has("appearance")}
+									className={settingsPanel()}
 								>
 									<div className="w-full">
 										<h2 className="mb-2 hidden text-xl font-semibold sm:block">
@@ -245,7 +265,8 @@ export function UserSettingsDialog({
 								</Tabs.Panel>
 								<Tabs.Panel
 									value="user"
-									className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8"
+									keepMounted={visitedTabs.has("user")}
+									className={settingsPanel()}
 								>
 									<div className="w-full">
 										<h2 className="mb-2 hidden text-xl font-semibold sm:block">
@@ -261,7 +282,8 @@ export function UserSettingsDialog({
 								</Tabs.Panel>
 								<Tabs.Panel
 									value="tags"
-									className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8"
+									keepMounted={visitedTabs.has("tags")}
+									className={settingsPanel()}
 								>
 									<div className="w-full">
 										<h2 className="mb-2 hidden text-xl font-semibold sm:block">
@@ -272,7 +294,8 @@ export function UserSettingsDialog({
 								</Tabs.Panel>
 								<Tabs.Panel
 									value="security"
-									className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8"
+									keepMounted={visitedTabs.has("security")}
+									className={settingsPanel()}
 								>
 									<div className="w-full">
 										<h2 className="mb-2 hidden text-xl font-semibold sm:block">
@@ -283,7 +306,8 @@ export function UserSettingsDialog({
 								</Tabs.Panel>
 								<Tabs.Panel
 									value="premium"
-									className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8"
+									keepMounted={visitedTabs.has("premium")}
+									className={settingsPanel()}
 								>
 									<div className="w-full">
 										<h2 className="mb-2 hidden text-xl font-semibold sm:block">
@@ -294,7 +318,8 @@ export function UserSettingsDialog({
 								</Tabs.Panel>
 								<Tabs.Panel
 									value="links"
-									className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8"
+									keepMounted={visitedTabs.has("links")}
+									className={settingsPanel()}
 								>
 									<div className="w-full">
 										<h2 className="mb-2 hidden text-xl font-semibold sm:block">

@@ -26,6 +26,7 @@ async function insertDescendants(
 				expanded: node.expanded,
 				order: node.order,
 				dueDate: node.dueDate,
+				recurrence: node.recurrence,
 			})),
 		);
 	}
@@ -88,6 +89,7 @@ export async function restoreSubtree(
 		expanded: root.expanded,
 		order,
 		dueDate: root.dueDate,
+		recurrence: root.recurrence,
 	});
 	await insertDescendants(transaction, userId, descendants);
 	await restoreTags(transaction, userId, [root, ...descendants]);

@@ -1,3 +1,7 @@
+import {
+	type RecurrenceRule,
+	recurrenceRuleSchema,
+} from "@cascade/outliner/recurrence";
 import { z } from "zod";
 
 export const treeHistoryEventKindSchema = z.enum([
@@ -9,6 +13,8 @@ export const treeHistoryEventKindSchema = z.enum([
 	"subtree_restored",
 	"type_changed",
 	"due_date_changed",
+	"recurrence_changed",
+	"recurring_task_completed",
 	"tags_changed",
 	"tag_created",
 	"tag_renamed",
@@ -77,13 +83,45 @@ export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("type_changed"),
-		before: z.object({ type: z.string(), metadata: z.unknown().nullable() }),
-		after: z.object({ type: z.string(), metadata: z.unknown().nullable() }),
+		before: z.object({
+			type: z.string(),
+			metadata: z.unknown().nullable(),
+			recurrence: recurrenceRuleSchema.nullable().optional(),
+		}),
+		after: z.object({
+			type: z.string(),
+			metadata: z.unknown().nullable(),
+			recurrence: recurrenceRuleSchema.nullable().optional(),
+		}),
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("due_date_changed"),
 		before: z.string().nullable(),
 		after: z.string().nullable(),
+		beforeRecurrence: recurrenceRuleSchema.nullable().optional(),
+		afterRecurrence: recurrenceRuleSchema.nullable().optional(),
+	}),
+	basePayloadSchema.extend({
+		kind: z.literal("recurrence_changed"),
+		before: z.object({
+			recurrence: z.unknown().nullable(),
+			metadata: z.unknown().nullable(),
+		}),
+		after: z.object({
+			recurrence: z.unknown().nullable(),
+			metadata: z.unknown().nullable(),
+		}),
+	}),
+	basePayloadSchema.extend({
+		kind: z.literal("recurring_task_completed"),
+		before: z.object({
+			dueDate: z.string().nullable(),
+			metadata: z.unknown().nullable(),
+		}),
+		after: z.object({
+			dueDate: z.string().nullable(),
+			metadata: z.unknown().nullable(),
+		}),
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("tags_changed"),
@@ -139,6 +177,7 @@ export interface TreeHistorySnapshot {
 	expanded: boolean;
 	order: string;
 	dueDate: string | null;
+	recurrence: RecurrenceRule | null;
 	tags: string[];
 	depth: number;
 	isRoot: boolean;
@@ -161,6 +200,8 @@ export const RESTORABLE_HISTORY_KINDS = new Set<TreeHistoryEventKind>([
 	"subtree_deleted",
 	"type_changed",
 	"due_date_changed",
+	"recurrence_changed",
+	"recurring_task_completed",
 	"tags_changed",
 	"tag_deleted",
 	"shorthand_applied",

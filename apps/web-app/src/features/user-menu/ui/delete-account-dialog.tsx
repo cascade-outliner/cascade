@@ -1,5 +1,9 @@
 import { AlertDialog } from "@base-ui/react";
 import { Button } from "@cascade/ui/button";
+import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
 import { m } from "#/paraglide/messages.js";
 import { alertPopup } from "./user-menu.styles";
 
@@ -19,8 +23,8 @@ export function DeleteAccountDialog({
 	return (
 		<AlertDialog.Root open={open} onOpenChange={onOpenChange}>
 			<AlertDialog.Portal>
-				<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-				<AlertDialog.Popup className={alertPopup()}>
+				<AlertDialog.Backdrop className={dialogBackdropMotion()} />
+				<AlertDialog.Popup className={`${alertPopup()} ${dialogPopupMotion()}`}>
 					<AlertDialog.Title className="text-lg font-semibold">
 						{m.user_menu_delete_account()}
 					</AlertDialog.Title>

@@ -1,9 +1,12 @@
 import { AlertDialog } from "@base-ui/react";
+import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
 import { useState } from "react";
 import { useOutlinerLabels } from "../../../../i18n/outliner-labels-context";
 import {
 	dialogActions,
-	dialogBackdrop,
 	dialogCancelButton,
 	dialogConfirmButton,
 	dialogDescription,
@@ -40,9 +43,9 @@ export function DeleteTagDialog({
 	return (
 		<AlertDialog.Root open={tagName !== null} onOpenChange={onOpenChange}>
 			<AlertDialog.Portal>
-				<AlertDialog.Backdrop className={dialogBackdrop()} />
+				<AlertDialog.Backdrop className={dialogBackdropMotion()} />
 				<AlertDialog.Popup
-					className={dialogPopup()}
+					className={`${dialogPopup()} ${dialogPopupMotion()}`}
 					onClick={(e) => e.stopPropagation()}
 				>
 					<AlertDialog.Title className={dialogTitle()}>
