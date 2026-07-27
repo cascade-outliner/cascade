@@ -1,6 +1,10 @@
 import { AlertDialog } from "@base-ui/react";
 import { Button } from "@cascade/ui/button";
 import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
+import {
 	DesktopIcon,
 	DeviceMobileIcon,
 	DeviceTabletIcon,
@@ -180,8 +184,10 @@ export function SecuritySettingsPanel() {
 							{m.security_sign_out_others()}
 						</AlertDialog.Trigger>
 						<AlertDialog.Portal>
-							<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-							<AlertDialog.Popup className={alertPopup()}>
+							<AlertDialog.Backdrop className={dialogBackdropMotion()} />
+							<AlertDialog.Popup
+								className={`${alertPopup()} ${dialogPopupMotion()}`}
+							>
 								<AlertDialog.Title className="text-lg font-semibold">
 									{m.security_sign_out_others()}
 								</AlertDialog.Title>

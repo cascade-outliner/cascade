@@ -26,6 +26,7 @@ export const menuItem = cva({
 export const tabTrigger = cva({
 	base: [
 		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-ink/60 outline-none",
+		"transition-colors duration-150",
 		"hover:bg-surface/70 hover:text-ink focus-visible:ring-2 focus-visible:ring-danger/50 data-active:bg-white data-active:text-ink data-active:shadow-sm",
 		"dark:text-surface/60 dark:hover:bg-surface/10 dark:hover:text-surface dark:data-active:bg-surface/15 dark:data-active:text-surface",
 	],
@@ -39,8 +40,19 @@ export const settingsDialogPopup = cva({
 	],
 });
 
+export const settingsPanel = cva({
+	base: [
+		"absolute inset-0 overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8",
+		"transition-[transform,opacity] duration-200 ease-out data-ending-style:duration-150",
+		"data-starting-style:translate-y-1 data-starting-style:opacity-0",
+		"data-ending-style:-translate-y-1 data-ending-style:opacity-0",
+		"motion-reduce:transition-opacity motion-reduce:duration-75 motion-reduce:data-ending-style:duration-75",
+		"motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-ending-style:translate-y-0",
+	],
+});
+
 export const iconButton = cva({
-	base: "cursor-pointer rounded-md p-1 outline-none hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20",
+	base: "cursor-pointer rounded-md p-1 outline-none transition-colors duration-150 hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20",
 });
 
 export const alertPopup = cva({

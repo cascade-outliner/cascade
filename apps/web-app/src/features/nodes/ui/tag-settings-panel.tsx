@@ -2,6 +2,10 @@ import { AlertDialog } from "@base-ui/react";
 import { MAX_TAG_LENGTH, type TagSummary } from "@cascade/outliner/node-tags";
 import { Button } from "@cascade/ui/button";
 import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
+import {
 	PencilSimpleIcon,
 	PlusIcon,
 	TagIcon,
@@ -273,8 +277,10 @@ export function TagSettingsPanel() {
 				}}
 			>
 				<AlertDialog.Portal>
-					<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-					<AlertDialog.Popup className={alertPopup()}>
+					<AlertDialog.Backdrop className={dialogBackdropMotion()} />
+					<AlertDialog.Popup
+						className={`${alertPopup()} ${dialogPopupMotion()}`}
+					>
 						<AlertDialog.Title className="text-lg font-semibold">
 							{m.settings_tags_delete_title()}
 						</AlertDialog.Title>
