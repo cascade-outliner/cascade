@@ -46,6 +46,8 @@ export interface VisibleTree {
 }
 
 export interface AddNodeOptions {
+	/** Node conversion to apply at creation. Omit for the default paragraph node. */
+	initialType?: TypedMetadata;
 	/** Stamped onto the new node at creation, e.g. to match an active due-date filter. */
 	dueDate?: Date | null;
 	/** Stamped onto the new node at creation, e.g. to match an active tag filter. */

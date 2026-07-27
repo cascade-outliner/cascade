@@ -4,15 +4,19 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	applyNodeShorthand,
 	createNode,
+	createTag,
 	deleteNode,
 	deleteTag,
 	duplicateNode,
 	listNodes,
 	listTags,
 	moveNode,
+	quickOpen,
+	renameTag,
 	restoreNode,
 	setNodeTags,
 	toggleNodeExpanded,
+	updateNodeContent,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
 import type { ORPCContext } from "@/orpc/context";
@@ -23,6 +27,18 @@ import {
 
 let userId: string;
 let context: ORPCContext;
+
+const content = (text: string) => ({
+	root: {
+		type: "root",
+		children: [
+			{
+				type: "paragraph",
+				children: [{ type: "text", text }],
+			},
+		],
+	},
+});
 
 beforeEach(async () => {
 	const testUser = await createTestUser();
@@ -164,6 +180,104 @@ describe("createNode", () => {
 
 		const allTags = await call(listTags, undefined, { context });
 		expect(allTags.map((t) => t.name).sort()).toEqual(["Work", "urgent"]);
+	});
+
+	it("creates a node with the requested conversion", async () => {
+		const created = await call(
+			createNode,
+			{
+				parentId: null,
+				initialType: { type: "task", metadata: { completed: false } },
+			},
+			{ context },
+		);
+
+		expect(created).toMatchObject({
+			type: "task",
+			metadata: { completed: false },
+			content: null,
+		});
+	});
+});
+
+describe("quickOpen", () => {
+	it("searches the full tree in DFS order with normalized matches and compact ancestors", async () => {
+		const root = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: root.id }, { context });
+		const grandchild = await call(
+			createNode,
+			{ parentId: child.id },
+			{ context },
+		);
+		const greatGrandchild = await call(
+			createNode,
+			{ parentId: grandchild.id },
+			{ context },
+		);
+		const match = await call(
+			createNode,
+			{ parentId: greatGrandchild.id },
+			{ context },
+		);
+		const secondRoot = await call(
+			createNode,
+			{ parentId: null, afterId: root.id },
+			{ context },
+		);
+
+		for (const [id, text] of [
+			[root.id, "Root"],
+			[child.id, "Child"],
+			[grandchild.id, "Grandchild"],
+			[greatGrandchild.id, "Great grandchild"],
+			[match.id, `${"leading ".repeat(40)}RÉSUMÉ match`],
+			[secondRoot.id, "resume second"],
+		] as const) {
+			await call(
+				updateNodeContent,
+				{ id, content: content(text) },
+				{ context },
+			);
+		}
+
+		const results = await call(quickOpen, { query: "resume" }, { context });
+
+		expect(results.map((result) => result.id)).toEqual([
+			match.id,
+			secondRoot.id,
+		]);
+		expect(results[0]).toMatchObject({
+			ancestors: [
+				{ id: root.id, text: "Root" },
+				{ id: grandchild.id, text: "Grandchild" },
+				{ id: greatGrandchild.id, text: "Great grandchild" },
+			],
+			omittedAncestorCount: 1,
+			snippet: { hasPrefix: true },
+		});
+		expect(results[0].snippet.highlightRanges).toHaveLength(1);
+	});
+
+	it("treats SQL wildcard characters as literal query text", async () => {
+		const literal = await call(createNode, { parentId: null }, { context });
+		const wildcardOnly = await call(
+			createNode,
+			{ parentId: null, afterId: literal.id },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: literal.id, content: content("budget 50%_done") },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: wildcardOnly.id, content: content("budget 50x done") },
+			{ context },
+		);
+
+		const results = await call(quickOpen, { query: "%_" }, { context });
+		expect(results.map((result) => result.id)).toEqual([literal.id]);
 	});
 });
 
@@ -410,6 +524,18 @@ describe("duplicateNode / restoreNode", () => {
 });
 
 describe("setNodeTags / listTags / deleteTag", () => {
+	it("creates an unused tag and rejects duplicate names", async () => {
+		await call(createTag, { name: "planned" }, { context });
+
+		expect(await call(listTags, undefined, { context })).toContainEqual({
+			name: "planned",
+			count: 0,
+		});
+		await expect(
+			call(createTag, { name: "PLANNED" }, { context }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+	});
+
 	it("upserts tags, replaces a node's tag links, and keeps unused tags listed with count 0", async () => {
 		const node = await call(createNode, { parentId: null }, { context });
 
@@ -441,5 +567,33 @@ describe("setNodeTags / listTags / deleteTag", () => {
 		await expect(
 			call(deleteTag, { name: "does-not-exist" }, { context }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
+
+	it("renames a tag across every associated node", async () => {
+		const first = await call(createNode, { parentId: null }, { context });
+		const second = await call(createNode, { parentId: null }, { context });
+		await call(setNodeTags, { id: first.id, tags: ["old"] }, { context });
+		await call(setNodeTags, { id: second.id, tags: ["old"] }, { context });
+
+		await call(renameTag, { name: "old", newName: "renamed" }, { context });
+
+		const listedTags = await call(listTags, undefined, { context });
+		expect(listedTags).toContainEqual({ name: "renamed", count: 2 });
+		expect(listedTags.map(({ name }) => name)).not.toContain("old");
+	});
+
+	it("rejects renaming a tag to an existing name", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			setNodeTags,
+			{ id: node.id, tags: ["first", "second"] },
+			{
+				context,
+			},
+		);
+
+		await expect(
+			call(renameTag, { name: "first", newName: "SECOND" }, { context }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
 	});
 });

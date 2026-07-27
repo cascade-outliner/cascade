@@ -3,6 +3,7 @@ import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
 import { and, desc, eq, gt, inArray, lt, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { nodeSearchText } from "@/features/nodes/model/node-search-text";
 import type { RestoreNodeInput } from "@/features/nodes/model/subtree-snapshot.schema";
 import {
 	nodes,
@@ -456,7 +457,10 @@ export const restoreTreeHistoryEntry = requirePremium
 					case "content_changed":
 						await transaction
 							.update(nodes)
-							.set({ content: payload.before })
+							.set({
+								content: payload.before,
+								searchText: nodeSearchText(payload.before),
+							})
 							.where(eq(nodes.id, nodeId));
 						nextPayload = {
 							kind: "content_changed",

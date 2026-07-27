@@ -20,6 +20,10 @@ import {
 	type SessionDeviceType,
 } from "@/features/sessions/model/session-display";
 import type { ActiveSession } from "@/features/sessions/server/session-procedures";
+import {
+	SettingsPageDescription,
+	SettingsSection,
+} from "@/features/settings/ui/settings-panel";
 import { alertPopup } from "@/features/user-menu/ui/user-menu.styles";
 
 function DeviceIcon({ type }: { type: SessionDeviceType }) {
@@ -69,7 +73,7 @@ function SessionRow({
 	);
 
 	return (
-		<li className="flex items-start gap-3 border-b border-ink/10 py-3 last:border-b-0 dark:border-surface/15">
+		<li className="flex flex-wrap items-start gap-3 border-b border-ink/10 px-4 py-4 last:border-b-0 sm:flex-nowrap sm:px-5 dark:border-surface/15">
 			<div className="mt-0.5 text-ink/60 dark:text-surface/60">
 				<DeviceIcon type={device.type} />
 			</div>
@@ -99,7 +103,7 @@ function SessionRow({
 					variant="dark"
 					disabled={disabled}
 					onClick={onRevoke}
-					className="shrink-0"
+					className="ml-8 shrink-0 sm:ml-0"
 				>
 					{isRevoking ? m.security_revoking() : m.security_revoke()}
 				</Button>
@@ -116,98 +120,102 @@ export function SecuritySettingsPanel() {
 	const otherSessionCount =
 		sessions.data?.filter((session) => !session.isCurrent).length ?? 0;
 
-	if (sessions.isPending) {
-		return <p className="text-sm">{m.security_loading_sessions()}</p>;
-	}
-
-	if (sessions.isError) {
-		return (
-			<div className="flex items-center justify-between gap-3 text-sm">
-				<p>{m.security_load_failed()}</p>
-				<Button
-					type="button"
-					size="sm"
-					variant="dark"
-					onClick={() => sessions.refetch()}
-				>
-					{m.security_retry()}
-				</Button>
-			</div>
-		);
-	}
-
 	return (
-		<div className="text-sm">
-			<p className="text-ink/60 dark:text-surface/60">
+		<>
+			<SettingsPageDescription>
 				{m.security_sessions_description()}
-			</p>
-			<ul className="mt-2">
-				{sessions.data.map((session) => (
-					<SessionRow
-						key={session.id}
-						session={session}
-						disabled={
-							revokingSessionId !== undefined || isRevokingOtherSessions
-						}
-						isRevoking={revokingSessionId === session.id}
-						onRevoke={() => revokeSession(session.id)}
-					/>
-				))}
-			</ul>
-			<AlertDialog.Root>
-				<AlertDialog.Trigger
-					render={
+			</SettingsPageDescription>
+			<SettingsSection title={m.settings_active_sessions_section()}>
+				{sessions.isPending ? (
+					<p className="px-5 py-4 text-sm">{m.security_loading_sessions()}</p>
+				) : sessions.isError ? (
+					<div className="flex items-center justify-between gap-3 px-5 py-4 text-sm">
+						<p>{m.security_load_failed()}</p>
 						<Button
 							type="button"
 							size="sm"
-							variant="danger"
-							disabled={
-								otherSessionCount === 0 ||
-								revokingSessionId !== undefined ||
-								isRevokingOtherSessions
-							}
-							icon={<SignOutIcon size={14} weight="bold" />}
-							className="mt-4"
-						/>
-					}
-				>
-					{m.security_sign_out_others()}
-				</AlertDialog.Trigger>
-				<AlertDialog.Portal>
-					<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-					<AlertDialog.Popup className={alertPopup()}>
-						<AlertDialog.Title className="text-lg font-semibold">
-							{m.security_sign_out_others()}
-						</AlertDialog.Title>
-						<AlertDialog.Description className="mt-2 text-sm">
-							{m.security_sign_out_others_confirm()}
-						</AlertDialog.Description>
-						<div className="mt-6 flex justify-end gap-2">
-							<AlertDialog.Close
-								disabled={isRevokingOtherSessions}
-								render={<Button type="button" size="sm" variant="dark" />}
-							>
-								{m.user_menu_cancel()}
-							</AlertDialog.Close>
-							<AlertDialog.Close
-								render={
-									<Button
-										type="button"
-										size="sm"
-										variant="danger"
-										disabled={isRevokingOtherSessions}
-										onClick={revokeOtherSessions}
-									/>
+							variant="dark"
+							onClick={() => sessions.refetch()}
+						>
+							{m.security_retry()}
+						</Button>
+					</div>
+				) : (
+					<ul className="text-sm">
+						{sessions.data.map((session) => (
+							<SessionRow
+								key={session.id}
+								session={session}
+								disabled={
+									revokingSessionId !== undefined || isRevokingOtherSessions
 								}
-							>
-								{isRevokingOtherSessions
-									? m.security_signing_out_others()
-									: m.security_sign_out_others()}
-							</AlertDialog.Close>
-						</div>
-					</AlertDialog.Popup>
-				</AlertDialog.Portal>
-			</AlertDialog.Root>
-		</div>
+								isRevoking={revokingSessionId === session.id}
+								onRevoke={() => revokeSession(session.id)}
+							/>
+						))}
+					</ul>
+				)}
+			</SettingsSection>
+			<SettingsSection
+				title={m.settings_security_actions_section()}
+				description={m.settings_security_actions_description()}
+			>
+				<div className="px-5 py-4">
+					<AlertDialog.Root>
+						<AlertDialog.Trigger
+							render={
+								<Button
+									type="button"
+									size="sm"
+									variant="danger"
+									disabled={
+										otherSessionCount === 0 ||
+										revokingSessionId !== undefined ||
+										isRevokingOtherSessions
+									}
+									icon={<SignOutIcon size={14} weight="bold" />}
+								/>
+							}
+						>
+							{m.security_sign_out_others()}
+						</AlertDialog.Trigger>
+						<AlertDialog.Portal>
+							<AlertDialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
+							<AlertDialog.Popup className={alertPopup()}>
+								<AlertDialog.Title className="text-lg font-semibold">
+									{m.security_sign_out_others()}
+								</AlertDialog.Title>
+								<AlertDialog.Description className="mt-2 text-sm">
+									{m.security_sign_out_others_confirm()}
+								</AlertDialog.Description>
+								<div className="mt-6 flex justify-end gap-2">
+									<AlertDialog.Close
+										disabled={isRevokingOtherSessions}
+										render={<Button type="button" size="sm" variant="dark" />}
+									>
+										{m.user_menu_cancel()}
+									</AlertDialog.Close>
+									<AlertDialog.Close
+										render={
+											<Button
+												type="button"
+												size="sm"
+												variant="danger"
+												disabled={isRevokingOtherSessions}
+												onClick={revokeOtherSessions}
+											/>
+										}
+									>
+										{isRevokingOtherSessions
+											? m.security_signing_out_others()
+											: m.security_sign_out_others()}
+									</AlertDialog.Close>
+								</div>
+							</AlertDialog.Popup>
+						</AlertDialog.Portal>
+					</AlertDialog.Root>
+				</div>
+			</SettingsSection>
+		</>
 	);
 }

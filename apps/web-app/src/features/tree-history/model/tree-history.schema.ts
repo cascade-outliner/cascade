@@ -10,6 +10,8 @@ export const treeHistoryEventKindSchema = z.enum([
 	"type_changed",
 	"due_date_changed",
 	"tags_changed",
+	"tag_created",
+	"tag_renamed",
 	"tag_deleted",
 	"tag_restored",
 	"shorthand_applied",
@@ -87,6 +89,16 @@ export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
 		kind: z.literal("tags_changed"),
 		before: z.array(z.string()),
 		after: z.array(z.string()),
+	}),
+	basePayloadSchema.extend({
+		kind: z.literal("tag_created"),
+		name: z.string(),
+	}),
+	basePayloadSchema.extend({
+		kind: z.literal("tag_renamed"),
+		before: z.string(),
+		after: z.string(),
+		nodeIds: z.array(z.string()),
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("tag_deleted"),

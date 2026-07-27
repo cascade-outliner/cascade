@@ -54,6 +54,10 @@ function actionLabel(kind: TreeHistoryEventKind): string {
 			return m.tree_history_action_due_date();
 		case "tags_changed":
 			return m.tree_history_action_tags();
+		case "tag_created":
+			return m.tree_history_action_tag_created();
+		case "tag_renamed":
+			return m.tree_history_action_tag_renamed();
 		case "tag_deleted":
 			return m.tree_history_action_tag_deleted();
 		case "tag_restored":
@@ -167,6 +171,17 @@ function EventPreview({ detail }: { detail: TreeHistoryDetail }) {
 					)}
 				/>
 			);
+		case "tag_renamed":
+			return (
+				<div>
+					<BeforeAfter before={payload.before} after={payload.after} />
+					<p className="mt-2 text-sm text-ink/60 dark:text-surface/60">
+						{m.tree_history_nodes_affected({ count: payload.nodeIds.length })}
+					</p>
+				</div>
+			);
+		case "tag_created":
+			return <p className="text-sm">{payload.name}</p>;
 		case "node_moved":
 			return (
 				<BeforeAfter

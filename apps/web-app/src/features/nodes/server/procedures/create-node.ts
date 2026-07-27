@@ -1,4 +1,5 @@
 import { normalizeTags } from "@cascade/outliner/node-tags";
+import { typedMetadataSchema } from "@cascade/outliner/node-types";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -29,6 +30,7 @@ export const createNode = authed
 		z.object({
 			parentId: z.string().nullable(),
 			afterId: z.string().nullable().optional(),
+			initialType: typedMetadataSchema.optional(),
 			dueDate: dueDateSchema.nullable().optional(),
 			tags: tagsArraySchema.optional(),
 		}),
@@ -55,6 +57,8 @@ export const createNode = authed
 					parentId: input.parentId,
 					order,
 					userId,
+					type: input.initialType?.type,
+					metadata: input.initialType?.metadata,
 					dueDate: input.dueDate ?? null,
 				})
 				.returning({ id: nodes.id });

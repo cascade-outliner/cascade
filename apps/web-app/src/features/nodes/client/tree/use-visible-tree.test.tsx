@@ -426,4 +426,28 @@ describe("useVisibleTree.add/addAfter", () => {
 			)?.rows?.[1],
 		).toMatchObject({ depth: 3 });
 	});
+
+	it("passes a requested node conversion through creation", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
+			rows: [row],
+			nextCursor: null,
+		});
+		vi.mocked(client.nodes.create).mockResolvedValueOnce({
+			...created,
+			type: "task",
+			metadata: { completed: false },
+		});
+		const { result } = renderVisibleTree(queryClient);
+
+		await result.current.addAfter("node-1", {
+			initialType: { type: "task", metadata: { completed: false } },
+		});
+
+		expect(client.nodes.create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				initialType: { type: "task", metadata: { completed: false } },
+			}),
+		);
+	});
 });

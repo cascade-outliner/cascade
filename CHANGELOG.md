@@ -1,7 +1,14 @@
 # Changelog
 
-## 2026-07-26
+## 2026-07-27
+- [feat] Added Quick Open: press `Cmd/Ctrl+K` or use the header button to search node text across the full outline and jump directly to a result, with matching snippets and ancestor context. [#268](https://github.com/cascade-outliner/cascade/issues/268)
 - [feat] Type or paste inline shorthand such as `#tag`, `!tomorrow`, or their Dutch equivalents to apply tags and due dates without leaving the node editor. Shorthand conversion is atomic, undoable, and included in premium Tree history. [#449](https://github.com/cascade-outliner/cascade/issues/449)
+- [fix] Settings now opens as a full-screen mobile panel with grouped category navigation, focused detail pages, and layouts that remain readable on narrow screens.
+
+## 2026-07-26
+- [chore] Removed GitHub as a sign-in option from the login and registration pages.
+- [feat] Redesigned Settings as a spacious panel with grouped sidebar navigation, structured content cards, and tag management.
+- [fix] Pressing Enter on a task now creates another task; pressing Enter on paragraphs or headings still creates a paragraph.
 - [feat] Added a Security tab in Settings showing every active login with its device, IP address, last activity, and current-session status. Unrecognized sessions can be revoked individually, or all other devices can be signed out at once. [#451](https://github.com/cascade-outliner/cascade/issues/451)
 
 ## 2026-07-24

@@ -33,6 +33,7 @@ export const nodes = pgTable(
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
 		content: jsonb("content"),
+		searchText: text("search_text").notNull().default(""),
 		type: text().notNull().default("text").$type<NodeTypeName>(),
 		metadata: jsonb("metadata").$type<NodeMetadata>(),
 		expanded: boolean().notNull().default(false),
@@ -56,6 +57,10 @@ export const nodes = pgTable(
 		index("nodes_parent_order_idx").on(t.parentId, t.order),
 		index("nodes_user_id_idx").on(t.userId),
 		index("nodes_user_due_date_idx").on(t.userId, t.dueDate),
+		index("nodes_search_text_trgm_idx").using(
+			"gin",
+			sql`${t.searchText} gin_trgm_ops`,
+		),
 		unique("nodes_user_parent_order_unique")
 			.on(t.userId, t.parentId, t.order)
 			.nullsNotDistinct(),

@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { nodeSearchText } from "../../model/node-search-text";
 import type { RestoreNodeInput } from "../../model/subtree-snapshot.schema";
 import { chunk, DUPLICATE_BATCH_SIZE } from "./batch-inserts";
 import { nodes, nodeTags, tags } from "./node-tables";
@@ -19,6 +20,7 @@ async function insertDescendants(
 				parentId: node.parentId,
 				userId,
 				content: node.content,
+				searchText: nodeSearchText(node.content),
 				type: node.type,
 				metadata: node.metadata,
 				expanded: node.expanded,
@@ -80,6 +82,7 @@ export async function restoreSubtree(
 		parentId,
 		userId,
 		content: root.content,
+		searchText: nodeSearchText(root.content),
 		type: root.type,
 		metadata: root.metadata,
 		expanded: root.expanded,

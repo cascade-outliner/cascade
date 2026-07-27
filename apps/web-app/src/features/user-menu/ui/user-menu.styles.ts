@@ -25,16 +25,16 @@ export const menuItem = cva({
 
 export const tabTrigger = cva({
 	base: [
-		"cursor-pointer border-b-2 border-transparent px-1 pb-2 text-sm text-ink/60 outline-none",
-		"hover:text-ink data-active:border-danger data-active:text-ink",
-		"dark:text-surface/60 dark:hover:text-surface dark:data-active:text-surface",
+		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-ink/60 outline-none",
+		"hover:bg-surface/70 hover:text-ink focus-visible:ring-2 focus-visible:ring-danger/50 data-active:bg-white data-active:text-ink data-active:shadow-sm",
+		"dark:text-surface/60 dark:hover:bg-surface/10 dark:hover:text-surface dark:data-active:bg-surface/15 dark:data-active:text-surface",
 	],
 });
 
 export const settingsDialogPopup = cva({
 	base: [
-		"fixed top-1/2 left-1/2 z-50 h-full w-full max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto border-0 bg-white p-6 text-ink shadow-lg shadow-ink/15 outline-none",
-		"sm:h-auto sm:rounded-lg sm:border sm:border-ink/10 sm:dark:border-surface/15",
+		"fixed inset-0 z-50 flex h-dvh w-full flex-col overflow-hidden border-0 bg-white text-ink shadow-lg shadow-ink/15 outline-none",
+		"sm:inset-auto sm:top-1/2 sm:left-1/2 sm:h-[min(90vh,54rem)] sm:w-[calc(100%-3rem)] sm:max-w-6xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:border sm:border-ink/10 sm:dark:border-surface/15",
 		"dark:bg-ink dark:text-surface",
 	],
 });
@@ -49,5 +49,5 @@ export const alertPopup = cva({
 
 /** External "quick link" rows in the general settings tab. */
 export const quickLinkItem = cva({
-	base: "flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20",
+	base: "flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-sm outline-none hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/10",
 });
