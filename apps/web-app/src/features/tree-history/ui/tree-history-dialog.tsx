@@ -2,6 +2,10 @@ import { Dialog } from "@base-ui/react";
 import type { LexicalElementNode } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { Button } from "@cascade/ui/button";
+import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
 import { toast } from "@cascade/ui/toast";
 import {
 	ArrowCounterClockwiseIcon,
@@ -271,8 +275,10 @@ export function TreeHistoryDialog({
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-				<Dialog.Popup className="fixed top-1/2 left-1/2 z-50 flex h-[min(850px,calc(100vh-1rem))] w-[min(1200px,calc(100vw-1rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface">
+				<Dialog.Backdrop className={dialogBackdropMotion()} />
+				<Dialog.Popup
+					className={`fixed top-1/2 left-1/2 z-50 flex h-[min(850px,calc(100vh-1rem))] w-[min(1200px,calc(100vw-1rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface ${dialogPopupMotion()}`}
+				>
 					<header className="flex items-center justify-between border-ink/10 border-b px-5 py-4 dark:border-surface/15">
 						<Dialog.Title className="font-semibold text-lg">
 							{m.tree_history_title()}

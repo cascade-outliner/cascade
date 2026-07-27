@@ -1,4 +1,8 @@
 import { Dialog } from "@base-ui/react";
+import {
+	dialogBackdropMotion,
+	dialogPopupMotion,
+} from "@cascade/ui/dialog-motion";
 import { ArrowUpRightIcon, ListIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
 import { externalAppUrls } from "#/config/external-app";
@@ -36,8 +40,10 @@ export function SiteNavigation() {
 					<ListIcon size={28} />
 				</Dialog.Trigger>
 				<Dialog.Portal>
-					<Dialog.Backdrop className="fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm" />
-					<Dialog.Popup className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xs flex-col gap-8 bg-white p-8 shadow-lg transition-transform duration-150 data-starting-style:translate-x-full data-ending-style:translate-x-full">
+					<Dialog.Backdrop className={dialogBackdropMotion()} />
+					<Dialog.Popup
+						className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-xs flex-col gap-8 bg-white p-8 shadow-lg ${dialogPopupMotion({ variant: "drawer-right" })}`}
+					>
 						<Dialog.Close className="self-end" aria-label={m.nav_close_menu()}>
 							<XIcon size={28} />
 						</Dialog.Close>
