@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { faker } from "@faker-js/faker";
 import { generateNKeysBetween } from "fractional-indexing";
+import { normalizeSearchText } from "@/features/nodes/model/node-search-text";
 
 export function assertNotProduction(): void {
 	if (process.env.NODE_ENV === "production") {
@@ -117,6 +118,7 @@ export type SeedRow = {
 	parentId: string | null;
 	userId: string;
 	content: ReturnType<typeof textToLexicalContent>;
+	searchText: string;
 	order: string;
 	expanded: boolean;
 };
@@ -133,6 +135,7 @@ function buildRow(
 		parentId,
 		userId,
 		content: textToLexicalContent(text),
+		searchText: normalizeSearchText(text),
 		order,
 		expanded,
 	};

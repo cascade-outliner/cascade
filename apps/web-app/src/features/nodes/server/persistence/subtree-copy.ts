@@ -10,6 +10,7 @@ interface SubtreeRow {
 	id: string;
 	parent_id: string | null;
 	content: unknown;
+	search_text: string;
 	type: NodeTypeName;
 	metadata: unknown;
 	expanded: boolean;
@@ -30,10 +31,10 @@ export async function prepareSubtreeCopy(
 ): Promise<PreparedSubtreeCopy> {
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
-			SELECT id, parent_id, content, type, metadata, expanded, "order", due_date
+			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date
 			FROM nodes WHERE id = ${sourceId} AND user_id = ${userId}
 			UNION ALL
-			SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded, c."order", c.due_date
+			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
@@ -96,6 +97,7 @@ export async function insertSubtreeCopy(
 				: (prepared.idMap.get(row.parent_id as string) ?? null),
 		userId,
 		content: row.content,
+		searchText: row.search_text,
 		type: row.type,
 		metadata: row.metadata as NodeMetadata,
 		expanded: row.expanded,

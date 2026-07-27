@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-27
+- [feat] Added Quick Open: press `Cmd/Ctrl+K` or use the header button to search node text across the full outline and jump directly to a result, with matching snippets and ancestor context. [#268](https://github.com/cascade-outliner/cascade/issues/268)
 - [fix] Settings now opens as a full-screen mobile panel with grouped category navigation, focused detail pages, and layouts that remain readable on narrow screens.
 
 ## 2026-07-26
