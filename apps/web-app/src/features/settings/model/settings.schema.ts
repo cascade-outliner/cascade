@@ -27,6 +27,7 @@ export interface Settings {
 	font: FontId;
 	fontSize: FontSizeId;
 	indentSize: number;
+	hideCompletedByDefault: boolean;
 	preAlphaBannerDismissed: boolean;
 }
 
@@ -39,6 +40,7 @@ export const settingsPatchSchema = z
 		font: z.enum(fontIds),
 		fontSize: z.enum(fontSizeIds),
 		indentSize: z.number().int().min(MIN_INDENT_SIZE).max(MAX_INDENT_SIZE),
+		hideCompletedByDefault: z.boolean(),
 		preAlphaBannerDismissed: z.boolean(),
 	})
 	.partial();

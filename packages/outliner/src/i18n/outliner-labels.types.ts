@@ -68,5 +68,7 @@ export interface OutlinerLabels {
 	filtersTasksGroup: string;
 	filtersHideCompleted: string;
 	filtersRemoveHideCompleted: string;
+	filtersShowCompleted: string;
+	filtersRemoveShowCompleted: string;
 	filtersClear: string;
 }

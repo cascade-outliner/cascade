@@ -1,0 +1,47 @@
+import { Checkbox } from "@cascade/ui/checkbox";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { m } from "#/paraglide/messages.js";
+import type { Settings } from "../model/settings.schema";
+import {
+	SettingsPageDescription,
+	SettingsRow,
+	SettingsSection,
+} from "./settings-panel";
+
+interface GeneralSettingsPanelProps {
+	settings: Settings;
+	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+}
+
+export function GeneralSettingsPanel({
+	settings,
+	setSetting,
+}: GeneralSettingsPanelProps) {
+	const [, setCompletedOverride] = useQueryState(
+		"completed",
+		parseAsStringLiteral(["hidden", "visible"]),
+	);
+
+	return (
+		<>
+			<SettingsPageDescription>
+				{m.settings_general_description()}
+			</SettingsPageDescription>
+			<SettingsSection title={m.settings_tasks_section()}>
+				<SettingsRow
+					title={m.settings_hide_completed_default()}
+					description={m.settings_hide_completed_default_description()}
+				>
+					<Checkbox
+						aria-label={m.settings_hide_completed_default()}
+						checked={settings.hideCompletedByDefault}
+						onCheckedChange={(checked) => {
+							setSetting("hideCompletedByDefault", checked);
+							void setCompletedOverride(null);
+						}}
+					/>
+				</SettingsRow>
+			</SettingsSection>
+		</>
+	);
+}

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_authed/")({
 
 function RootTree() {
 	const { settings } = useSettings();
-	const [filters, setFilters] = useNodeFilters();
+	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
 	const tree = useVisibleTree(null, includeCollapsedDescendants, dueDateRange);
@@ -60,6 +60,9 @@ function RootTree() {
 					filters={filters}
 					existingTags={existingTags}
 					onFiltersChange={setFilters}
+					completedFilterMode={
+						settings.hideCompletedByDefault ? "show" : "hide"
+					}
 					leading={[<NavigationHistoryControls key="nav-history" />]}
 				/>
 			}

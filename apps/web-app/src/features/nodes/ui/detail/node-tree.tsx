@@ -24,7 +24,7 @@ export function NodeTree({
 	header: ReactNode;
 }) {
 	const { settings } = useSettings();
-	const [filters, setFilters] = useNodeFilters();
+	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
 	const tree = useVisibleTree(
@@ -50,6 +50,9 @@ export function NodeTree({
 						filters={filters}
 						existingTags={existingTags}
 						onFiltersChange={setFilters}
+						completedFilterMode={
+							settings.hideCompletedByDefault ? "show" : "hide"
+						}
 						leading={[<NavigationHistoryControls key="nav-history" />]}
 					/>
 					{header}

@@ -31,6 +31,7 @@ describe("settingsPatchSchema", () => {
 			font: "system-mono",
 			fontSize: "large",
 			indentSize: 24,
+			hideCompletedByDefault: true,
 			preAlphaBannerDismissed: true,
 		};
 		expect(settingsPatchSchema.parse(full)).toEqual(full);

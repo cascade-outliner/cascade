@@ -9,6 +9,7 @@ export function defaultSettings(): Settings {
 		font: "bitter",
 		fontSize: "default",
 		indentSize: 16,
+		hideCompletedByDefault: false,
 		preAlphaBannerDismissed: false,
 	};
 }

@@ -83,5 +83,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	filtersTasksGroup: "Tasks",
 	filtersHideCompleted: "Hide completed",
 	filtersRemoveHideCompleted: "Remove Hide completed filter",
+	filtersShowCompleted: "Show completed",
+	filtersRemoveShowCompleted: "Remove Show completed filter",
 	filtersClear: "Clear filters",
 };

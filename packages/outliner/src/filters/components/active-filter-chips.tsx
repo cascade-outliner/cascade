@@ -17,14 +17,20 @@ import { chip, removeChipButton } from "./filters-bar.styles";
 interface ActiveFilterChipsProps {
 	filters: NodeFilters;
 	onFiltersChange: (filters: NodeFilters) => void;
+	completedFilterMode?: "hide" | "show";
 }
 
 export function ActiveFilterChips({
 	filters,
 	onFiltersChange,
+	completedFilterMode = "hide",
 }: ActiveFilterChipsProps) {
 	const labels = useOutlinerLabels();
 	const relativeFilters = getRelativeFilterOptions(labels);
+	const completedFilterActive =
+		completedFilterMode === "show"
+			? !filters.hideCompleted
+			: filters.hideCompleted;
 
 	return (
 		<>
@@ -88,12 +94,25 @@ export function ActiveFilterChips({
 				/>
 			))}
 
-			{filters.hideCompleted && (
+			{completedFilterActive && (
 				<FilterChip
 					icon={<CheckSquareIcon size={11} weight="bold" />}
-					label={labels.filtersHideCompleted}
-					removeLabel={labels.filtersRemoveHideCompleted}
-					onRemove={() => onFiltersChange({ ...filters, hideCompleted: false })}
+					label={
+						completedFilterMode === "show"
+							? labels.filtersShowCompleted
+							: labels.filtersHideCompleted
+					}
+					removeLabel={
+						completedFilterMode === "show"
+							? labels.filtersRemoveShowCompleted
+							: labels.filtersRemoveHideCompleted
+					}
+					onRemove={() =>
+						onFiltersChange({
+							...filters,
+							hideCompleted: completedFilterMode === "show",
+						})
+					}
 				/>
 			)}
 		</>

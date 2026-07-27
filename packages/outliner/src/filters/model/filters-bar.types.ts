@@ -7,4 +7,5 @@ export interface FiltersBarProps {
 	existingTags?: TagSummary[];
 	onFiltersChange: (filters: NodeFilters) => void;
 	leading?: ReactNode[];
+	completedFilterMode?: "hide" | "show";
 }
