@@ -1,23 +1,30 @@
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { call } from "@orpc/server";
+import { sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { db } from "@/db";
 import {
 	createNode,
 	createTag,
 	deleteNode,
 	deleteTag,
 	duplicateNode,
+	getNode,
 	listNodes,
 	listTags,
 	moveNode,
 	quickOpen,
 	renameTag,
 	restoreNode,
+	setNodeDueDate,
+	setNodeRecurrence,
 	setNodeTags,
+	setTaskCompleted,
 	toggleNodeExpanded,
 	updateNodeContent,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
+import { requestPremiumSeat } from "@/features/premium/server/premium-procedures";
 import type { ORPCContext } from "@/orpc/context";
 import {
 	createTestUser,
@@ -37,6 +44,97 @@ const content = (text: string) => ({
 			},
 		],
 	},
+});
+
+describe("recurring tasks", () => {
+	it("advances an overdue task once to the first future occurrence", async () => {
+		const task = await call(
+			createNode,
+			{
+				parentId: null,
+				initialType: { type: "task", metadata: { completed: false } },
+				dueDate: "2026-07-20",
+			},
+			{ context },
+		);
+		await call(
+			setNodeRecurrence,
+			{ id: task.id, recurrence: { unit: "day", interval: 1 } },
+			{ context },
+		);
+
+		const result = await call(
+			setTaskCompleted,
+			{
+				id: task.id,
+				completed: true,
+				today: "2026-07-27",
+				expectedDueDate: "2026-07-20",
+			},
+			{ context },
+		);
+		expect(result).toEqual({ advanced: true, nextDueDate: "2026-07-28" });
+		expect(await call(getNode, { id: task.id }, { context })).toMatchObject({
+			dueDate: "2026-07-28",
+			metadata: { completed: false },
+			recurrence: { unit: "day", interval: 1, anchorDay: 20 },
+		});
+
+		const retry = await call(
+			setTaskCompleted,
+			{
+				id: task.id,
+				completed: true,
+				today: "2026-07-27",
+				expectedDueDate: "2026-07-20",
+			},
+			{ context },
+		);
+		expect(retry).toEqual({ advanced: false, nextDueDate: "2026-07-28" });
+	});
+
+	it("resets completed tasks and clears recurrence with the due date", async () => {
+		const task = await call(
+			createNode,
+			{
+				parentId: null,
+				initialType: { type: "task", metadata: { completed: true } },
+				dueDate: "2026-01-31",
+			},
+			{ context },
+		);
+		await call(
+			setNodeRecurrence,
+			{ id: task.id, recurrence: { unit: "month", interval: 1 } },
+			{ context },
+		);
+		expect(await call(getNode, { id: task.id }, { context })).toMatchObject({
+			metadata: { completed: false },
+			recurrence: { unit: "month", interval: 1, anchorDay: 31 },
+		});
+
+		await call(setNodeDueDate, { id: task.id, dueDate: null }, { context });
+		expect(await call(getNode, { id: task.id }, { context })).toMatchObject({
+			dueDate: null,
+			recurrence: null,
+		});
+	});
+});
+
+describe("large subtree deletion", () => {
+	it("records and deletes a subtree whose history snapshot exceeds one PostgreSQL parameter batch", async () => {
+		await call(requestPremiumSeat, undefined, { context });
+		const root = await call(createNode, { parentId: null }, { context });
+		await db.execute(sql`
+			INSERT INTO nodes (parent_id, user_id, "order")
+			SELECT ${root.id}, ${userId}, 'child-' || lpad(value::text, 5, '0')
+			FROM generate_series(1, 4681) AS value
+		`);
+
+		await expect(
+			call(deleteNode, { id: root.id }, { context }),
+		).resolves.toEqual({ childrenDeleted: 4681 });
+	});
 });
 
 beforeEach(async () => {

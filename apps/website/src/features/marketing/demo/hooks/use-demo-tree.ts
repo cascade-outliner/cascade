@@ -1,4 +1,5 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
+import { nextRecurringDueDate } from "@cascade/outliner/recurrence";
 import type { AddNodeOptions, VisibleTree } from "@cascade/outliner/tree-types";
 import {
 	appendRow,
@@ -69,14 +70,79 @@ export function useDemoTree(rootId: string | null) {
 			patchRow(current, id, {
 				type: typedNode.type,
 				metadata: typedNode.metadata,
+				...(typedNode.type === "text" ? { recurrence: null } : {}),
 			}),
 		);
 	};
 
 	const setDueDate: VisibleTree["setDueDate"] = (id, dueDate) => {
 		setAllNodes((current) =>
-			patchRow(current, id, {
-				dueDate: dueDate ? formatCalendarDate(dueDate) : null,
+			current.map((row) => {
+				if (row.id !== id) return row;
+				const formattedDueDate = dueDate ? formatCalendarDate(dueDate) : null;
+				return {
+					...row,
+					dueDate: formattedDueDate,
+					recurrence:
+						formattedDueDate && row.recurrence
+							? {
+									...row.recurrence,
+									anchorDay: Number(formattedDueDate.slice(8, 10)),
+								}
+							: null,
+				};
+			}),
+		);
+	};
+
+	const setRecurrence: VisibleTree["setRecurrence"] = (id, recurrence) => {
+		setAllNodes((current) =>
+			current.map((row) =>
+				row.id === id
+					? {
+							...row,
+							recurrence:
+								recurrence && row.dueDate
+									? {
+											...recurrence,
+											anchorDay: Number(row.dueDate.slice(8, 10)),
+										}
+									: null,
+							metadata:
+								recurrence && row.type === "task"
+									? { completed: false }
+									: row.metadata,
+						}
+					: row,
+			),
+		);
+	};
+
+	const setTaskCompleted: VisibleTree["setTaskCompleted"] = (
+		id,
+		completed,
+		expectedDueDate,
+	) => {
+		setAllNodes((current) =>
+			current.map((row) => {
+				if (row.id !== id) return row;
+				if (
+					completed &&
+					row.recurrence &&
+					row.dueDate &&
+					row.dueDate === expectedDueDate
+				) {
+					return {
+						...row,
+						dueDate: nextRecurringDueDate(
+							row.dueDate,
+							row.recurrence,
+							formatCalendarDate(new Date()),
+						),
+						metadata: { completed: false },
+					};
+				}
+				return { ...row, metadata: { completed } };
 			}),
 		);
 	};
@@ -133,6 +199,8 @@ export function useDemoTree(rootId: string | null) {
 		updateContent,
 		setType,
 		setDueDate,
+		setRecurrence,
+		setTaskCompleted,
 		setTags,
 		add,
 		addAfter,

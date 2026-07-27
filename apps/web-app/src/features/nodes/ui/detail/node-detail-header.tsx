@@ -4,6 +4,7 @@ import { NodeCheckbox } from "@cascade/outliner/features/task/node-checkbox";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import type { TagSummary } from "@cascade/outliner/node-tags";
+import type { RecurrenceInput } from "@cascade/outliner/recurrence";
 import { Breadcrumbs } from "#/features/nodes/ui/breadcrumbs";
 import type { NodeDetailData } from "./node-detail.types";
 
@@ -14,6 +15,7 @@ export function NodeDetailHeader({
 	existingTags,
 	onToggleTask,
 	onDueDateChange,
+	onRecurrenceChange,
 	onTagsChange,
 	onDeleteTag,
 }: {
@@ -23,6 +25,7 @@ export function NodeDetailHeader({
 	existingTags: TagSummary[];
 	onToggleTask: (completed: boolean) => void;
 	onDueDateChange: (dueDate: Date | null) => void;
+	onRecurrenceChange: (recurrence: RecurrenceInput | null) => void;
 	onTagsChange: (tags: string[]) => void;
 	onDeleteTag: (tag: string) => void;
 }) {
@@ -45,7 +48,10 @@ export function NodeDetailHeader({
 						<NodeDueDatePill
 							dueDate={dueDate}
 							completed={completed}
+							recurrence={node.recurrence}
+							recurrenceEnabled={node.type === "task"}
 							onChange={onDueDateChange}
+							onRecurrenceChange={onRecurrenceChange}
 						/>
 					)}
 					<NodeTagsControl

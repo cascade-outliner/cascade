@@ -25,6 +25,7 @@ function toSnapshotInput(row: VisibleNodeRow) {
 		content: row.content as { root: unknown } | null,
 		expanded: row.expanded,
 		dueDate: row.dueDate,
+		recurrence: row.recurrence ?? null,
 		tags: row.tags,
 		...({ type: row.type, metadata: row.metadata } as TypedMetadata),
 	};

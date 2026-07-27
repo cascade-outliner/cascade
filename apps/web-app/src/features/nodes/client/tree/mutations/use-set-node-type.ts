@@ -18,7 +18,11 @@ export function useSetTypeMutation(queryKey: QueryKey) {
 		patch: (old, vars) =>
 			patchRows(
 				(rows) =>
-					patchRow(rows, vars.id, { type: vars.type, metadata: vars.metadata }),
+					patchRow(rows, vars.id, {
+						type: vars.type,
+						metadata: vars.metadata,
+						...(vars.type === "text" ? { recurrence: null } : {}),
+					}),
 				old,
 			),
 	});

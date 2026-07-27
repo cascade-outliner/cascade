@@ -187,6 +187,7 @@ export const getTreeHistoryEntry = requirePremium
 					expanded: snapshot.expanded,
 					order: snapshot.order,
 					dueDate: snapshot.dueDate,
+					recurrence: snapshot.recurrence,
 					tags: snapshot.tags,
 					depth: snapshot.depth,
 					isRoot: snapshot.isRoot,
@@ -402,6 +403,7 @@ export const restoreTreeHistoryEntry = requirePremium
 							metadata: root.metadata,
 							expanded: root.expanded,
 							dueDate: root.dueDate,
+							recurrence: root.recurrence,
 							tags: root.tags,
 						} as RestoreNodeInput["root"],
 						descendants: snapshotRows
@@ -415,6 +417,7 @@ export const restoreTreeHistoryEntry = requirePremium
 								metadata: row.metadata,
 								expanded: row.expanded,
 								dueDate: row.dueDate,
+								recurrence: row.recurrence,
 								tags: row.tags,
 							})) as RestoreNodeInput["descendants"],
 					});
@@ -475,24 +478,86 @@ export const restoreTreeHistoryEntry = requirePremium
 							.set({
 								type: payload.before.type as NodeTypeName,
 								metadata: payload.before.metadata as NodeMetadata,
+								...("recurrence" in payload.before
+									? { recurrence: payload.before.recurrence }
+									: {}),
 							})
 							.where(eq(nodes.id, nodeId));
 						nextPayload = {
 							kind: "type_changed",
 							label: historyNodeLabel(current.content),
-							before: { type: current.type, metadata: current.metadata },
+							before: {
+								type: current.type,
+								metadata: current.metadata,
+								recurrence: current.recurrence,
+							},
 							after: payload.before,
 						};
 						break;
 					case "due_date_changed":
+						if (
+							payload.beforeRecurrence &&
+							(current.type !== "task" || !payload.before)
+						)
+							throw errors.NOT_RESTORABLE();
 						await transaction
 							.update(nodes)
-							.set({ dueDate: payload.before })
+							.set({
+								dueDate: payload.before,
+								...(payload.beforeRecurrence !== undefined
+									? { recurrence: payload.beforeRecurrence }
+									: {}),
+							})
 							.where(eq(nodes.id, nodeId));
 						nextPayload = {
 							kind: "due_date_changed",
 							label: historyNodeLabel(current.content),
 							before: current.dueDate,
+							after: payload.before,
+							beforeRecurrence: current.recurrence,
+							afterRecurrence: payload.beforeRecurrence,
+						};
+						break;
+					case "recurrence_changed":
+						if (
+							current.type !== "task" ||
+							(payload.before.recurrence && !current.dueDate)
+						)
+							throw errors.NOT_RESTORABLE();
+						await transaction
+							.update(nodes)
+							.set({
+								recurrence: payload.before
+									.recurrence as typeof nodes.recurrence._.data,
+								metadata: payload.before.metadata as NodeMetadata,
+							})
+							.where(eq(nodes.id, nodeId));
+						nextPayload = {
+							kind: "recurrence_changed",
+							label: historyNodeLabel(current.content),
+							before: {
+								recurrence: current.recurrence,
+								metadata: current.metadata,
+							},
+							after: payload.before,
+						};
+						break;
+					case "recurring_task_completed":
+						if (current.type !== "task") throw errors.NOT_RESTORABLE();
+						await transaction
+							.update(nodes)
+							.set({
+								dueDate: payload.before.dueDate,
+								metadata: payload.before.metadata as NodeMetadata,
+							})
+							.where(eq(nodes.id, nodeId));
+						nextPayload = {
+							kind: "recurring_task_completed",
+							label: historyNodeLabel(current.content),
+							before: {
+								dueDate: current.dueDate,
+								metadata: current.metadata,
+							},
 							after: payload.before,
 						};
 						break;

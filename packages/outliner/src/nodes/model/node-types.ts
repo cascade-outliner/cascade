@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CalendarDateString } from "../../dates/calendar-date";
+import type { RecurrenceRule } from "../../dates/recurrence";
 
 /** One row of the flattened, depth-first visible tree (see nodes.visibleTree). */
 export interface VisibleNodeRow {
@@ -12,6 +13,7 @@ export interface VisibleNodeRow {
 	expanded: boolean;
 	order: string;
 	dueDate: CalendarDateString | null;
+	recurrence?: RecurrenceRule | null;
 	tags: string[];
 	depth: number;
 	/** Fractional-index orders from the query root down to this node; DFS sort key. */

@@ -2,20 +2,29 @@ import { Calendar } from "@cascade/ui/calendar";
 import { cva } from "@cascade/ui/cva.config";
 import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
 import {
+	ArrowsClockwiseIcon,
 	CalendarDotIcon,
 	CalendarDotsIcon,
 	CalendarIcon,
 } from "@phosphor-icons/react/ssr";
 import { dueBucket, startOfDay } from "../../../dates/due-date-bucket";
+import type {
+	RecurrenceInput,
+	RecurrenceRule,
+} from "../../../dates/recurrence";
 import {
 	type OutlinerLabels,
 	useOutlinerLabels,
 } from "../../../i18n/outliner-labels-context";
+import { RecurrenceEditor } from "./recurrence-editor";
 
 interface NodeDueDatePillProps {
 	dueDate: Date;
 	completed: boolean;
+	recurrence: RecurrenceRule | null;
+	recurrenceEnabled: boolean;
 	onChange: (date: Date | null) => void;
+	onRecurrenceChange: (recurrence: RecurrenceInput | null) => void;
 }
 
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -79,7 +88,10 @@ const pill = cva({
 export function NodeDueDatePill({
 	dueDate,
 	completed,
+	recurrence,
+	recurrenceEnabled,
 	onChange,
+	onRecurrenceChange,
 }: NodeDueDatePillProps) {
 	const labels = useOutlinerLabels();
 	const bucket = dueBucket(dueDate, completed);
@@ -93,12 +105,18 @@ export function NodeDueDatePill({
 			>
 				<span className="shrink-0">{pillIcon(dueDate)}</span>
 				<span className="truncate">{formatDuePill(dueDate, labels)}</span>
+				{recurrence && <ArrowsClockwiseIcon size={11} weight="bold" />}
 			</PopoverTrigger>
 			<PopoverContent>
 				<Calendar
 					value={dueDate}
 					onSelect={onChange}
 					onClear={() => onChange(null)}
+				/>
+				<RecurrenceEditor
+					recurrence={recurrence}
+					enabled={recurrenceEnabled}
+					onChange={onRecurrenceChange}
 				/>
 			</PopoverContent>
 		</Popover>
