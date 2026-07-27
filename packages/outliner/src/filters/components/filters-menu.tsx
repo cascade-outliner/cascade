@@ -22,9 +22,14 @@ export function FiltersMenu({
 	filters,
 	existingTags = [],
 	onFiltersChange,
+	completedFilterMode = "hide",
 }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 	const [open, setOpen] = useState(false);
+	const completedChecked =
+		completedFilterMode === "show"
+			? !filters.hideCompleted
+			: filters.hideCompleted;
 
 	return (
 		<Menu.Root open={open} onOpenChange={setOpen}>
@@ -69,18 +74,22 @@ export function FiltersMenu({
 							</Menu.GroupLabel>
 							<Menu.CheckboxItem
 								className={menuItem()}
-								checked={filters.hideCompleted}
+								checked={completedChecked}
 								closeOnClick
 								onCheckedChange={(checked) =>
-									onFiltersChange({ ...filters, hideCompleted: checked })
+									onFiltersChange({
+										...filters,
+										hideCompleted:
+											completedFilterMode === "show" ? !checked : checked,
+									})
 								}
 							>
-								<span className={checkbox({ checked: filters.hideCompleted })}>
-									{filters.hideCompleted && (
-										<CheckIcon size={10} weight="bold" />
-									)}
+								<span className={checkbox({ checked: completedChecked })}>
+									{completedChecked && <CheckIcon size={10} weight="bold" />}
 								</span>
-								{labels.filtersHideCompleted}
+								{completedFilterMode === "show"
+									? labels.filtersShowCompleted
+									: labels.filtersHideCompleted}
 							</Menu.CheckboxItem>
 						</Menu.Group>
 					</Menu.Popup>

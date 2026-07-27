@@ -112,6 +112,8 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersTasksGroup: m.filters_bar_tasks_group(),
 		filtersHideCompleted: m.filters_bar_hide_completed(),
 		filtersRemoveHideCompleted: m.filters_bar_remove_hide_completed(),
+		filtersShowCompleted: m.filters_bar_show_completed(),
+		filtersRemoveShowCompleted: m.filters_bar_remove_show_completed(),
 		filtersClear: m.filters_bar_clear(),
 	};
 }

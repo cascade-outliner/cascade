@@ -30,14 +30,32 @@ const filterParsers = {
 	due: parseAsLocalDate,
 	due_start: parseAsLocalDate,
 	due_end: parseAsLocalDate,
-	completed: parseAsStringLiteral(["hidden"]),
+	completed: parseAsStringLiteral(["hidden", "visible"]),
 };
 
+export type CompletedFilterOverride = "hidden" | "visible" | null;
+
+export function resolveHideCompleted(
+	override: CompletedFilterOverride,
+	defaultValue: boolean,
+): boolean {
+	if (override === "hidden") return true;
+	if (override === "visible") return false;
+	return defaultValue;
+}
+
+export function completedFilterOverride(
+	hideCompleted: boolean,
+	defaultValue: boolean,
+): CompletedFilterOverride {
+	if (hideCompleted === defaultValue) return null;
+	return hideCompleted ? "hidden" : "visible";
+}
+
 /** Outliner filter state, synced to the URL so a filtered view is shareable/bookmarkable. */
-export function useNodeFilters(): [
-	NodeFilters,
-	(filters: NodeFilters) => void,
-] {
+export function useNodeFilters(
+	hideCompletedByDefault = false,
+): [NodeFilters, (filters: NodeFilters) => void] {
 	const [{ tag, filter, due, due_start, due_end, completed }, setQueryFilters] =
 		useQueryStates(filterParsers);
 
@@ -53,7 +71,7 @@ export function useNodeFilters(): [
 			dueThisWeek: filter === "week",
 			dueOnDate: due,
 			dueDateRange,
-			hideCompleted: completed === "hidden",
+			hideCompleted: resolveHideCompleted(completed, hideCompletedByDefault),
 		},
 		(filters) =>
 			setQueryFilters({
@@ -66,7 +84,10 @@ export function useNodeFilters(): [
 				due: filters.dueOnDate,
 				due_start: filters.dueDateRange?.start ?? null,
 				due_end: filters.dueDateRange?.end ?? null,
-				completed: filters.hideCompleted ? "hidden" : null,
+				completed: completedFilterOverride(
+					filters.hideCompleted,
+					hideCompletedByDefault,
+				),
 			}),
 	];
 }

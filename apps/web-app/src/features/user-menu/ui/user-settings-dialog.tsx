@@ -7,6 +7,7 @@ import {
 	ArrowLeftIcon,
 	CaretRightIcon,
 	CrownIcon,
+	GearIcon,
 	LinkIcon,
 	PaletteIcon,
 	ShieldCheckIcon,
@@ -21,6 +22,7 @@ import { TagSettingsPanel } from "@/features/nodes/ui/tag-settings-panel";
 import { SecuritySettingsPanel } from "@/features/sessions/ui/security-settings-panel";
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-settings-panel";
+import { GeneralSettingsPanel } from "@/features/settings/ui/general-settings-panel";
 import { orpc } from "@/orpc/client";
 import { PremiumTab } from "../../premium/ui/premium-tab";
 import type { UserMenuUser } from "../model/user-menu.types";
@@ -44,7 +46,14 @@ export interface UserSettingsDialogProps {
 }
 
 interface SettingsTab {
-	value: "appearance" | "tags" | "user" | "security" | "premium" | "links";
+	value:
+		| "general"
+		| "appearance"
+		| "tags"
+		| "user"
+		| "security"
+		| "premium"
+		| "links";
 	label: () => string;
 	icon: ComponentType<{
 		size?: number;
@@ -57,6 +66,11 @@ const tabGroups: { label: () => string; tabs: SettingsTab[] }[] = [
 	{
 		label: () => m.settings_group_preferences(),
 		tabs: [
+			{
+				value: "general",
+				label: () => m.user_menu_general_tab(),
+				icon: GearIcon,
+			},
 			{
 				value: "appearance",
 				label: () => m.settings_appearance_tab(),
@@ -111,11 +125,10 @@ export function UserSettingsDialog({
 	onOpenDeleteDialog,
 }: UserSettingsDialogProps) {
 	const { data: premium } = useQuery(orpc.premium.get.queryOptions());
-	const [activeTab, setActiveTab] =
-		useState<SettingsTab["value"]>("appearance");
+	const [activeTab, setActiveTab] = useState<SettingsTab["value"]>("general");
 	const [visitedTabs, setVisitedTabs] = useState<
 		ReadonlySet<SettingsTab["value"]>
-	>(() => new Set(["appearance"]));
+	>(() => new Set(["general"]));
 	const [mobilePageOpen, setMobilePageOpen] = useState(false);
 	const activeTabLabel = tabGroups
 		.flatMap((group) => group.tabs)
@@ -247,6 +260,21 @@ export function UserSettingsDialog({
 								<span className="truncate font-semibold">{activeTabLabel}</span>
 							</div>
 							<div className="relative min-h-0 flex-1">
+								<Tabs.Panel
+									value="general"
+									keepMounted={visitedTabs.has("general")}
+									className={settingsPanel()}
+								>
+									<div className="w-full">
+										<h2 className="mb-2 hidden text-xl font-semibold sm:block">
+											{m.user_menu_general_tab()}
+										</h2>
+										<GeneralSettingsPanel
+											settings={settings}
+											setSetting={setSetting}
+										/>
+									</div>
+								</Tabs.Panel>
 								<Tabs.Panel
 									value="appearance"
 									keepMounted={visitedTabs.has("appearance")}

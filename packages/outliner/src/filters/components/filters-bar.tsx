@@ -11,8 +11,16 @@ export function FiltersBar({
 	existingTags = [],
 	onFiltersChange,
 	leading,
+	completedFilterMode = "hide",
 }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
+	const hasActiveViewFilters = hasActiveFilters({
+		...filters,
+		hideCompleted:
+			completedFilterMode === "show"
+				? !filters.hideCompleted
+				: filters.hideCompleted,
+	});
 
 	return (
 		<div className="sticky top-0 z-10 mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-ink/10 bg-canvas py-1 dark:border-surface/10 dark:bg-ink">
@@ -22,19 +30,26 @@ export function FiltersBar({
 					filters={filters}
 					existingTags={existingTags}
 					onFiltersChange={onFiltersChange}
+					completedFilterMode={completedFilterMode}
 				/>
 				<ActiveFilterChips
 					filters={filters}
 					onFiltersChange={onFiltersChange}
+					completedFilterMode={completedFilterMode}
 				/>
 			</div>
 
-			{hasActiveFilters(filters) && (
+			{hasActiveViewFilters && (
 				<div className="flex items-center gap-3">
 					<button
 						type="button"
 						className={clearAll()}
-						onClick={() => onFiltersChange(noFilters)}
+						onClick={() =>
+							onFiltersChange({
+								...noFilters,
+								hideCompleted: completedFilterMode === "show",
+							})
+						}
 					>
 						{labels.filtersClear}
 					</button>

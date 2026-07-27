@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-27
+- [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)
 - [feat] Added Quick Open: press `Cmd/Ctrl+K` or use the header button to search node text across the full outline and jump directly to a result, with matching snippets and ancestor context. [#268](https://github.com/cascade-outliner/cascade/issues/268)
 - [fix] Settings now opens as a full-screen mobile panel with grouped category navigation, focused detail pages, and layouts that remain readable on narrow screens.
