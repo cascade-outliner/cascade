@@ -6,6 +6,7 @@ import {
 } from "@/features/tree-history/server/history-persistence";
 import { authed } from "@/orpc/context";
 import { updateNodeContentInputSchema } from "../../model/node-content.schema";
+import { nodeSearchText } from "../../model/node-search-text";
 import { nodes } from "../persistence/node-tables";
 
 export const updateNodeContent = authed
@@ -28,7 +29,10 @@ export const updateNodeContent = authed
 			const history = await createHistoryRecorder(transaction, userId);
 			await transaction
 				.update(nodes)
-				.set({ content: input.content })
+				.set({
+					content: input.content,
+					searchText: nodeSearchText(input.content),
+				})
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
 			await history.record({
 				nodeId: input.id,

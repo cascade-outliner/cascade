@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { m } from "#/paraglide/messages.js";
+import { QuickOpen } from "@/features/quick-open/ui/quick-open";
 import { UserMenu } from "@/features/user-menu/ui/user-menu";
 import { bar, brand } from "./app-header.styles";
 
@@ -15,7 +16,8 @@ export function AppHeader() {
 				/>
 			</Link>
 
-			<div className="ml-auto flex shrink-0 items-center">
+			<div className="ml-auto flex shrink-0 items-center gap-2">
+				<QuickOpen />
 				<UserMenu />
 			</div>
 		</div>

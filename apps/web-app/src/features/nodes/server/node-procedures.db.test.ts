@@ -10,10 +10,12 @@ import {
 	listNodes,
 	listTags,
 	moveNode,
+	quickOpen,
 	renameTag,
 	restoreNode,
 	setNodeTags,
 	toggleNodeExpanded,
+	updateNodeContent,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
 import type { ORPCContext } from "@/orpc/context";
@@ -24,6 +26,18 @@ import {
 
 let userId: string;
 let context: ORPCContext;
+
+const content = (text: string) => ({
+	root: {
+		type: "root",
+		children: [
+			{
+				type: "paragraph",
+				children: [{ type: "text", text }],
+			},
+		],
+	},
+});
 
 beforeEach(async () => {
 	const testUser = await createTestUser();
@@ -100,6 +114,87 @@ describe("createNode", () => {
 			metadata: { completed: false },
 			content: null,
 		});
+	});
+});
+
+describe("quickOpen", () => {
+	it("searches the full tree in DFS order with normalized matches and compact ancestors", async () => {
+		const root = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: root.id }, { context });
+		const grandchild = await call(
+			createNode,
+			{ parentId: child.id },
+			{ context },
+		);
+		const greatGrandchild = await call(
+			createNode,
+			{ parentId: grandchild.id },
+			{ context },
+		);
+		const match = await call(
+			createNode,
+			{ parentId: greatGrandchild.id },
+			{ context },
+		);
+		const secondRoot = await call(
+			createNode,
+			{ parentId: null, afterId: root.id },
+			{ context },
+		);
+
+		for (const [id, text] of [
+			[root.id, "Root"],
+			[child.id, "Child"],
+			[grandchild.id, "Grandchild"],
+			[greatGrandchild.id, "Great grandchild"],
+			[match.id, `${"leading ".repeat(40)}RÉSUMÉ match`],
+			[secondRoot.id, "resume second"],
+		] as const) {
+			await call(
+				updateNodeContent,
+				{ id, content: content(text) },
+				{ context },
+			);
+		}
+
+		const results = await call(quickOpen, { query: "resume" }, { context });
+
+		expect(results.map((result) => result.id)).toEqual([
+			match.id,
+			secondRoot.id,
+		]);
+		expect(results[0]).toMatchObject({
+			ancestors: [
+				{ id: root.id, text: "Root" },
+				{ id: grandchild.id, text: "Grandchild" },
+				{ id: greatGrandchild.id, text: "Great grandchild" },
+			],
+			omittedAncestorCount: 1,
+			snippet: { hasPrefix: true },
+		});
+		expect(results[0].snippet.highlightRanges).toHaveLength(1);
+	});
+
+	it("treats SQL wildcard characters as literal query text", async () => {
+		const literal = await call(createNode, { parentId: null }, { context });
+		const wildcardOnly = await call(
+			createNode,
+			{ parentId: null, afterId: literal.id },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: literal.id, content: content("budget 50%_done") },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: wildcardOnly.id, content: content("budget 50x done") },
+			{ context },
+		);
+
+		const results = await call(quickOpen, { query: "%_" }, { context });
+		expect(results.map((result) => result.id)).toEqual([literal.id]);
 	});
 });
 

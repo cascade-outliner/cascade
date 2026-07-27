@@ -8,6 +8,7 @@ export { getNodeAncestors } from "./get-node-ancestors";
 export { listNodes } from "./list-nodes";
 export { listTags } from "./list-tags";
 export { moveNode } from "./move-node";
+export { quickOpen } from "./quick-open";
 export { renameTag } from "./rename-tag";
 export { resolveNodeSlug } from "./resolve-node-slug";
 export { restoreNode } from "./restore-node";

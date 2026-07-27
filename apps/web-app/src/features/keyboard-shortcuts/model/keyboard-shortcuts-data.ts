@@ -25,6 +25,10 @@ export const keyboardShortcutGroups: ShortcutGroup[] = [
 				hotkeys: [{ key: "?", shift: true }],
 				description: () => m.keyboard_shortcuts_open_help(),
 			},
+			{
+				hotkeys: ["Mod+K"],
+				description: () => m.keyboard_shortcuts_quick_open(),
+			},
 			{ hotkeys: ["Mod+Z"], description: () => m.keyboard_shortcuts_undo() },
 			{
 				hotkeys: ["Mod+Shift+Z"],

@@ -41,7 +41,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Apply database schema
-        run: pnpm db:push:app
+        run: pnpm db:migrate:app
 
       - run: pnpm --filter app exec playwright install --with-deps chromium
       - run: pnpm test:e2e:app
