@@ -1,7 +1,9 @@
 import { MAX_TAG_LENGTH } from "@cascade/outliner/node-tags";
 import { describe, expect, it } from "vitest";
 import {
+	createTagInputSchema,
 	MAX_TAGS_PER_NODE,
+	renameTagInputSchema,
 	setNodeTagsInputSchema,
 	tagNameSchema,
 } from "@/features/nodes/model/tag-name.schema";
@@ -27,6 +29,35 @@ describe("tagNameSchema", () => {
 		if (result.success) {
 			expect(result.data).toBe("a".repeat(64));
 		}
+	});
+});
+
+describe("createTagInputSchema", () => {
+	it("trims valid names and rejects empty names", () => {
+		expect(createTagInputSchema.parse({ name: "  new  " })).toEqual({
+			name: "new",
+		});
+		expect(createTagInputSchema.safeParse({ name: "   " }).success).toBe(false);
+	});
+});
+
+describe("renameTagInputSchema", () => {
+	it("trims and accepts a valid new name", () => {
+		expect(
+			renameTagInputSchema.parse({ name: "old", newName: "  new  " }),
+		).toEqual({ name: "old", newName: "new" });
+	});
+
+	it("rejects empty and overlong new names", () => {
+		expect(
+			renameTagInputSchema.safeParse({ name: "old", newName: "   " }).success,
+		).toBe(false);
+		expect(
+			renameTagInputSchema.safeParse({
+				name: "old",
+				newName: "a".repeat(MAX_TAG_LENGTH + 1),
+			}).success,
+		).toBe(false);
 	});
 });
 

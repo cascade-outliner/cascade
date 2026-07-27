@@ -3,12 +3,14 @@ import { call } from "@orpc/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	createNode,
+	createTag,
 	deleteNode,
 	deleteTag,
 	duplicateNode,
 	listNodes,
 	listTags,
 	moveNode,
+	renameTag,
 	restoreNode,
 	setNodeTags,
 	toggleNodeExpanded,
@@ -344,6 +346,18 @@ describe("duplicateNode / restoreNode", () => {
 });
 
 describe("setNodeTags / listTags / deleteTag", () => {
+	it("creates an unused tag and rejects duplicate names", async () => {
+		await call(createTag, { name: "planned" }, { context });
+
+		expect(await call(listTags, undefined, { context })).toContainEqual({
+			name: "planned",
+			count: 0,
+		});
+		await expect(
+			call(createTag, { name: "PLANNED" }, { context }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+	});
+
 	it("upserts tags, replaces a node's tag links, and keeps unused tags listed with count 0", async () => {
 		const node = await call(createNode, { parentId: null }, { context });
 
@@ -375,5 +389,33 @@ describe("setNodeTags / listTags / deleteTag", () => {
 		await expect(
 			call(deleteTag, { name: "does-not-exist" }, { context }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
+
+	it("renames a tag across every associated node", async () => {
+		const first = await call(createNode, { parentId: null }, { context });
+		const second = await call(createNode, { parentId: null }, { context });
+		await call(setNodeTags, { id: first.id, tags: ["old"] }, { context });
+		await call(setNodeTags, { id: second.id, tags: ["old"] }, { context });
+
+		await call(renameTag, { name: "old", newName: "renamed" }, { context });
+
+		const listedTags = await call(listTags, undefined, { context });
+		expect(listedTags).toContainEqual({ name: "renamed", count: 2 });
+		expect(listedTags.map(({ name }) => name)).not.toContain("old");
+	});
+
+	it("rejects renaming a tag to an existing name", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			setNodeTags,
+			{ id: node.id, tags: ["first", "second"] },
+			{
+				context,
+			},
+		);
+
+		await expect(
+			call(renameTag, { name: "first", newName: "SECOND" }, { context }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
 	});
 });

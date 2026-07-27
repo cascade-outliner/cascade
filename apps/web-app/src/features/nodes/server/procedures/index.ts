@@ -1,4 +1,5 @@
 export { createNode } from "./create-node";
+export { createTag } from "./create-tag";
 export { deleteNode } from "./delete-node";
 export { deleteTag } from "./delete-tag";
 export { duplicateNode } from "./duplicate-node";
@@ -7,6 +8,7 @@ export { getNodeAncestors } from "./get-node-ancestors";
 export { listNodes } from "./list-nodes";
 export { listTags } from "./list-tags";
 export { moveNode } from "./move-node";
+export { renameTag } from "./rename-tag";
 export { resolveNodeSlug } from "./resolve-node-slug";
 export { restoreNode } from "./restore-node";
 export { setNodeDueDate } from "./set-node-due-date";
