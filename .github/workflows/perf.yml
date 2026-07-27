@@ -103,7 +103,7 @@ jobs:
         run: |
           set -e
           pnpm install --frozen-lockfile
-          pnpm --filter app exec drizzle-kit push --force
+          pnpm db:migrate:app
           pnpm build:app
           node --env-file-if-exists=.env.local apps/web-app/.output/server/index.mjs &
           server_pid=$!
@@ -142,7 +142,7 @@ jobs:
         run: |
           set -e
           pnpm install --frozen-lockfile
-          pnpm --filter app exec drizzle-kit push --force
+          pnpm db:migrate:app
           pnpm build:app
           node --env-file-if-exists=.env.local apps/web-app/.output/server/index.mjs &
           server_pid=$!
