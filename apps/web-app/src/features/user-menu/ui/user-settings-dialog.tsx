@@ -204,7 +204,7 @@ export function UserSettingsDialog({
 								</section>
 							))}
 						</div>
-						<Tabs.List className="hidden overflow-y-auto border-r border-ink/10 bg-surface/35 px-3 py-4 sm:block dark:border-surface/15 dark:bg-surface/5">
+						<Tabs.List className="hidden overflow-y-auto border-r border-ink/10 bg-white px-3 py-4 sm:block dark:border-surface/15 dark:bg-surface/5">
 							{tabGroups.map((group) => (
 								<div key={group.label()} className="mb-5 last:mb-0">
 									<div className="mb-1.5 px-2.5 text-[0.6875rem] font-semibold tracking-wider text-ink/45 uppercase dark:text-surface/45">
