@@ -37,6 +37,7 @@ export function expandNode(
 	const descendants = subtree.map((row) => ({
 		...row,
 		depth: row.depth + node.depth + 1,
+		path: [...node.path, ...row.path],
 	}));
 
 	return [
@@ -105,6 +106,7 @@ export function insertSubtreeAfter(
 	const adjustedDescendants = descendants.map((row) => ({
 		...row,
 		depth: row.depth + newRoot.depth + 1,
+		path: [...newRoot.path, ...row.path],
 	}));
 
 	return recomputeIsLastChild([

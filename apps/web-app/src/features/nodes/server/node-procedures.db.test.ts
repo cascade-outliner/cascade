@@ -15,6 +15,7 @@ import {
 	moveNode,
 	quickOpen,
 	renameTag,
+	resolveNodeSlug,
 	restoreNode,
 	setNodeDueDate,
 	setNodeRecurrence,
@@ -212,6 +213,36 @@ describe("createNode", () => {
 			metadata: { completed: false },
 			content: null,
 		});
+	});
+});
+
+describe("resolveNodeSlug", () => {
+	it("uses slug text to disambiguate nodes with the same UUID first block", async () => {
+		const sharedPrefix = crypto.randomUUID().slice(0, 8);
+		const firstId = `${sharedPrefix}${crypto.randomUUID().slice(8)}`;
+		const secondId = `${sharedPrefix}${crypto.randomUUID().slice(8)}`;
+
+		await db.execute(sql`
+			INSERT INTO nodes (id, user_id, content, "order")
+			VALUES
+				(${firstId}, ${userId}, ${JSON.stringify(content("First collision"))}::jsonb, 'a0'),
+				(${secondId}, ${userId}, ${JSON.stringify(content("Second collision"))}::jsonb, 'a1')
+		`);
+
+		await expect(
+			call(
+				resolveNodeSlug,
+				{ slugId: sharedPrefix, slugText: "second-collision" },
+				{ context },
+			),
+		).resolves.toEqual({ id: secondId });
+		await expect(
+			call(
+				resolveNodeSlug,
+				{ slugId: sharedPrefix, slugText: null },
+				{ context },
+			),
+		).rejects.toMatchObject({ code: "SLUG_AMBIGUOUS" });
 	});
 });
 

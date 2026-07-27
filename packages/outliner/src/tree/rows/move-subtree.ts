@@ -44,15 +44,26 @@ export function moveSubtree(
 	}
 
 	const depthDelta = destination.depth - slice[0].depth;
-	const moved = slice.map((row, index) =>
-		index === 0
+	const paths = new Map<string, string[]>();
+	const parentPath =
+		target.parentId === null
+			? []
+			: (remaining.find((row) => row.id === target.parentId)?.path ?? []);
+	const moved = slice.map((row, index) => {
+		const path =
+			index === 0
+				? [...parentPath, row.order]
+				: [...(paths.get(row.parentId ?? "") ?? []), row.order];
+		paths.set(row.id, path);
+		return index === 0
 			? {
 					...row,
 					parentId: target.parentId,
 					depth: row.depth + depthDelta,
+					path,
 				}
-			: { ...row, depth: row.depth + depthDelta },
-	);
+			: { ...row, depth: row.depth + depthDelta, path };
+	});
 
 	let result = destination.skipInsert
 		? remaining
@@ -90,6 +101,7 @@ function resolveDestination(
 	if (target.position !== "append") {
 		const targetRange = subtreeRange(rows, target.targetId);
 		if (!targetRange) return null;
+		if (rows[targetRange.start].parentId !== target.parentId) return null;
 
 		return {
 			index: target.position === "before" ? targetRange.start : targetRange.end,
