@@ -9,8 +9,6 @@ export const env = createEnv({
 		NODE_ENV: z
 			.enum(["development", "test", "production"])
 			.default("development"),
-		BETTER_AUTH_GITHUB_CLIENT_ID: z.string().min(1).optional(),
-		BETTER_AUTH_GITHUB_CLIENT_SECRET: z.string().min(1).optional(),
 		BETTER_AUTH_GOOGLE_CLIENT_ID: z.string().min(1).optional(),
 		BETTER_AUTH_GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
 	},
@@ -33,12 +31,6 @@ function assertPaired(
 	}
 }
 
-assertPaired(
-	"BETTER_AUTH_GITHUB_CLIENT_ID",
-	env.BETTER_AUTH_GITHUB_CLIENT_ID,
-	"BETTER_AUTH_GITHUB_CLIENT_SECRET",
-	env.BETTER_AUTH_GITHUB_CLIENT_SECRET,
-);
 assertPaired(
 	"BETTER_AUTH_GOOGLE_CLIENT_ID",
 	env.BETTER_AUTH_GOOGLE_CLIENT_ID,
