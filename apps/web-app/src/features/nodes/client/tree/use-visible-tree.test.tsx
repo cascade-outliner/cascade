@@ -97,10 +97,11 @@ describe("useVisibleTree.updateContent", () => {
 
 		const { result } = renderVisibleTree(queryClient);
 
-		await result.current.updateContent("node-1", {
+		const succeeded = await result.current.updateContent("node-1", {
 			root: { type: "root", children: [] },
 		});
 
+		expect(succeeded).toBe(false);
 		await waitFor(() => {
 			expect(toast.error).toHaveBeenCalledWith(m.node_save_failed());
 		});
@@ -116,10 +117,11 @@ describe("useVisibleTree.updateContent", () => {
 
 		const { result } = renderVisibleTree(queryClient);
 
-		await result.current.updateContent("node-1", {
+		const succeeded = await result.current.updateContent("node-1", {
 			root: { type: "root", children: [] },
 		});
 
+		expect(succeeded).toBe(true);
 		expect(toast.error).not.toHaveBeenCalled();
 	});
 

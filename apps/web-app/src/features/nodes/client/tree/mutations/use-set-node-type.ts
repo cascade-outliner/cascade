@@ -27,6 +27,12 @@ export function useSetTypeMutation(queryKey: QueryKey) {
 			),
 	});
 
-	return (id: string, typed: TypedMetadata) =>
-		mutation.mutate({ id, ...typed });
+	return async (id: string, typed: TypedMetadata) => {
+		try {
+			await mutation.mutateAsync({ id, ...typed });
+			return true;
+		} catch {
+			return false;
+		}
+	};
 }

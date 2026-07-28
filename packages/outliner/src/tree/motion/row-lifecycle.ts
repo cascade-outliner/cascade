@@ -1,4 +1,7 @@
-import { animateRowExit } from "@cascade/ui/motion-row-lifecycle";
+import {
+	animateRowExit,
+	outlineRowDropConfirmation,
+} from "@cascade/ui/motion-row-lifecycle";
 
 export type RowEntryMotion = "enter" | "flash";
 
@@ -52,6 +55,12 @@ export async function playRowExit(id: string): Promise<void> {
 	} catch {
 		// Cancelled (e.g. a second delete lands before the first finishes) — proceed with removal regardless.
 	}
+}
+
+/** Outlines a mounted row once after a semantic conversion fully succeeds. */
+export function acknowledgeMountedRowConversion(id: string): void {
+	const element = mountedRowElements.get(id);
+	if (element) outlineRowDropConfirmation(element);
 }
 
 /** Test-only: clears transient state so specs don't leak across cases. */
