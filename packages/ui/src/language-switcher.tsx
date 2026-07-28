@@ -5,6 +5,7 @@ import {
 	GlobeIcon,
 } from "@phosphor-icons/react/ssr";
 import { cva } from "./cva.config";
+import { overlayPopupMotion } from "./overlay-motion";
 
 const trigger = cva({
 	base: [
@@ -17,10 +18,8 @@ const trigger = cva({
 const popup = cva({
 	base: [
 		"origin-(--transform-origin) min-w-32 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface",
-		"shadow-lg shadow-ink/15 transition-[transform,opacity] duration-150 ease-out",
-		"data-starting-style:scale-95 data-starting-style:opacity-0",
-		"data-ending-style:scale-95 data-ending-style:opacity-0",
-		"outline-none",
+		"shadow-lg shadow-ink/15 outline-none",
+		overlayPopupMotion,
 	],
 });
 

@@ -26,14 +26,17 @@ const trigger = cva({
 	},
 });
 
+// Restrained delight (see the motion foundation README): the hover morph
+// keeps the overshoot easing other UI motion doesn't use, and is disabled
+// under reduced motion rather than shortened, since it's decorative.
 const springTransform =
-	"transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+	"transition-transform duration-feedback ease-overshoot motion-reduce:transition-none";
 const springGap =
-	"transition-[gap] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+	"transition-[gap] duration-feedback ease-overshoot motion-reduce:transition-none";
 const springWidth =
-	"transition-[width] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+	"transition-[width] duration-feedback ease-overshoot motion-reduce:transition-none";
 const springWidthOpacity =
-	"transition-[width,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+	"transition-[width,opacity] duration-feedback ease-overshoot motion-reduce:transition-none";
 const grow = `${springTransform} group-hover:scale-[1.05] group-active:scale-[1.05] group-focus-within:scale-[1.05]`;
 const gapOpen = `gap-0 ${springGap} group-hover:gap-3.5 group-active:gap-3.5 group-focus-within:gap-3.5`;
 const widthOpen = `w-0 overflow-hidden ${springWidth} group-hover:w-11 group-active:w-11 group-focus-within:w-11`;

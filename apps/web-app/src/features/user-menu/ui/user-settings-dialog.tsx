@@ -184,7 +184,7 @@ export function UserSettingsDialog({
 						className="relative flex min-h-0 flex-1 flex-col sm:grid sm:grid-cols-[14rem_minmax(0,1fr)]"
 					>
 						<div
-							className={`absolute inset-0 overflow-y-auto bg-white px-4 py-5 transition-[transform,opacity,visibility] duration-200 ease-out sm:hidden dark:bg-surface/5 motion-reduce:transition-opacity motion-reduce:duration-75 ${
+							className={`absolute inset-0 overflow-y-auto bg-white px-4 py-5 transition-[transform,opacity,visibility] duration-medium-enter ease-standard sm:hidden dark:bg-surface/5 motion-reduce:transition-opacity motion-reduce:duration-immediate ${
 								mobilePageOpen
 									? "pointer-events-none invisible -translate-x-1/4 opacity-0 motion-reduce:translate-x-0"
 									: "visible translate-x-0 opacity-100"
@@ -202,7 +202,7 @@ export function UserSettingsDialog({
 												<button
 													type="button"
 													key={tab.value}
-													className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink/10 px-4 text-left outline-none transition-colors duration-150 last:border-b-0 hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger/50 dark:border-surface/15 dark:hover:bg-surface/10"
+													className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink/10 px-4 text-left outline-none transition-colors duration-small-enter last:border-b-0 hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger/50 dark:border-surface/15 dark:hover:bg-surface/10"
 													onClick={() => {
 														selectTab(tab.value);
 														setMobilePageOpen(true);
@@ -253,7 +253,7 @@ export function UserSettingsDialog({
 							))}
 						</Tabs.List>
 						<div
-							className={`absolute inset-0 flex min-h-0 min-w-0 flex-1 flex-col transition-[transform,opacity,visibility] duration-200 ease-out sm:visible sm:relative sm:inset-auto sm:transition-none motion-reduce:transition-opacity motion-reduce:duration-75 ${
+							className={`absolute inset-0 flex min-h-0 min-w-0 flex-1 flex-col transition-[transform,opacity,visibility] duration-medium-enter ease-standard sm:visible sm:relative sm:inset-auto sm:transition-none motion-reduce:transition-opacity motion-reduce:duration-immediate ${
 								mobilePageOpen
 									? "visible translate-x-0 opacity-100"
 									: "pointer-events-none invisible translate-x-full opacity-0 motion-reduce:translate-x-0 sm:pointer-events-auto sm:translate-x-0 sm:opacity-100"

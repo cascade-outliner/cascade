@@ -3,17 +3,17 @@ import { cva } from "./cva.config";
 export const dialogBackdropMotion = cva({
 	base: [
 		"fixed inset-0 z-50 bg-surface/20 backdrop-blur-sm",
-		"transition-opacity duration-200 ease-out data-ending-style:duration-150",
+		"transition-opacity duration-medium-enter ease-standard data-ending-style:duration-medium-exit",
 		"data-starting-style:opacity-0 data-ending-style:opacity-0",
-		"motion-reduce:duration-75 motion-reduce:data-ending-style:duration-75",
+		"motion-reduce:duration-immediate motion-reduce:data-ending-style:duration-immediate",
 	],
 });
 
 export const dialogPopupMotion = cva({
 	base: [
-		"transition-[transform,opacity] duration-200 ease-out data-ending-style:duration-150",
+		"transition-[transform,opacity] duration-medium-enter ease-standard data-ending-style:duration-medium-exit",
 		"data-starting-style:opacity-0 data-ending-style:opacity-0",
-		"motion-reduce:transition-opacity motion-reduce:duration-75 motion-reduce:data-ending-style:duration-75",
+		"motion-reduce:transition-opacity motion-reduce:duration-immediate motion-reduce:data-ending-style:duration-immediate",
 	],
 	variants: {
 		variant: {
