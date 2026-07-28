@@ -44,6 +44,18 @@ export function animateRowEnter(
 }
 
 /**
+ * Fades in a descendant that the virtualizer mounted after expansion. This
+ * stays opacity-only under reduced motion and never changes row geometry.
+ */
+export function animateRowExpansionReveal(element: LifecycleAnimatable): void {
+	element.animate([{ opacity: 0 }, { opacity: 1 }], {
+		duration: motionDurationsMs.smallEnter,
+		easing: motionEasingsCss.standard,
+		fill: "backwards",
+	});
+}
+
+/**
  * A row about to be removed animating out — faster than `animateRowEnter`
  * (`smallExit` vs `smallEnter`), matching the "exits read a little quicker
  * than enters" convention. Returns the underlying animation (or `undefined`

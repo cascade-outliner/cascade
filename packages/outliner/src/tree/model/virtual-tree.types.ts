@@ -62,6 +62,8 @@ export interface VirtualTreeRowProps {
 	isHidden: boolean;
 	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
 	isContext: boolean;
+	/** Newly mounted descendant in the current expansion's virtualizer slice. */
+	revealOnMount: boolean;
 	editing: boolean;
 	focusPoint: FocusPoint | null;
 	onStartEdit: (point?: FocusPoint) => void;

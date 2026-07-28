@@ -1,6 +1,7 @@
 import { animateRowReposition } from "@cascade/ui/motion-reposition";
 import {
 	animateRowEnter,
+	animateRowExpansionReveal,
 	flashRowHighlight,
 } from "@cascade/ui/motion-row-lifecycle";
 import { Fragment, useLayoutEffect, useRef } from "react";
@@ -68,6 +69,12 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		if (motion === "enter") animateRowEnter(rowElementRef.current);
 		else if (motion === "flash") flashRowHighlight(rowElementRef.current);
 	}, [row.id]);
+
+	useLayoutEffect(() => {
+		if (props.revealOnMount && rowElementRef.current) {
+			animateRowExpansionReveal(rowElementRef.current);
+		}
+	}, [props.revealOnMount]);
 
 	// Built once per row and passed to every feature's slot/menu renderer,
 	// each of which only reads the handful of fields its own (narrower)
