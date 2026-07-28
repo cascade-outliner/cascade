@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-28
+- [feat] Node rows now animate through their lifecycle instead of snapping: a created or duplicated row rises and fades in, a deleted row fades out before it's removed, and undoing/redoing/restoring a row flashes it briefly to draw the eye to it. Only the single affected row ever animates — siblings and other rows are untouched — and all of it drops its motion under reduced-motion settings while keeping a brief opacity/color cue. [#510](https://github.com/cascade-outliner/cascade/issues/510)
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
 

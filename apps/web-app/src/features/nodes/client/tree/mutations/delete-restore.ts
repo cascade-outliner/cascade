@@ -3,6 +3,10 @@ import type {
 	VisibleNodeRow,
 } from "@cascade/outliner/node-types";
 import {
+	markRowRestored,
+	playRowExit,
+} from "@cascade/outliner/row-lifecycle-motion";
+import {
 	insertSubtreeAt,
 	type MoveTarget,
 	removeSubtree,
@@ -62,6 +66,12 @@ export function makeRawDeleteRestore(
 
 	const rawDelete = async (id: string, options: { silent?: boolean } = {}) => {
 		await queryClient.cancelQueries({ queryKey });
+		// Let the row's own exit animation play out before it actually leaves
+		// the tree data — otherwise it would unmount instantly, with nothing
+		// left to animate. This only delays when the row's own removal (and
+		// undo-stack push) lands, never focus or the next command, both of
+		// which already happen synchronously in the caller.
+		await playRowExit(id);
 		setRows((rows) => removeSubtree(rows, id));
 		try {
 			const { childrenDeleted } = await client.nodes.delete({ id });
@@ -82,6 +92,7 @@ export function makeRawDeleteRestore(
 
 	const rawRestore = async (snapshot: DeleteSnapshot) => {
 		await queryClient.cancelQueries({ queryKey });
+		markRowRestored(snapshot.row.id);
 		setRows((rows) =>
 			insertSubtreeAt(
 				rows,

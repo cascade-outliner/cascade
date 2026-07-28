@@ -1,4 +1,5 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
+import { markRowEntering } from "@cascade/outliner/row-lifecycle-motion";
 import type { AddNodeOptions } from "@cascade/outliner/tree-types";
 import {
 	appendRow,
@@ -87,6 +88,7 @@ export function useCreateMutation(
 			isLastChild: true,
 		};
 		await queryClient.cancelQueries({ queryKey });
+		markRowEntering(row.id);
 		setRows((currentRows) => appendRow(currentRows, row));
 		pushCreateUndo(row, { position: "append", parentId: rootId });
 		return created.id;
@@ -129,6 +131,7 @@ export function useCreateMutation(
 			isLastChild: sibling.isLastChild,
 		};
 		await queryClient.cancelQueries({ queryKey });
+		markRowEntering(row.id);
 		setRows((currentRows) => insertRowAfter(currentRows, afterId, row));
 		pushCreateUndo(row, {
 			position: "after",

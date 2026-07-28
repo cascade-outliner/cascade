@@ -105,8 +105,37 @@ rows shifting after an expand/collapse), use `animateRowReposition` from
 Web Animations API (`Element.animate`), independent of every other row, and
 no-ops under reduced motion.
 
+### Row lifecycle: create/duplicate, delete, undo/redo/restore
+
+`motion-row-lifecycle.ts` covers the other three single-row motion cases
+(issue #510), same WAAPI-only, single-element policy as reposition:
+
+- `animateRowEnter` — a newly created/duplicated row's own rise-and-fade in.
+- `animateRowExit` — a row about to be removed fading out, faster than the
+  enter; returns the `Animation` so the delete mutation can await
+  `.finished` before actually removing the row from the tree data (there'd
+  otherwise be nothing left to animate against an instant unmount).
+- `flashRowHighlight` — a one-shot, non-repeating background-color flash to
+  locate a row an undo/redo/restore just affected.
+
+Unlike `animateRowReposition`, these don't fully no-op under reduced
+motion: a rise/fade still drops its translation but keeps a brief opacity
+change, and the flash (color-only) is unaffected either way — matching the
+motion foundation's general reduced-motion policy above, not the
+reposition-specific one.
+
+`packages/outliner/src/tree/motion/row-lifecycle.ts` holds the transient,
+module-level wiring a mutation hook needs: `markRowEntering`/
+`markRowRestored` flag a row id right before it's inserted, consumed once
+by that row's own mount effect in `virtual-tree-row.tsx`; `playRowExit`
+looks up the row's currently-mounted element (registered via
+`registerRowElement`, the same ref callback that calls the virtualizer's
+`measureElement`) and awaits its exit animation before the delete mutation
+removes the row from the cache.
+
 ## Tests
 
-`motion-reposition.test.ts` exercises `animateRowReposition`'s normal and
-reduced-motion behavior with a mock animatable (no real DOM/jsdom needed —
-the function's element dependency is a one-method interface).
+`motion-reposition.test.ts` and `motion-row-lifecycle.test.ts` exercise
+their respective helpers' normal and reduced-motion behavior with a mock
+animatable (no real DOM/jsdom needed — the element dependency is a
+one/two-method interface).
