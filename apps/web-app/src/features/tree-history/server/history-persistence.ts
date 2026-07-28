@@ -12,8 +12,10 @@ import {
 	type NodeTransaction,
 	siblingScope,
 } from "@/features/nodes/server/persistence/sibling-order";
+import { ancestorsOf } from "@/features/nodes/server/persistence/tree-cte";
 import { premiumSeats } from "@/features/premium/server/premium-table";
 import type {
+	HistoryLocation,
 	HistoryRestoreTarget,
 	TreeHistoryPayload,
 } from "../model/tree-history.schema";
@@ -126,6 +128,52 @@ export async function captureRestoreTarget(
 		.limit(1);
 	if (next) return { position: "before", targetId: next.id };
 	return { position: "append" };
+}
+
+export async function captureHistoryLocation(
+	transaction: NodeTransaction,
+	userId: string,
+	parentId: string | null,
+	order: string,
+	target?: HistoryRestoreTarget,
+): Promise<HistoryLocation> {
+	const scope = siblingScope(userId, parentId);
+	const [previous] = await transaction
+		.select({ id: nodes.id, content: nodes.content })
+		.from(nodes)
+		.where(and(scope, lt(nodes.order, order)))
+		.orderBy(desc(nodes.order))
+		.limit(1);
+	const [next] = await transaction
+		.select({ id: nodes.id, content: nodes.content })
+		.from(nodes)
+		.where(and(scope, gt(nodes.order, order)))
+		.orderBy(asc(nodes.order))
+		.limit(1);
+	const breadcrumb = parentId
+		? (
+				(await transaction.execute(sql`
+					WITH RECURSIVE ${ancestorsOf(parentId, userId)}
+					SELECT content FROM chain ORDER BY depth DESC
+				`)) as unknown as { content: unknown }[]
+			).map(({ content }) => historyNodeLabel(content))
+		: [];
+
+	return {
+		parentId,
+		target:
+			target ??
+			(previous
+				? { position: "after", targetId: previous.id }
+				: next
+					? { position: "before", targetId: next.id }
+					: { position: "append" }),
+		context: {
+			breadcrumb,
+			previousSibling: previous ? historyNodeLabel(previous.content) : null,
+			nextSibling: next ? historyNodeLabel(next.content) : null,
+		},
+	};
 }
 
 export interface HistoryRecorder {

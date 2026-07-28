@@ -2,7 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
-	captureRestoreTarget,
+	captureHistoryLocation,
 	createHistoryRecorder,
 	historyNodeLabel,
 } from "@/features/tree-history/server/history-persistence";
@@ -92,31 +92,40 @@ export const moveNode = authed
 			}
 			if (moved.parentId === input.parentId && moved.order === order) return;
 			const history = await createHistoryRecorder(transaction, userId);
-			const beforeTarget = history.enabled
-				? await captureRestoreTarget(
+			const before = history.enabled
+				? await captureHistoryLocation(
 						transaction,
 						userId,
 						moved.parentId,
 						moved.order,
 					)
-				: { position: "append" as const };
+				: null;
 			await transaction
 				.update(nodes)
 				.set({ parentId: input.parentId, order })
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)));
+			if (!before) return;
+			const afterTarget =
+				input.position === "append"
+					? ({ position: "append" } as const)
+					: {
+							position: input.position,
+							targetId: input.targetId,
+						};
+			const after = await captureHistoryLocation(
+				transaction,
+				userId,
+				input.parentId,
+				order,
+				afterTarget,
+			);
 			await history.record({
 				nodeId: input.id,
 				payload: {
 					kind: "node_moved",
 					label: historyNodeLabel(moved.content),
-					before: { parentId: moved.parentId, target: beforeTarget },
-					after: {
-						parentId: input.parentId,
-						target:
-							input.position === "append"
-								? { position: "append" }
-								: { position: input.position, targetId: input.targetId },
-					},
+					before,
+					after,
 				},
 			});
 		});
