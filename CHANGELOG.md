@@ -1,8 +1,5 @@
 # Changelog
 
-## 2026-07-28
-- [chore] Removed the GitHub OAuth provider from the backend as well, so the sign-in route no longer works even when the GitHub client env vars are set. [#489](https://github.com/cascade-outliner/cascade/issues/489)
-
 ## 2026-07-27
 - [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)
