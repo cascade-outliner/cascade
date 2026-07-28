@@ -6,7 +6,7 @@ export interface LifecycleAnimatable {
 	animate: (
 		keyframes: Keyframe[],
 		options: KeyframeAnimationOptions,
-	) => { finished: Promise<unknown> } | undefined;
+	) => { finished: Promise<unknown>; cancel?: () => void } | undefined;
 }
 
 /**
@@ -52,6 +52,21 @@ export function animateRowExpansionReveal(element: LifecycleAnimatable): void {
 		duration: motionDurationsMs.smallEnter,
 		easing: motionEasingsCss.standard,
 		fill: "backwards",
+	});
+}
+
+/**
+ * Fades a directly completed task immediately before hide-completed removes
+ * it. Opacity-only motion keeps virtualized row geometry unchanged and stays
+ * visible under reduced motion.
+ */
+export function animateTaskCompletionExit(
+	element: LifecycleAnimatable,
+): { finished: Promise<unknown>; cancel?: () => void } | undefined {
+	return element.animate([{ opacity: 1 }, { opacity: 0 }], {
+		duration: motionDurationsMs.smallExit,
+		easing: motionEasingsCss.standard,
+		fill: "forwards",
 	});
 }
 

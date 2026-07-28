@@ -1,9 +1,16 @@
 import { getCompletedTaskIds } from "@cascade/outliner/completed-task-ids";
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
+import { motionDurationsMs } from "@cascade/theme/motion";
 import { useEffect, useRef, useState } from "react";
 
 /** How long a just-completed task stays visible before the hide-completed filter hides it. */
 export const COMPLETED_HIDE_DELAY_MS = 1200;
+export const COMPLETED_EXIT_DURATION_MS = motionDurationsMs.smallExit;
+
+interface DelayedCompletionHideState {
+	pendingIds: Set<string>;
+	exitingIds: Set<string>;
+}
 
 /**
  * Ids of tasks that were just checked off and are still within their grace
@@ -13,8 +20,11 @@ export const COMPLETED_HIDE_DELAY_MS = 1200;
 export function useDelayedCompletionHide(
 	rows: VisibleNodeRow[],
 	hideCompleted: boolean,
-): Set<string> {
-	const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+): DelayedCompletionHideState {
+	const [state, setState] = useState<DelayedCompletionHideState>({
+		pendingIds: new Set(),
+		exitingIds: new Set(),
+	});
 	const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 	const prevCompletedRef = useRef<Set<string> | null>(null);
 
@@ -23,20 +33,43 @@ export function useDelayedCompletionHide(
 		const currentCompleted = getCompletedTaskIds(rows);
 		const prevCompleted = prevCompletedRef.current;
 
+		if (!hideCompleted) {
+			for (const timer of timers.values()) clearTimeout(timer);
+			timers.clear();
+			setState((current) =>
+				current.pendingIds.size > 0 || current.exitingIds.size > 0
+					? { pendingIds: new Set(), exitingIds: new Set() }
+					: current,
+			);
+		}
+
 		if (prevCompleted !== null && hideCompleted) {
 			for (const id of currentCompleted) {
 				if (!prevCompleted.has(id) && !timers.has(id)) {
-					setPendingIds((ids) => new Set(ids).add(id));
+					setState((current) => ({
+						pendingIds: new Set(current.pendingIds).add(id),
+						exitingIds: current.exitingIds,
+					}));
 					timers.set(
 						id,
 						setTimeout(() => {
-							timers.delete(id);
-							setPendingIds((ids) => {
-								if (!ids.has(id)) return ids;
-								const next = new Set(ids);
-								next.delete(id);
-								return next;
-							});
+							setState((current) => ({
+								pendingIds: current.pendingIds,
+								exitingIds: new Set(current.exitingIds).add(id),
+							}));
+							timers.set(
+								id,
+								setTimeout(() => {
+									timers.delete(id);
+									setState((current) => {
+										const pendingIds = new Set(current.pendingIds);
+										const exitingIds = new Set(current.exitingIds);
+										pendingIds.delete(id);
+										exitingIds.delete(id);
+										return { pendingIds, exitingIds };
+									});
+								}, COMPLETED_EXIT_DURATION_MS),
+							);
 						}, COMPLETED_HIDE_DELAY_MS),
 					);
 				}
@@ -49,16 +82,18 @@ export function useDelayedCompletionHide(
 				timers.delete(id);
 			}
 		}
-		setPendingIds((ids) => {
+		setState((current) => {
+			const pendingIds = new Set(current.pendingIds);
+			const exitingIds = new Set(current.exitingIds);
 			let changed = false;
-			const next = new Set(ids);
-			for (const id of ids) {
+			for (const id of current.pendingIds) {
 				if (!currentCompleted.has(id)) {
-					next.delete(id);
+					pendingIds.delete(id);
+					exitingIds.delete(id);
 					changed = true;
 				}
 			}
-			return changed ? next : ids;
+			return changed ? { pendingIds, exitingIds } : current;
 		});
 
 		prevCompletedRef.current = currentCompleted;
@@ -72,7 +107,7 @@ export function useDelayedCompletionHide(
 		};
 	}, []);
 
-	return pendingIds;
+	return state;
 }
 
 /**

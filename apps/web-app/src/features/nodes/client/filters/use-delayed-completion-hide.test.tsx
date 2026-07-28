@@ -5,6 +5,7 @@ import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	COMPLETED_EXIT_DURATION_MS,
 	COMPLETED_HIDE_DELAY_MS,
 	useDelayedCompletionHide,
 	withPendingTasksIncomplete,
@@ -46,24 +47,31 @@ describe("useDelayedCompletionHide", () => {
 		const rows = [taskRow("a", true)];
 		const { result } = renderHook(() => useDelayedCompletionHide(rows, true));
 
-		expect(result.current.size).toBe(0);
+		expect(result.current.pendingIds.size).toBe(0);
+		expect(result.current.exitingIds.size).toBe(0);
 	});
 
-	it("delays hiding a task just checked off, then lets it hide after the grace period", () => {
+	it("delays a checked task, fades it after the grace period, then lets it hide", () => {
 		const incomplete = [taskRow("a", false)];
 		const { result, rerender } = renderHook(
 			({ rows, hideCompleted }) =>
 				useDelayedCompletionHide(rows, hideCompleted),
 			{ initialProps: { rows: incomplete, hideCompleted: true } },
 		);
-		expect(result.current.has("a")).toBe(false);
+		expect(result.current.pendingIds.has("a")).toBe(false);
 
 		const completed = [taskRow("a", true)];
 		act(() => rerender({ rows: completed, hideCompleted: true }));
-		expect(result.current.has("a")).toBe(true);
+		expect(result.current.pendingIds.has("a")).toBe(true);
+		expect(result.current.exitingIds.has("a")).toBe(false);
 
 		act(() => vi.advanceTimersByTime(COMPLETED_HIDE_DELAY_MS));
-		expect(result.current.has("a")).toBe(false);
+		expect(result.current.pendingIds.has("a")).toBe(true);
+		expect(result.current.exitingIds.has("a")).toBe(true);
+
+		act(() => vi.advanceTimersByTime(COMPLETED_EXIT_DURATION_MS));
+		expect(result.current.pendingIds.has("a")).toBe(false);
+		expect(result.current.exitingIds.has("a")).toBe(false);
 	});
 
 	it("does not delay when the hide-completed filter is off", () => {
@@ -76,7 +84,8 @@ describe("useDelayedCompletionHide", () => {
 
 		const completed = [taskRow("a", true)];
 		act(() => rerender({ rows: completed, hideCompleted: false }));
-		expect(result.current.size).toBe(0);
+		expect(result.current.pendingIds.size).toBe(0);
+		expect(result.current.exitingIds.size).toBe(0);
 	});
 
 	it("clears the pending state if the task is unchecked before the delay elapses", () => {
@@ -89,13 +98,52 @@ describe("useDelayedCompletionHide", () => {
 
 		const completed = [taskRow("a", true)];
 		act(() => rerender({ rows: completed, hideCompleted: true }));
-		expect(result.current.has("a")).toBe(true);
+		expect(result.current.pendingIds.has("a")).toBe(true);
 
 		act(() => rerender({ rows: incomplete, hideCompleted: true }));
-		expect(result.current.has("a")).toBe(false);
+		expect(result.current.pendingIds.has("a")).toBe(false);
+		expect(result.current.exitingIds.has("a")).toBe(false);
 
+		act(() =>
+			vi.advanceTimersByTime(
+				COMPLETED_HIDE_DELAY_MS + COMPLETED_EXIT_DURATION_MS,
+			),
+		);
+		expect(result.current.pendingIds.size).toBe(0);
+	});
+
+	it("cancels an active exit if completion is undone or fails", () => {
+		const incomplete = [taskRow("a", false)];
+		const { result, rerender } = renderHook(
+			({ rows }) => useDelayedCompletionHide(rows, true),
+			{ initialProps: { rows: incomplete } },
+		);
+
+		act(() => rerender({ rows: [taskRow("a", true)] }));
 		act(() => vi.advanceTimersByTime(COMPLETED_HIDE_DELAY_MS));
-		expect(result.current.size).toBe(0);
+		expect(result.current.exitingIds.has("a")).toBe(true);
+
+		act(() => rerender({ rows: incomplete }));
+		expect(result.current.pendingIds.has("a")).toBe(false);
+		expect(result.current.exitingIds.has("a")).toBe(false);
+	});
+
+	it("does not animate rows when hide-completed is enabled in bulk", () => {
+		const completed = [taskRow("a", true)];
+		const { result, rerender } = renderHook(
+			({ hideCompleted }) => useDelayedCompletionHide(completed, hideCompleted),
+			{ initialProps: { hideCompleted: false } },
+		);
+
+		act(() => rerender({ hideCompleted: true }));
+		act(() =>
+			vi.advanceTimersByTime(
+				COMPLETED_HIDE_DELAY_MS + COMPLETED_EXIT_DURATION_MS,
+			),
+		);
+
+		expect(result.current.pendingIds.size).toBe(0);
+		expect(result.current.exitingIds.size).toBe(0);
 	});
 });
 

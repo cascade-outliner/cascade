@@ -35,12 +35,12 @@ export function NodeTree({
 		includeCollapsedDescendants,
 		dueDateRange,
 	);
-	const pendingHideIds = useDelayedCompletionHide(
+	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,
 	);
 	const visibility = getRowVisibility(
-		withPendingTasksIncomplete(tree.rows, pendingHideIds),
+		withPendingTasksIncomplete(tree.rows, completionHide.pendingIds),
 		filters,
 	);
 	const existingTags = useExistingTags();
@@ -68,6 +68,7 @@ export function NodeTree({
 				</>
 			}
 			hiddenRowIds={visibility.hiddenIds}
+			completionExitRowIds={completionHide.exitingIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}

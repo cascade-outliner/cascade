@@ -25,6 +25,8 @@ export interface VirtualTreeProps {
 	contentClassName?: string;
 	/** Row ids to hide from view, e.g. rows excluded by an active filter. */
 	hiddenRowIds?: Set<string>;
+	/** Directly completed task ids fading out before hide-completed removes them. */
+	completionExitRowIds?: Set<string>;
 	/** Row ids to render dimmed but still visible, e.g. ancestors kept for context. */
 	contextRowIds?: Set<string>;
 	/** Stamped onto nodes created here, e.g. so a node added under an active
@@ -60,6 +62,8 @@ export interface VirtualTreeRowProps {
 	existingTags: TagSummary[];
 	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
 	isHidden: boolean;
+	/** Direct completion is in its opacity-only exit phase. */
+	isCompletionExiting: boolean;
 	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
 	isContext: boolean;
 	/** Newly mounted descendant in the current expansion's virtualizer slice. */
