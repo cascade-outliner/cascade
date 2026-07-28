@@ -47,6 +47,24 @@ const content = (text: string) => ({
 	},
 });
 
+async function createLabeledNode(
+	label: string,
+	parentId: string | null,
+	afterId?: string,
+) {
+	const node = await call(
+		createNode,
+		{ parentId, ...(afterId ? { afterId } : {}) },
+		{ context },
+	);
+	await call(
+		updateNodeContent,
+		{ id: node.id, content: content(label) },
+		{ context },
+	);
+	return node;
+}
+
 beforeEach(async () => {
 	const testUser = await createTestUser();
 	userId = testUser.user.id;
@@ -213,6 +231,81 @@ describe("tree history recording", () => {
 			{ context },
 		);
 		expect(detail.snapshots).toHaveLength(2);
+	});
+
+	it("snapshots readable breadcrumbs and sibling context for moves", async () => {
+		await call(requestPremiumSeat, undefined, { context });
+		const oldRoot = await createLabeledNode("Old root", null);
+		const oldParent = await createLabeledNode("Old parent", oldRoot.id);
+		const oldPrevious = await createLabeledNode("Old previous", oldParent.id);
+		const moved = await createLabeledNode(
+			"Moved node",
+			oldParent.id,
+			oldPrevious.id,
+		);
+		await createLabeledNode("Old next", oldParent.id, moved.id);
+
+		const newRoot = await createLabeledNode("New root", null);
+		const newParent = await createLabeledNode("New parent", newRoot.id);
+		const newPrevious = await createLabeledNode("New previous", newParent.id);
+		const newNext = await createLabeledNode(
+			"New next",
+			newParent.id,
+			newPrevious.id,
+		);
+
+		await call(
+			moveNode,
+			{
+				id: moved.id,
+				parentId: newParent.id,
+				position: "after",
+				targetId: newPrevious.id,
+			},
+			{ context },
+		);
+		const history = await call(listTreeHistory, { limit: 100 }, { context });
+		const moveEntry = history.items.find(
+			({ kind, nodeId }) => kind === "node_moved" && nodeId === moved.id,
+		);
+
+		await call(
+			updateNodeContent,
+			{ id: oldPrevious.id, content: content("Renamed old previous") },
+			{ context },
+		);
+		await call(
+			updateNodeContent,
+			{ id: newNext.id, content: content("Renamed new next") },
+			{ context },
+		);
+		const detail = await call(
+			getTreeHistoryEntry,
+			{ id: moveEntry?.id as string },
+			{ context },
+		);
+		if (detail.payload.kind !== "node_moved") {
+			throw new Error("Expected node_moved history payload");
+		}
+
+		expect(detail.payload.before.context).toEqual({
+			breadcrumb: ["Old root", "Old parent"],
+			previousSibling: "Old previous",
+			nextSibling: "Old next",
+		});
+		expect(detail.payload.before.target).toEqual({
+			position: "after",
+			targetId: oldPrevious.id,
+		});
+		expect(detail.payload.after.context).toEqual({
+			breadcrumb: ["New root", "New parent"],
+			previousSibling: "New previous",
+			nextSibling: "New next",
+		});
+		expect(detail.payload.after.target).toEqual({
+			position: "after",
+			targetId: newPrevious.id,
+		});
 	});
 
 	it("rolls history back when its mutation is rejected", async () => {
