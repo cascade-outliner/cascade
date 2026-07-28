@@ -2,7 +2,11 @@
  * Public aggregation module for immutable visible-row operations.
  * Implementations are split by responsibility to keep each algorithm focused.
  */
-export { insertSubtreeAt, moveSubtree } from "./move-subtree";
+export {
+	insertSubtreeAt,
+	moveSubtree,
+	moveWouldChangePosition,
+} from "./move-subtree";
 export type { MoveTarget } from "./move-targets";
 export {
 	captureCurrentPosition,

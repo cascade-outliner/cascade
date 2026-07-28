@@ -241,9 +241,13 @@ describe("optimistic node mutations", () => {
 		]);
 		const { result } = renderHook(() => useMoveMutation(queryKey), { wrapper });
 
-		result.current("source", { position: "append", parentId: "target" });
+		const succeeded = await result.current("source", {
+			position: "append",
+			parentId: "target",
+		});
 		await waitForPatch(queryClient);
 
+		expect(succeeded).toBe(true);
 		expect(cachedRows(queryClient).map(({ id }) => id)).toEqual([
 			"root",
 			"target",
@@ -269,6 +273,25 @@ describe("optimistic node mutations", () => {
 			hasChildren: false,
 			expanded: false,
 		});
+	});
+
+	it("reports a failed move without rejecting the drag-and-drop flow", async () => {
+		const { wrapper } = setup([
+			row("source", null, 0, ["source"]),
+			row("target", null, 0, ["target"]),
+		]);
+		vi.mocked(client.nodes.move).mockRejectedValueOnce(
+			new Error("move failed"),
+		);
+		const { result } = renderHook(() => useMoveMutation(queryKey), { wrapper });
+
+		await expect(
+			result.current("source", {
+				position: "after",
+				targetId: "target",
+				parentId: null,
+			}),
+		).resolves.toBe(false);
 	});
 
 	it("removes a leaf subtree before the delete settles", async () => {

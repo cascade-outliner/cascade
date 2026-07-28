@@ -87,6 +87,19 @@ export function moveSubtree(
 	return recomputeIsLastChild(result);
 }
 
+/** Whether applying a target would change the source row's parent or visible sibling slot. */
+export function moveWouldChangePosition(
+	rows: VisibleNodeRow[],
+	sourceId: string,
+	target: MoveTarget,
+): boolean {
+	const moved = moveSubtree(rows, sourceId, target);
+	return moved.some(
+		(row, index) =>
+			row.id !== rows[index]?.id || row.parentId !== rows[index]?.parentId,
+	);
+}
+
 interface MoveDestination {
 	index: number;
 	depth: number;

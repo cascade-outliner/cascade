@@ -4,6 +4,7 @@ import {
 	animateRowEnter,
 	animateRowExit,
 	flashRowHighlight,
+	outlineRowDropConfirmation,
 } from "./motion-row-lifecycle";
 
 function fakeRow() {
@@ -124,6 +125,28 @@ describe("flashRowHighlight", () => {
 			],
 			{
 				duration: motionDurationsMs.feedback,
+				easing: motionEasingsCss.standard,
+			},
+		);
+	});
+});
+
+describe("outlineRowDropConfirmation", () => {
+	it("fades an inset accent outline without repainting the row", () => {
+		const row = fakeRow();
+
+		outlineRowDropConfirmation(row);
+
+		expect(row.animate).toHaveBeenCalledWith(
+			[
+				{
+					boxShadow:
+						"inset 0 0 0 2px color-mix(in srgb, var(--color-accent) 65%, transparent)",
+				},
+				{ boxShadow: "inset 0 0 0 2px transparent" },
+			],
+			{
+				duration: motionDurationsMs.mediumEnter,
 				easing: motionEasingsCss.standard,
 			},
 		);

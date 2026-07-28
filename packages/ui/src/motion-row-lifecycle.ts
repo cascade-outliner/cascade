@@ -91,3 +91,24 @@ export function flashRowHighlight(element: LifecycleAnimatable): void {
 		},
 	);
 }
+
+/**
+ * A restrained destination confirmation for drag-and-drop: an inset outline
+ * appears at the final position and fades once, without repainting or moving
+ * the row.
+ */
+export function outlineRowDropConfirmation(element: LifecycleAnimatable): void {
+	element.animate(
+		[
+			{
+				boxShadow:
+					"inset 0 0 0 2px color-mix(in srgb, var(--color-accent) 65%, transparent)",
+			},
+			{ boxShadow: "inset 0 0 0 2px transparent" },
+		],
+		{
+			duration: motionDurationsMs.mediumEnter,
+			easing: motionEasingsCss.standard,
+		},
+	);
+}

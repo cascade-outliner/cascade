@@ -41,7 +41,7 @@ export function useDemoTree(rootId: string | null) {
 		setAllNodes((current) => patchRow(current, id, { expanded }));
 	};
 
-	const move: VisibleTree["move"] = (id, target, options = {}) => {
+	const move: VisibleTree["move"] = async (id, target, options = {}) => {
 		setAllNodes((current) => {
 			const rowsWithExpandedParent = options.expandParentId
 				? patchRow(current, options.expandParentId, { expanded: true })
@@ -49,6 +49,7 @@ export function useDemoTree(rootId: string | null) {
 
 			return moveSubtree(rowsWithExpandedParent, id, target);
 		});
+		return true;
 	};
 
 	const remove: VisibleTree["remove"] = (id) => {

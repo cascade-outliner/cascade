@@ -10,7 +10,7 @@ interface RowDragAndDropProps {
 	row: VisibleNodeRow;
 	rows: VisibleNodeRow[];
 	indentSize: number;
-	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
+	onMoveDrop: (draggedId: string, target: MoveTarget) => Promise<boolean>;
 	children: ReactNode;
 }
 
@@ -21,7 +21,7 @@ export function RowDragAndDrop({
 	onMoveDrop,
 	children,
 }: RowDragAndDropProps) {
-	const { rowRef, handleRef, instruction } = useRowDragAndDrop({
+	const { rowRef, handleRef, instruction, isDragging } = useRowDragAndDrop({
 		row,
 		rows,
 		indentSize,
@@ -32,7 +32,9 @@ export function RowDragAndDrop({
 		<div
 			ref={rowRef}
 			{...{ [NODE_ROW_ATTRIBUTE]: row.id }}
-			className="group/node py-1 flex items-center gap-2 relative rounded-md has-data-popup-open:bg-accent/25 has-data-popup-open:ring-1 has-data-popup-open:ring-inset has-data-popup-open:ring-accent/60"
+			className={`group/node py-1 flex items-center gap-2 relative rounded-md has-data-popup-open:bg-accent/25 has-data-popup-open:ring-1 has-data-popup-open:ring-inset has-data-popup-open:ring-accent/60 ${
+				isDragging ? "opacity-45" : ""
+			}`}
 		>
 			<div style={{ paddingLeft: row.depth * indentSize }} />
 			<NodeDropIndicator instruction={instruction} />

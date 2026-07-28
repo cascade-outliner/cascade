@@ -70,7 +70,16 @@ export function useMoveMutation(queryKey: QueryKey) {
 		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
 		const previousTarget = rows && captureCurrentPosition(rows, id);
 
-		rawMove(id, target, moveOptions);
+		const result = mutation
+			.mutateAsync({
+				id,
+				target,
+				expandParentId: moveOptions.expandParentId,
+			})
+			.then(
+				() => true,
+				() => false,
+			);
 
 		if (previousTarget) {
 			undoStore.push({
@@ -78,5 +87,7 @@ export function useMoveMutation(queryKey: QueryKey) {
 				redo: () => rawMove(id, target, moveOptions),
 			});
 		}
+
+		return result;
 	};
 }
