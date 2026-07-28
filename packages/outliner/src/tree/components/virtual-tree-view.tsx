@@ -1,13 +1,17 @@
 import { Button } from "@cascade/ui/button";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
-import type { RefObject } from "react";
+import { type RefObject, useLayoutEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { setBlockType } from "../../editor/lexical/content/lexical-content";
 import type { OutlinerLabels } from "../../i18n/outliner-labels-context";
 import type { useTreeInteractions } from "../hooks/use-tree-interactions";
 import type { VisibleTree } from "../model/tree.types";
 import type { VirtualTreeProps } from "../model/virtual-tree.types";
+import {
+	clearExpansionReveal,
+	getExpansionReveal,
+} from "../motion/expansion-reveal";
 import { VirtualTreeRow } from "./virtual-tree-row";
 
 type Interactions = ReturnType<typeof useTreeInteractions>;
@@ -79,6 +83,16 @@ export function VirtualTreeView({
 	onConvert: Interactions["handleConvert"];
 	onToggleTask: Interactions["handleToggleTask"];
 }) {
+	const expansionRevealRowIds = getExpansionReveal(
+		virtualItems.flatMap((item) => {
+			const id = tree.rows[item.index]?.id;
+			return id ? [id] : [];
+		}),
+	);
+	useLayoutEffect(() => {
+		clearExpansionReveal();
+	});
+
 	return (
 		<div
 			ref={scrollRef}
@@ -120,6 +134,7 @@ export function VirtualTreeView({
 									features={features}
 									isHidden={hiddenRowIds?.has(row.id) ?? false}
 									isContext={contextRowIds?.has(row.id) ?? false}
+									revealOnMount={expansionRevealRowIds.has(row.id)}
 									editing={editingNodeId === row.id}
 									focusPoint={editingNodeId === row.id ? focusPoint : null}
 									onStartEdit={(point) => onStartEdit(row.id, point)}

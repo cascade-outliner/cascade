@@ -1,3 +1,4 @@
+import { markExpansionReveal } from "@cascade/outliner/expansion-reveal-motion";
 import {
 	collapseNode,
 	expandNode,
@@ -31,6 +32,7 @@ export function useToggleMutation(
 			}
 			if (expanded) {
 				const subtreeRows = await fetchFullSubtree(id);
+				markExpansionReveal(subtreeRows.map((row) => row.id));
 				setRows((rows) => expandNode(rows, id, subtreeRows));
 				await client.nodes.toggleExpanded({ id, expanded: true });
 			} else {

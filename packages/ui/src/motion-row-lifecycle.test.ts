@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
 	animateRowEnter,
 	animateRowExit,
+	animateRowExpansionReveal,
 	flashRowHighlight,
 	outlineRowDropConfirmation,
 } from "./motion-row-lifecycle";
@@ -10,6 +11,20 @@ import {
 function fakeRow() {
 	return { animate: vi.fn(() => ({ finished: Promise.resolve() })) };
 }
+
+describe("animateRowExpansionReveal", () => {
+	it("uses only opacity so virtualized row geometry remains unchanged", () => {
+		const row = fakeRow();
+
+		animateRowExpansionReveal(row);
+
+		expect(row.animate).toHaveBeenCalledWith([{ opacity: 0 }, { opacity: 1 }], {
+			duration: motionDurationsMs.smallEnter,
+			easing: motionEasingsCss.standard,
+			fill: "backwards",
+		});
+	});
+});
 
 describe("animateRowEnter", () => {
 	it("fades and rises the row in", () => {

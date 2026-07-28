@@ -9,6 +9,10 @@ interface NodeToggleProps {
 }
 
 const nodeToggleCaret = cva({
+	base: [
+		"transition-transform duration-small-enter ease-standard",
+		"motion-reduce:transition-none",
+	],
 	variants: {
 		rotation: {
 			expanded: ["rotate-90"],
