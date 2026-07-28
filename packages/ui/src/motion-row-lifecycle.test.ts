@@ -4,6 +4,7 @@ import {
 	animateRowEnter,
 	animateRowExit,
 	animateRowExpansionReveal,
+	animateTaskCompletionExit,
 	flashRowHighlight,
 	outlineRowDropConfirmation,
 } from "./motion-row-lifecycle";
@@ -22,6 +23,20 @@ describe("animateRowExpansionReveal", () => {
 			duration: motionDurationsMs.smallEnter,
 			easing: motionEasingsCss.standard,
 			fill: "backwards",
+		});
+	});
+});
+
+describe("animateTaskCompletionExit", () => {
+	it("uses only opacity so hiding a completed row does not change its geometry", () => {
+		const row = fakeRow();
+
+		animateTaskCompletionExit(row);
+
+		expect(row.animate).toHaveBeenCalledWith([{ opacity: 1 }, { opacity: 0 }], {
+			duration: motionDurationsMs.smallExit,
+			easing: motionEasingsCss.standard,
+			fill: "forwards",
 		});
 	});
 });

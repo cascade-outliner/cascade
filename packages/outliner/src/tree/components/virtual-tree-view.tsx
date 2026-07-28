@@ -30,6 +30,7 @@ export function VirtualTreeView({
 	className,
 	contentClassName,
 	hiddenRowIds,
+	completionExitRowIds,
 	contextRowIds,
 	existingTags = [],
 	onDeleteTag,
@@ -56,6 +57,7 @@ export function VirtualTreeView({
 	| "className"
 	| "contentClassName"
 	| "hiddenRowIds"
+	| "completionExitRowIds"
 	| "contextRowIds"
 	| "existingTags"
 	| "onDeleteTag"
@@ -133,6 +135,9 @@ export function VirtualTreeView({
 									onTagClick={onTagClick}
 									features={features}
 									isHidden={hiddenRowIds?.has(row.id) ?? false}
+									isCompletionExiting={
+										completionExitRowIds?.has(row.id) ?? false
+									}
 									isContext={contextRowIds?.has(row.id) ?? false}
 									revealOnMount={expansionRevealRowIds.has(row.id)}
 									editing={editingNodeId === row.id}

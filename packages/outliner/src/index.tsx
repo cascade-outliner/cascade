@@ -17,6 +17,7 @@ export function Outliner({
 	className,
 	contentClassName,
 	hiddenRowIds,
+	completionExitRowIds,
 	contextRowIds,
 	newNodeDueDate,
 	newNodeTags,
@@ -43,6 +44,7 @@ export function Outliner({
 			className={className}
 			contentClassName={contentClassName}
 			hiddenRowIds={hiddenRowIds}
+			completionExitRowIds={completionExitRowIds}
 			contextRowIds={contextRowIds}
 			existingTags={existingTags}
 			onDeleteTag={onDeleteTag}
