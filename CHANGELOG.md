@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-28
+- [chore] Split the 419-line `tree-history-dialog.tsx` into a feature module (`tree-history-timeline.tsx`, `tree-history-detail.tsx`, `event-preview.tsx`, `queries.ts`, `tree-history.styles.ts`), separating data-fetching, presentational, and styling concerns. No behavior change. [#492](https://github.com/cascade-outliner/cascade/issues/492)
+
 ## 2026-07-27
 - [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)
