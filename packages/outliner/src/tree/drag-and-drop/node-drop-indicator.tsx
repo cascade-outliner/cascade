@@ -4,6 +4,11 @@ interface NodeDropIndicatorProps {
 	instruction: Instruction | null;
 }
 
+/**
+ * Deliberately no `transition-*`/`duration-*` classes or motion here (see
+ * issue #509's perf gate): the indicator must snap to the pointer's current
+ * drop target every frame, never interpolate behind it.
+ */
 export function NodeDropIndicator({ instruction }: NodeDropIndicatorProps) {
 	if (!instruction || instruction.type === "instruction-blocked") return null;
 
