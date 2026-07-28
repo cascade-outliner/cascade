@@ -15,10 +15,15 @@ export interface LifecycleAnimatable {
  * (`smallEnterVariants` in `motion-variants.ts`) but via the Web Animations
  * API rather than Motion — this row is one of possibly thousands virtualized
  * in a plain `translateY`-positioned div, so it follows the same
- * single-element-only policy as `animateRowReposition`. Reduced motion drops
- * the rise but keeps the opacity fade, matching the motion foundation's
- * reduced-motion policy (structural transforms collapse, opacity/color
- * transitions don't).
+ * single-element-only policy as `animateRowReposition`. The rise animates the
+ * CSS `translate` property rather than `transform`: the row's own `transform`
+ * already encodes its real virtualized offset (`translateY(start)`), and
+ * animating that to an absolute value here would visually snap the row to
+ * the wrong position (e.g. the top of the list) for the animation's
+ * duration — `translate` composes independently, on top of it. Reduced
+ * motion drops the rise but keeps the opacity fade, matching the motion
+ * foundation's reduced-motion policy (structural transforms collapse,
+ * opacity/color transitions don't).
  */
 export function animateRowEnter(
 	element: LifecycleAnimatable,
@@ -27,8 +32,8 @@ export function animateRowEnter(
 	const rise = reducedMotion ? 0 : 4;
 	element.animate(
 		[
-			{ opacity: 0, transform: `translateY(${rise}px)` },
-			{ opacity: 1, transform: "translateY(0px)" },
+			{ opacity: 0, translate: `0 ${rise}px` },
+			{ opacity: 1, translate: "0 0px" },
 		],
 		{
 			duration: motionDurationsMs.smallEnter,
@@ -55,8 +60,8 @@ export function animateRowExit(
 	const rise = reducedMotion ? 0 : -4;
 	return element.animate(
 		[
-			{ opacity: 1, transform: "translateY(0px)" },
-			{ opacity: 0, transform: `translateY(${rise}px)` },
+			{ opacity: 1, translate: "0 0px" },
+			{ opacity: 0, translate: `0 ${rise}px` },
 		],
 		{
 			duration: motionDurationsMs.smallExit,

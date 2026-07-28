@@ -18,8 +18,8 @@ describe("animateRowEnter", () => {
 
 		expect(row.animate).toHaveBeenCalledWith(
 			[
-				{ opacity: 0, transform: "translateY(4px)" },
-				{ opacity: 1, transform: "translateY(0px)" },
+				{ opacity: 0, translate: "0 4px" },
+				{ opacity: 1, translate: "0 0px" },
 			],
 			{
 				duration: motionDurationsMs.smallEnter,
@@ -36,11 +36,22 @@ describe("animateRowEnter", () => {
 
 		expect(row.animate).toHaveBeenCalledWith(
 			[
-				{ opacity: 0, transform: "translateY(0px)" },
-				{ opacity: 1, transform: "translateY(0px)" },
+				{ opacity: 0, translate: "0 0px" },
+				{ opacity: 1, translate: "0 0px" },
 			],
 			expect.objectContaining({ duration: motionDurationsMs.smallEnter }),
 		);
+	});
+
+	it("animates the CSS `translate` property, never `transform` (which already encodes the row's virtualized offset)", () => {
+		const row = fakeRow();
+
+		animateRowEnter(row, false);
+
+		const [keyframes] = row.animate.mock.calls[0];
+		for (const frame of keyframes) {
+			expect(frame).not.toHaveProperty("transform");
+		}
 	});
 });
 
@@ -52,8 +63,8 @@ describe("animateRowExit", () => {
 
 		expect(row.animate).toHaveBeenCalledWith(
 			[
-				{ opacity: 1, transform: "translateY(0px)" },
-				{ opacity: 0, transform: "translateY(-4px)" },
+				{ opacity: 1, translate: "0 0px" },
+				{ opacity: 0, translate: "0 -4px" },
 			],
 			{
 				duration: motionDurationsMs.smallExit,
@@ -73,11 +84,22 @@ describe("animateRowExit", () => {
 
 		expect(row.animate).toHaveBeenCalledWith(
 			[
-				{ opacity: 1, transform: "translateY(0px)" },
-				{ opacity: 0, transform: "translateY(0px)" },
+				{ opacity: 1, translate: "0 0px" },
+				{ opacity: 0, translate: "0 0px" },
 			],
 			expect.objectContaining({ duration: motionDurationsMs.smallExit }),
 		);
+	});
+
+	it("animates the CSS `translate` property, never `transform` (which already encodes the row's virtualized offset)", () => {
+		const row = fakeRow();
+
+		animateRowExit(row, false);
+
+		const [keyframes] = row.animate.mock.calls[0];
+		for (const frame of keyframes) {
+			expect(frame).not.toHaveProperty("transform");
+		}
 	});
 
 	it("returns the animation so a caller can await its finish", async () => {
