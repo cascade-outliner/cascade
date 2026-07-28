@@ -1,7 +1,6 @@
 # Changelog
 
 ## 2026-07-28
-- [chore] Added a shared motion foundation (`motion`, wrapped with `LazyMotion`/`MotionConfig` in both apps) with semantic duration/easing tokens, consistent `motion-reduce:` handling across dialogs, popovers, menus, checkboxes, and buttons, and a documented policy that virtualized tree rows use single-element Web Animations API effects, never Motion's `layout`/`Reorder`. No visible behavior change beyond more consistent transition timings and better reduced-motion support. [#508](https://github.com/cascade-outliner/cascade/issues/508)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
 
 ## 2026-07-27
