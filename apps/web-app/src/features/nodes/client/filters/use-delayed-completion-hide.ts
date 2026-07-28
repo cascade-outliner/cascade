@@ -76,26 +76,22 @@ export function useDelayedCompletionHide(
 }
 
 /**
- * Keeps rows visible whose hiding is only due to a completed ancestor still
- * within its grace period, so the whole just-completed subtree stays put
- * rather than the parent lingering while its children vanish underneath it.
+ * Rewrites rows so pending (just-checked, still in their grace period) tasks
+ * look not-yet-completed, for feeding into `getRowVisibility`. This reveals
+ * exactly what the pending completion would otherwise hide — the task and
+ * any descendants that aren't hidden for some other, unrelated reason (e.g.
+ * a grandchild that was already checked off and hidden before this task was
+ * ever touched stays hidden, even though it's in the same subtree).
  */
-export function revealPendingCompletions(
-	hiddenIds: Set<string>,
-	pendingIds: Set<string>,
+export function withPendingTasksIncomplete(
 	rows: VisibleNodeRow[],
-): Set<string> {
-	if (pendingIds.size === 0) return hiddenIds;
+	pendingIds: Set<string>,
+): VisibleNodeRow[] {
+	if (pendingIds.size === 0) return rows;
 
-	const parentById = new Map(rows.map((row) => [row.id, row.parentId]));
-	const isWithinPendingSubtree = (id: string): boolean => {
-		let current: string | null = id;
-		while (current !== null) {
-			if (pendingIds.has(current)) return true;
-			current = parentById.get(current) ?? null;
-		}
-		return false;
-	};
-
-	return new Set([...hiddenIds].filter((id) => !isWithinPendingSubtree(id)));
+	return rows.map((row) =>
+		pendingIds.has(row.id) && row.type === "task" && row.metadata?.completed
+			? { ...row, metadata: { ...row.metadata, completed: false } }
+			: row,
+	);
 }

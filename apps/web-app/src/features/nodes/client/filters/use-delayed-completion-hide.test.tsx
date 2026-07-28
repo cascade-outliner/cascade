@@ -1,11 +1,13 @@
 // @vitest-environment jsdom
+import { getRowVisibility } from "@cascade/outliner/filter-visibility";
+import { noFilters } from "@cascade/outliner/node-filters";
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	COMPLETED_HIDE_DELAY_MS,
-	revealPendingCompletions,
 	useDelayedCompletionHide,
+	withPendingTasksIncomplete,
 } from "./use-delayed-completion-hide";
 
 function taskRow(
@@ -97,26 +99,58 @@ describe("useDelayedCompletionHide", () => {
 	});
 });
 
-describe("revealPendingCompletions", () => {
-	it("returns the original set when nothing is pending", () => {
-		const hiddenIds = new Set(["a"]);
-		expect(revealPendingCompletions(hiddenIds, new Set(), [])).toBe(hiddenIds);
+describe("withPendingTasksIncomplete", () => {
+	it("returns the original array when nothing is pending", () => {
+		const rows = [taskRow("a", true)];
+		expect(withPendingTasksIncomplete(rows, new Set())).toBe(rows);
 	});
 
-	it("keeps a pending task and its whole subtree visible", () => {
+	it("forces a pending task's completed flag back to false", () => {
+		const rows = [taskRow("a", true)];
+		const result = withPendingTasksIncomplete(rows, new Set(["a"]));
+		expect(result[0].metadata?.completed).toBe(false);
+	});
+
+	it("leaves non-pending rows untouched", () => {
+		const rows = [taskRow("a", true), taskRow("b", true)];
+		const result = withPendingTasksIncomplete(rows, new Set(["a"]));
+		expect(result[0].metadata?.completed).toBe(false);
+		expect(result[1].metadata?.completed).toBe(true);
+	});
+});
+
+describe("delayed hiding combined with getRowVisibility", () => {
+	const filters = { ...noFilters, hideCompleted: true };
+
+	it("keeps a just-completed parent and its non-completed child visible", () => {
 		const rows = [
-			taskRow("a", true),
-			taskRow("b", false, { parentId: "a", depth: 1 }),
-			taskRow("c", false, { parentId: "b", depth: 2 }),
-			taskRow("d", false),
+			taskRow("parent", true),
+			taskRow("child", false, { parentId: "parent", depth: 1 }),
 		];
-		const hiddenIds = new Set(["a", "b", "c"]);
 
-		const result = revealPendingCompletions(hiddenIds, new Set(["a"]), rows);
+		const visibility = getRowVisibility(
+			withPendingTasksIncomplete(rows, new Set(["parent"])),
+			filters,
+		);
 
-		expect(result.has("a")).toBe(false);
-		expect(result.has("b")).toBe(false);
-		expect(result.has("c")).toBe(false);
-		expect(result.has("d")).toBe(false);
+		expect(visibility.hiddenIds.has("parent")).toBe(false);
+		expect(visibility.hiddenIds.has("child")).toBe(false);
+	});
+
+	it("does not resurface a child that was already completed and hidden before the parent was checked", () => {
+		const rows = [
+			taskRow("parent", true),
+			taskRow("child", true, { parentId: "parent", depth: 1 }),
+		];
+
+		// Only "parent" just transitioned to completed; "child" was already
+		// completed (and hidden) beforehand, so it's not in the pending set.
+		const visibility = getRowVisibility(
+			withPendingTasksIncomplete(rows, new Set(["parent"])),
+			filters,
+		);
+
+		expect(visibility.hiddenIds.has("parent")).toBe(false);
+		expect(visibility.hiddenIds.has("child")).toBe(true);
 	});
 });

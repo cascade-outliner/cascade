@@ -10,8 +10,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/app/generic-error";
 import {
-	revealPendingCompletions,
 	useDelayedCompletionHide,
+	withPendingTasksIncomplete,
 } from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
@@ -49,11 +49,9 @@ function RootTree() {
 		tree.rows,
 		filters.hideCompleted,
 	);
-	const visibility = getRowVisibility(tree.rows, filters);
-	const hiddenRowIds = revealPendingCompletions(
-		visibility.hiddenIds,
-		pendingHideIds,
-		tree.rows,
+	const visibility = getRowVisibility(
+		withPendingTasksIncomplete(tree.rows, pendingHideIds),
+		filters,
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
@@ -77,7 +75,7 @@ function RootTree() {
 					}
 				/>
 			}
-			hiddenRowIds={hiddenRowIds}
+			hiddenRowIds={visibility.hiddenIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
