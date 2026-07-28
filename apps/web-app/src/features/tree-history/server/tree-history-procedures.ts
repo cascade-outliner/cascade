@@ -3,6 +3,7 @@ import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
 import { and, desc, eq, gt, inArray, lt, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { env } from "@/env";
 import { nodeSearchText } from "@/features/nodes/model/node-search-text";
 import type { RestoreNodeInput } from "@/features/nodes/model/subtree-snapshot.schema";
 import {
@@ -36,8 +37,10 @@ import {
 } from "./history-persistence";
 import { treeHistoryEvents, treeHistorySnapshots } from "./tree-history-table";
 
-const RETENTION_DAYS = 30;
-const cutoff = () => new Date(Date.now() - RETENTION_DAYS * 86_400_000);
+// Mirrors the purge job's default retention (see purge-tree-history.ts) so
+// read/restore visibility stays in sync with how long history is actually kept.
+const cutoff = () =>
+	new Date(Date.now() - env.TREE_HISTORY_RETENTION_DAYS * 86_400_000);
 
 const cursorSchema = z.object({
 	createdAt: z.string().datetime(),
