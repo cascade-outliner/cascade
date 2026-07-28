@@ -32,10 +32,19 @@ export const historyRestoreTargetSchema = z.discriminatedUnion("position", [
 
 export type HistoryRestoreTarget = z.infer<typeof historyRestoreTargetSchema>;
 
-const locationSchema = z.object({
+const historyLocationContextSchema = z.object({
+	breadcrumb: z.array(z.string()),
+	previousSibling: z.string().nullable(),
+	nextSibling: z.string().nullable(),
+});
+
+export const historyLocationSchema = z.object({
 	parentId: z.string().nullable(),
 	target: historyRestoreTargetSchema,
+	context: historyLocationContextSchema.optional(),
 });
+
+export type HistoryLocation = z.infer<typeof historyLocationSchema>;
 
 const basePayloadSchema = z.object({ label: z.string() });
 
@@ -55,12 +64,12 @@ export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("node_moved"),
-		before: locationSchema,
-		after: locationSchema,
+		before: historyLocationSchema,
+		after: historyLocationSchema,
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("subtree_deleted"),
-		location: locationSchema,
+		location: historyLocationSchema,
 		count: z.number().int().positive(),
 	}),
 	basePayloadSchema.extend({

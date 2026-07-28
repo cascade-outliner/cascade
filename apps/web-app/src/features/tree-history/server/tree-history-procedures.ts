@@ -30,7 +30,7 @@ import {
 	treeHistoryPayloadSchema,
 } from "../model/tree-history.schema";
 import {
-	captureRestoreTarget,
+	captureHistoryLocation,
 	captureSubtree,
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -581,7 +581,7 @@ export const restoreTreeHistoryEntry = requirePremium
 						break;
 					}
 					case "node_moved": {
-						const beforeTarget = await captureRestoreTarget(
+						const before = await captureHistoryLocation(
 							transaction,
 							userId,
 							current.parentId,
@@ -615,11 +615,18 @@ export const restoreTreeHistoryEntry = requirePremium
 							.update(nodes)
 							.set({ parentId, order })
 							.where(eq(nodes.id, nodeId));
+						const after = await captureHistoryLocation(
+							transaction,
+							userId,
+							parentId,
+							order,
+							target,
+						);
 						nextPayload = {
 							kind: "node_moved",
 							label: historyNodeLabel(current.content),
-							before: { parentId: current.parentId, target: beforeTarget },
-							after: { parentId, target },
+							before,
+							after,
 						};
 						break;
 					}
