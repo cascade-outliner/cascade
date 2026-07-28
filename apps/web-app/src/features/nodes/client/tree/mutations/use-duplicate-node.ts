@@ -1,3 +1,4 @@
+import { markRowEntering } from "@cascade/outliner/row-lifecycle-motion";
 import { insertSubtreeAfter } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
 import type { QueryKey } from "@tanstack/react-query";
@@ -29,6 +30,7 @@ export function useDuplicateMutation(queryKey: QueryKey) {
 				: [];
 
 			await queryClient.cancelQueries({ queryKey });
+			markRowEntering(created.id);
 			setRows((currentRows) =>
 				insertSubtreeAfter(
 					currentRows,

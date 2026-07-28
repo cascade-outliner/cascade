@@ -11,6 +11,7 @@
     "./motion-tokens": "./src/motion-tokens.ts",
     "./motion-variants": "./src/motion-variants.ts",
     "./motion-reposition": "./src/motion-reposition.ts",
+    "./motion-row-lifecycle": "./src/motion-row-lifecycle.ts",
     "./overlay-motion": "./src/overlay-motion.ts",
     "./*": "./src/*.tsx"
   },

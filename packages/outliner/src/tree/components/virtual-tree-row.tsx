@@ -1,4 +1,8 @@
 import { animateRowReposition } from "@cascade/ui/motion-reposition";
+import {
+	animateRowEnter,
+	flashRowHighlight,
+} from "@cascade/ui/motion-row-lifecycle";
 import { Fragment, useLayoutEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { parseCalendarDate } from "../../dates/calendar-date";
@@ -8,6 +12,10 @@ import { defaultOutlinerFeatures } from "../../features/registry/default-outline
 import { NodeActions } from "../../nodes/components/node-actions";
 import { RowDragAndDrop } from "../drag-and-drop/row-drag-and-drop";
 import type { VirtualTreeRowProps } from "../model/virtual-tree.types";
+import {
+	consumeEntryMotion,
+	registerRowElement,
+} from "../motion/row-lifecycle";
 import { isRowMotionEnabled } from "../motion/row-motion-flag";
 import { siblingPosition } from "../rows/visible-rows";
 import { DefaultNodeLink } from "./node-link-slot";
@@ -42,8 +50,24 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	}, [start]);
 	const setRowElement = (element: HTMLDivElement | null) => {
 		rowElementRef.current = element;
+		registerRowElement(row.id, element);
 		measureElement(element);
 	};
+
+	// Row lifecycle motion (issue #510): a create/duplicate/restore mutation
+	// marks this row's id right before inserting it, and this row's own
+	// first mount consumes that marker exactly once — a rise-and-fade
+	// entrance for create/duplicate, a one-shot background flash for
+	// undo/redo/restore. Deletion's exit animation instead lives in
+	// `row-lifecycle.ts`'s `playRowExit`, which the delete mutation awaits
+	// *before* removing the row from the tree data, since by the time this
+	// row unmounts there's nothing left to animate.
+	useLayoutEffect(() => {
+		if (!rowElementRef.current) return;
+		const motion = consumeEntryMotion(row.id);
+		if (motion === "enter") animateRowEnter(rowElementRef.current);
+		else if (motion === "flash") flashRowHighlight(rowElementRef.current);
+	}, [row.id]);
 
 	// Built once per row and passed to every feature's slot/menu renderer,
 	// each of which only reads the handful of fields its own (narrower)

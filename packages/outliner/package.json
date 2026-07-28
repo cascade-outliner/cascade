@@ -52,7 +52,8 @@
     "./virtual-tree/row-drag-drop": "./src/tree/drag-and-drop/row-drag-and-drop.tsx",
     "./virtual-tree/virtual-tree-row": "./src/tree/components/virtual-tree-row.tsx",
     "./virtual-tree/virtual-tree-view": "./src/tree/components/virtual-tree-view.tsx",
-    "./virtual-tree/virtual-tree": "./src/tree/components/virtual-tree.tsx"
+    "./virtual-tree/virtual-tree": "./src/tree/components/virtual-tree.tsx",
+    "./row-lifecycle-motion": "./src/tree/motion/row-lifecycle.ts"
   },
   "peerDependencies": {
     "react": "^19.2.7",
