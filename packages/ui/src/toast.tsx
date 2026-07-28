@@ -71,7 +71,12 @@ const icons: Record<ToastType, React.ReactNode> = {
 	error: <XCircleIcon size={24} weight="fill" />,
 	warning: <WarningCircleIcon size={24} weight="fill" />,
 	info: <InfoIcon size={24} weight="fill" />,
-	loading: <CircleNotchIcon size={24} className="animate-spin" />,
+	loading: (
+		<CircleNotchIcon
+			size={24}
+			className="animate-spin motion-reduce:animate-none"
+		/>
+	),
 };
 
 // Stacking geometry per base-ui's docs: toasts sit absolutely positioned in
@@ -89,8 +94,10 @@ const root = cva({
 		"[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]",
 		"z-[calc(1000-var(--toast-index))] h-[var(--height)]",
 		"rounded-lg border border-ink/10 bg-white text-ink shadow-lg shadow-ink/15",
-		"select-none [transition:transform_var(--duration-feedback)_var(--ease-standard),opacity_var(--duration-feedback),height_var(--duration-small-enter)]",
+		"select-none [transition:transform_var(--duration-small-enter)_var(--ease-standard),opacity_var(--duration-small-enter),height_var(--duration-small-enter)]",
+		"data-ending-style:[transition-duration:var(--duration-small-exit)]",
 		"motion-reduce:[transition:transform_var(--duration-immediate),opacity_var(--duration-immediate),height_var(--duration-immediate)]",
+		"motion-reduce:data-ending-style:[transition-duration:var(--duration-immediate)]",
 		"data-expanded:h-[var(--toast-height)]",
 		"data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
 		"data-starting-style:[transform:translateY(150%)]",

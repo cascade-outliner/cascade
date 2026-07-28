@@ -1,4 +1,5 @@
 import { cva } from "@cascade/ui/cva.config";
+import { overlayPopupMotion } from "@cascade/ui/overlay-motion";
 
 export const trigger = cva({
 	base: [
@@ -12,9 +13,10 @@ export const trigger = cva({
 
 export const popup = cva({
 	base: [
-		"w-56 rounded-lg border border-ink/10 bg-white p-1 text-ink",
+		"origin-(--transform-origin) w-56 rounded-lg border border-ink/10 bg-white p-1 text-ink",
 		"shadow-lg shadow-ink/15",
 		"outline-none",
+		overlayPopupMotion,
 		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });
@@ -33,8 +35,9 @@ export const menuItem = cva({
 
 export const calendarPopup = cva({
 	base: [
-		"rounded-lg border border-ink/10 bg-white p-3 text-ink",
+		"origin-(--transform-origin) rounded-lg border border-ink/10 bg-white p-3 text-ink",
 		"shadow-lg shadow-ink/15 outline-none",
+		overlayPopupMotion,
 		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });
