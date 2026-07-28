@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-28
+- [chore] Fixed a flaky e2e test (`user-settings.spec.ts`, "syncing with system...") that intermittently hung until the 30s CI timeout: the newly-revealed "Light theme"/"Dark theme" select triggers, mounted the instant the "Theme" select's own popup starts its exit transition, hit the same Playwright actionability quirk already worked around for options elsewhere in the file. Also stopped a timed-out run's cleanup step from masking the real failure behind an unrelated "browser context" error. [#494](https://github.com/cascade-outliner/cascade/issues/494)
+
 ## 2026-07-27
 - [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)

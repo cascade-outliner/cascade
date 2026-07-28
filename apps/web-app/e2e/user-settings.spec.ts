@@ -23,6 +23,39 @@ function visibleOption(page: Page, name: string) {
 	return page.getByRole("option", { name }).and(page.locator(":visible"));
 }
 
+/**
+ * The "Light theme"/"Dark theme" triggers are mounted for the first time the
+ * moment "Sync with system" is picked — synchronously, while the "Theme"
+ * select's own popup is still mid-exit (150ms transition, see
+ * `packages/ui/src/select.tsx`). That's the same "genuinely clickable but
+ * Playwright's actionability polling never resolves" quirk `visibleOption`
+ * works around above, just on the trigger instead of an option, and it's
+ * the suspected cause of #494 (this test hanging until the 30s test timeout
+ * on CI, unlike the sibling test that never opens a freshly-mounted select
+ * this way). Same fix: `force: true`.
+ */
+function trigger(page: Page, name: string) {
+	return page.getByRole("combobox", { name });
+}
+
+/**
+ * If the `try` block above already failed (e.g. timed out), Playwright tears
+ * down the browser context before `finally` runs, so a restore call needing
+ * `context.cookies()` (`support/orpc-client.ts`) throws. An error thrown
+ * from `finally` replaces whatever error the `try` block raised, so the real
+ * failure gets reported as this unrelated cookie-lookup error instead —
+ * exactly the confusing "secondary artifact" #494 was about. Swallow
+ * restore failures here so the original error, if any, stays visible; a
+ * passing run always restores fine.
+ */
+async function restoreSettings(restore: () => Promise<unknown>): Promise<void> {
+	try {
+		await restore();
+	} catch (error) {
+		console.warn("Failed to restore settings during test cleanup:", error);
+	}
+}
+
 // Both tests below read and write the shared e2e account's one settings row,
 // so they must not run concurrently with each other.
 test.describe.configure({ mode: "serial" });
@@ -45,9 +78,9 @@ test("syncing with system lets you pick which light and dark theme to use, and f
 		await visibleOption(page, "Sync with system").click({ force: true });
 
 		// Picking "system" reveals the light/dark sub-choices.
-		await page.getByRole("combobox", { name: "Light theme" }).click();
+		await trigger(page, "Light theme").click({ force: true });
 		await visibleOption(page, "Catppuccin Latte").click({ force: true });
-		await page.getByRole("combobox", { name: "Dark theme" }).click();
+		await trigger(page, "Dark theme").click({ force: true });
 		await visibleOption(page, "Nord").click({ force: true });
 
 		// It already followed the (light) OS preference before saving.
@@ -81,11 +114,13 @@ test("syncing with system lets you pick which light and dark theme to use, and f
 		await expect(page.locator("html")).toHaveAttribute("data-theme", "nord");
 		await expect(page.locator("html")).toHaveClass(/dark/);
 	} finally {
-		await orpcClient.settings.update({
-			theme: restoreTheme,
-			...(restoreLightTheme ? { lightTheme: restoreLightTheme } : {}),
-			...(restoreDarkTheme ? { darkTheme: restoreDarkTheme } : {}),
-		});
+		await restoreSettings(() =>
+			orpcClient.settings.update({
+				theme: restoreTheme,
+				...(restoreLightTheme ? { lightTheme: restoreLightTheme } : {}),
+				...(restoreDarkTheme ? { darkTheme: restoreDarkTheme } : {}),
+			}),
+		);
 	}
 });
 
@@ -129,6 +164,8 @@ test("theme choice persists to the account and applies on a device with no local
 			.toBe(true);
 	} finally {
 		// Settings are user-wide state on the shared e2e user; put it back.
-		await orpcClient.settings.update({ theme: restoreTheme });
+		await restoreSettings(() =>
+			orpcClient.settings.update({ theme: restoreTheme }),
+		);
 	}
 });
