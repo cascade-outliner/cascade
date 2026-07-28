@@ -28,7 +28,7 @@ import type { NodeTypeName } from "../model/node-types";
 /** Every option in the merged "Convert into" menu: the row-level `task` type,
  * plus every Lexical block type ("text" is represented by `blockType`
  * "paragraph", so it isn't listed separately). */
-type ConvertOption = "task" | BlockType;
+export type ConvertOption = "task" | BlockType;
 
 /** Block-type options, grouped together and separated from `task` (a
  * different axis: the row type, not the content format) by a divider. */
@@ -53,11 +53,26 @@ const CONVERT_ICONS: Record<ConvertOption, ReactNode> = {
 	h6: <TextHSixIcon size={14} weight="bold" />,
 };
 
+export async function runNodeConversion(
+	option: ConvertOption,
+	onConvert: (type: NodeTypeName) => undefined | Promise<boolean>,
+	onTurnInto: (blockType: BlockType) => undefined | Promise<boolean>,
+	onSuccess: () => void,
+): Promise<void> {
+	if (option === "task") {
+		if ((await onConvert("task")) !== false) onSuccess();
+		return;
+	}
+	if ((await onConvert("text")) === false) return;
+	if ((await onTurnInto(option)) !== false) onSuccess();
+}
+
 interface NodeActionsProps {
 	nodeType: NodeTypeName;
 	blockType: BlockType;
-	onConvert: (type: NodeTypeName) => void;
-	onTurnInto: (blockType: BlockType) => void;
+	onConvert: (type: NodeTypeName) => undefined | Promise<boolean>;
+	onTurnInto: (blockType: BlockType) => undefined | Promise<boolean>;
+	onConversionSuccess: () => void;
 	onDuplicate: () => void;
 	onDelete: () => void;
 	/** Feature-contributed menu entries (due date, tags, …), rendered in
@@ -72,6 +87,7 @@ export function NodeActions({
 	blockType,
 	onConvert,
 	onTurnInto,
+	onConversionSuccess,
 	onDuplicate,
 	onDelete,
 	menuItems,
@@ -87,13 +103,8 @@ export function NodeActions({
 		return labels.headingLabels[option];
 	}
 
-	function selectOption(option: ConvertOption) {
-		if (option === "task") {
-			onConvert("task");
-			return;
-		}
-		onConvert("text");
-		onTurnInto(option);
+	async function selectOption(option: ConvertOption) {
+		await runNodeConversion(option, onConvert, onTurnInto, onConversionSuccess);
 	}
 
 	return (

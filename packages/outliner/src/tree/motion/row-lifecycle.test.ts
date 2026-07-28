@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+	acknowledgeMountedRowConversion,
 	consumeEntryMotion,
 	markRowEntering,
 	markRowRestored,
@@ -66,5 +67,34 @@ describe("playRowExit", () => {
 		await playRowExit("row-5");
 
 		expect(element.animate).not.toHaveBeenCalled();
+	});
+});
+
+describe("acknowledgeMountedRowConversion", () => {
+	it("outlines the mounted row exactly once per success signal", () => {
+		const element = {
+			animate: vi.fn(() => ({ finished: Promise.resolve() })),
+		};
+		registerRowElement("row-6", element as unknown as HTMLElement);
+
+		acknowledgeMountedRowConversion("row-6");
+
+		expect(element.animate).toHaveBeenCalledOnce();
+		expect(element.animate).toHaveBeenCalledWith(
+			[
+				{
+					boxShadow:
+						"inset 0 0 0 2px color-mix(in srgb, var(--color-accent) 65%, transparent)",
+				},
+				{ boxShadow: "inset 0 0 0 2px transparent" },
+			],
+			expect.any(Object),
+		);
+	});
+
+	it("does nothing when the converted row is virtualized out of view", () => {
+		expect(() =>
+			acknowledgeMountedRowConversion("off-screen-row"),
+		).not.toThrow();
 	});
 });

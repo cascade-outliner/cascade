@@ -15,6 +15,7 @@ import { NodeActions } from "../../nodes/components/node-actions";
 import { RowDragAndDrop } from "../drag-and-drop/row-drag-and-drop";
 import type { VirtualTreeRowProps } from "../model/virtual-tree.types";
 import {
+	acknowledgeMountedRowConversion,
 	consumeEntryMotion,
 	registerRowElement,
 } from "../motion/row-lifecycle";
@@ -140,6 +141,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					blockType={blockType}
 					onConvert={props.onConvert}
 					onTurnInto={props.onTurnInto}
+					onConversionSuccess={() => acknowledgeMountedRowConversion(row.id)}
 					onDuplicate={props.onDuplicate}
 					onDelete={props.onDelete}
 					menuItems={menuItems}

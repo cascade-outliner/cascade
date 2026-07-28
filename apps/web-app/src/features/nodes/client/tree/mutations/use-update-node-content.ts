@@ -43,23 +43,38 @@ export function useUpdateContentMutation(queryKey: QueryKey) {
 	// an empty document) needs to round-trip through updateContent too, so
 	// this accepts null even though real edits (the exposed function below)
 	// never produce one; Lexical always serializes to a real document.
-	const rawUpdateContent = (id: string, content: { root: unknown } | null) =>
-		mutation.mutate({ id, content });
+	const rawUpdateContent = async (
+		id: string,
+		content: { root: unknown } | null,
+	) => {
+		try {
+			await mutation.mutateAsync({ id, content });
+			return true;
+		} catch {
+			return false;
+		}
+	};
 
-	return (id: string, content: { root: unknown }) => {
+	return async (id: string, content: { root: unknown }) => {
 		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
 		const previousContent = rows?.find((row) => row.id === id)?.content as
 			| { root: unknown }
 			| null
 			| undefined;
 
-		rawUpdateContent(id, content);
+		const succeeded = rawUpdateContent(id, content);
 
 		if (previousContent !== undefined) {
 			undoStore.push({
-				undo: () => rawUpdateContent(id, previousContent),
-				redo: () => rawUpdateContent(id, content),
+				undo: async () => {
+					await rawUpdateContent(id, previousContent);
+				},
+				redo: async () => {
+					await rawUpdateContent(id, content);
+				},
 			});
 		}
+
+		return succeeded;
 	};
 }

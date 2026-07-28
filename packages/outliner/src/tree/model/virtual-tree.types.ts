@@ -73,8 +73,8 @@ export interface VirtualTreeRowProps {
 	onStartEdit: (point?: FocusPoint) => void;
 	onExitEdit: () => void;
 	onToggle: (expanded: boolean) => void;
-	onConvert: (type: NodeTypeName) => void;
-	onTurnInto: (blockType: BlockType) => void;
+	onConvert: (type: NodeTypeName) => undefined | Promise<boolean>;
+	onTurnInto: (blockType: BlockType) => undefined | Promise<boolean>;
 	onToggleTask: (completed: boolean) => void;
 	onSetDueDate: (date: Date | null) => void;
 	onSetRecurrence: (recurrence: RecurrenceInput | null) => void;

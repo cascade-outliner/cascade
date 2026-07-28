@@ -25,8 +25,8 @@ export interface VisibleTree {
 	updateContent: (
 		id: string,
 		content: { root: unknown },
-	) => void | Promise<void>;
-	setType: (id: string, typed: TypedMetadata) => void | Promise<void>;
+	) => undefined | Promise<boolean>;
+	setType: (id: string, typed: TypedMetadata) => undefined | Promise<boolean>;
 	setDueDate: (id: string, dueDate: Date | null) => void | Promise<void>;
 	setRecurrence: (
 		id: string,

@@ -135,8 +135,8 @@ export function useTreeEditing(
 		handleStartEdit: startEditing,
 		handleExitEdit: (id: string) =>
 			setEditingNodeId((current) => (current === id ? null : current)),
-		handleConvert: (id: string, type: NodeTypeName) =>
-			tree.setType(id, defaultTypedMetadata(type)),
+		handleConvert: async (id: string, type: NodeTypeName) =>
+			(await tree.setType(id, defaultTypedMetadata(type))) !== false,
 		handleToggleTask: (id: string, completed: boolean) =>
 			tree.setTaskCompleted(
 				id,
