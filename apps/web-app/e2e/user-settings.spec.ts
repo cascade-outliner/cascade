@@ -29,10 +29,8 @@ function visibleOption(page: Page, name: string) {
  * select's own popup is still mid-exit (150ms transition, see
  * `packages/ui/src/select.tsx`). That's the same "genuinely clickable but
  * Playwright's actionability polling never resolves" quirk `visibleOption`
- * works around above, just on the trigger instead of an option, and it's
- * the suspected cause of #494 (this test hanging until the 30s test timeout
- * on CI, unlike the sibling test that never opens a freshly-mounted select
- * this way). Same fix: `force: true`.
+ * works around above, just on the trigger instead of an option. Same fix:
+ * `force: true`.
  */
 function trigger(page: Page, name: string) {
 	return page.getByRole("combobox", { name });
@@ -74,6 +72,7 @@ test("syncing with system lets you pick which light and dark theme to use, and f
 		await page.goto("/");
 		await page.getByRole("button", { name: "User menu" }).click();
 		await page.getByRole("menuitem", { name: "Settings" }).click();
+		await page.getByRole("tab", { name: "Appearance" }).click();
 		await page.getByRole("combobox", { name: "Theme", exact: true }).click();
 		await visibleOption(page, "Sync with system").click({ force: true });
 
@@ -137,6 +136,7 @@ test("theme choice persists to the account and applies on a device with no local
 		await page.goto("/");
 		await page.getByRole("button", { name: "User menu" }).click();
 		await page.getByRole("menuitem", { name: "Settings" }).click();
+		await page.getByRole("tab", { name: "Appearance" }).click();
 		await page.getByRole("combobox", { name: "Theme", exact: true }).click();
 		await visibleOption(page, targetLabel).click({ force: true });
 
