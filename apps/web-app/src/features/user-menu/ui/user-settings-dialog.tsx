@@ -25,6 +25,7 @@ import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-setti
 import { GeneralSettingsPanel } from "@/features/settings/ui/general-settings-panel";
 import { orpc } from "@/orpc/client";
 import { PremiumTab } from "../../premium/ui/premium-tab";
+import { useHistoryDepth } from "../client/use-history-depth";
 import type { UserMenuUser } from "../model/user-menu.types";
 import { QuickLinksPanel } from "./quick-links-panel";
 import { UserAccountPanel } from "./user-account-panel";
@@ -142,14 +143,24 @@ export function UserSettingsDialog({
 		setActiveTab(value);
 	};
 
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (!nextOpen) setMobilePageOpen(false);
+		onOpenChange(nextOpen);
+	};
+
+	const historyDepth = open ? (mobilePageOpen ? 2 : 1) : 0;
+	useHistoryDepth(historyDepth, (newDepth) => {
+		if (newDepth < historyDepth) {
+			if (mobilePageOpen) setMobilePageOpen(false);
+			else handleOpenChange(false);
+		} else if (newDepth > historyDepth) {
+			if (!open) handleOpenChange(true);
+			else if (!mobilePageOpen) setMobilePageOpen(true);
+		}
+	});
+
 	return (
-		<Dialog.Root
-			open={open}
-			onOpenChange={(nextOpen) => {
-				if (!nextOpen) setMobilePageOpen(false);
-				onOpenChange(nextOpen);
-			}}
-		>
+		<Dialog.Root open={open} onOpenChange={handleOpenChange}>
 			<Dialog.Portal>
 				<Dialog.Backdrop className={dialogBackdropMotion()} />
 				<Dialog.Popup
