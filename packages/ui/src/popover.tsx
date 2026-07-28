@@ -1,13 +1,12 @@
 import { Popover as BasePopover } from "@base-ui/react";
 import { cva } from "./cva.config";
+import { overlayPopupMotion } from "./overlay-motion";
 
 const popup = cva({
 	base: [
 		"origin-(--transform-origin) rounded-lg border border-ink/10 bg-white p-3 text-ink",
-		"shadow-lg shadow-ink/15 transition-[transform,opacity] duration-150 ease-out",
-		"data-starting-style:scale-95 data-starting-style:opacity-0",
-		"data-ending-style:scale-95 data-ending-style:opacity-0",
-		"outline-none",
+		"shadow-lg shadow-ink/15 outline-none",
+		overlayPopupMotion,
 		"dark:border-surface/10 dark:bg-ink dark:text-surface",
 	],
 });

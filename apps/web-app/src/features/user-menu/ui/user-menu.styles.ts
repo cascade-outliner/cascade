@@ -1,4 +1,5 @@
 import { cva } from "@cascade/ui/cva.config";
+import { overlayPopupMotion } from "@cascade/ui/overlay-motion";
 
 export const avatarTrigger = cva({
 	base: [
@@ -10,9 +11,9 @@ export const avatarTrigger = cva({
 
 export const menuPopup = cva({
 	base: [
-		"min-w-40 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface",
-		"shadow-lg shadow-ink/15",
-		"outline-none",
+		"origin-(--transform-origin) min-w-40 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface",
+		"shadow-lg shadow-ink/15 outline-none",
+		overlayPopupMotion,
 	],
 });
 
@@ -26,7 +27,7 @@ export const menuItem = cva({
 export const tabTrigger = cva({
 	base: [
 		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-ink/60 outline-none",
-		"transition-colors duration-150",
+		"transition-colors duration-small-enter",
 		"hover:bg-surface/70 hover:text-ink focus-visible:ring-2 focus-visible:ring-danger/50 data-active:bg-surface data-active:font-medium data-active:text-ink",
 		"dark:text-surface/60 dark:hover:bg-surface/10 dark:hover:text-surface dark:data-active:bg-surface/15 dark:data-active:text-surface",
 	],
@@ -45,7 +46,7 @@ export const settingsPanel = cva({
 });
 
 export const iconButton = cva({
-	base: "cursor-pointer rounded-md p-1 outline-none transition-colors duration-150 hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20",
+	base: "cursor-pointer rounded-md p-1 outline-none transition-colors duration-small-enter hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 dark:hover:bg-surface/20",
 });
 
 export const alertPopup = cva({

@@ -76,7 +76,10 @@ const icons: Record<ToastType, React.ReactNode> = {
 
 // Stacking geometry per base-ui's docs: toasts sit absolutely positioned in
 // the viewport, peeking out behind the frontmost one until the viewport is
-// hovered/focused (`data-expanded`), then they fan out to full height.
+// hovered/focused (`data-expanded`), then they fan out to full height. The
+// transform here is structural (it's what makes the stack/swipe geometry
+// work), so reduced motion shortens its duration to immediate instead of
+// removing it — removing it would break the stack, not just the animation.
 const root = cva({
 	base: [
 		"[--gap:0.5rem] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
@@ -86,7 +89,8 @@ const root = cva({
 		"[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]",
 		"z-[calc(1000-var(--toast-index))] h-[var(--height)]",
 		"rounded-lg border border-ink/10 bg-white text-ink shadow-lg shadow-ink/15",
-		"select-none [transition:transform_0.4s_cubic-bezier(0.22,1,0.36,1),opacity_0.4s,height_0.15s]",
+		"select-none [transition:transform_var(--duration-feedback)_var(--ease-standard),opacity_var(--duration-feedback),height_var(--duration-small-enter)]",
+		"motion-reduce:[transition:transform_var(--duration-immediate),opacity_var(--duration-immediate),height_var(--duration-immediate)]",
 		"data-expanded:h-[var(--toast-height)]",
 		"data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
 		"data-starting-style:[transform:translateY(150%)]",
@@ -109,7 +113,8 @@ const root = cva({
 
 const content = cva({
 	base: [
-		"flex h-full items-center gap-3 overflow-hidden p-3 transition-opacity duration-200 ease-out",
+		"flex h-full items-center gap-3 overflow-hidden p-3 transition-opacity duration-small-enter ease-standard",
+		"motion-reduce:duration-immediate",
 		"data-behind:opacity-0 data-expanded:opacity-100",
 	],
 });

@@ -13,6 +13,7 @@
     "preview:app": "pnpm --filter app preview",
     "test:app": "pnpm --filter app test",
     "test:outliner": "pnpm --filter @cascade/outliner test",
+    "test:ui": "pnpm --filter @cascade/ui test",
     "test:db:app": "pnpm --filter app test:db",
     "test:e2e:app": "pnpm --filter app test:e2e",
     "test:perf:ui:app": "pnpm --filter app test:perf:ui",

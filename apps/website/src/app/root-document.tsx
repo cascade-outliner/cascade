@@ -1,3 +1,4 @@
+import { MotionProvider } from "@cascade/ui/motion-provider";
 import { PreAlphaBanner } from "@cascade/ui/pre-alpha-banner";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HeadContent, Scripts } from "@tanstack/react-router";
@@ -17,10 +18,12 @@ export function RootDocument({ children }: { children: ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="bg-canvas text-ink">
-				<AppLabelsProvider>
-					<PreAlphaBanner />
-					{children}
-				</AppLabelsProvider>
+				<MotionProvider>
+					<AppLabelsProvider>
+						<PreAlphaBanner />
+						{children}
+					</AppLabelsProvider>
+				</MotionProvider>
 				{import.meta.env.DEV && (
 					<TanStackDevtools
 						config={{

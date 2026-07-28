@@ -28,8 +28,11 @@ const root = cva({
 	},
 });
 
+// Restrained delight (see the motion foundation README): the hover morph
+// keeps the overshoot easing other UI motion doesn't use, and is disabled
+// under reduced motion rather than shortened, since it's decorative.
 const spring =
-	"transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]";
+	"transition-transform duration-feedback ease-overshoot motion-reduce:transition-none";
 const slide = `${spring} group-hover:translate-x-4.75 group-active:translate-x-4.75`;
 const grow = `${spring} group-hover:scale-[1.05] group-active:scale-[1.05]`;
 
