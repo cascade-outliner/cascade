@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-28
+- [fix] Removed the slide/fade animation when switching between tabs in Settings; panels now switch instantly. [#481](https://github.com/cascade-outliner/cascade/issues/481)
+
 ## 2026-07-27
 - [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)
