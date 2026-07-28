@@ -53,6 +53,15 @@ export function getCollapsedDescendantIds(rows: VisibleNodeRow[]): Set<string> {
 	return hidden;
 }
 
+/** Ids of rows that are currently completed tasks (not their descendants). */
+export function getCompletedTaskIds(rows: VisibleNodeRow[]): Set<string> {
+	const completed = new Set<string>();
+	for (const row of rows) {
+		if (isCompletedTask(row)) completed.add(row.id);
+	}
+	return completed;
+}
+
 function isCompletedTask(row: VisibleNodeRow): boolean {
 	return row.type === "task" && (row.metadata?.completed ?? false);
 }

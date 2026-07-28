@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-28
+- [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
+
 ## 2026-07-27
 - [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)

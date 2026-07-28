@@ -9,6 +9,10 @@ import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/app/generic-error";
+import {
+	useDelayedCompletionHide,
+	withPendingTasksIncomplete,
+} from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
 	existingTagsOptions,
@@ -41,7 +45,14 @@ function RootTree() {
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
 	const tree = useVisibleTree(null, includeCollapsedDescendants, dueDateRange);
-	const visibility = getRowVisibility(tree.rows, filters);
+	const pendingHideIds = useDelayedCompletionHide(
+		tree.rows,
+		filters.hideCompleted,
+	);
+	const visibility = getRowVisibility(
+		withPendingTasksIncomplete(tree.rows, pendingHideIds),
+		filters,
+	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 
