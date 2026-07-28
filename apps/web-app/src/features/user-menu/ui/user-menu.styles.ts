@@ -41,14 +41,7 @@ export const settingsDialogPopup = cva({
 });
 
 export const settingsPanel = cva({
-	base: [
-		"absolute inset-0 transform-gpu overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8",
-		"transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-ending-style:duration-150 data-ending-style:ease-in",
-		"data-starting-style:translate-x-3 data-starting-style:opacity-0",
-		"data-ending-style:-translate-x-2 data-ending-style:opacity-0",
-		"motion-reduce:transition-opacity motion-reduce:duration-75 motion-reduce:data-ending-style:duration-75",
-		"motion-reduce:data-starting-style:translate-x-0 motion-reduce:data-ending-style:translate-x-0",
-	],
+	base: "absolute inset-0 overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-8",
 });
 
 export const iconButton = cva({
