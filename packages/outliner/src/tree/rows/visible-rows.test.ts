@@ -6,6 +6,7 @@ import {
 	insertRowAfter,
 	insertSubtreeAfter,
 	moveSubtree,
+	moveWouldChangePosition,
 	removeSubtree,
 	siblingPosition,
 } from "./visible-rows";
@@ -125,6 +126,29 @@ describe("visible-row mutations", () => {
 				parentId: "root",
 			}),
 		).toEqual(tree());
+	});
+
+	it("distinguishes real moves from equivalent current-position targets", () => {
+		expect(
+			moveWouldChangePosition(tree(), "b", {
+				position: "after",
+				targetId: "a",
+				parentId: "root",
+			}),
+		).toBe(false);
+		expect(
+			moveWouldChangePosition(tree(), "b", {
+				position: "before",
+				targetId: "c",
+				parentId: "root",
+			}),
+		).toBe(false);
+		expect(
+			moveWouldChangePosition(tree(), "b", {
+				position: "append",
+				parentId: "other",
+			}),
+		).toBe(true);
 	});
 
 	it("repairs an emptied parent and sibling-tail flags when removing", () => {

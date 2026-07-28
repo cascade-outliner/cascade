@@ -64,8 +64,9 @@ export function useTreeEditing(
 		setEditingNodeId(focusTarget?.id ?? null);
 	};
 
-	const handleMoveDrop = (draggedId: string, target: MoveTarget) => {
-		tree.move(draggedId, target);
+	const handleMoveDrop = async (draggedId: string, target: MoveTarget) => {
+		const succeeded = await tree.move(draggedId, target);
+		return succeeded !== false;
 	};
 
 	const handleIndent = (id: string) => {

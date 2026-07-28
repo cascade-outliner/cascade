@@ -18,7 +18,7 @@ export interface VisibleTree {
 		id: string,
 		target: MoveTarget,
 		options?: { expandParentId?: string },
-	) => void | Promise<void>;
+	) => Promise<boolean>;
 	remove: (id: string) => void | Promise<void>;
 	/** Copies a node and its full subtree, inserting the copy as a sibling immediately after it. */
 	duplicate: (id: string) => void | Promise<void>;

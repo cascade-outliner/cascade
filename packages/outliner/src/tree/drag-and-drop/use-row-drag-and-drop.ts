@@ -9,8 +9,10 @@ import {
 	extractInstruction,
 	type Instruction,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
+import { outlineRowDropConfirmation } from "@cascade/ui/motion-row-lifecycle";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { VisibleNodeRow } from "../../nodes/model/node-types";
+import { moveWouldChangePosition } from "../rows/move-subtree";
 import type { MoveTarget } from "../rows/move-targets";
 import { isInSubtree, resolveDropTarget } from "./resolve-drop-target";
 
@@ -18,17 +20,20 @@ interface UseRowDragAndDropOptions {
 	row: VisibleNodeRow;
 	rows: VisibleNodeRow[];
 	indentSize: number;
-	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
+	onMoveDrop: (draggedId: string, target: MoveTarget) => Promise<boolean>;
 }
 
 type DragData = Record<string, unknown> & {
 	nodeId: string;
 };
 
+const mountedDragRows = new Map<string, HTMLElement>();
+
 export function useRowDragAndDrop(options: UseRowDragAndDropOptions) {
 	const rowRef = useRef<HTMLDivElement>(null);
 	const handleRef = useRef<HTMLButtonElement>(null);
 	const [instruction, setInstruction] = useState<Instruction | null>(null);
+	const [isDragging, setIsDragging] = useState(false);
 	const latest = useRef(options);
 
 	useLayoutEffect(() => {
@@ -41,7 +46,8 @@ export function useRowDragAndDrop(options: UseRowDragAndDropOptions) {
 		if (!rowElement || !handle) return;
 
 		const id = latest.current.row.id;
-		return combine(
+		mountedDragRows.set(id, rowElement);
+		const cleanup = combine(
 			draggable({
 				element: handle,
 				getInitialData: (): DragData => ({ nodeId: id }),
@@ -56,6 +62,8 @@ export function useRowDragAndDrop(options: UseRowDragAndDropOptions) {
 						},
 					});
 				},
+				onDragStart: () => setIsDragging(true),
+				onDrop: () => setIsDragging(false),
 			}),
 			dropTargetForElements({
 				element: rowElement,
@@ -88,13 +96,28 @@ export function useRowDragAndDrop(options: UseRowDragAndDropOptions) {
 					if (!dropInstruction || draggedId === id) return;
 
 					const target = resolveDropTarget(dropInstruction, row, rows);
-					if (target) onMoveDrop(draggedId, target);
+					if (!target || !moveWouldChangePosition(rows, draggedId, target)) {
+						return;
+					}
+
+					void Promise.resolve(onMoveDrop(draggedId, target)).then(
+						(succeeded) => {
+							const movedRow = mountedDragRows.get(draggedId);
+							if (succeeded !== false && movedRow) {
+								outlineRowDropConfirmation(movedRow);
+							}
+						},
+					);
 				},
 			}),
 		);
+		return () => {
+			cleanup();
+			if (mountedDragRows.get(id) === rowElement) mountedDragRows.delete(id);
+		};
 	}, []);
 
-	return { rowRef, handleRef, instruction };
+	return { rowRef, handleRef, instruction, isDragging };
 }
 
 function getInstructionMode(row: VisibleNodeRow) {

@@ -86,5 +86,5 @@ export interface VirtualTreeRowProps {
 	onMoveDown: () => void;
 	onFocusNext: () => void;
 	onFocusPrevious: () => void;
-	onMoveDrop: (draggedId: string, target: MoveTarget) => void;
+	onMoveDrop: (draggedId: string, target: MoveTarget) => Promise<boolean>;
 }
