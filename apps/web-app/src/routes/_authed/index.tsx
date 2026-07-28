@@ -19,7 +19,6 @@ import {
 	useVisibleTree,
 	visibleTreeOptions,
 } from "@/features/nodes/client/tree/use-visible-tree";
-import { NavigationHistoryControls } from "@/features/nodes/ui/navigation-history-controls";
 import { NodeLink } from "@/features/nodes/ui/node-link";
 import { useSettings } from "@/features/settings/client/settings-context";
 
@@ -63,7 +62,6 @@ function RootTree() {
 					completedFilterMode={
 						settings.hideCompletedByDefault ? "show" : "hide"
 					}
-					leading={[<NavigationHistoryControls key="nav-history" />]}
 				/>
 			}
 			hiddenRowIds={visibility.hiddenIds}

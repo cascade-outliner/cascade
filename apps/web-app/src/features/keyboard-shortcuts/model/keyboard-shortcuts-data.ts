@@ -14,8 +14,7 @@ export interface ShortcutGroup {
 
 /** Read-only reference of the shortcuts implemented in `packages/outliner`
  * (tree navigation/editing, `use-editor-commands.ts`) and the app-level undo
- * (`features/nodes/client/undo`) and node back/forward
- * (`features/nodes/ui/navigation-history-controls.tsx`) shortcuts — see #437.
+ * (`features/nodes/client/undo`) shortcuts — see #437.
  * Keep in sync with those implementations rather than the other way around. */
 export const keyboardShortcutGroups: ShortcutGroup[] = [
 	{
@@ -50,14 +49,6 @@ export const keyboardShortcutGroups: ShortcutGroup[] = [
 			{
 				hotkeys: ["Shift+ArrowDown"],
 				description: () => m.keyboard_shortcuts_focus_next(),
-			},
-			{
-				hotkeys: ["Alt+ArrowLeft"],
-				description: () => m.keyboard_shortcuts_navigate_back(),
-			},
-			{
-				hotkeys: ["Alt+ArrowRight"],
-				description: () => m.keyboard_shortcuts_navigate_forward(),
 			},
 		],
 	},
