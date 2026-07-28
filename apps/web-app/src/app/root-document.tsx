@@ -5,6 +5,7 @@ import {
 	SYSTEM_THEME,
 	themeAttribute,
 } from "@cascade/theme/themes";
+import { MotionProvider } from "@cascade/ui/motion-provider";
 import { Toaster } from "@cascade/ui/toast";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HeadContent, Scripts, useMatches } from "@tanstack/react-router";
@@ -67,11 +68,13 @@ export function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="flex h-dvh flex-col bg-canvas font-app text-ink dark:bg-ink dark:text-canvas">
-				<NuqsAdapter>
-					<AppLabelsProvider>
-						<Toaster>{children}</Toaster>
-					</AppLabelsProvider>
-				</NuqsAdapter>
+				<MotionProvider>
+					<NuqsAdapter>
+						<AppLabelsProvider>
+							<Toaster>{children}</Toaster>
+						</AppLabelsProvider>
+					</NuqsAdapter>
+				</MotionProvider>
 				<DevelopmentTools />
 				<Scripts />
 			</body>

@@ -9,6 +9,10 @@
   "exports": {
     "./cva.config": "./src/cva.config.ts",
     "./pointer-intent": "./src/pointer-intent.ts",
+    "./motion-tokens": "./src/motion-tokens.ts",
+    "./motion-variants": "./src/motion-variants.ts",
+    "./motion-reposition": "./src/motion-reposition.ts",
+    "./overlay-motion": "./src/overlay-motion.ts",
     "./*": "./src/*.tsx"
   },
   "peerDependencies": {
@@ -18,7 +22,9 @@
   "dependencies": {
     "@base-ui/react": "^1.6.0",
     "@phosphor-icons/react": "^2.1.10",
+    "@cascade/theme": "workspace:*",
     "cva": "1.0.0-beta.4",
+    "motion": "^12.42.2",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {

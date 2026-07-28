@@ -10,6 +10,60 @@
 	--color-primary: #ad4c4e;
 
 	--font-app: "Bitter Variable", serif;
+
+	/*
+	 * The shared motion scale (see motion.ts for the JS-side counterpart used
+	 * by the `motion` library and Web Animations API — keep both in sync).
+	 * `--ease-*` is a Tailwind theme namespace and generates `ease-overshoot`
+	 * automatically; `--duration-*` isn't (Tailwind v4 only generates bare
+	 * numeric `duration-<ms>` utilities from its own scale), so the matching
+	 * named `duration-*` utilities below are declared explicitly via
+	 * `@utility`. `overshoot` easing is reserved for restrained delight
+	 * (checkmarks, primary marketing buttons), not general UI motion.
+	 */
+	--duration-immediate: 75ms;
+	--duration-small-enter: 150ms;
+	--duration-small-exit: 100ms;
+	--duration-medium-enter: 225ms;
+	--duration-medium-exit: 175ms;
+	--duration-feedback: 400ms;
+	--ease-standard: cubic-bezier(0, 0, 0.2, 1);
+	--ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@utility duration-immediate {
+	transition-duration: var(--duration-immediate);
+}
+@utility duration-small-enter {
+	transition-duration: var(--duration-small-enter);
+}
+@utility duration-small-exit {
+	transition-duration: var(--duration-small-exit);
+}
+@utility duration-medium-enter {
+	transition-duration: var(--duration-medium-enter);
+}
+@utility duration-medium-exit {
+	transition-duration: var(--duration-medium-exit);
+}
+@utility duration-feedback {
+	transition-duration: var(--duration-feedback);
+}
+
+/*
+ * Native View Transitions (TanStack Router's `viewTransition` prop) aren't
+ * covered by `motion-reduce:` or Motion's `reducedMotion="user"` — the
+ * browser runs the cross-fade/transform regardless of OS preference unless
+ * told otherwise. Collapse the pseudo-element animation to an immediate
+ * cross-fade under reduced motion.
+ */
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation-duration: var(--duration-immediate) !important;
+		animation-timing-function: linear !important;
+	}
 }
 
 /*

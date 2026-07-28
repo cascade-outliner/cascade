@@ -1,5 +1,6 @@
 import { Menu } from "@base-ui/react";
 import { lexicalToPlainText } from "@cascade/outliner/lexical-content";
+import { overlayPopupMotion } from "@cascade/ui/overlay-motion";
 import { DotsThreeIcon, HouseIcon } from "@phosphor-icons/react/ssr";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -44,7 +45,9 @@ function CollapsedCrumbs({ crumbs }: { crumbs: Crumb[] }) {
 			</Menu.Trigger>
 			<Menu.Portal>
 				<Menu.Positioner className="z-50 outline-none" sideOffset={6}>
-					<Menu.Popup className="min-w-40 max-w-72 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface shadow-lg shadow-ink/15 outline-none">
+					<Menu.Popup
+						className={`origin-(--transform-origin) min-w-40 max-w-72 rounded-lg border border-ink/10 bg-white p-1 text-ink dark:border-surface/15 dark:bg-ink dark:text-surface shadow-lg shadow-ink/15 outline-none ${overlayPopupMotion}`}
+					>
 						{crumbs.map((crumb) => (
 							<Menu.Item
 								key={crumb.id}

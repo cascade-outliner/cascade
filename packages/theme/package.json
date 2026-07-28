@@ -6,6 +6,7 @@
     ".": "./theme.css",
     "./themes": "./themes.ts",
     "./fonts": "./fonts.ts",
-    "./font-sizes": "./font-sizes.ts"
+    "./font-sizes": "./font-sizes.ts",
+    "./motion": "./motion.ts"
   }
 }
