@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-28
+- [fix] The back/forward navigation history controls now live in the persistent app header instead of unmounting whenever a step lands on a deleted node's error page, so they no longer disappear and the history stack no longer desyncs from the current page. [#486](https://github.com/cascade-outliner/cascade/issues/486)
+
 ## 2026-07-27
 - [feat] Added an account-wide General setting to hide completed tasks by default, with per-view overrides that persist in the URL.
 - [feat] Added recurring due dates for tasks with daily, weekly, monthly, and custom intervals; completing one advances it to its next scheduled occurrence. [#290](https://github.com/cascade-outliner/cascade/issues/290)

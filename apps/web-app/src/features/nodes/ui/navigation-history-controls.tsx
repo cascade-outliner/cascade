@@ -7,8 +7,12 @@ const stepButton =
 	"flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md outline-none hover:text-danger focus-visible:ring-2 focus-visible:ring-danger/50 disabled:cursor-default disabled:opacity-30 disabled:hover:text-inherit";
 
 /**
- * Back/forward across the nodes visited this session. Mounted once in the app
- * header so the stack keeps recording on every route under `_authed`.
+ * Back/forward across the nodes visited this session. Mounted once in
+ * `AppHeader`, which lives in the persistent `_authed` layout route rather
+ * than any individual page, so the stack keeps recording (and the controls
+ * stay visible) across every route under `_authed` — including when a leaf
+ * route's `errorComponent` renders instead of its normal page, e.g. a
+ * deleted node's stale history entry resolving to a 404.
  *
  * `Alt+ArrowLeft`/`Alt+ArrowRight` mirror the browser's own back/forward keys
  * on Windows/Linux. They keep `useHotkey`'s default `ignoreInputs: true`, so

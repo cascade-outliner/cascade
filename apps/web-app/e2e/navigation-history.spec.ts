@@ -106,3 +106,76 @@ test("steps back and forward through visited nodes without fighting the browser"
 		await orpcClient.nodes.delete({ id: parent.id });
 	}
 });
+
+test("keeps the controls mounted and the stack in sync when a step lands on a deleted node (#486)", async ({
+	page,
+	orpcClient,
+}) => {
+	const uniqueSuffix = Date.now().toString();
+	const rootTitle = `Navigation history root ${uniqueSuffix}`;
+	const middleTitle = `Navigation history middle ${uniqueSuffix}`;
+	const leafTitle = `Navigation history leaf ${uniqueSuffix}`;
+
+	const root = await orpcClient.nodes.create({ parentId: null });
+
+	try {
+		await orpcClient.nodes.updateContent({
+			id: root.id,
+			content: lexicalContent(rootTitle),
+		});
+
+		const middle = await orpcClient.nodes.create({ parentId: root.id });
+		await orpcClient.nodes.updateContent({
+			id: middle.id,
+			content: lexicalContent(middleTitle),
+		});
+
+		const leaf = await orpcClient.nodes.create({ parentId: middle.id });
+		await orpcClient.nodes.updateContent({
+			id: leaf.id,
+			content: lexicalContent(leafTitle),
+		});
+
+		const rootSlug = toNodeSlug({
+			id: root.id,
+			content: lexicalContent(rootTitle),
+		});
+		const middleSlug = toNodeSlug({
+			id: middle.id,
+			content: lexicalContent(middleTitle),
+		});
+		const leafSlug = toNodeSlug({
+			id: leaf.id,
+			content: lexicalContent(leafTitle),
+		});
+
+		const back = page.getByRole("button", {
+			name: "Go back to the previously visited node",
+		});
+
+		// Build up a stack of [root, middle, leaf] with the cursor at leaf.
+		await page.goto(`/${rootSlug}`);
+		await page.click(`a[href="/${middleSlug}"]`);
+		await expect(page).toHaveURL(new RegExp(`/${middleSlug}$`));
+		await page.click(`a[href="/${leafSlug}"]`);
+		await expect(page).toHaveURL(new RegExp(`/${leafSlug}$`));
+
+		// The middle node is deleted after being recorded in the stack.
+		await orpcClient.nodes.delete({ id: middle.id });
+
+		// Stepping back lands on the now-deleted node's slug, which 404s into
+		// the generic error page. The controls must still be there...
+		await back.click();
+		await expect(page).toHaveURL(new RegExp(`/${middleSlug}$`));
+		await expect(back).toBeVisible();
+		await expect(back).toBeEnabled();
+
+		// ...and the stack must keep tracking the router's actual location, so
+		// stepping back again continues past the errored entry to root instead
+		// of being stuck replaying it.
+		await back.click();
+		await expect(page).toHaveURL(new RegExp(`/${rootSlug}$`));
+	} finally {
+		await orpcClient.nodes.delete({ id: root.id });
+	}
+});
