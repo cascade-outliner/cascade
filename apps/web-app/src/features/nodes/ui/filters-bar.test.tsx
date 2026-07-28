@@ -2,15 +2,21 @@
 
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import { noFilters } from "@cascade/outliner/node-filters";
+import { MotionProvider } from "@cascade/ui/motion-provider";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 afterEach(() => cleanup());
 
+function renderWithMotion(children: ReactNode) {
+	return render(<MotionProvider>{children}</MotionProvider>);
+}
+
 describe("FiltersBar tag filters", () => {
 	it("lists existing tags in the filter menu", async () => {
 		const onFiltersChange = vi.fn();
-		render(
+		renderWithMotion(
 			<FiltersBar
 				filters={noFilters}
 				existingTags={[{ name: "work", count: 3 }]}
@@ -32,7 +38,7 @@ describe("FiltersBar tag filters", () => {
 	});
 
 	it("does not offer tag creation while filtering", async () => {
-		render(
+		renderWithMotion(
 			<FiltersBar
 				filters={noFilters}
 				existingTags={[{ name: "work", count: 3 }]}
@@ -49,7 +55,7 @@ describe("FiltersBar tag filters", () => {
 	});
 
 	it("renders one removable chip per tag without a label prefix", () => {
-		render(
+		renderWithMotion(
 			<FiltersBar
 				filters={{ ...noFilters, tags: ["work", "urgent"] }}
 				onFiltersChange={() => undefined}
