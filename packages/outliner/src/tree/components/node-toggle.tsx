@@ -1,5 +1,7 @@
 import { cva } from "@cascade/ui/cva.config";
+import { usePointerIntentTarget } from "@cascade/ui/use-pointer-intent-target";
 import { CaretRightIcon } from "@phosphor-icons/react";
+import { useId } from "react";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 
 interface NodeToggleProps {
@@ -23,10 +25,12 @@ export function NodeToggle({
 	onToggle,
 }: NodeToggleProps) {
 	const labels = useOutlinerLabels();
+	const intentRef = usePointerIntentTarget({ id: useId() });
 	return (
 		<>
 			{hasChildren ? (
 				<button
+					ref={intentRef}
 					type="button"
 					onClick={() => onToggle(!expanded)}
 					aria-label={expanded ? labels.toggleCollapse : labels.toggleExpand}

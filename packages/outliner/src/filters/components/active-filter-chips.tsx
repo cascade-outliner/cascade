@@ -1,3 +1,4 @@
+import { usePointerIntentTarget } from "@cascade/ui/use-pointer-intent-target";
 import {
 	CalendarIcon,
 	CheckSquareIcon,
@@ -5,6 +6,7 @@ import {
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
+import { useId } from "react";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 import {
 	formatDueDateRange,
@@ -130,11 +132,13 @@ function FilterChip({
 	removeLabel: string;
 	onRemove: () => void;
 }) {
+	const intentRef = usePointerIntentTarget({ id: useId() });
 	return (
 		<span className={chip()}>
 			{icon}
 			{label}
 			<button
+				ref={intentRef}
 				type="button"
 				aria-label={removeLabel}
 				className={removeChipButton()}
