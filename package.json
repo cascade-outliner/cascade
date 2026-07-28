@@ -24,6 +24,7 @@
     "db:pull:app": "pnpm --filter app db:pull",
     "db:seed:app": "pnpm --filter app db:seed",
     "db:purge-tree-history:app": "pnpm --filter app db:purge-tree-history",
+    "db:purge-deletion-receipts:app": "pnpm --filter app db:purge-deletion-receipts",
     "db:seed:prod:app": "pnpm --filter app db:seed:prod",
     "start:seeded:app": "pnpm --filter app start:seeded",
     "db:studio:app": "pnpm --filter app db:studio",

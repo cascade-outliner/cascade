@@ -1,8 +1,9 @@
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { call } from "@orpc/server";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
+import { nodeDeletionReceipts } from "@/db/schema";
 import {
 	createNode,
 	createTag,
@@ -16,6 +17,7 @@ import {
 	quickOpen,
 	renameTag,
 	resolveNodeSlug,
+	restoreFromDeletionReceipt,
 	restoreNode,
 	setNodeDueDate,
 	setNodeRecurrence,
@@ -134,7 +136,7 @@ describe("large subtree deletion", () => {
 
 		await expect(
 			call(deleteNode, { id: root.id }, { context }),
-		).resolves.toEqual({ childrenDeleted: 4681 });
+		).resolves.toMatchObject({ childrenDeleted: 4681 });
 	});
 });
 
@@ -503,6 +505,163 @@ describe("deleteNode", () => {
 			{ context },
 		);
 		expect(remainingGrandchildren).toHaveLength(0);
+	});
+});
+
+describe("restoreFromDeletionReceipt", () => {
+	it("restores ids, structure, tags, and due dates from a delete's receipt", async () => {
+		const root = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: root.id }, { context });
+		await call(
+			setNodeDueDate,
+			{ id: root.id, dueDate: "2026-09-01" },
+			{ context },
+		);
+		await call(setNodeTags, { id: child.id, tags: ["saved"] }, { context });
+
+		const { receiptId } = await call(deleteNode, { id: root.id }, { context });
+		expect(receiptId).toBeTruthy();
+
+		const result = await call(
+			restoreFromDeletionReceipt,
+			{ receiptId: receiptId as string },
+			{ context },
+		);
+		expect(result.placement).toBe("exact");
+
+		const [restoredRoot] = await call(
+			listNodes,
+			{ parentId: null },
+			{ context },
+		);
+		const [restoredChild] = await call(
+			listNodes,
+			{ parentId: restoredRoot.id },
+			{ context },
+		);
+		expect(restoredRoot).toMatchObject({ id: root.id, dueDate: "2026-09-01" });
+		expect(restoredChild).toMatchObject({ id: child.id, tags: ["saved"] });
+	});
+
+	it("captures collapsed descendants atomically, independent of what the client has loaded", async () => {
+		const root = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: root.id }, { context });
+		await call(
+			toggleNodeExpanded,
+			{ id: root.id, expanded: false },
+			{ context },
+		);
+
+		const { receiptId } = await call(deleteNode, { id: root.id }, { context });
+		await call(
+			restoreFromDeletionReceipt,
+			{ receiptId: receiptId as string },
+			{ context },
+		);
+
+		const restoredChildren = await call(
+			listNodes,
+			{ parentId: root.id },
+			{ context },
+		);
+		expect(restoredChildren.map((c) => c.id)).toEqual([child.id]);
+	});
+
+	it("rejects consuming the same receipt twice", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		const { receiptId } = await call(deleteNode, { id: node.id }, { context });
+
+		await call(
+			restoreFromDeletionReceipt,
+			{ receiptId: receiptId as string },
+			{ context },
+		);
+		await expect(
+			call(
+				restoreFromDeletionReceipt,
+				{ receiptId: receiptId as string },
+				{ context },
+			),
+		).rejects.toMatchObject({ code: "RECEIPT_CONSUMED" });
+	});
+
+	it("rejects an unknown receipt id", async () => {
+		await expect(
+			call(
+				restoreFromDeletionReceipt,
+				{ receiptId: "does-not-exist" },
+				{ context },
+			),
+		).rejects.toMatchObject({ code: "RECEIPT_NOT_FOUND" });
+	});
+
+	it("rejects a receipt belonging to another user", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		const { receiptId } = await call(deleteNode, { id: node.id }, { context });
+
+		const other = await createTestUser();
+		try {
+			await expect(
+				call(
+					restoreFromDeletionReceipt,
+					{ receiptId: receiptId as string },
+					{ context: other.context },
+				),
+			).rejects.toMatchObject({ code: "RECEIPT_NOT_FOUND" });
+		} finally {
+			await deleteTestUser(other.user.id);
+		}
+	});
+
+	it("rejects an expired receipt", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		const { receiptId } = await call(deleteNode, { id: node.id }, { context });
+		await db
+			.update(nodeDeletionReceipts)
+			.set({ expiresAt: new Date(Date.now() - 1_000) })
+			.where(eq(nodeDeletionReceipts.id, receiptId as string));
+
+		await expect(
+			call(
+				restoreFromDeletionReceipt,
+				{ receiptId: receiptId as string },
+				{ context },
+			),
+		).rejects.toMatchObject({ code: "RECEIPT_EXPIRED" });
+	});
+
+	it("falls back to the tree root when the original parent was deleted first", async () => {
+		const parent = await call(createNode, { parentId: null }, { context });
+		const child = await call(createNode, { parentId: parent.id }, { context });
+		const { receiptId } = await call(deleteNode, { id: child.id }, { context });
+		await call(deleteNode, { id: parent.id }, { context });
+
+		const result = await call(
+			restoreFromDeletionReceipt,
+			{ receiptId: receiptId as string },
+			{ context },
+		);
+		expect(result.placement).toBe("fallback-root");
+
+		const roots = await call(listNodes, { parentId: null }, { context });
+		expect(roots.map((r) => r.id)).toContain(child.id);
+	});
+
+	it("rejects restoring into ids that already exist", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		const { receiptId } = await call(deleteNode, { id: node.id }, { context });
+		await db.execute(sql`
+			INSERT INTO nodes (id, user_id, "order")
+			VALUES (${node.id}, ${userId}, 'z')
+		`);
+
+		await expect(
+			call(
+				restoreFromDeletionReceipt,
+				{ receiptId: receiptId as string },
+				{ context },
+			),
+		).rejects.toMatchObject({ code: "ID_COLLISION" });
 	});
 });
 

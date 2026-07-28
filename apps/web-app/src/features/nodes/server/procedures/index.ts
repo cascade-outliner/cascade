@@ -11,6 +11,7 @@ export { moveNode } from "./move-node";
 export { quickOpen } from "./quick-open";
 export { renameTag } from "./rename-tag";
 export { resolveNodeSlug } from "./resolve-node-slug";
+export { restoreFromDeletionReceipt } from "./restore-from-deletion-receipt";
 export { restoreNode } from "./restore-node";
 export { setNodeDueDate } from "./set-node-due-date";
 export { setNodeRecurrence } from "./set-node-recurrence";

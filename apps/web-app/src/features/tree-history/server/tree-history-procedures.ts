@@ -17,7 +17,7 @@ import {
 	orderAtTarget,
 	siblingScope,
 } from "@/features/nodes/server/persistence/sibling-order";
-import { restoreSubtree } from "@/features/nodes/server/persistence/subtree-restore";
+import { restoreSnapshotWithFallback } from "@/features/nodes/server/persistence/subtree-restore";
 import { ancestorsOf } from "@/features/nodes/server/persistence/tree-cte";
 import { requirePremium } from "@/features/premium/server/premium-access";
 import {
@@ -368,37 +368,11 @@ export const restoreTreeHistoryEntry = requirePremium
 						.orderBy(treeHistorySnapshots.depth, treeHistorySnapshots.order);
 					const root = snapshotRows.find((row) => row.isRoot);
 					if (!root || snapshotRows.length === 0) throw errors.NOT_RESTORABLE();
-					const collisions = await transaction
-						.select({ id: nodes.id })
-						.from(nodes)
-						.where(
-							inArray(
-								nodes.id,
-								snapshotRows.map(({ nodeId }) => nodeId),
-							),
-						)
-						.limit(1);
-					if (collisions.length > 0) throw errors.NOT_RESTORABLE();
 
-					const parentId = await existingParentOrRoot(
-						transaction,
+					const outcome = await restoreSnapshotWithFallback(transaction, {
 						userId,
-						payload.location.parentId,
-					);
-					const target =
-						parentId === payload.location.parentId
-							? payload.location.target
-							: ({ position: "append" } as const);
-					const order = await orderAtTargetOrAppend(
-						transaction,
-						userId,
-						parentId,
-						target,
-					);
-					await restoreSubtree(transaction, {
-						userId,
-						parentId,
-						order,
+						parentId: payload.location.parentId,
+						target: payload.location.target,
 						root: {
 							id: root.nodeId,
 							content: root.content,
@@ -424,6 +398,11 @@ export const restoreTreeHistoryEntry = requirePremium
 								tags: row.tags,
 							})) as RestoreNodeInput["descendants"],
 					});
+					// Collision handling is unified across every restore entry point
+					// (see docs/research/535-node-deletion-lifecycle.md); tree-history
+					// keeps its own NOT_RESTORABLE surface rather than adding a new
+					// error kind to this procedure's public contract.
+					if (!outcome.ok) throw errors.NOT_RESTORABLE();
 					const after = await captureSubtree(
 						transaction,
 						root.nodeId,

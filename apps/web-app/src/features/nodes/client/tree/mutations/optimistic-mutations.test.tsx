@@ -115,7 +115,10 @@ describe("optimistic node mutations", () => {
 		]) {
 			vi.mocked(mutation).mockResolvedValue(undefined as never);
 		}
-		vi.mocked(client.nodes.delete).mockResolvedValue({ childrenDeleted: 0 });
+		vi.mocked(client.nodes.delete).mockResolvedValue({
+			childrenDeleted: 0,
+			receiptId: "receipt-1",
+		});
 		vi.mocked(client.nodes.setTaskCompleted).mockResolvedValue({
 			advanced: false,
 			nextDueDate: null,

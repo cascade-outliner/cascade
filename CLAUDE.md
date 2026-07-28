@@ -43,6 +43,7 @@ pnpm db:generate:app    # generate a drizzle migration from schema changes
 pnpm db:migrate:app     # run drizzle migrations
 pnpm db:seed:app        # seed dev data
 pnpm db:purge-tree-history:app # purge tree-history events older than 30 days
+pnpm db:purge-deletion-receipts:app # purge expired node-deletion undo receipts
 pnpm db:studio:app      # open Drizzle Studio
 
 pnpm perf:seed:app      # seed a large tree for perf testing (see below)
@@ -89,6 +90,8 @@ Reads for the tree view go through a single recursive CTE (`visibleTree` in `app
 Node procedures live one operation per file under `apps/web-app/src/features/nodes/server/procedures/` and are exported through that folder's `index.ts`. Shared transaction-level behavior—sibling ordering, recursive CTEs, batched inserts, and subtree copy/restore persistence—lives under `features/nodes/server/persistence/`.
 
 Premium users' semantic node mutations are also recorded atomically in `tree_history_events`; large create/delete/duplicate previews use normalized `tree_history_snapshots` rows rather than one oversized JSON payload. History is visible for `TREE_HISTORY_RETENTION_DAYS` days (defaults to 30) and should be purged periodically by a deployment cron or systemd timer with `pnpm db:purge-tree-history:app` (pass `-- --dry-run` to preview or `-- --days=N` to override the maintenance cutoff for that run only). `TREE_HISTORY_RETENTION_DAYS` is the single source of truth for how long history stays readable/restorable via the API *and* the default purge cutoff when `--days`/`{"days":N}` isn't explicitly passed — set it deployment-wide instead of relying on ad hoc `--days=N` overrides if you want a retention window other than 30 days, since a one-off `--days=90` purge run keeps rows in the database but doesn't change what the read/restore procedures expose. Deployments can instead set a 32+ character `TREE_HISTORY_PURGE_TOKEN` and schedule an authenticated `POST /api/maintenance/purge-tree-history` request with JSON `{"days":30,"dryRun":false}`; `days: 0` removes all existing history.
+
+Every `deleteNode` call — free and premium alike, not just premium seats — also captures a short-lived, opaque *deletion receipt* (`node_deletion_receipts`/`node_deletion_receipt_snapshots`, `features/nodes/server/persistence/deletion-receipt-persistence.ts`) atomically in the same transaction, reusing the same subtree-capture query premium history uses (`persistence/subtree-capture.ts`) instead of running it twice. `nodes.restoreFromDeletionReceipt` consumes a receipt exactly once to undo a delete. This is deliberately decoupled from `tree_history_*`: receipts exist only to make *immediate* undo/redo correct for every user, not to be a durable, queryable history feature, so their retention (`NODE_DELETION_RECEIPT_TTL_MINUTES`, defaults to 30 *minutes*) is independent of `TREE_HISTORY_RETENTION_DAYS` and should be purged far more aggressively — `pnpm db:purge-deletion-receipts:app` on a short-interval cron. See docs/research/535-node-deletion-lifecycle.md for the full design.
 
 ### API: oRPC, not REST
 

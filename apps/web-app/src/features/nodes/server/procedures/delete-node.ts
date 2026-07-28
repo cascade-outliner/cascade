@@ -2,12 +2,11 @@ import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
-	captureRestoreTarget,
-	captureSubtree,
 	createHistoryRecorder,
 	historyNodeLabel,
 } from "@/features/tree-history/server/history-persistence";
 import { authed } from "@/orpc/context";
+import { captureDeletionReceipt } from "../persistence/deletion-receipt-persistence";
 import { nodes } from "../persistence/node-tables";
 import { lockNodeOrdering } from "../persistence/sibling-order";
 import { descendantsOf } from "../persistence/tree-cte";
@@ -28,20 +27,17 @@ export const deleteNode = authed
 				.from(nodes)
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
 				.for("update");
-			if (!root) return { childrenDeleted: 0 };
+			if (!root) return { childrenDeleted: 0, receiptId: null };
 
-			const history = await createHistoryRecorder(transaction, userId);
-			const snapshots = history.enabled
-				? await captureSubtree(transaction, input.id, userId, "before")
-				: [];
-			const target = history.enabled
-				? await captureRestoreTarget(
-						transaction,
-						userId,
-						root.parentId,
-						root.order,
-					)
-				: { position: "append" as const };
+			// Captured atomically, in this same transaction, for every user —
+			// not just premium seats — so undo never depends on a separate,
+			// non-transactional client-side subtree fetch. See
+			// docs/research/535-node-deletion-lifecycle.md.
+			const { receiptId, snapshots, target } = await captureDeletionReceipt(
+				transaction,
+				userId,
+				root,
+			);
 
 			const [result] = (await transaction.execute(sql`
 				WITH RECURSIVE ${descendantsOf(input.id, userId)}
@@ -49,16 +45,23 @@ export const deleteNode = authed
 				RETURNING (SELECT count(*) FROM descendants)::int AS count
 			`)) as unknown as { count: number }[];
 
+			// Premium's durable history reuses the receipt's already-captured
+			// rows instead of re-querying the same subtree; `record` no-ops
+			// (and never touches `snapshots`) for non-premium users.
+			const history = await createHistoryRecorder(transaction, userId);
 			await history.record({
 				nodeId: input.id,
 				payload: {
 					kind: "subtree_deleted",
 					label: historyNodeLabel(root.content),
 					location: { parentId: root.parentId, target },
-					count: snapshots.length || (result?.count ?? 0) + 1,
+					count: snapshots.length,
 				},
-				snapshots,
+				snapshots: snapshots.map((node) => ({
+					...node,
+					phase: "before" as const,
+				})),
 			});
-			return { childrenDeleted: result?.count ?? 0 };
+			return { childrenDeleted: result?.count ?? 0, receiptId };
 		});
 	});

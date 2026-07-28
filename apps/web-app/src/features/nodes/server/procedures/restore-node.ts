@@ -1,14 +1,10 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { restoreNodeInputSchema } from "@/features/nodes/model/subtree-snapshot.schema";
 import { nodeColumns } from "@/features/nodes/server/persistence/node-columns";
 import { nodes } from "@/features/nodes/server/persistence/node-tables";
-import {
-	lockNodeOrdering,
-	orderAtTarget,
-	siblingScope,
-} from "@/features/nodes/server/persistence/sibling-order";
-import { restoreSubtree } from "@/features/nodes/server/persistence/subtree-restore";
+import { lockNodeOrdering } from "@/features/nodes/server/persistence/sibling-order";
+import { restoreSnapshotWithFallback } from "@/features/nodes/server/persistence/subtree-restore";
 import {
 	captureSubtree,
 	createHistoryRecorder,
@@ -24,11 +20,19 @@ import { authed } from "@/orpc/context";
  * parent) may no longer exist; descendants keep their original `order`
  * values since their parent ids are exclusive to this subtree and can't
  * collide with anything created since the delete.
+ *
+ * Shares its placement-fallback and id-collision handling with deletion
+ * receipts and premium tree-history's restore
+ * (`restoreSnapshotWithFallback`), so a missing parent/anchor or a
+ * colliding id behaves identically regardless of which of the three restore
+ * entry points is used. See docs/research/535-node-deletion-lifecycle.md.
  */
 export const restoreNode = authed
 	.errors({
-		NOT_FOUND: { status: 404, message: "Target parent not found" },
-		INVALID_MOVE: { status: 422, message: "Restore target not found" },
+		ID_COLLISION: {
+			status: 409,
+			message: "Restore target ids already exist",
+		},
 	})
 	.input(restoreNodeInputSchema)
 	.handler(async ({ input, context, errors }) => {
@@ -39,29 +43,14 @@ export const restoreNode = authed
 			await lockNodeOrdering(tx, userId);
 			const history = await createHistoryRecorder(tx, userId);
 
-			if (parentId !== null) {
-				const [parent] = await tx
-					.select({ id: nodes.id })
-					.from(nodes)
-					.where(and(eq(nodes.id, parentId), eq(nodes.userId, userId)))
-					.limit(1);
-				if (!parent) throw errors.NOT_FOUND();
-			}
-
-			const order = await orderAtTarget(
-				tx,
-				siblingScope(userId, parentId),
-				target,
-			);
-			if (order === undefined) throw errors.INVALID_MOVE();
-
-			await restoreSubtree(tx, {
+			const outcome = await restoreSnapshotWithFallback(tx, {
 				userId,
 				parentId,
-				order,
+				target,
 				root,
 				descendants,
 			});
+			if (!outcome.ok) throw errors.ID_COLLISION();
 
 			const [created] = await tx
 				.select(nodeColumns(userId))
@@ -81,6 +70,6 @@ export const restoreNode = authed
 						: [],
 				});
 			}
-			return created;
+			return { ...created, placement: outcome.placement };
 		});
 	});

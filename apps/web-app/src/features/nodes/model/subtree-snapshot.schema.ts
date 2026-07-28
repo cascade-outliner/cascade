@@ -10,6 +10,8 @@ export const restoreTargetSchema = z.discriminatedUnion("position", [
 	z.object({ position: z.literal("append") }),
 ]);
 
+export type RestoreTarget = z.infer<typeof restoreTargetSchema>;
+
 const nodeSnapshotSchema = z
 	.object({
 		id: z.string(),

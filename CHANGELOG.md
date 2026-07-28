@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-28
+- [fix] Undoing a delete no longer fails outright when its original location was also removed in the meantime - it now restores the node to the top level instead of showing an error. [#547](https://github.com/cascade-outliner/cascade/issues/547)
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
 
