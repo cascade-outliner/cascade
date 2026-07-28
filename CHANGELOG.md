@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-28
+- [chore] Added a Playwright perf gate (`virtual-tree-motion.spec.ts`) that drags/reorders, creates/deletes, and expands/collapses rows in the seeded 20,000-node tree with the candidate single-row row-reposition animation toggled on/off and under reduced motion, checking mounted row count and frame timing stay bounded before any tree-motion work ships. The candidate effect itself is off by default and not yet user-visible. [#509](https://github.com/cascade-outliner/cascade/issues/509)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
 
 ## 2026-07-27

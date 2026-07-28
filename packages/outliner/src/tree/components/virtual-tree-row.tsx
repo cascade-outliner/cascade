@@ -1,4 +1,5 @@
-import { Fragment } from "react";
+import { animateRowReposition } from "@cascade/ui/motion-reposition";
+import { Fragment, useLayoutEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { parseCalendarDate } from "../../dates/calendar-date";
 import { NodeEditor } from "../../editor/components/node-editor";
@@ -7,6 +8,7 @@ import { defaultOutlinerFeatures } from "../../features/registry/default-outline
 import { NodeActions } from "../../nodes/components/node-actions";
 import { RowDragAndDrop } from "../drag-and-drop/row-drag-and-drop";
 import type { VirtualTreeRowProps } from "../model/virtual-tree.types";
+import { isRowMotionEnabled } from "../motion/row-motion-flag";
 import { siblingPosition } from "../rows/visible-rows";
 import { DefaultNodeLink } from "./node-link-slot";
 import { NodeToggle } from "./node-toggle";
@@ -23,6 +25,25 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
 	const position = siblingPosition(props.rows, index);
 	const blockType = getBlockType(row.content);
+
+	// Candidate motion (issue #509): animate this row's own transform via
+	// WAAPI when its virtualized offset changes (drag reorder, indent/
+	// outdent, siblings shifting after expand/collapse/create/delete),
+	// instead of always snapping. Gated behind isRowMotionEnabled() so
+	// production stays snap-only until the perf gate passes.
+	const rowElementRef = useRef<HTMLDivElement | null>(null);
+	const previousStartRef = useRef(start);
+	useLayoutEffect(() => {
+		const previousStart = previousStartRef.current;
+		previousStartRef.current = start;
+		if (rowElementRef.current && isRowMotionEnabled()) {
+			animateRowReposition(rowElementRef.current, previousStart, start);
+		}
+	}, [start]);
+	const setRowElement = (element: HTMLDivElement | null) => {
+		rowElementRef.current = element;
+		measureElement(element);
+	};
 
 	// Built once per row and passed to every feature's slot/menu renderer,
 	// each of which only reads the handful of fields its own (narrower)
@@ -50,7 +71,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 
 	return (
 		<div
-			ref={measureElement}
+			ref={setRowElement}
 			data-index={index}
 			role="treeitem"
 			// Focus lives on the nested node-text control (roving tabindex);
