@@ -11,7 +11,6 @@ export function NodeTagPills({
 	tags: string[];
 	onTagClick?: (tag: string) => void;
 }) {
-	if (tags.length === 0) return null;
 	const hidden = tags.slice(MAX_VISIBLE_TAGS);
 
 	return (

@@ -1,3 +1,8 @@
+import { AnimatePresence, m } from "@cascade/ui/motion";
+import {
+	smallEnterVariants,
+	smallExitVariants,
+} from "@cascade/ui/motion-variants";
 import {
 	CalendarIcon,
 	CheckSquareIcon,
@@ -33,12 +38,12 @@ export function ActiveFilterChips({
 			: filters.hideCompleted;
 
 	return (
-		<>
+		<AnimatePresence initial={false}>
 			{relativeFilters.map(
 				(filter) =>
 					filters[filter.key] && (
 						<FilterChip
-							key={filter.key}
+							key={`relative:${filter.key}`}
 							icon={<CalendarIcon size={11} weight="bold" />}
 							label={filter.label}
 							removeLabel={filter.removeLabel}
@@ -51,6 +56,7 @@ export function ActiveFilterChips({
 
 			{filters.dueOnDate && (
 				<FilterChip
+					key="date:due-on"
 					icon={<CalendarIcon size={11} weight="bold" />}
 					label={
 						<>
@@ -64,6 +70,7 @@ export function ActiveFilterChips({
 
 			{filters.dueDateRange && (
 				<FilterChip
+					key="date:range"
 					icon={<CalendarIcon size={11} weight="bold" />}
 					label={
 						<>
@@ -81,7 +88,7 @@ export function ActiveFilterChips({
 
 			{filters.tags.map((tag) => (
 				<FilterChip
-					key={tag}
+					key={`tag:${tag}`}
 					icon={<TagIcon size={11} weight="bold" />}
 					label={tag}
 					removeLabel={`${labels.filtersRemoveTag}: ${tag}`}
@@ -96,6 +103,7 @@ export function ActiveFilterChips({
 
 			{completedFilterActive && (
 				<FilterChip
+					key="completion"
 					icon={<CheckSquareIcon size={11} weight="bold" />}
 					label={
 						completedFilterMode === "show"
@@ -115,7 +123,7 @@ export function ActiveFilterChips({
 					}
 				/>
 			)}
-		</>
+		</AnimatePresence>
 	);
 }
 
@@ -131,7 +139,13 @@ function FilterChip({
 	onRemove: () => void;
 }) {
 	return (
-		<span className={chip()}>
+		<m.span
+			className={chip()}
+			variants={{ ...smallEnterVariants, ...smallExitVariants }}
+			initial="initial"
+			animate="animate"
+			exit="exit"
+		>
 			{icon}
 			{label}
 			<button
@@ -142,6 +156,6 @@ function FilterChip({
 			>
 				<XIcon size={9} weight="bold" />
 			</button>
-		</span>
+		</m.span>
 	);
 }
