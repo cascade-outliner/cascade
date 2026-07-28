@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-07-28
+- [chore] Added the internal visible-tree change module (command vocabulary, operation journal, per-tree structural serialization, per-field write sequencing, and production/in-memory adapters for remote calls, cache state, row motion, and undo history) behind the existing `VisibleTree` interface. No mutation hook uses it yet and no behavior changes. [#542](https://github.com/cascade-outliner/cascade/issues/542)
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
 
