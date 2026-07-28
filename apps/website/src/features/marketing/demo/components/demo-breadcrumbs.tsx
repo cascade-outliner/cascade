@@ -19,7 +19,7 @@ export function DemoBreadcrumbs({
 						type="button"
 						onClick={() => onNavigate(null)}
 						aria-label={m.hero_breadcrumb_back_to_root()}
-						className="hover:text-danger transition-colors"
+						className="transition-colors duration-small-enter ease-standard hover:text-danger"
 					>
 						<HouseIcon size={16} weight="bold" />
 					</button>
@@ -40,7 +40,7 @@ export function DemoBreadcrumbs({
 							<button
 								type="button"
 								onClick={() => onNavigate(ancestor.id)}
-								className="max-w-48 truncate hover:text-danger transition-colors"
+								className="max-w-48 truncate transition-colors duration-small-enter ease-standard hover:text-danger"
 							>
 								{ancestor.label}
 							</button>

@@ -1,3 +1,4 @@
+import { Collapsible } from "@base-ui/react/collapsible";
 import { m } from "#/paraglide/messages.js";
 
 const faqs = [
@@ -14,21 +15,21 @@ export function FaqSection() {
 			</h2>
 			<div className="flex flex-col">
 				{faqs.map((faq, i) => (
-					<details
+					<Collapsible.Root
 						key={faq.question}
-						className={`group border-t border-ink/10 py-1 ${
+						className={`border-t border-ink/10 py-1 ${
 							i === faqs.length - 1 ? "border-b" : ""
 						}`}
 					>
-						<summary className="cursor-pointer list-none px-1 py-6 text-base font-bold [&::-webkit-details-marker]:hidden">
+						<Collapsible.Trigger className="w-full cursor-pointer px-1 py-6 text-left text-base font-bold">
 							{faq.question}
-						</summary>
-						<div className="grid grid-rows-[0fr] transition-[grid-template-rows]">
+						</Collapsible.Trigger>
+						<Collapsible.Panel className="h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-medium-enter ease-standard data-starting-style:h-0 data-ending-style:h-0 data-ending-style:duration-medium-exit motion-reduce:transition-none">
 							<p className="m-0 px-1 pb-6 text-pretty text-base">
 								{faq.answer}
 							</p>
-						</div>
-					</details>
+						</Collapsible.Panel>
+					</Collapsible.Root>
 				))}
 			</div>
 		</section>

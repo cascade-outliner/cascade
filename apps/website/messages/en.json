@@ -22,6 +22,7 @@
 	"hero_breadcrumb_nav_label": "Breadcrumb",
 	"hero_breadcrumb_back_to_root": "Back to full outline",
 	"hero_demo_open_node": "Open node",
+	"hero_demo_loading": "Loading interactive demo",
 	"features_heading": "Everything is a list.",
 	"feature_infinite_depth_title": "Infinite depth",
 	"feature_infinite_depth_description": "Nest as deep as your thoughts go. Every item is a list of its own, all the way down.",

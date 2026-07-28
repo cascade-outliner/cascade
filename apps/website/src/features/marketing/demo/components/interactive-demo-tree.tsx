@@ -27,7 +27,7 @@ export function InteractiveDemoTree() {
 							type="button"
 							aria-label={m.hero_demo_open_node()}
 							onClick={() => setRootId(id)}
-							className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-ink hover:bg-danger shrink-0 hover:scale-150 hover:-z-10 transition-all ease-in-out"
+							className="relative z-0 after:absolute after:-inset-2 size-2 shrink-0 rounded-full bg-ink transition-colors duration-small-enter ease-standard hover:bg-danger"
 						/>
 					)}
 					header={
@@ -47,6 +47,20 @@ export function InteractiveDemoTree() {
 	);
 }
 
-function DemoTreeSkeleton() {
-	return <div aria-hidden className={`${demoTreeClassName} animate-pulse`} />;
+export function DemoTreeSkeleton() {
+	return (
+		<div
+			role="status"
+			aria-label={m.hero_demo_loading()}
+			className={`${demoTreeClassName} animate-pulse motion-reduce:animate-none p-6`}
+		>
+			<div aria-hidden className="space-y-5">
+				<div className="h-4 w-2/5 rounded bg-ink/10" />
+				<div className="ml-4 h-4 w-3/5 rounded bg-ink/10" />
+				<div className="ml-8 h-4 w-1/2 rounded bg-ink/10" />
+				<div className="ml-4 h-4 w-4/5 rounded bg-ink/10" />
+				<div className="h-4 w-1/3 rounded bg-ink/10" />
+			</div>
+		</div>
+	);
 }
