@@ -67,12 +67,6 @@ export const moveNode = authed
 				.where(and(eq(nodes.id, input.id), eq(nodes.userId, userId)))
 				.for("update");
 			if (!moved) throw errors.NOT_FOUND();
-			const beforeTarget = await captureRestoreTarget(
-				transaction,
-				userId,
-				moved.parentId,
-				moved.order,
-			);
 
 			if (input.parentId) {
 				const ancestors = await destinationAncestors(
@@ -98,6 +92,14 @@ export const moveNode = authed
 			}
 			if (moved.parentId === input.parentId && moved.order === order) return;
 			const history = await createHistoryRecorder(transaction, userId);
+			const beforeTarget = history.enabled
+				? await captureRestoreTarget(
+						transaction,
+						userId,
+						moved.parentId,
+						moved.order,
+					)
+				: { position: "append" as const };
 			await transaction
 				.update(nodes)
 				.set({ parentId: input.parentId, order })

@@ -4,7 +4,7 @@ import { env } from "@/env";
 import { purgeTreeHistory } from "./purge-tree-history";
 
 const purgeRequestSchema = z.object({
-	days: z.number().int().nonnegative().default(30),
+	days: z.number().int().nonnegative().default(env.TREE_HISTORY_RETENTION_DAYS),
 	dryRun: z.boolean().default(false),
 });
 

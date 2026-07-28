@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { lt } from "drizzle-orm";
 import { db } from "@/db";
+import { env } from "@/env";
 import { treeHistoryEvents } from "./tree-history-table";
 
 export interface PurgeTreeHistoryResult {
@@ -8,7 +9,7 @@ export interface PurgeTreeHistoryResult {
 }
 
 export async function purgeTreeHistory(
-	days = 30,
+	days = env.TREE_HISTORY_RETENTION_DAYS,
 	dryRun = false,
 ): Promise<PurgeTreeHistoryResult> {
 	if (!Number.isInteger(days) || days < 0) {
@@ -36,7 +37,7 @@ function parseDays(): number {
 	const value = process.argv
 		.find((arg) => arg.startsWith("--days="))
 		?.slice("--days=".length);
-	return value === undefined ? 30 : Number(value);
+	return value === undefined ? env.TREE_HISTORY_RETENTION_DAYS : Number(value);
 }
 
 async function main() {
