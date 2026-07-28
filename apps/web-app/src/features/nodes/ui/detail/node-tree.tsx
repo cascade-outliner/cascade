@@ -6,6 +6,10 @@ import {
 } from "@cascade/outliner/node-filters";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import type { ReactNode } from "react";
+import {
+	revealPendingCompletions,
+	useDelayedCompletionHide,
+} from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
 import {
 	useDeleteTag,
@@ -31,7 +35,16 @@ export function NodeTree({
 		includeCollapsedDescendants,
 		dueDateRange,
 	);
+	const pendingHideIds = useDelayedCompletionHide(
+		tree.rows,
+		filters.hideCompleted,
+	);
 	const visibility = getRowVisibility(tree.rows, filters);
+	const hiddenRowIds = revealPendingCompletions(
+		visibility.hiddenIds,
+		pendingHideIds,
+		tree.rows,
+	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 
@@ -56,7 +69,7 @@ export function NodeTree({
 					{header}
 				</>
 			}
-			hiddenRowIds={visibility.hiddenIds}
+			hiddenRowIds={hiddenRowIds}
 			contextRowIds={visibility.contextIds}
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}

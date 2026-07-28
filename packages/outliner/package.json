@@ -17,6 +17,7 @@
     "./tree-types": "./src/tree/model/tree.types.ts",
     "./visible-rows": "./src/tree/rows/visible-rows.ts",
     "./filter-visibility": "./src/filters/visibility/get-row-visibility.ts",
+    "./completed-task-ids": "./src/filters/visibility/subtree-visibility.ts",
     "./node-filters": "./src/filters/model/node-filters.ts",
     "./due-date-bucket": "./src/dates/due-date-bucket.ts",
     "./calendar-date": "./src/dates/calendar-date.ts",
