@@ -1,6 +1,8 @@
 import { captureCurrentPosition } from "@cascade/outliner/visible-rows";
+import { toast } from "@cascade/ui/toast";
 import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { m } from "#/paraglide/messages.js";
 import { undoStore } from "@/features/nodes/client/undo/undo-store";
 import { fetchFullSubtree } from "../fetch-full-subtree";
 import type { VisibleTreeData } from "../tree-data.types";
@@ -16,6 +18,8 @@ export function useRemoveMutation(queryKey: QueryKey) {
 		const target = rows && captureCurrentPosition(rows, id);
 		if (!row || !target) return;
 
+		let childrenDeleted = 0;
+
 		const run = async () => {
 			// Fetched before the actual delete request goes out (the optimistic
 			// cache patch inside rawDelete doesn't touch the server), so this
@@ -24,12 +28,32 @@ export function useRemoveMutation(queryKey: QueryKey) {
 			const descendants = row.hasChildren
 				? await fetchFullSubtree(id, { includeCollapsedDescendants: true })
 				: [];
-			await rawDelete(id);
+			const result = await rawDelete(id);
+			childrenDeleted = result?.childrenDeleted ?? 0;
 			undoStore.push({
 				undo: () => rawRestore({ row, descendants, target }),
-				redo: () => rawDelete(id, { silent: true }),
+				redo: async () => {
+					await rawDelete(id, { silent: true });
+				},
 			});
 		};
-		run();
+
+		// One toast for the whole operation (descendants fetch, exit animation,
+		// and server round trip): a spinner while pending, morphing in place
+		// into success/error on settle — same pattern as duplicate.
+		return toast
+			.promise(run(), {
+				loading: m.node_deleting(),
+				success: () =>
+					childrenDeleted === 0
+						? m.node_deleted()
+						: childrenDeleted > 64
+							? m.node_deleted_with_many_children()
+							: m.node_deleted_with_children({ count: childrenDeleted }),
+				error: m.node_delete_failed(),
+			})
+			.catch(() => {
+				// Already surfaced by the error toast above.
+			});
 	};
 }
