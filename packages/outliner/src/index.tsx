@@ -25,6 +25,7 @@ export function Outliner({
 	onDeleteTag,
 	onTagClick,
 	features,
+	addNodeActions,
 }: OutlinerProps) {
 	const labels = useOutlinerLabels();
 	const interactions = useTreeInteractions(tree, newNodeDueDate, newNodeTags);
@@ -50,6 +51,7 @@ export function Outliner({
 			onDeleteTag={onDeleteTag}
 			onTagClick={onTagClick}
 			features={features}
+			addNodeActions={addNodeActions}
 			onAddRoot={interactions.handleAddRoot}
 			onMoveDrop={interactions.handleMoveDrop}
 			onCreateBelow={interactions.handleCreateBelow}

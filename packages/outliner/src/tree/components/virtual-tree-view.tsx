@@ -1,3 +1,4 @@
+import { Action } from "@cascade/ui/action";
 import { Button } from "@cascade/ui/button";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
@@ -36,6 +37,7 @@ export function VirtualTreeView({
 	onDeleteTag,
 	onTagClick,
 	features,
+	addNodeActions,
 	onAddRoot,
 	onMoveDrop,
 	onCreateBelow,
@@ -63,6 +65,7 @@ export function VirtualTreeView({
 	| "onDeleteTag"
 	| "onTagClick"
 	| "features"
+	| "addNodeActions"
 > & {
 	tree: VisibleTree;
 	labels: OutlinerLabels;
@@ -177,13 +180,23 @@ export function VirtualTreeView({
 						})}
 					</div>
 				)}
-				<Button
-					icon={<PlusIcon className="size-4" />}
-					onClick={onAddRoot}
-					className="mt-4 mb-4"
-				>
-					{labels.addNode}
-				</Button>
+				{addNodeActions && addNodeActions.length > 0 ? (
+					<Action
+						actions={addNodeActions}
+						onClick={onAddRoot}
+						className="mt-4 mb-4"
+					>
+						{labels.addNode}
+					</Action>
+				) : (
+					<Button
+						icon={<PlusIcon className="size-4" />}
+						onClick={onAddRoot}
+						className="mt-4 mb-4"
+					>
+						{labels.addNode}
+					</Button>
+				)}
 			</div>
 		</div>
 	);

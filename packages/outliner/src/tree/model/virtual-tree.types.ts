@@ -1,3 +1,4 @@
+import type { ActionItem } from "@cascade/ui/action";
 import type { ReactNode } from "react";
 import type { RecurrenceInput } from "../../dates/recurrence";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
@@ -46,6 +47,9 @@ export interface VirtualTreeProps {
 	/** Row/context-menu features to render, in order. Defaults to the
 	 * built-in task, due-date, and tags features (`defaultOutlinerFeatures`). */
 	features?: OutlinerFeature[];
+	/** Extra actions fanned out from the trailing "add node" control (e.g. a
+	 * "Share" shortcut). Omit to render a plain add-node button, unchanged. */
+	addNodeActions?: ActionItem[];
 }
 
 export interface VirtualTreeRowProps {

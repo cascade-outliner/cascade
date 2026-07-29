@@ -6,8 +6,9 @@ import {
 } from "@cascade/outliner/node-filters";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
+import { ShareIcon } from "@phosphor-icons/react/ssr";
 import { createFileRoute } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { GenericErrorComponent } from "@/app/generic-error";
 import {
 	useDelayedCompletionHide,
@@ -25,6 +26,8 @@ import {
 } from "@/features/nodes/client/tree/use-visible-tree";
 import { NodeLink } from "@/features/nodes/ui/node-link";
 import { useSettings } from "@/features/settings/client/settings-context";
+import { ShareDialog } from "@/features/sharing/ui/share-dialog";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
@@ -55,43 +58,64 @@ function RootTree() {
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const [shareOpen, setShareOpen] = useState(false);
+	// The trailing "add node" control's Share fan action targets whichever
+	// node currently sits at the top of the outline; disabled until one exists.
+	const firstRootId = tree.rows.find((row) => row.depth === 0)?.id ?? null;
 
 	return (
-		<VirtualTree
-			tree={tree}
-			className="h-full"
-			indentSize={settings.indentSize}
-			renderNodeLink={(node) => (
-				<NodeLink id={node.id} content={node.content} />
-			)}
-			contentClassName="rr-block"
-			header={
-				<FiltersBar
-					filters={filters}
-					existingTags={existingTags}
-					onFiltersChange={setFilters}
-					completedFilterMode={
-						settings.hideCompletedByDefault ? "show" : "hide"
-					}
+		<>
+			<VirtualTree
+				tree={tree}
+				className="h-full"
+				indentSize={settings.indentSize}
+				renderNodeLink={(node) => (
+					<NodeLink id={node.id} content={node.content} />
+				)}
+				contentClassName="rr-block"
+				header={
+					<FiltersBar
+						filters={filters}
+						existingTags={existingTags}
+						onFiltersChange={setFilters}
+						completedFilterMode={
+							settings.hideCompletedByDefault ? "show" : "hide"
+						}
+					/>
+				}
+				hiddenRowIds={visibility.hiddenIds}
+				completionExitRowIds={completionHide.exitingIds}
+				contextRowIds={visibility.contextIds}
+				newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
+				newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
+				existingTags={existingTags}
+				onDeleteTag={deleteTag}
+				onTagClick={(tag) =>
+					setFilters({
+						...filters,
+						tags: filters.tags.some(
+							(name) => name.toLowerCase() === tag.toLowerCase(),
+						)
+							? filters.tags
+							: [...filters.tags, tag],
+					})
+				}
+				addNodeActions={[
+					{
+						icon: <ShareIcon size={16} weight="bold" />,
+						label: m.sharing_dialog_title(),
+						onClick: () => setShareOpen(true),
+						disabled: !firstRootId,
+					},
+				]}
+			/>
+			{firstRootId && (
+				<ShareDialog
+					nodeId={firstRootId}
+					open={shareOpen}
+					onOpenChange={setShareOpen}
 				/>
-			}
-			hiddenRowIds={visibility.hiddenIds}
-			completionExitRowIds={completionHide.exitingIds}
-			contextRowIds={visibility.contextIds}
-			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
-			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
-			existingTags={existingTags}
-			onDeleteTag={deleteTag}
-			onTagClick={(tag) =>
-				setFilters({
-					...filters,
-					tags: filters.tags.some(
-						(name) => name.toLowerCase() === tag.toLowerCase(),
-					)
-						? filters.tags
-						: [...filters.tags, tag],
-				})
-			}
-		/>
+			)}
+		</>
 	);
 }
