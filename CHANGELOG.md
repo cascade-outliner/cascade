@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-29
+- [fix] Typing a custom interval in a task's repeat planner (e.g. "every 15 weeks") no longer gets swallowed keystroke-by-keystroke by the context menu's type-ahead navigation. [#562](https://github.com/cascade-outliner/cascade/issues/562)
+
 ## 2026-07-28
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)

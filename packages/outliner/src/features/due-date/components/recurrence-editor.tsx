@@ -115,6 +115,7 @@ export function RecurrenceEditor({
 										: event.currentTarget.valueAsNumber,
 								)
 							}
+							onKeyDown={(event) => event.stopPropagation()}
 							className="w-20 rounded-md border border-ink/15 bg-white px-2 py-1.5 text-sm outline-none dark:border-surface/20 dark:bg-ink"
 						/>
 					</label>
