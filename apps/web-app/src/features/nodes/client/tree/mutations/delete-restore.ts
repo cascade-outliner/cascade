@@ -64,6 +64,13 @@ export function makeRawDeleteRestore(
 ) {
 	const setRows = makeSetRows(queryClient, queryKey);
 
+	// Silent callers (undo/redo) never surface their own toast — success is
+	// handled by undoStore's "Redone" toast, and a failure here just
+	// invalidates the cache to reconcile silently. A non-silent (user-
+	// initiated) delete instead reports its outcome back to the caller, which
+	// wraps the whole operation (including the descendants fetch) in a single
+	// in-progress toast via `toast.promise`, so this rethrows on failure
+	// rather than showing its own error toast.
 	const rawDelete = async (id: string, options: { silent?: boolean } = {}) => {
 		await queryClient.cancelQueries({ queryKey });
 		// Let the row's own exit animation play out before it actually leaves
@@ -74,19 +81,11 @@ export function makeRawDeleteRestore(
 		await playRowExit(id);
 		setRows((rows) => removeSubtree(rows, id));
 		try {
-			const { childrenDeleted } = await client.nodes.delete({ id });
-			if (!options.silent) {
-				toast.success(
-					childrenDeleted > 64
-						? m.node_deleted_with_many_children()
-						: childrenDeleted > 0
-							? m.node_deleted_with_children({ count: childrenDeleted })
-							: m.node_deleted(),
-				);
-			}
-		} catch {
-			toast.error(m.node_delete_failed());
+			return await client.nodes.delete({ id });
+		} catch (error) {
 			queryClient.invalidateQueries({ queryKey });
+			if (options.silent) return undefined;
+			throw error;
 		}
 	};
 
