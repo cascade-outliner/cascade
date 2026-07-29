@@ -53,24 +53,26 @@ function SharedTreePage() {
 	if (!firstPage) return null;
 
 	return (
-		<div className="mx-auto max-w-3xl px-6 py-10">
-			<div className="mb-8 flex flex-wrap items-center gap-2 text-ink/60 text-sm dark:text-surface/60">
-				<span>{m.sharing_shared_by({ name: firstPage.ownerName })}</span>
-				<span className="rounded-full bg-ink/5 px-2 py-0.5 dark:bg-surface/10">
-					{m.sharing_read_only_badge()}
-				</span>
+		<div className="isolate h-dvh overflow-auto">
+			<div className="mx-auto max-w-6xl px-4 py-16">
+				<div className="mb-8 flex flex-wrap items-center gap-2 text-ink/60 text-sm dark:text-surface/60">
+					<span>{m.sharing_shared_by({ name: firstPage.ownerName })}</span>
+					<span className="rounded-full bg-ink/5 px-2 py-0.5 dark:bg-surface/10">
+						{m.sharing_read_only_badge()}
+					</span>
+				</div>
+				<SharedTreeView rootId={firstPage.rootId} rows={rows} />
+				{query.hasNextPage && (
+					<button
+						type="button"
+						className="mt-4 cursor-pointer text-danger text-sm hover:underline"
+						disabled={query.isFetchingNextPage}
+						onClick={() => query.fetchNextPage()}
+					>
+						{m.sharing_load_more()}
+					</button>
+				)}
 			</div>
-			<SharedTreeView rootId={firstPage.rootId} rows={rows} />
-			{query.hasNextPage && (
-				<button
-					type="button"
-					className="mt-4 cursor-pointer text-danger text-sm hover:underline"
-					disabled={query.isFetchingNextPage}
-					onClick={() => query.fetchNextPage()}
-				>
-					{m.sharing_load_more()}
-				</button>
-			)}
 		</div>
 	);
 }
