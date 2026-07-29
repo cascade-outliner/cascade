@@ -2,6 +2,9 @@
 
 ## 2026-07-29
 - [feat] Added read-only tree sharing: generate a share link for any node from its detail page's Share button, optionally requiring the viewer to be signed in, and revoke it at any time. Anyone with an active link can view and navigate that node's subtree at `/shared/<token>` without being able to edit, delete, move, or otherwise modify anything. [#170](https://github.com/cascade-outliner/cascade/issues/170)
+- [feat] Deleting a node now shows an in-progress toast (matching duplicate) that morphs into a success or error toast once the delete settles. [#565](https://github.com/cascade-outliner/cascade/issues/565)
+- [fix] A node's expand chevron no longer shows when an active filter (tags, due date, or hide-completed) hides every one of its children — expanding it would have revealed nothing. [#506](https://github.com/cascade-outliner/cascade/issues/506)
+- [fix] Typing a custom interval in a task's repeat planner (e.g. "every 15 weeks") no longer gets swallowed keystroke-by-keystroke by the context menu's type-ahead navigation. [#562](https://github.com/cascade-outliner/cascade/issues/562)
 
 ## 2026-07-28
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)

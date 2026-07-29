@@ -27,11 +27,14 @@ export function useDelayedCompletionHide(
 	});
 	const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 	const prevCompletedRef = useRef<Set<string> | null>(null);
+	const prevRowIdsRef = useRef<Set<string> | null>(null);
 
 	useEffect(() => {
 		const timers = timersRef.current;
 		const currentCompleted = getCompletedTaskIds(rows);
+		const currentRowIds = new Set(rows.map((row) => row.id));
 		const prevCompleted = prevCompletedRef.current;
+		const prevRowIds = prevRowIdsRef.current;
 
 		if (!hideCompleted) {
 			for (const timer of timers.values()) clearTimeout(timer);
@@ -43,9 +46,14 @@ export function useDelayedCompletionHide(
 			);
 		}
 
-		if (prevCompleted !== null && hideCompleted) {
+		if (prevCompleted !== null && prevRowIds !== null && hideCompleted) {
 			for (const id of currentCompleted) {
-				if (!prevCompleted.has(id) && !timers.has(id)) {
+				// Only a genuine incomplete-to-complete transition on a row that
+				// was already loaded earns a grace period. A row entering `rows`
+				// for the first time already completed (e.g. expanding a
+				// collapsed subtree, loading more, or a due-date filter forcing
+				// a fetch) was never "just checked off" and must stay hidden.
+				if (!prevCompleted.has(id) && prevRowIds.has(id) && !timers.has(id)) {
 					setState((current) => ({
 						pendingIds: new Set(current.pendingIds).add(id),
 						exitingIds: current.exitingIds,
@@ -97,6 +105,7 @@ export function useDelayedCompletionHide(
 		});
 
 		prevCompletedRef.current = currentCompleted;
+		prevRowIdsRef.current = currentRowIds;
 	}, [rows, hideCompleted]);
 
 	useEffect(() => {

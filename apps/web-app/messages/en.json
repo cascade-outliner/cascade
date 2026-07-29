@@ -235,6 +235,7 @@
 		}
 	],
 	"node_link_open": "Open node",
+	"node_deleting": "Deleting node…",
 	"node_deleted": "Node deleted",
 	"node_save_failed": "Failed to save changes",
 	"node_create_failed": "Failed to create node",
