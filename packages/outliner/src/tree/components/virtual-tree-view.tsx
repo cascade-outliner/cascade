@@ -32,6 +32,7 @@ export function VirtualTreeView({
 	hiddenRowIds,
 	completionExitRowIds,
 	contextRowIds,
+	noVisibleChildrenRowIds,
 	existingTags = [],
 	onDeleteTag,
 	onTagClick,
@@ -59,6 +60,7 @@ export function VirtualTreeView({
 	| "hiddenRowIds"
 	| "completionExitRowIds"
 	| "contextRowIds"
+	| "noVisibleChildrenRowIds"
 	| "existingTags"
 	| "onDeleteTag"
 	| "onTagClick"
@@ -139,6 +141,9 @@ export function VirtualTreeView({
 										completionExitRowIds?.has(row.id) ?? false
 									}
 									isContext={contextRowIds?.has(row.id) ?? false}
+									hasVisibleChildren={
+										!(noVisibleChildrenRowIds?.has(row.id) ?? false)
+									}
 									revealOnMount={expansionRevealRowIds.has(row.id)}
 									editing={editingNodeId === row.id}
 									focusPoint={editingNodeId === row.id ? focusPoint : null}

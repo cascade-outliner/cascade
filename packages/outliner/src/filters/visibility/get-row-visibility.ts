@@ -12,11 +12,15 @@ export interface RowVisibility {
 	hiddenIds: Set<string>;
 	/** Row ids to keep visible but dimmed: a match's ancestors or descendants. */
 	contextIds: Set<string>;
+	/** Row ids with children loaded in `rows` that are all filtered out, so
+	 * expanding would reveal nothing — their expand chevron shouldn't show. */
+	noVisibleChildrenIds: Set<string>;
 }
 
 const emptyVisibility: RowVisibility = {
 	hiddenIds: new Set(),
 	contextIds: new Set(),
+	noVisibleChildrenIds: new Set(),
 };
 
 /**
@@ -34,7 +38,11 @@ export function getRowVisibility(
 		: new Set<string>();
 
 	if (!hasPositiveFilters(filters)) {
-		return { hiddenIds: excludedIds, contextIds: new Set() };
+		return {
+			hiddenIds: excludedIds,
+			contextIds: new Set(),
+			noVisibleChildrenIds: collectNoVisibleChildrenIds(rows, excludedIds),
+		};
 	}
 
 	const candidates = rows.filter((row) => !excludedIds.has(row.id));
@@ -47,17 +55,50 @@ export function getRowVisibility(
 	const collapsedIds = getCollapsedDescendantIds(candidates);
 	const contextIds = collectContextIds(candidates, matchIds, parentById);
 
-	const hiddenIds = new Set(
+	// Filtered-out, independent of collapse state: a collapsed match's hidden
+	// children must still count as "visible if expanded" for the chevron.
+	const filteredOutIds = new Set(
 		rows
-			.filter(
-				(row) =>
-					collapsedIds.has(row.id) ||
-					(!matchIds.has(row.id) && !contextIds.has(row.id)),
-			)
+			.filter((row) => !matchIds.has(row.id) && !contextIds.has(row.id))
 			.map((row) => row.id),
 	);
 
-	return { hiddenIds, contextIds };
+	const hiddenIds = new Set(
+		rows
+			.filter((row) => collapsedIds.has(row.id) || filteredOutIds.has(row.id))
+			.map((row) => row.id),
+	);
+
+	return {
+		hiddenIds,
+		contextIds,
+		noVisibleChildrenIds: collectNoVisibleChildrenIds(rows, filteredOutIds),
+	};
+}
+
+/**
+ * Direct parent ids whose children are all present in `rows` (i.e. loaded,
+ * not just collapsed-and-unfetched) but every one of them is filtered out.
+ */
+function collectNoVisibleChildrenIds(
+	rows: VisibleNodeRow[],
+	filteredOutIds: Set<string>,
+): Set<string> {
+	const childrenByParent = new Map<string, VisibleNodeRow[]>();
+	for (const row of rows) {
+		if (row.parentId === null) continue;
+		const siblings = childrenByParent.get(row.parentId);
+		if (siblings) siblings.push(row);
+		else childrenByParent.set(row.parentId, [row]);
+	}
+
+	const noVisibleChildrenIds = new Set<string>();
+	for (const [parentId, children] of childrenByParent) {
+		if (children.every((child) => filteredOutIds.has(child.id))) {
+			noVisibleChildrenIds.add(parentId);
+		}
+	}
+	return noVisibleChildrenIds;
 }
 
 function hasPositiveFilters(filters: NodeFilters): boolean {
