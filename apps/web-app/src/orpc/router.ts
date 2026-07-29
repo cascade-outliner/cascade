@@ -37,6 +37,12 @@ import {
 	updateSettings,
 } from "@/features/settings/server/settings-procedures";
 import {
+	createShare,
+	getSharedTree,
+	listShares,
+	revokeShare,
+} from "@/features/sharing/server/share-procedures";
+import {
 	getTreeHistoryEntry,
 	listTreeHistory,
 	restoreTreeHistoryEntry,
@@ -85,5 +91,13 @@ export default {
 		list: listTreeHistory,
 		get: getTreeHistoryEntry,
 		restore: restoreTreeHistoryEntry,
+	},
+	sharing: {
+		create: createShare,
+		revoke: revokeShare,
+		list: listShares,
+	},
+	sharedTree: {
+		get: getSharedTree,
 	},
 };

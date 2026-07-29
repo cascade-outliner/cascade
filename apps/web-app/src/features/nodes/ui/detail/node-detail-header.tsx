@@ -5,7 +5,11 @@ import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-vie
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import type { TagSummary } from "@cascade/outliner/node-tags";
 import type { RecurrenceInput } from "@cascade/outliner/recurrence";
+import { ShareIcon } from "@phosphor-icons/react/ssr";
+import { useState } from "react";
 import { Breadcrumbs } from "#/features/nodes/ui/breadcrumbs";
+import { ShareDialog } from "#/features/sharing/ui/share-dialog";
+import { m } from "#/paraglide/messages.js";
 import type { NodeDetailData } from "./node-detail.types";
 
 export function NodeDetailHeader({
@@ -29,6 +33,8 @@ export function NodeDetailHeader({
 	onTagsChange: (tags: string[]) => void;
 	onDeleteTag: (tag: string) => void;
 }) {
+	const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
 	return (
 		<>
 			<Breadcrumbs nodeId={node.id} />
@@ -41,6 +47,14 @@ export function NodeDetailHeader({
 						<NodeCheckbox metadata={node.metadata} onToggle={onToggleTask} />
 					)}
 					<LexicalReadView content={toLexicalContent(node.content)} />
+					<button
+						type="button"
+						aria-label={m.sharing_dialog_title()}
+						className="ml-auto cursor-pointer self-start rounded-md p-1.5 text-ink/50 text-base outline-none hover:bg-ink/5 hover:text-ink dark:text-surface/50 dark:hover:bg-surface/10 dark:hover:text-surface"
+						onClick={() => setShareDialogOpen(true)}
+					>
+						<ShareIcon size={18} />
+					</button>
 				</div>
 
 				<div className="flex items-start gap-1">
@@ -62,6 +76,11 @@ export function NodeDetailHeader({
 					/>
 				</div>
 			</header>
+			<ShareDialog
+				nodeId={node.id}
+				open={shareDialogOpen}
+				onOpenChange={setShareDialogOpen}
+			/>
 		</>
 	);
 }

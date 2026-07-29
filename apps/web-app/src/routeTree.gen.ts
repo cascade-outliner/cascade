@@ -13,6 +13,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteRouteImport } from './routes/_authed/route'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as SharedTokenRouteImport } from './routes/shared.$token'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as AuthedNodeSlugRouteImport } from './routes/_authed/$nodeSlug'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
@@ -37,6 +38,11 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthedRouteRoute,
+} as any)
+const SharedTokenRoute = SharedTokenRouteImport.update({
+  id: '/shared/$token',
+  path: '/shared/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
   id: '/api/$',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/$nodeSlug': typeof AuthedNodeSlugRoute
   '/api/$': typeof ApiSplatRoute
+  '/shared/$token': typeof SharedTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/$nodeSlug': typeof AuthedNodeSlugRoute
   '/api/$': typeof ApiSplatRoute
+  '/shared/$token': typeof SharedTokenRoute
   '/': typeof AuthedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authed/$nodeSlug': typeof AuthedNodeSlugRoute
   '/api/$': typeof ApiSplatRoute
+  '/shared/$token': typeof SharedTokenRoute
   '/_authed/': typeof AuthedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/$nodeSlug'
     | '/api/$'
+    | '/shared/$token'
     | '/api/auth/$'
     | '/api/maintenance/purge-tree-history'
     | '/api/rpc/$'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/$nodeSlug'
     | '/api/$'
+    | '/shared/$token'
     | '/'
     | '/api/auth/$'
     | '/api/maintenance/purge-tree-history'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authed/$nodeSlug'
     | '/api/$'
+    | '/shared/$token'
     | '/_authed/'
     | '/api/auth/$'
     | '/api/maintenance/purge-tree-history'
@@ -136,6 +148,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   ApiSplatRoute: typeof ApiSplatRoute
+  SharedTokenRoute: typeof SharedTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiMaintenancePurgeTreeHistoryRoute: typeof ApiMaintenancePurgeTreeHistoryRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
@@ -170,6 +183,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRouteRoute
+    }
+    '/shared/$token': {
+      id: '/shared/$token'
+      path: '/shared/$token'
+      fullPath: '/shared/$token'
+      preLoaderRoute: typeof SharedTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/$': {
       id: '/api/$'
@@ -228,6 +248,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   ApiSplatRoute: ApiSplatRoute,
+  SharedTokenRoute: SharedTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiMaintenancePurgeTreeHistoryRoute: ApiMaintenancePurgeTreeHistoryRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,

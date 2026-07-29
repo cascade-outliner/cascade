@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-29
+- [feat] Added read-only tree sharing: generate a share link for any node from its detail page's Share button, optionally requiring the viewer to be signed in, and revoke it at any time. Anyone with an active link can view and navigate that node's subtree at `/shared/<token>` without being able to edit, delete, move, or otherwise modify anything. [#170](https://github.com/cascade-outliner/cascade/issues/170)
+
 ## 2026-07-28
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
