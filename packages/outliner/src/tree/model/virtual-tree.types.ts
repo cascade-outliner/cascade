@@ -29,6 +29,9 @@ export interface VirtualTreeProps {
 	completionExitRowIds?: Set<string>;
 	/** Row ids to render dimmed but still visible, e.g. ancestors kept for context. */
 	contextRowIds?: Set<string>;
+	/** Row ids whose children are all hidden by an active filter; their
+	 * expand chevron is suppressed since expanding would reveal nothing. */
+	noVisibleChildrenRowIds?: Set<string>;
 	/** Stamped onto nodes created here, e.g. so a node added under an active
 	 * due-date filter matches it instead of immediately being hidden. */
 	newNodeDueDate?: Date | null;
@@ -66,6 +69,9 @@ export interface VirtualTreeRowProps {
 	isCompletionExiting: boolean;
 	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
 	isContext: boolean;
+	/** Whether expanding this row would reveal at least one visible child;
+	 * false suppresses the expand chevron even when `row.hasChildren`. */
+	hasVisibleChildren: boolean;
 	/** Newly mounted descendant in the current expansion's virtualizer slice. */
 	revealOnMount: boolean;
 	editing: boolean;

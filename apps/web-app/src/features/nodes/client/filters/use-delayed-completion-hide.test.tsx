@@ -128,6 +128,27 @@ describe("useDelayedCompletionHide", () => {
 		expect(result.current.exitingIds.has("a")).toBe(false);
 	});
 
+	it("does not delay a row that arrives already completed, e.g. expanding a collapsed subtree", () => {
+		const before = [taskRow("parent", false)];
+		const { result, rerender } = renderHook(
+			({ rows, hideCompleted }) =>
+				useDelayedCompletionHide(rows, hideCompleted),
+			{ initialProps: { rows: before, hideCompleted: true } },
+		);
+
+		// "child" wasn't in `rows` at all before this render — it just got
+		// fetched in by expanding "parent" — and it was already completed,
+		// not just checked off, so it must not get a grace period.
+		const afterExpand = [
+			taskRow("parent", false),
+			taskRow("child", true, { parentId: "parent", depth: 1 }),
+		];
+		act(() => rerender({ rows: afterExpand, hideCompleted: true }));
+
+		expect(result.current.pendingIds.has("child")).toBe(false);
+		expect(result.current.exitingIds.has("child")).toBe(false);
+	});
+
 	it("does not animate rows when hide-completed is enabled in bulk", () => {
 		const completed = [taskRow("a", true)];
 		const { result, rerender } = renderHook(
