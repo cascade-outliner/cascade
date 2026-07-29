@@ -19,6 +19,7 @@ export function Outliner({
 	hiddenRowIds,
 	completionExitRowIds,
 	contextRowIds,
+	noVisibleChildrenRowIds,
 	newNodeDueDate,
 	newNodeTags,
 	existingTags,
@@ -47,6 +48,7 @@ export function Outliner({
 			hiddenRowIds={hiddenRowIds}
 			completionExitRowIds={completionExitRowIds}
 			contextRowIds={contextRowIds}
+			noVisibleChildrenRowIds={noVisibleChildrenRowIds}
 			existingTags={existingTags}
 			onDeleteTag={onDeleteTag}
 			onTagClick={onTagClick}

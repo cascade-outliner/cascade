@@ -86,6 +86,7 @@ function RootTree() {
 				hiddenRowIds={visibility.hiddenIds}
 				completionExitRowIds={completionHide.exitingIds}
 				contextRowIds={visibility.contextIds}
+				noVisibleChildrenRowIds={visibility.noVisibleChildrenIds}
 				newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 				newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 				existingTags={existingTags}

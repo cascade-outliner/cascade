@@ -219,6 +219,18 @@ describe("getRowVisibility with dueToday", () => {
 		expect(visibility.contextIds).toEqual(new Set(["parent"]));
 		expect(visibility.hiddenIds).toEqual(new Set(["matching-child", "other"]));
 	});
+
+	it("does not mark a collapsed row childless when its hidden child still matches", () => {
+		const rows = [
+			{ ...row("parent", null, 0, null), expanded: false, hasChildren: true },
+			row("matching-child", "parent", 1, wednesday),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueToday: true,
+		});
+		expect(visibility.noVisibleChildrenIds.size).toBe(0);
+	});
 });
 
 describe("getRowVisibility with tags", () => {
@@ -450,6 +462,73 @@ describe("getRowVisibility with hideCompleted", () => {
 			hideCompleted: true,
 		});
 		expect(visibility.hiddenIds).toEqual(new Set(["done-parent", "due-child"]));
+	});
+});
+
+describe("getRowVisibility noVisibleChildrenIds", () => {
+	it("marks an expanded row childless when every loaded child is filtered out", () => {
+		const rows = [
+			{
+				...taggedRow("parent", null, 0, []),
+				expanded: true,
+				hasChildren: true,
+			},
+			taggedRow("child", "parent", 1, ["personal"]),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work"],
+		});
+		expect(visibility.noVisibleChildrenIds).toEqual(new Set(["parent"]));
+	});
+
+	it("does not mark a row childless when at least one loaded child stays visible", () => {
+		const rows = [
+			{
+				...taggedRow("parent", null, 0, []),
+				expanded: true,
+				hasChildren: true,
+			},
+			taggedRow("matching-child", "parent", 1, ["work"]),
+			taggedRow("other-child", "parent", 1, ["personal"]),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work"],
+		});
+		expect(visibility.noVisibleChildrenIds.size).toBe(0);
+	});
+
+	it("leaves a row with no loaded children alone (no data to decide with)", () => {
+		const rows = [
+			{ ...taggedRow("collapsed-parent", null, 0, []), hasChildren: true },
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			tags: ["work"],
+		});
+		expect(visibility.noVisibleChildrenIds.size).toBe(0);
+	});
+
+	it("marks a row childless when hideCompleted hides its only completed child", () => {
+		const rows = [
+			{ ...row("parent", null, 0, null), expanded: true, hasChildren: true },
+			row("done-child", "parent", 1, null, { completed: true }),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			hideCompleted: true,
+		});
+		expect(visibility.noVisibleChildrenIds).toEqual(new Set(["parent"]));
+	});
+
+	it("is empty when no filter is active", () => {
+		const rows = [
+			{ ...row("parent", null, 0, null), expanded: true, hasChildren: true },
+			row("child", "parent", 1, null),
+		];
+		const visibility = getRowVisibility(rows, noFilters);
+		expect(visibility.noVisibleChildrenIds.size).toBe(0);
 	});
 });
 

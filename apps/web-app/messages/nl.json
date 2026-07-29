@@ -235,6 +235,7 @@
 		}
 	],
 	"node_link_open": "Node openen",
+	"node_deleting": "Node verwijderen…",
 	"node_deleted": "Node verwijderd",
 	"node_save_failed": "Opslaan van wijzigingen mislukt",
 	"node_create_failed": "Aanmaken van node mislukt",

@@ -48,7 +48,9 @@ export function useCreateMutation(
 		target: MoveTarget,
 	) => {
 		undoStore.push({
-			undo: () => rawDelete(row.id, { silent: true }),
+			undo: async () => {
+				await rawDelete(row.id, { silent: true });
+			},
 			redo: () => rawRestore({ row, descendants: [], target }),
 		});
 	};
