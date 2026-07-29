@@ -3,6 +3,7 @@
 ## 2026-07-29
 - [fix] Expanding a node while the hide-completed filter/setting is active no longer briefly shows its already-completed children (e.g. tasks that were completed before the subtree was loaded) — only a task actually checked off while visible gets the brief grace-period fade.
 - [fix] A node's expand chevron no longer shows when an active filter (tags, due date, or hide-completed) hides every one of its children — expanding it would have revealed nothing. [#506](https://github.com/cascade-outliner/cascade/issues/506)
+- [fix] Typing a custom interval in a task's repeat planner (e.g. "every 15 weeks") no longer gets swallowed keystroke-by-keystroke by the context menu's type-ahead navigation. [#562](https://github.com/cascade-outliner/cascade/issues/562)
 
 ## 2026-07-28
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
