@@ -19,12 +19,23 @@ import {
 	CalendarIcon,
 	DotsSixVerticalIcon,
 } from "@phosphor-icons/react/ssr";
-import { useMemo, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+
+// Mirrors use-tree-virtualizer.ts's threshold for when to fetch the next
+// page while scrolling, so a large shared tree keeps loading ahead the same
+// way the owner's own tree does.
+const LOAD_MORE_THRESHOLD = 50;
+const ROW_ESTIMATE_SIZE = 36;
 
 interface SharedTreeViewProps {
 	rootId: string;
 	rows: VisibleNodeRow[];
 	indentSize?: number;
+	header?: ReactNode;
+	hasNextPage: boolean;
+	isFetchingNextPage: boolean;
+	onLoadMore: () => void;
 }
 
 const shortDateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -111,18 +122,25 @@ function StaticDueDatePill({
 }
 
 /**
- * Read-only rendering of a shared subtree styled to match the real,
- * editable tree row-for-row (same toggle, checkbox, link dot, due-date
- * pill, and tag pills), but with every interactive affordance either
- * omitted or wired to a no-op — there's no editor, drag-and-drop, or
+ * Read-only rendering of a shared subtree, virtualized and styled to match
+ * the real, editable tree row-for-row (same toggle, checkbox, link dot,
+ * due-date pill, and tag pills), but with every interactive affordance
+ * either omitted or wired to a no-op — there's no editor, drag-and-drop, or
  * context menu here, so there's no UI path to mutate the owner's tree
- * regardless of what the API would allow.
+ * regardless of what the API would allow. Only the currently expanded rows
+ * are mounted, same as the owner's tree, so large shared trees stay fast to
+ * render and scroll.
  */
 export function SharedTreeView({
 	rootId,
 	rows,
 	indentSize = 16,
+	header,
+	hasNextPage,
+	isFetchingNextPage,
+	onLoadMore,
 }: SharedTreeViewProps) {
+	const labels = useOutlinerLabels();
 	const childrenByParent = useMemo(() => {
 		const map = new Map<string | null, VisibleNodeRow[]>();
 		for (const row of rows) {
@@ -136,64 +154,125 @@ export function SharedTreeView({
 	const [collapsed, setCollapsed] = useState<Set<string>>(
 		() => new Set(rows.filter((row) => !row.expanded).map((row) => row.id)),
 	);
-	const labels = useOutlinerLabels();
 
-	const root = rows.find((row) => row.id === rootId);
-	if (!root) return null;
+	// Flat, depth-first list of every currently expanded row — the same
+	// shape `visibleTree`'s rows already are for the owner's tree — so it
+	// can be windowed by the virtualizer below instead of mounting every
+	// descendant regardless of collapse state.
+	const visibleRows = useMemo(() => {
+		const root = rows.find((row) => row.id === rootId);
+		if (!root) return [];
+		const result: VisibleNodeRow[] = [];
+		const visit = (row: VisibleNodeRow) => {
+			result.push(row);
+			if (collapsed.has(row.id)) return;
+			for (const child of childrenByParent.get(row.id) ?? []) visit(child);
+		};
+		visit(root);
+		return result;
+	}, [rows, rootId, childrenByParent, collapsed]);
+
+	const scrollRef = useRef<HTMLDivElement>(null);
+	const virtualizer = useVirtualizer({
+		count: visibleRows.length,
+		getScrollElement: () => scrollRef.current,
+		estimateSize: () => ROW_ESTIMATE_SIZE,
+		overscan: 10,
+		getItemKey: (index) => visibleRows[index]?.id ?? index,
+	});
+	const virtualItems = virtualizer.getVirtualItems();
+	const lastIndex = virtualItems[virtualItems.length - 1]?.index ?? 0;
+
+	useEffect(() => {
+		if (
+			hasNextPage &&
+			!isFetchingNextPage &&
+			lastIndex >= visibleRows.length - LOAD_MORE_THRESHOLD
+		) {
+			onLoadMore();
+		}
+	}, [
+		lastIndex,
+		hasNextPage,
+		isFetchingNextPage,
+		visibleRows.length,
+		onLoadMore,
+	]);
+
+	const toggleCollapse = (id: string) =>
+		setCollapsed((current) => {
+			const next = new Set(current);
+			if (next.has(id)) next.delete(id);
+			else next.add(id);
+			return next;
+		});
 
 	return (
-		<div role="tree" aria-label={labels.treeLabel}>
-			<SharedTreeNode
-				row={root}
-				depth={0}
-				indentSize={indentSize}
-				childrenByParent={childrenByParent}
-				collapsed={collapsed}
-				onToggleCollapse={(id) =>
-					setCollapsed((current) => {
-						const next = new Set(current);
-						if (next.has(id)) next.delete(id);
-						else next.add(id);
-						return next;
-					})
-				}
-			/>
+		<div ref={scrollRef} className="isolate h-dvh overflow-auto">
+			<div className="mx-auto max-w-6xl px-4 py-16">
+				{header}
+				<div
+					role="tree"
+					aria-label={labels.treeLabel}
+					style={{ height: virtualizer.getTotalSize(), position: "relative" }}
+				>
+					{virtualItems.map((virtualItem) => {
+						const row = visibleRows[virtualItem.index];
+						if (!row) return null;
+						return (
+							<SharedTreeRow
+								key={virtualItem.key}
+								row={row}
+								index={virtualItem.index}
+								start={virtualItem.start}
+								indentSize={indentSize}
+								expanded={!collapsed.has(row.id)}
+								measureElement={virtualizer.measureElement}
+								onToggleCollapse={toggleCollapse}
+							/>
+						);
+					})}
+				</div>
+			</div>
 		</div>
 	);
 }
 
-function SharedTreeNode({
+function SharedTreeRow({
 	row,
-	depth,
+	index,
+	start,
 	indentSize,
-	childrenByParent,
-	collapsed,
+	expanded,
+	measureElement,
 	onToggleCollapse,
 }: {
 	row: VisibleNodeRow;
-	depth: number;
+	index: number;
+	start: number;
 	indentSize: number;
-	childrenByParent: Map<string | null, VisibleNodeRow[]>;
-	collapsed: Set<string>;
+	expanded: boolean;
+	measureElement: (element: HTMLElement | null) => void;
 	onToggleCollapse: (id: string) => void;
 }) {
-	const children = childrenByParent.get(row.id) ?? [];
-	const expanded = !collapsed.has(row.id);
 	const completed =
 		row.type === "task" &&
 		((row.metadata as NodeMetadataOf<"task"> | null)?.completed ?? false);
 	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
 
 	return (
-		<>
-			<div
-				role="treeitem"
-				tabIndex={-1}
-				aria-level={row.depth + 1}
-				aria-expanded={row.hasChildren ? expanded : undefined}
-				className="group/node relative flex items-center gap-2 rounded-md py-1"
-			>
-				<div style={{ paddingLeft: depth * indentSize }} />
+		<div
+			ref={measureElement}
+			data-index={index}
+			role="treeitem"
+			tabIndex={-1}
+			aria-level={row.depth + 1}
+			aria-expanded={row.hasChildren ? expanded : undefined}
+			className="top-0 left-0 w-full absolute"
+			style={{ transform: `translateY(${start}px)` }}
+		>
+			<div className="group/node relative flex items-center gap-2 rounded-md py-1">
+				<div style={{ paddingLeft: row.depth * indentSize }} />
 				<button
 					type="button"
 					disabled
@@ -204,7 +283,7 @@ function SharedTreeNode({
 					<DotsSixVerticalIcon size={16} />
 				</button>
 				<NodeToggle
-					hasChildren={children.length > 0}
+					hasChildren={row.hasChildren}
 					expanded={expanded}
 					onToggle={() => onToggleCollapse(row.id)}
 				/>
@@ -228,18 +307,6 @@ function SharedTreeNode({
 					<NodeTagPills tags={row.tags} />
 				</div>
 			</div>
-			{expanded &&
-				children.map((child) => (
-					<SharedTreeNode
-						key={child.id}
-						row={child}
-						depth={depth + 1}
-						indentSize={indentSize}
-						childrenByParent={childrenByParent}
-						collapsed={collapsed}
-						onToggleCollapse={onToggleCollapse}
-					/>
-				))}
-		</>
+		</div>
 	);
 }

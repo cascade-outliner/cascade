@@ -385,6 +385,5 @@
 	"sharing_revoked_body": "The owner has revoked access to this shared tree.",
 	"sharing_sign_in_required_title": "Sign in required",
 	"sharing_sign_in_required_body": "The owner requires you to be signed in to view this shared tree.",
-	"sharing_sign_in_cta": "Sign in",
-	"sharing_load_more": "Load more"
+	"sharing_sign_in_cta": "Sign in"
 }
