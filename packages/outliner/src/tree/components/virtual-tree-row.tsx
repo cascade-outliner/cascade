@@ -36,6 +36,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
 	const position = siblingPosition(props.rows, index);
 	const blockType = getBlockType(row.content);
+	const showToggle = row.hasChildren && props.hasVisibleChildren;
 
 	// Candidate motion (issue #509): animate this row's own transform via
 	// WAAPI when its virtualized offset changes (drag reorder, indent/
@@ -117,7 +118,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			// the row itself is reachable via the tree, not the tab order.
 			tabIndex={-1}
 			aria-level={row.depth + 1}
-			aria-expanded={row.hasChildren ? row.expanded : undefined}
+			aria-expanded={showToggle ? row.expanded : undefined}
 			aria-selected={props.editing}
 			aria-posinset={position?.posInSet}
 			aria-setsize={position?.setSize}
@@ -148,7 +149,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					viewTransitionName={`node-${row.id}`}
 				>
 					<NodeToggle
-						hasChildren={row.hasChildren}
+						hasChildren={showToggle}
 						expanded={row.expanded}
 						onToggle={props.onToggle}
 					/>

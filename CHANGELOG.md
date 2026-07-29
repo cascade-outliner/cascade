@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-29
+- [fix] A node's expand chevron no longer shows when an active filter (tags, due date, or hide-completed) hides every one of its children — expanding it would have revealed nothing. [#506](https://github.com/cascade-outliner/cascade/issues/506)
+
 ## 2026-07-28
 - [fix] The mobile back/forward gesture (and hardware back button) now closes the Settings panel step by step - first backing out of a category's detail page, then closing the panel - instead of navigating away from the app. [#502](https://github.com/cascade-outliner/cascade/issues/502)
 - [fix] Checking off a task now stays visible for a moment before disappearing when the hide-completed filter/setting is active, instead of vanishing the instant it's checked. [#482](https://github.com/cascade-outliner/cascade/issues/482)
