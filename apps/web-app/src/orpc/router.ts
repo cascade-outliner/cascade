@@ -40,7 +40,7 @@ import {
 	getTreeHistoryEntry,
 	listTreeHistory,
 	restoreTreeHistoryEntry,
-} from "@/features/tree-history/server/tree-history-procedures";
+} from "@/features/tree-history/server/procedures";
 
 export default {
 	nodes: {
