@@ -6,11 +6,13 @@ export function visibleTreeOptions(
 	rootId: string | null,
 	includeCollapsedDescendants = false,
 	dueDateRange: DueDateRange | null = null,
+	hideCompleted = false,
 ) {
 	return orpc.nodes.visibleTree.queryOptions({
 		input: {
 			rootId,
 			includeCollapsedDescendants,
+			hideCompleted,
 			...(dueDateRange
 				? {
 						dueDateStart: formatCalendarDate(dueDateRange.start),

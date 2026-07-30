@@ -30,11 +30,13 @@ export function useVisibleTree(
 	rootId: string | null,
 	includeCollapsedDescendants = false,
 	dueDateRange: DueDateRange | null = null,
+	hideCompleted = false,
 ): VisibleTree {
 	const options = visibleTreeOptions(
 		rootId,
 		includeCollapsedDescendants,
 		dueDateRange,
+		hideCompleted,
 	);
 	const { data } = useSuspenseQuery(options);
 
@@ -61,6 +63,7 @@ export function useVisibleTree(
 		rootId,
 		includeCollapsedDescendants,
 		dueDateRange,
+		hideCompleted,
 		data.nextCursor,
 	);
 

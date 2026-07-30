@@ -44,7 +44,12 @@ function RootTree() {
 	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
-	const tree = useVisibleTree(null, includeCollapsedDescendants, dueDateRange);
+	const tree = useVisibleTree(
+		null,
+		includeCollapsedDescendants,
+		dueDateRange,
+		filters.hideCompleted,
+	);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,
