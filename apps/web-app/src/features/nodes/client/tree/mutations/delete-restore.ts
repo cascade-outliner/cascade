@@ -24,6 +24,7 @@ function toSnapshotInput(row: FlatNodeRow) {
 		expanded: row.expanded,
 		dueDate: row.dueDate,
 		recurrence: row.recurrence ?? null,
+		icon: row.icon,
 		tags: row.tags,
 		...({ type: row.type, metadata: row.metadata } as TypedMetadata),
 	};

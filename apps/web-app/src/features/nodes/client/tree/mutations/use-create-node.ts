@@ -80,6 +80,7 @@ export function useCreateMutation(
 			order: created.order,
 			dueDate: created.dueDate,
 			recurrence: created.recurrence,
+			icon: created.icon,
 			tags: created.tags,
 		};
 		await queryClient.cancelQueries({ queryKey });
@@ -119,6 +120,7 @@ export function useCreateMutation(
 			order: created.order,
 			dueDate: created.dueDate,
 			recurrence: created.recurrence,
+			icon: created.icon,
 			tags: created.tags,
 		};
 		await queryClient.cancelQueries({ queryKey });

@@ -28,6 +28,7 @@ function row(
 		order: id,
 		dueDate: null,
 		recurrence: null,
+		icon: null,
 		tags: [],
 		depth,
 		path,

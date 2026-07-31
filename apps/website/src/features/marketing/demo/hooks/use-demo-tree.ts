@@ -152,6 +152,10 @@ export function useDemoTree(rootId: string | null) {
 		setAllNodes((current) => patchRow(current, id, { tags }));
 	};
 
+	const setIcon: VisibleTree["setIcon"] = (id, icon) => {
+		setAllNodes((current) => patchRow(current, id, { icon }));
+	};
+
 	const add: VisibleTree["add"] = async ({
 		dueDate = null,
 	}: AddNodeOptions = {}) => {
@@ -202,6 +206,7 @@ export function useDemoTree(rootId: string | null) {
 		setRecurrence,
 		setTaskCompleted,
 		setTags,
+		setIcon,
 		add,
 		addAfter,
 		ancestors,

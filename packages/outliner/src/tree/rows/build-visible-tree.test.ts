@@ -18,6 +18,7 @@ function row(
 		order,
 		dueDate: null,
 		recurrence: null,
+		icon: null,
 		tags: [],
 		...overrides,
 	};

@@ -1,12 +1,43 @@
 import { NodeDueDatePill } from "@cascade/outliner/features/due-date/node-due-date-pill";
+import { EmojiPicker } from "@cascade/outliner/features/icon/emoji-picker";
 import { NodeTagsControl } from "@cascade/outliner/features/tags/node-tags-pills";
 import { NodeCheckbox } from "@cascade/outliner/features/task/node-checkbox";
+import { useOutlinerLabels } from "@cascade/outliner/labels-context";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
 import type { TagSummary } from "@cascade/outliner/node-tags";
 import type { RecurrenceInput } from "@cascade/outliner/recurrence";
+import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
+import { SmileyIcon } from "@phosphor-icons/react/ssr";
 import { Breadcrumbs } from "#/features/nodes/ui/breadcrumbs";
 import type { NodeDetailData } from "./node-detail.types";
+
+function NodeIconTrigger({
+	icon,
+	onChange,
+}: {
+	icon: string | null;
+	onChange: (icon: string | null) => void;
+}) {
+	const labels = useOutlinerLabels();
+	return (
+		<Popover>
+			<PopoverTrigger
+				aria-label={icon ? labels.changeIcon : labels.setIcon}
+				className="flex size-9 shrink-0 items-center justify-center rounded-full border border-dashed border-ink/20 text-xl outline-none hover:bg-ink/5 dark:border-surface/25 dark:hover:bg-surface/10"
+			>
+				{icon ?? <SmileyIcon size={16} weight="bold" className="text-muted" />}
+			</PopoverTrigger>
+			<PopoverContent>
+				<EmojiPicker
+					value={icon}
+					onSelect={onChange}
+					onClear={() => onChange(null)}
+				/>
+			</PopoverContent>
+		</Popover>
+	);
+}
 
 export function NodeDetailHeader({
 	node,
@@ -18,6 +49,7 @@ export function NodeDetailHeader({
 	onRecurrenceChange,
 	onTagsChange,
 	onDeleteTag,
+	onIconChange,
 }: {
 	node: NodeDetailData;
 	dueDate: Date | null;
@@ -28,6 +60,7 @@ export function NodeDetailHeader({
 	onRecurrenceChange: (recurrence: RecurrenceInput | null) => void;
 	onTagsChange: (tags: string[]) => void;
 	onDeleteTag: (tag: string) => void;
+	onIconChange: (icon: string | null) => void;
 }) {
 	return (
 		<>
@@ -37,6 +70,7 @@ export function NodeDetailHeader({
 				className="group/node mb-8 flex flex-col gap-3 text-2xl"
 			>
 				<div className="flex items-center gap-3">
+					<NodeIconTrigger icon={node.icon} onChange={onIconChange} />
 					{node.type === "task" && (
 						<NodeCheckbox metadata={node.metadata} onToggle={onToggleTask} />
 					)}

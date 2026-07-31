@@ -41,6 +41,7 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 						onRecurrenceChange={mutations.setRecurrence}
 						onTagsChange={mutations.setTags}
 						onDeleteTag={deleteTag}
+						onIconChange={mutations.setIcon}
 					/>
 				}
 			/>

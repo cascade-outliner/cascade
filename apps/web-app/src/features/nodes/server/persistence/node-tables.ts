@@ -53,6 +53,8 @@ export const nodes = pgTable(
 		 */
 		dueDate: date("due_date", { mode: "string" }),
 		recurrence: jsonb("recurrence").$type<RecurrenceRule>(),
+		/** A single emoji used as this node's custom icon (see #557). */
+		icon: text(),
 	},
 	(t) => [
 		index("nodes_parent_id_idx").on(t.parentId),

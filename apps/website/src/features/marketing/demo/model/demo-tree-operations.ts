@@ -24,6 +24,7 @@ export function createDemoRow(
 		expanded: false,
 		order: id,
 		dueDate: null,
+		icon: null,
 		tags: [],
 		path: [],
 		hasChildren: false,

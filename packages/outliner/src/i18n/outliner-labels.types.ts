@@ -14,6 +14,10 @@ export interface OutlinerLabels {
 	emptyTree: string;
 	emptyFilterResults: string;
 	addNode: string;
+	setIcon: string;
+	changeIcon: string;
+	removeIcon: string;
+	iconPickerCustomPlaceholder: string;
 	setDueDate: string;
 	changeDueDate: string;
 	changeDueDateAria: string;

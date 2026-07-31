@@ -31,6 +31,7 @@ export interface CapturedHistoryNode {
 	order: string;
 	dueDate: string | null;
 	recurrence: RecurrenceRule | null;
+	icon: string | null;
 	tags: string[];
 	depth: number;
 	isRoot: boolean;
@@ -47,6 +48,7 @@ interface CapturedSqlRow {
 	order: string;
 	due_date: string | null;
 	recurrence: RecurrenceRule | null;
+	icon: string | null;
 	depth: number;
 	tags: string[];
 }
@@ -60,18 +62,18 @@ export async function captureSubtree(
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
 			SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded,
-				n."order", n.due_date, n.recurrence, 0 AS depth, ARRAY[n."order"] AS path
+				n."order", n.due_date, n.recurrence, n.icon, 0 AS depth, ARRAY[n."order"] AS path
 			FROM nodes n
 			WHERE n.id = ${rootId} AND n.user_id = ${userId}
 			UNION ALL
 			SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded,
-				c."order", c.due_date, c.recurrence, s.depth + 1, s.path || c."order"
+				c."order", c.due_date, c.recurrence, c.icon, s.depth + 1, s.path || c."order"
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
 		)
 		SELECT s.id, s.parent_id, s.content, s.type, s.metadata, s.expanded,
-			s."order", s.due_date::text AS due_date, s.recurrence, s.depth,
+			s."order", s.due_date::text AS due_date, s.recurrence, s.icon, s.depth,
 			COALESCE(t.tags, '{}') AS tags
 		FROM subtree s
 		LEFT JOIN (
@@ -94,6 +96,7 @@ export async function captureSubtree(
 		order: row.order,
 		dueDate: row.due_date,
 		recurrence: row.recurrence,
+		icon: row.icon,
 		tags: row.tags,
 		depth: Number(row.depth),
 		isRoot: row.id === rootId,
@@ -230,6 +233,7 @@ export async function createHistoryRecorder(
 				order: snapshot.order,
 				dueDate: snapshot.dueDate,
 				recurrence: snapshot.recurrence,
+				icon: snapshot.icon,
 				tags: snapshot.tags,
 				depth: snapshot.depth,
 				isRoot: snapshot.isRoot,

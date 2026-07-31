@@ -5,9 +5,15 @@ import { toNodeSlug } from "../model/node-slug";
 interface NodeLinkProps {
 	id: string;
 	content: unknown;
+	icon?: string | null;
 }
 
-export function NodeLink({ id, content }: NodeLinkProps) {
+/**
+ * The row's "open node" marker. At rest it shows the node's emoji icon (or
+ * nothing, if it has none); on hover the plain focus circle fades in on top
+ * of it, indicating the click target (see #557).
+ */
+export function NodeLink({ id, content, icon }: NodeLinkProps) {
 	return (
 		<Link
 			viewTransition
@@ -15,7 +21,17 @@ export function NodeLink({ id, content }: NodeLinkProps) {
 			params={{ nodeSlug: toNodeSlug({ id, content }) }}
 			search={true}
 			aria-label={m.node_link_open()}
-			className="relative z-0 after:absolute after:-inset-2 w-2 h-2 rounded-full bg-ink hover:bg-danger dark:bg-surface dark:hover:bg-danger shrink-0"
-		/>
+			className="group/node-link relative z-0 flex h-4 w-4 shrink-0 items-center justify-center after:absolute after:-inset-2"
+		>
+			{icon && (
+				<span aria-hidden className="text-sm leading-none select-none">
+					{icon}
+				</span>
+			)}
+			<span
+				aria-hidden
+				className="absolute inset-0 m-auto h-2 w-2 rounded-full bg-danger opacity-0 transition-opacity group-hover/node-link:opacity-100"
+			/>
+		</Link>
 	);
 }
