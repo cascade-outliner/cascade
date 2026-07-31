@@ -23,12 +23,12 @@ import {
 	createTestUser,
 	deleteTestUser,
 } from "@/test-support/database-harness";
-import { purgeTreeHistory } from "./purge-tree-history";
 import {
 	getTreeHistoryEntry,
 	listTreeHistory,
 	restoreTreeHistoryEntry,
-} from "./tree-history-procedures";
+} from "./procedures";
+import { purgeTreeHistory } from "./purge-tree-history";
 import { handleTreeHistoryPurgeRequest } from "./tree-history-purge-api";
 import { treeHistoryEvents } from "./tree-history-table";
 
