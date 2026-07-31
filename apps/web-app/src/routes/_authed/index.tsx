@@ -4,8 +4,8 @@ import {
 	activeDueDateRange,
 	hasActiveDueDateFilter,
 } from "@cascade/outliner/node-filters";
+import { TreeSkeleton } from "@cascade/outliner/tree-skeleton";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
-import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/app/generic-error";
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authed/")({
 	},
 	errorComponent: GenericErrorComponent,
 	component: () => (
-		<Suspense fallback={<CascadeLoader />}>
+		<Suspense fallback={<TreeSkeleton />}>
 			<RootTree />
 		</Suspense>
 	),

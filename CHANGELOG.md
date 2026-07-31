@@ -4,6 +4,7 @@
 - [perf] `visibleTree` now fetches the whole tree once instead of paginating with cursors; ordering, expand/collapse gating, and due-date/hide-completed filtering all moved client-side, letting the virtualized list handle scale on its own.
 - [fix] `visibleTree`'s tag lookup no longer aggregates every user's tags on each call; it was accidentally scoped to nothing instead of the requesting user after the above change.
 - [perf] Compressible server responses (HTML, JSON, JS) are now gzip-compressed when the client supports it, shrinking payloads like the now-uncapped `visibleTree` fetch.
+- [fix] The tree and node-detail pages now show a tree-shaped loading skeleton instead of a generic full-screen spinner while their (now larger, uncapped) `visibleTree` fetch is in flight.
 
 ## 2026-07-30
 - [perf] Completed tasks are no longer fetched from the server at all when the hide-completed filter/setting is active, instead of being fetched and then filtered out client-side. [#531](https://github.com/cascade-outliner/cascade/issues/531)
