@@ -30,22 +30,22 @@ test("deep trees render past the old 64-level cap and stay cycle-safe", async ({
 		const deepest = chainIds.at(-1);
 		if (!deepest) throw new Error("chain was not built");
 
+		const { rows } = await orpcClient.nodes.visibleTree();
+		const rowsById = new Map(rows.map((row) => [row.id, row]));
+
+		// Walk the chain by following `parentId`, since the server no longer
+		// computes depth-first order itself — that's the client's job now.
 		const seen: string[] = [];
-		let cursor: string[] | null = null;
-		do {
-			const page = await orpcClient.nodes.visibleTree({
-				rootId: root.id,
-				cursor,
-				includeCollapsedDescendants: true,
-				limit: 500,
-			});
-			seen.push(...page.rows.map((r) => r.id));
-			cursor = page.nextCursor;
-		} while (cursor !== null);
+		let currentId: string | null = root.id;
+		while (currentId !== null) {
+			const child = rows.find((row) => row.parentId === currentId);
+			if (!child) break;
+			seen.push(child.id);
+			currentId = child.id;
+		}
 
 		expect(seen).toEqual(chainIds);
-		const deepestRow = seen.indexOf(deepest);
-		expect(deepestRow).toBe(CHAIN_LENGTH - 1);
+		expect(rowsById.get(deepest)).toBeDefined();
 
 		await expect(
 			orpcClient.nodes.move({

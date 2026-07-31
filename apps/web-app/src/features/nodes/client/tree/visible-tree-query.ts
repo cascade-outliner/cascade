@@ -1,24 +1,6 @@
-import { formatCalendarDate } from "@cascade/outliner/calendar-date";
-import type { DueDateRange } from "@cascade/outliner/node-filters";
 import { orpc } from "@/orpc/client";
 
-export function visibleTreeOptions(
-	rootId: string | null,
-	includeCollapsedDescendants = false,
-	dueDateRange: DueDateRange | null = null,
-	hideCompleted = false,
-) {
-	return orpc.nodes.visibleTree.queryOptions({
-		input: {
-			rootId,
-			includeCollapsedDescendants,
-			hideCompleted,
-			...(dueDateRange
-				? {
-						dueDateStart: formatCalendarDate(dueDateRange.start),
-						dueDateEnd: formatCalendarDate(dueDateRange.end),
-					}
-				: {}),
-		},
-	});
+/** The whole tree, flat and unordered, fetched once and shared by every view. */
+export function visibleTreeOptions() {
+	return orpc.nodes.visibleTree.queryOptions();
 }

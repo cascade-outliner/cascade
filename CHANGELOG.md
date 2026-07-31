@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-31
+- [perf] `visibleTree` now fetches the whole tree once instead of paginating with cursors; ordering, expand/collapse gating, and due-date/hide-completed filtering all moved client-side, letting the virtualized list handle scale on its own.
+
 ## 2026-07-30
 - [perf] Completed tasks are no longer fetched from the server at all when the hide-completed filter/setting is active, instead of being fetched and then filtered out client-side. [#531](https://github.com/cascade-outliner/cascade/issues/531)
 

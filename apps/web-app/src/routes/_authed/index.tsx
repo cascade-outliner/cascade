@@ -28,7 +28,7 @@ import { useSettings } from "@/features/settings/client/settings-context";
 
 export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
-		queryClient.prefetchQuery(visibleTreeOptions(null));
+		queryClient.prefetchQuery(visibleTreeOptions());
 		queryClient.prefetchQuery(existingTagsOptions());
 	},
 	errorComponent: GenericErrorComponent,
@@ -44,12 +44,7 @@ function RootTree() {
 	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
-	const tree = useVisibleTree(
-		null,
-		includeCollapsedDescendants,
-		dueDateRange,
-		filters.hideCompleted,
-	);
+	const tree = useVisibleTree(null, includeCollapsedDescendants);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,

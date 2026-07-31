@@ -16,6 +16,7 @@
     "./node-tags": "./src/nodes/model/node-tags.ts",
     "./tree-types": "./src/tree/model/tree.types.ts",
     "./visible-rows": "./src/tree/rows/visible-rows.ts",
+    "./build-visible-tree": "./src/tree/rows/build-visible-tree.ts",
     "./filter-visibility": "./src/filters/visibility/get-row-visibility.ts",
     "./completed-task-ids": "./src/filters/visibility/subtree-visibility.ts",
     "./node-filters": "./src/filters/model/node-filters.ts",

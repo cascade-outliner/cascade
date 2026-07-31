@@ -1,15 +1,14 @@
+import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import {
 	captureCurrentPosition,
 	type MoveTarget,
-	moveSubtree,
-	patchRow,
 } from "@cascade/outliner/visible-rows";
 import type { QueryKey } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
 import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutations/use-node-mutation";
 import { undoStore } from "@/features/nodes/client/undo/undo-store";
 import { client } from "@/orpc/client";
 import { patchRows } from "../cache-helpers";
+import { moveRawRow, patchRawRow } from "../raw-tree-ops";
 import type { VisibleTreeData } from "../tree-data.types";
 
 interface MoveVars {
@@ -18,8 +17,7 @@ interface MoveVars {
 	expandParentId?: string;
 }
 
-export function useMoveMutation(queryKey: QueryKey) {
-	const queryClient = useQueryClient();
+export function useMoveMutation(queryKey: QueryKey, rows: VisibleNodeRow[]) {
 	const mutation = useOptimisticNodeMutation<MoveVars, void, VisibleTreeData>({
 		queryKey,
 		mutationFn: async ({ id, target, expandParentId }) => {
@@ -40,14 +38,14 @@ export function useMoveMutation(queryKey: QueryKey) {
 			]);
 		},
 		patch: (old, { id, target, expandParentId }) =>
-			patchRows((rows) => {
+			patchRows((rawRows) => {
 				const expanded = expandParentId
-					? patchRow(rows, expandParentId, { expanded: true })
-					: rows;
-				return moveSubtree(expanded, id, target);
+					? patchRawRow(rawRows, expandParentId, { expanded: true })
+					: rawRows;
+				return moveRawRow(expanded, id, target);
 			}, old),
-		// Server-computed fractional order is authoritative and the optimistic
-		// moveSubtree splice already matches it, so a success needs no
+		// The optimistic order moveRawRow computes mirrors the server's
+		// fractional-index placement closely enough that a success needs no
 		// reconciliation; onError falls back to invalidating (the default).
 	});
 
@@ -67,8 +65,7 @@ export function useMoveMutation(queryKey: QueryKey) {
 		target: MoveTarget,
 		moveOptions: { expandParentId?: string } = {},
 	) => {
-		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
-		const previousTarget = rows && captureCurrentPosition(rows, id);
+		const previousTarget = captureCurrentPosition(rows, id);
 
 		const result = mutation
 			.mutateAsync({

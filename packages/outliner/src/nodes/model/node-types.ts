@@ -2,8 +2,8 @@ import { z } from "zod";
 import type { CalendarDateString } from "../../dates/calendar-date";
 import type { RecurrenceRule } from "../../dates/recurrence";
 
-/** One row of the flattened, depth-first visible tree (see nodes.visibleTree). */
-export interface VisibleNodeRow {
+/** A single node as the server sends it: unordered, with no tree structure computed. */
+export interface FlatNodeRow {
 	id: string;
 	parentId: string | null;
 	content: unknown;
@@ -15,6 +15,14 @@ export interface VisibleNodeRow {
 	dueDate: CalendarDateString | null;
 	recurrence?: RecurrenceRule | null;
 	tags: string[];
+}
+
+/**
+ * One row of the flattened, depth-first visible tree, built client-side from
+ * `FlatNodeRow[]` by `buildVisibleTree` (grouping by `parentId`, sorting
+ * siblings by `order`, and walking expanded nodes depth-first).
+ */
+export interface VisibleNodeRow extends FlatNodeRow {
 	depth: number;
 	/** Fractional-index orders from the query root down to this node; DFS sort key. */
 	path: string[];

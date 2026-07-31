@@ -1,4 +1,3 @@
-import { patchRow } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
 import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
@@ -7,6 +6,7 @@ import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutation
 import { undoStore } from "@/features/nodes/client/undo/undo-store";
 import { client, orpc } from "@/orpc/client";
 import { patchRows } from "../cache-helpers";
+import { patchRawRow } from "../raw-tree-ops";
 import type { VisibleTreeData } from "../tree-data.types";
 
 export function useUpdateContentMutation(queryKey: QueryKey) {
@@ -20,7 +20,7 @@ export function useUpdateContentMutation(queryKey: QueryKey) {
 		queryKey,
 		mutationFn: (vars) => client.nodes.updateContent(vars),
 		patch: (old, { id, content }) =>
-			patchRows((rows) => patchRow(rows, id, { content }), old),
+			patchRows((rows) => patchRawRow(rows, id, { content }), old),
 		onSuccess: (_data, { id }) => {
 			// Bust breadcrumbs, but only for chains the edited node is actually
 			// part of, rather than every ancestors cache entry.

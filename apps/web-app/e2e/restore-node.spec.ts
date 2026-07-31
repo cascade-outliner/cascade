@@ -1,3 +1,4 @@
+import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
 import { expect, test } from "./support/fixtures";
 
 const paragraph = (text: string) => ({
@@ -68,24 +69,22 @@ test("restore reinserts a deleted subtree with its original ids, content, tags, 
 		});
 		await orpcClient.nodes.setTags({ id: child.id, tags: ["q3"] });
 
-		const beforeDelete = await orpcClient.nodes.visibleTree({
-			rootId: toDelete.id,
-			cursor: null,
-			includeCollapsedDescendants: true,
-			limit: 10,
-		});
-		const childRow = beforeDelete.rows.find((r) => r.id === child.id);
+		const beforeDelete = buildVisibleTree(
+			(await orpcClient.nodes.visibleTree()).rows,
+			toDelete.id,
+			{ includeCollapsed: true },
+		);
+		const childRow = beforeDelete.find((r) => r.id === child.id);
 		if (!childRow) throw new Error("child row not found before delete");
 
 		await orpcClient.nodes.delete({ id: toDelete.id });
 
-		const afterDelete = await orpcClient.nodes.visibleTree({
-			rootId: root.id,
-			cursor: null,
-			includeCollapsedDescendants: true,
-			limit: 10,
-		});
-		expect(afterDelete.rows.map((r) => r.id)).toEqual([first.id, last.id]);
+		const afterDelete = buildVisibleTree(
+			(await orpcClient.nodes.visibleTree()).rows,
+			root.id,
+			{ includeCollapsed: true },
+		);
+		expect(afterDelete.map((r) => r.id)).toEqual([first.id, last.id]);
 
 		const restored = await orpcClient.nodes.restore({
 			parentId: root.id,
@@ -123,20 +122,19 @@ test("restore reinserts a deleted subtree with its original ids, content, tags, 
 		expect(restored.hasChildren).toBe(true);
 
 		// Restored between its original neighbors, not appended at the end.
-		const afterRestore = await orpcClient.nodes.visibleTree({
-			rootId: root.id,
-			cursor: null,
-			includeCollapsedDescendants: true,
-			limit: 10,
-		});
-		expect(afterRestore.rows.map((r) => r.id)).toEqual([
+		const afterRestore = buildVisibleTree(
+			(await orpcClient.nodes.visibleTree()).rows,
+			root.id,
+			{ includeCollapsed: true },
+		);
+		expect(afterRestore.map((r) => r.id)).toEqual([
 			first.id,
 			toDelete.id,
 			child.id,
 			last.id,
 		]);
 
-		const restoredChild = afterRestore.rows.find((r) => r.id === child.id);
+		const restoredChild = afterRestore.find((r) => r.id === child.id);
 		expect(restoredChild?.content).toEqual(paragraph("Deleted child"));
 		expect(restoredChild?.tags).toEqual(["q3"]);
 		expect(restoredChild?.parentId).toBe(toDelete.id);

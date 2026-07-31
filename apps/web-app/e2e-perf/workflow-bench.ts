@@ -46,12 +46,7 @@ async function runWorkflow(
 	await client.nodes.move({ id: created.id, parentId: parentB, position: "append" });
 	const duplicate = await client.nodes.duplicate({ id: created.id });
 	await client.nodes.ancestors({ id: duplicate.id });
-	await client.nodes.visibleTree({
-		rootId: parentB,
-		cursor: null,
-		includeCollapsedDescendants: true,
-		limit: 50,
-	});
+	await client.nodes.visibleTree();
 	await client.nodes.delete({ id: duplicate.id });
 	await client.nodes.delete({ id: created.id });
 }

@@ -1,29 +1,23 @@
-import type {
-	TypedMetadata,
-	VisibleNodeRow,
-} from "@cascade/outliner/node-types";
+import type { FlatNodeRow, TypedMetadata } from "@cascade/outliner/node-types";
 import {
 	markRowRestored,
 	playRowExit,
 } from "@cascade/outliner/row-lifecycle-motion";
-import {
-	insertSubtreeAt,
-	type MoveTarget,
-	removeSubtree,
-} from "@cascade/outliner/visible-rows";
+import type { MoveTarget } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import { m } from "#/paraglide/messages.js";
 import { client } from "@/orpc/client";
 import { makeSetRows } from "../cache-helpers";
+import { insertRawRowAt, removeRawSubtree } from "../raw-tree-ops";
 
 export interface DeleteSnapshot {
-	row: VisibleNodeRow;
-	descendants: VisibleNodeRow[];
+	row: FlatNodeRow;
+	descendants: FlatNodeRow[];
 	target: MoveTarget;
 }
 
-function toSnapshotInput(row: VisibleNodeRow) {
+function toSnapshotInput(row: FlatNodeRow) {
 	return {
 		id: row.id,
 		content: row.content as { root: unknown } | null,
@@ -68,9 +62,9 @@ export function makeRawDeleteRestore(
 	// handled by undoStore's "Redone" toast, and a failure here just
 	// invalidates the cache to reconcile silently. A non-silent (user-
 	// initiated) delete instead reports its outcome back to the caller, which
-	// wraps the whole operation (including the descendants fetch) in a single
-	// in-progress toast via `toast.promise`, so this rethrows on failure
-	// rather than showing its own error toast.
+	// wraps the whole operation in a single in-progress toast via
+	// `toast.promise`, so this rethrows on failure rather than showing its
+	// own error toast.
 	const rawDelete = async (id: string, options: { silent?: boolean } = {}) => {
 		await queryClient.cancelQueries({ queryKey });
 		// Let the row's own exit animation play out before it actually leaves
@@ -79,7 +73,7 @@ export function makeRawDeleteRestore(
 		// undo-stack push) lands, never focus or the next command, both of
 		// which already happen synchronously in the caller.
 		await playRowExit(id);
-		setRows((rows) => removeSubtree(rows, id));
+		setRows((rows) => removeRawSubtree(rows, id));
 		try {
 			return await client.nodes.delete({ id });
 		} catch (error) {
@@ -92,14 +86,10 @@ export function makeRawDeleteRestore(
 	const rawRestore = async (snapshot: DeleteSnapshot) => {
 		await queryClient.cancelQueries({ queryKey });
 		markRowRestored(snapshot.row.id);
-		setRows((rows) =>
-			insertSubtreeAt(
-				rows,
-				snapshot.row,
-				snapshot.descendants,
-				snapshot.target,
-			),
-		);
+		setRows((rows) => [
+			...insertRawRowAt(rows, snapshot.row, snapshot.target),
+			...snapshot.descendants,
+		]);
 		try {
 			await client.nodes.restore(toRestoreInput(snapshot));
 		} catch {

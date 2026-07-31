@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
-import type { VisibleNodeRow } from "@cascade/outliner/node-types";
+import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
+import type { FlatNodeRow } from "@cascade/outliner/node-types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
+import { generateKeyBetween } from "fractional-indexing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	COMPLETED_EXIT_DURATION_MS,
@@ -10,7 +12,6 @@ import {
 import { client } from "@/orpc/client";
 import type { VisibleTreeData } from "../tree-data.types";
 import { useDuplicateMutation } from "./use-duplicate-node";
-import { useLoadMoreMutation } from "./use-load-more-nodes";
 import { useMoveMutation } from "./use-move-node";
 import { useRemoveMutation } from "./use-remove-node";
 import { useSetDueDateMutation } from "./use-set-node-due-date";
@@ -55,13 +56,15 @@ vi.mock("@cascade/ui/toast", () => ({
 
 const queryKey = ["nodes", "visibleTree", "optimistic"];
 
+// Real fractional-index keys (not the row's id), since moving a row computes
+// an actual order between real siblings via `fractional-indexing`.
+let lastOrder: string | null = null;
 function row(
 	id: string,
 	parentId: string | null,
-	depth: number,
-	path: string[],
-	overrides: Partial<VisibleNodeRow> = {},
-): VisibleNodeRow {
+	overrides: Partial<FlatNodeRow> = {},
+): FlatNodeRow {
+	lastOrder = generateKeyBetween(lastOrder, null);
 	return {
 		id,
 		parentId,
@@ -69,26 +72,19 @@ function row(
 		type: "text",
 		metadata: null,
 		expanded: true,
-		order: id,
+		order: lastOrder,
 		dueDate: null,
 		recurrence: null,
 		tags: [],
-		depth,
-		path,
-		hasChildren: false,
-		isLastChild: true,
 		...overrides,
 	};
 }
 
-function setup(rows = [row("node", null, 0, ["node"])]) {
+function setup(rows: FlatNodeRow[] = [row("node", null)]) {
 	const queryClient = new QueryClient({
 		defaultOptions: { mutations: { retry: false }, queries: { retry: false } },
 	});
-	queryClient.setQueryData<VisibleTreeData>(queryKey, {
-		rows,
-		nextCursor: ["next"],
-	});
+	queryClient.setQueryData<VisibleTreeData>(queryKey, { rows });
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
@@ -97,6 +93,11 @@ function setup(rows = [row("node", null, 0, ["node"])]) {
 
 function cachedRows(queryClient: QueryClient) {
 	return queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows ?? [];
+}
+
+/** The rendered view move/remove capture undo/target positions from. */
+function view(rows: FlatNodeRow[]) {
+	return buildVisibleTree(rows, null, { includeCollapsed: true });
 }
 
 async function waitForPatch(queryClient: QueryClient) {
@@ -126,7 +127,7 @@ describe("optimistic node mutations", () => {
 		});
 	});
 
-	it("patches content while preserving pagination state", async () => {
+	it("patches content", async () => {
 		const { queryClient, wrapper } = setup();
 		const { result } = renderHook(() => useUpdateContentMutation(queryKey), {
 			wrapper,
@@ -137,13 +138,10 @@ describe("optimistic node mutations", () => {
 		await waitForPatch(queryClient);
 
 		expect(cachedRows(queryClient)[0]?.content).toEqual(content);
-		expect(
-			queryClient.getQueryData<VisibleTreeData>(queryKey)?.nextCursor,
-		).toEqual(["next"]);
 	});
 
 	it("patches type, tags, due date, and recurrence semantics", async () => {
-		const initial = row("node", null, 0, ["node"], {
+		const initial = row("node", null, {
 			type: "task",
 			metadata: { completed: true },
 			dueDate: "2026-07-27",
@@ -186,7 +184,7 @@ describe("optimistic node mutations", () => {
 
 	it("patches ordinary task completion without changing its due date", async () => {
 		const { queryClient, wrapper } = setup([
-			row("node", null, 0, ["node"], {
+			row("node", null, {
 				type: "task",
 				metadata: { completed: false },
 				dueDate: "2026-07-30",
@@ -209,10 +207,7 @@ describe("optimistic node mutations", () => {
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 		try {
 			const { queryClient, wrapper } = setup([
-				row("node", null, 0, ["node"], {
-					type: "task",
-					metadata: { completed: false },
-				}),
+				row("node", null, { type: "task", metadata: { completed: false } }),
 			]);
 			const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 			const { result } = renderHook(
@@ -239,10 +234,7 @@ describe("optimistic node mutations", () => {
 
 	it("invalidates visibleTree immediately when un-completing a task", async () => {
 		const { queryClient, wrapper } = setup([
-			row("node", null, 0, ["node"], {
-				type: "task",
-				metadata: { completed: true },
-			}),
+			row("node", null, { type: "task", metadata: { completed: true } }),
 		]);
 		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 		const { result } = renderHook(() => useSetTaskCompletedMutation(queryKey), {
@@ -257,45 +249,36 @@ describe("optimistic node mutations", () => {
 		});
 	});
 
-	it("collapses visible descendants and keeps collapsed descendants in filtered mode", async () => {
-		const rows = [
-			row("parent", null, 0, ["parent"], { hasChildren: true }),
-			row("child", "parent", 1, ["parent", "child"]),
-		];
-		const normal = setup(rows);
-		const normalHook = renderHook(() => useToggleMutation(queryKey, false), {
-			wrapper: normal.wrapper,
+	it("toggles expanded without dropping descendants from the shared cache", async () => {
+		const rows = [row("parent", null), row("child", "parent")];
+		const { queryClient, wrapper } = setup(rows);
+		const { result } = renderHook(() => useToggleMutation(queryKey), {
+			wrapper,
 		});
 
-		normalHook.result.current("parent", false);
-		await waitForPatch(normal.queryClient);
-		expect(cachedRows(normal.queryClient).map(({ id }) => id)).toEqual([
-			"parent",
-		]);
+		result.current("parent", false);
+		await waitForPatch(queryClient);
 
-		const filtered = setup(rows);
-		const filteredHook = renderHook(() => useToggleMutation(queryKey, true), {
-			wrapper: filtered.wrapper,
-		});
-		filteredHook.result.current("parent", false);
-		await waitForPatch(filtered.queryClient);
-		expect(cachedRows(filtered.queryClient).map(({ id }) => id)).toEqual([
+		// The child row stays in the shared raw cache — collapse only hides it
+		// from the rendered view (buildVisibleTree), computed separately.
+		expect(cachedRows(queryClient).map(({ id }) => id)).toEqual([
 			"parent",
 			"child",
 		]);
-		expect(cachedRows(filtered.queryClient)[0]?.expanded).toBe(false);
+		expect(cachedRows(queryClient)[0]?.expanded).toBe(false);
 	});
 
-	it("moves a subtree and repairs cached depth, path, and sibling tails", async () => {
-		const { queryClient, wrapper } = setup([
-			row("root", null, 0, ["root"], { hasChildren: true }),
-			row("source", "root", 1, ["root", "source"], {
-				hasChildren: true,
-			}),
-			row("child", "source", 2, ["root", "source", "child"]),
-			row("target", null, 0, ["target"], { hasChildren: true }),
-		]);
-		const { result } = renderHook(() => useMoveMutation(queryKey), { wrapper });
+	it("moves a node to a new parent", async () => {
+		const rows = [
+			row("root", null),
+			row("source", "root"),
+			row("child", "source"),
+			row("target", null),
+		];
+		const { queryClient, wrapper } = setup(rows);
+		const { result } = renderHook(() => useMoveMutation(queryKey, view(rows)), {
+			wrapper,
+		});
 
 		const succeeded = await result.current("source", {
 			position: "append",
@@ -304,42 +287,23 @@ describe("optimistic node mutations", () => {
 		await waitForPatch(queryClient);
 
 		expect(succeeded).toBe(true);
-		expect(cachedRows(queryClient).map(({ id }) => id)).toEqual([
-			"root",
-			"target",
-			"source",
-			"child",
-		]);
+		const moved = cachedRows(queryClient).find(({ id }) => id === "source");
+		expect(moved?.parentId).toBe("target");
+		// The child's own parentId is untouched by a move of its ancestor.
 		expect(
-			cachedRows(queryClient).find(({ id }) => id === "source"),
-		).toMatchObject({
-			parentId: "target",
-			depth: 1,
-			path: ["target", "source"],
-		});
-		expect(
-			cachedRows(queryClient).find(({ id }) => id === "child"),
-		).toMatchObject({
-			depth: 2,
-			path: ["target", "source", "child"],
-		});
-		expect(
-			cachedRows(queryClient).find(({ id }) => id === "root"),
-		).toMatchObject({
-			hasChildren: false,
-			expanded: false,
-		});
+			cachedRows(queryClient).find(({ id }) => id === "child")?.parentId,
+		).toBe("source");
 	});
 
 	it("reports a failed move without rejecting the drag-and-drop flow", async () => {
-		const { wrapper } = setup([
-			row("source", null, 0, ["source"]),
-			row("target", null, 0, ["target"]),
-		]);
+		const rows = [row("source", null), row("target", null)];
+		const { wrapper } = setup(rows);
 		vi.mocked(client.nodes.move).mockRejectedValueOnce(
 			new Error("move failed"),
 		);
-		const { result } = renderHook(() => useMoveMutation(queryKey), { wrapper });
+		const { result } = renderHook(() => useMoveMutation(queryKey, view(rows)), {
+			wrapper,
+		});
 
 		await expect(
 			result.current("source", {
@@ -351,29 +315,22 @@ describe("optimistic node mutations", () => {
 	});
 
 	it("removes a leaf subtree before the delete settles", async () => {
-		const { queryClient, wrapper } = setup([
-			row("root", null, 0, ["root"], { hasChildren: true }),
-			row("child", "root", 1, ["root", "child"]),
-		]);
-		const { result } = renderHook(() => useRemoveMutation(queryKey), {
-			wrapper,
-		});
+		const rows = [row("root", null), row("child", "root")];
+		const { queryClient, wrapper } = setup(rows);
+		const { result } = renderHook(
+			() => useRemoveMutation(queryKey, view(rows)),
+			{ wrapper },
+		);
 
 		result.current("child");
 		await waitFor(() => expect(client.nodes.delete).toHaveBeenCalled());
 
 		expect(cachedRows(queryClient).map(({ id }) => id)).toEqual(["root"]);
-		expect(cachedRows(queryClient)[0]).toMatchObject({
-			hasChildren: false,
-			expanded: false,
-		});
 	});
 
-	it("inserts a duplicated leaf after its source", async () => {
-		const { queryClient, wrapper } = setup([
-			row("source", null, 0, ["source"]),
-			row("later", null, 0, ["later"]),
-		]);
+	it("refetches the tree after duplicating a node", async () => {
+		const rows = [row("source", null), row("later", null)];
+		const { queryClient, wrapper } = setup(rows);
 		vi.mocked(client.nodes.duplicate).mockResolvedValue({
 			id: "copy",
 			parentId: null,
@@ -387,44 +344,14 @@ describe("optimistic node mutations", () => {
 			tags: [],
 			hasChildren: false,
 		});
+		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 		const { result } = renderHook(() => useDuplicateMutation(queryKey), {
 			wrapper,
 		});
 
 		await result.current("source");
 
-		expect(cachedRows(queryClient).map(({ id }) => id)).toEqual([
-			"source",
-			"copy",
-			"later",
-		]);
-		expect(
-			cachedRows(queryClient).find(({ id }) => id === "copy"),
-		).toMatchObject({
-			depth: 0,
-			path: ["copy"],
-		});
-	});
-
-	it("appends a loaded page and advances the cursor", async () => {
-		const { queryClient, wrapper } = setup([row("first", null, 0, ["first"])]);
-		vi.mocked(client.nodes.visibleTree).mockResolvedValue({
-			rows: [row("second", null, 0, ["second"])],
-			nextCursor: null,
-		});
-		const { result } = renderHook(
-			() => useLoadMoreMutation(queryKey, null, false, null, false, ["next"]),
-			{ wrapper },
-		);
-
-		await result.current();
-
-		expect(cachedRows(queryClient).map(({ id }) => id)).toEqual([
-			"first",
-			"second",
-		]);
-		expect(
-			queryClient.getQueryData<VisibleTreeData>(queryKey)?.nextCursor,
-		).toBeNull();
+		expect(client.nodes.duplicate).toHaveBeenCalledWith({ id: "source" });
+		expect(invalidateSpy).toHaveBeenCalledWith({ queryKey });
 	});
 });

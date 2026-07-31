@@ -208,14 +208,11 @@ test.describe("virtual tree motion (issue #509 perf gate)", () => {
 
 			// Clean up the created sibling so the next mode's run starts from
 			// the same CHILD_COUNT-sized subtree.
-			const rows = await client.nodes.visibleTree({
-				rootId: createScratch.rootId,
-				cursor: null,
-				includeCollapsedDescendants: true,
-				limit: CHILD_COUNT + 5,
-			});
+			const rows = await client.nodes.visibleTree();
 			const extra = rows.rows.find(
-				(row) => !createScratch.childIds.includes(row.id),
+				(row) =>
+					row.parentId === createScratch.rootId &&
+					!createScratch.childIds.includes(row.id),
 			);
 			if (extra) await client.nodes.delete({ id: extra.id });
 		});

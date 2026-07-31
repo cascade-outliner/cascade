@@ -12,7 +12,6 @@ import type { MoveTarget } from "../rows/visible-rows";
  */
 export interface VisibleTree {
 	rows: VisibleNodeRow[];
-	hasMore: boolean;
 	toggle: (id: string, expanded: boolean) => void | Promise<void>;
 	move: (
 		id: string,
@@ -44,7 +43,6 @@ export interface VisibleTree {
 		afterId: string,
 		options?: AddNodeOptions,
 	) => Promise<string | null>;
-	loadMore: () => void | Promise<void>;
 }
 
 export interface AddNodeOptions {

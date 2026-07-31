@@ -12,52 +12,34 @@ import {
 const { values } = parseArgs({
 	args: cliArgs(),
 	options: {
-		pages: { type: "string", default: "20" },
-		limit: { type: "string", default: "500" },
+		iterations: { type: "string", default: "20" },
 		warmup: { type: "string", default: "3" },
 	},
 });
 
-const pages = Number.parseInt(values.pages, 10);
-const limit = Number.parseInt(values.limit, 10);
+const iterations = Number.parseInt(values.iterations, 10);
 const warmup = Number.parseInt(values.warmup, 10);
 
 async function main() {
 	const client = await createPerfClient();
-	
+
 	if (warmup > 0) {
 		console.log(`Warming up with ${warmup} untimed visibleTree call(s)...`);
 		for (let i = 0; i < warmup; i++) {
-			await client.nodes.visibleTree({
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: true,
-				limit,
-			});
+			await client.nodes.visibleTree();
 		}
 	}
 
-	console.log(`Walking up to ${pages} visibleTree page(s) at limit=${limit}...`);
+	console.log(`Timing ${iterations} whole-tree visibleTree call(s)...`);
 	const visibleTreeSamples: LatencySample[] = [];
-	let cursor: string[] | null = null;
 
-	for (let page = 0; page < pages; page++) {
-		const outcome = await time(() =>
-			client.nodes.visibleTree({
-				rootId: null,
-				cursor,
-				includeCollapsedDescendants: true,
-				limit,
-			}),
-		);
+	for (let i = 0; i < iterations; i++) {
+		const outcome = await time(() => client.nodes.visibleTree());
 		visibleTreeSamples.push({ ok: outcome.ok, ms: outcome.ms });
 		if (!outcome.ok) {
-			console.error(`visibleTree page ${page} failed:`, outcome.error);
+			console.error(`visibleTree call ${i} failed:`, outcome.error);
 			break;
 		}
-		const { nextCursor } = outcome.result;
-		if (!nextCursor) break;
-		cursor = nextCursor;
 	}
 
 	const visibleTreeSummary = summarize(visibleTreeSamples);
@@ -65,7 +47,7 @@ async function main() {
 
 	const outPath = await writeResultsFile("query-bench.json", {
 		timestamp: new Date().toISOString(),
-		params: { pages, limit, warmup },
+		params: { iterations, warmup },
 		visibleTree: visibleTreeSummary,
 	});
 	console.log(`Wrote results to ${outPath}`);
