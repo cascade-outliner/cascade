@@ -1,6 +1,6 @@
 import { parseCalendarDate } from "@cascade/outliner/calendar-date";
 import type { NodeMetadataOf } from "@cascade/outliner/node-types";
-import { CascadeLoader } from "@cascade/ui/cascade-loader";
+import { TreeSkeleton } from "@cascade/outliner/tree-skeleton";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
 import {
@@ -27,7 +27,7 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 		((node.metadata as NodeMetadataOf<"task"> | null)?.completed ?? false);
 
 	return (
-		<Suspense fallback={<CascadeLoader />}>
+		<Suspense fallback={<TreeSkeleton />}>
 			<NodeTree
 				nodeId={nodeId}
 				header={

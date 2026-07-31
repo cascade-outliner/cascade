@@ -192,7 +192,6 @@ export function useDemoTree(rootId: string | null) {
 
 	return {
 		rows,
-		hasMore: false,
 		toggle,
 		move,
 		remove,
@@ -205,7 +204,6 @@ export function useDemoTree(rootId: string | null) {
 		setTags,
 		add,
 		addAfter,
-		loadMore: () => {},
 		ancestors,
 	};
 }

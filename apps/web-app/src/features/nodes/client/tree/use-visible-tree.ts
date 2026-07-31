@@ -1,10 +1,10 @@
-import type { DueDateRange } from "@cascade/outliner/node-filters";
+import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
 	useCreateMutation,
 	useDuplicateMutation,
-	useLoadMoreMutation,
 	useMoveMutation,
 	useRemoveMutation,
 	useSetDueDateMutation,
@@ -23,29 +23,28 @@ export { visibleTreeOptions } from "./visible-tree-query";
  * Composition root for the flat visible-tree cache entry: wires the query
  * plus every mutation hook under `./mutations` that patches it. Each
  * mutation hook owns its own optimistic patch/reconcile logic against the
- * shared `queryKey`; this hook only assembles their return values into the
- * `VisibleTree` shape consumers use.
+ * shared raw `queryKey`; this hook derives the depth-first `rows` a given
+ * view (main tree, node-detail subtree) actually renders via
+ * `buildVisibleTree`, and assembles the mutations into the `VisibleTree`
+ * shape consumers use.
  */
 export function useVisibleTree(
 	rootId: string | null,
 	includeCollapsedDescendants = false,
-	dueDateRange: DueDateRange | null = null,
-	hideCompleted = false,
 ): VisibleTree {
-	const options = visibleTreeOptions(
-		rootId,
-		includeCollapsedDescendants,
-		dueDateRange,
-		hideCompleted,
-	);
+	const options = visibleTreeOptions();
 	const { data } = useSuspenseQuery(options);
-
-	const toggle = useToggleMutation(
-		options.queryKey,
-		includeCollapsedDescendants,
+	const rows = useMemo(
+		() =>
+			buildVisibleTree(data.rows, rootId, {
+				includeCollapsed: includeCollapsedDescendants,
+			}),
+		[data.rows, rootId, includeCollapsedDescendants],
 	);
-	const move = useMoveMutation(options.queryKey);
-	const remove = useRemoveMutation(options.queryKey);
+
+	const toggle = useToggleMutation(options.queryKey);
+	const move = useMoveMutation(options.queryKey, rows);
+	const remove = useRemoveMutation(options.queryKey, rows);
 	const duplicate = useDuplicateMutation(options.queryKey);
 	const updateContent = useUpdateContentMutation(options.queryKey);
 	const setType = useSetTypeMutation(options.queryKey);
@@ -53,23 +52,10 @@ export function useVisibleTree(
 	const setRecurrence = useSetRecurrenceMutation(options.queryKey);
 	const setTaskCompleted = useSetTaskCompletedMutation(options.queryKey);
 	const setTags = useSetTagsMutation(options.queryKey);
-	const { add, addAfter } = useCreateMutation(
-		options.queryKey,
-		rootId,
-		data.rows,
-	);
-	const loadMore = useLoadMoreMutation(
-		options.queryKey,
-		rootId,
-		includeCollapsedDescendants,
-		dueDateRange,
-		hideCompleted,
-		data.nextCursor,
-	);
+	const { add, addAfter } = useCreateMutation(options.queryKey, rootId, rows);
 
 	return {
-		rows: data.rows,
-		hasMore: data.nextCursor !== null,
+		rows,
 		toggle,
 		move,
 		remove,
@@ -82,6 +68,5 @@ export function useVisibleTree(
 		setTags,
 		add,
 		addAfter,
-		loadMore,
 	};
 }

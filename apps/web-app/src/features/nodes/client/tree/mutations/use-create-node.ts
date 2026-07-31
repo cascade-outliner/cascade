@@ -1,11 +1,7 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
 import { markRowEntering } from "@cascade/outliner/row-lifecycle-motion";
 import type { AddNodeOptions } from "@cascade/outliner/tree-types";
-import {
-	appendRow,
-	insertRowAfter,
-	type MoveTarget,
-} from "@cascade/outliner/visible-rows";
+import type { MoveTarget } from "@cascade/outliner/visible-rows";
 import { toast } from "@cascade/ui/toast";
 import type { QueryKey } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,8 +14,9 @@ import { makeRawDeleteRestore } from "./delete-restore";
 
 /**
  * Owns both "append as last child of root" (`add`) and "insert after a
- * sibling" (`addAfter`), since both just place a freshly created node into
- * the flat row array with the same visible-tree bookkeeping (depth/path).
+ * sibling" (`addAfter`): the server already computes the correct
+ * `parentId`/`order` for the new node, so both just push its raw row into
+ * the shared cache.
  */
 export function useCreateMutation(
 	queryKey: QueryKey,
@@ -84,14 +81,10 @@ export function useCreateMutation(
 			dueDate: created.dueDate,
 			recurrence: created.recurrence,
 			tags: created.tags,
-			depth: 0,
-			path: [created.order],
-			hasChildren: created.hasChildren,
-			isLastChild: true,
 		};
 		await queryClient.cancelQueries({ queryKey });
 		markRowEntering(row.id);
-		setRows((currentRows) => appendRow(currentRows, row));
+		setRows((currentRows) => [...currentRows, row]);
 		pushCreateUndo(row, { position: "append", parentId: rootId });
 		return created.id;
 	};
@@ -127,14 +120,10 @@ export function useCreateMutation(
 			dueDate: created.dueDate,
 			recurrence: created.recurrence,
 			tags: created.tags,
-			depth: sibling.depth,
-			path: [...sibling.path.slice(0, -1), created.order],
-			hasChildren: created.hasChildren,
-			isLastChild: sibling.isLastChild,
 		};
 		await queryClient.cancelQueries({ queryKey });
 		markRowEntering(row.id);
-		setRows((currentRows) => insertRowAfter(currentRows, afterId, row));
+		setRows((currentRows) => [...currentRows, row]);
 		pushCreateUndo(row, {
 			position: "after",
 			targetId: afterId,

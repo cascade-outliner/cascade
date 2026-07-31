@@ -24,10 +24,14 @@ const warmup = Number.parseInt(values.warmup, 10);
 /**
  * One pass through most of what a node supports — create, edit content,
  * retype, due date, tags, expand/collapse, move, duplicate, read ancestors,
- * re-query the visible tree, then delete — timed as a single end-to-end
- * unit. perf:query/perf:mutate/perf:filter already isolate individual
- * procedures; this exists to catch regressions in the combined path a real
- * editing session actually takes (see #425).
+ * then delete — timed as a single end-to-end unit. perf:query already
+ * isolates whole-tree fetch latency on its own (and, post-#580, that fetch
+ * is unscoped and covers the whole account rather than a small subtree, so
+ * repeating it here per iteration would no longer represent "re-open the
+ * subtree you just edited" — it'd just double-count perf:query's own
+ * number). perf:mutate/perf:filter isolate the other individual procedures;
+ * this exists to catch regressions in the combined path a real editing
+ * session actually takes (see #425).
  */
 async function runWorkflow(
 	client: PerfOrpcClient,
@@ -46,12 +50,6 @@ async function runWorkflow(
 	await client.nodes.move({ id: created.id, parentId: parentB, position: "append" });
 	const duplicate = await client.nodes.duplicate({ id: created.id });
 	await client.nodes.ancestors({ id: duplicate.id });
-	await client.nodes.visibleTree({
-		rootId: parentB,
-		cursor: null,
-		includeCollapsedDescendants: true,
-		limit: 50,
-	});
 	await client.nodes.delete({ id: duplicate.id });
 	await client.nodes.delete({ id: created.id });
 }

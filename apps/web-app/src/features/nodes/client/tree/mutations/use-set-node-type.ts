@@ -1,9 +1,9 @@
 import type { TypedMetadata } from "@cascade/outliner/node-types";
-import { patchRow } from "@cascade/outliner/visible-rows";
 import type { QueryKey } from "@tanstack/react-query";
 import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutations/use-node-mutation";
 import { client } from "@/orpc/client";
 import { patchRows } from "../cache-helpers";
+import { patchRawRow } from "../raw-tree-ops";
 import type { VisibleTreeData } from "../tree-data.types";
 
 /** Convert a node's type or update its per-type metadata (e.g. task completion). */
@@ -18,7 +18,7 @@ export function useSetTypeMutation(queryKey: QueryKey) {
 		patch: (old, vars) =>
 			patchRows(
 				(rows) =>
-					patchRow(rows, vars.id, {
+					patchRawRow(rows, vars.id, {
 						type: vars.type,
 						metadata: vars.metadata,
 						...(vars.type === "text" ? { recurrence: null } : {}),

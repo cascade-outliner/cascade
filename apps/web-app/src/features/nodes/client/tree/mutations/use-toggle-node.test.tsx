@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { VisibleNodeRow } from "@cascade/outliner/node-types";
+import type { FlatNodeRow } from "@cascade/outliner/node-types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -35,7 +35,7 @@ vi.mock("@cascade/ui/toast", () => ({
 	},
 }));
 
-const root: VisibleNodeRow = {
+const root: FlatNodeRow = {
 	id: "root",
 	parentId: null,
 	content: { root: { type: "root", children: [] } },
@@ -45,13 +45,9 @@ const root: VisibleNodeRow = {
 	order: "a0",
 	dueDate: null,
 	tags: [],
-	depth: 0,
-	path: ["a0"],
-	hasChildren: true,
-	isLastChild: true,
 };
 
-function child(id: string, order: string): VisibleNodeRow {
+function child(id: string, order: string): FlatNodeRow {
 	return {
 		id,
 		parentId: "root",
@@ -62,12 +58,10 @@ function child(id: string, order: string): VisibleNodeRow {
 		order,
 		dueDate: null,
 		tags: [],
-		depth: 0,
-		path: [order],
-		hasChildren: false,
-		isLastChild: false,
 	};
 }
+
+const queryKey = ["nodes", "visibleTree"];
 
 function renderVisibleTree(queryClient: QueryClient) {
 	return renderHook(() => useVisibleTree(null), {
@@ -80,57 +74,19 @@ function renderVisibleTree(queryClient: QueryClient) {
 describe("useVisibleTree.toggle (expand)", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(orpc.nodes.visibleTree.queryOptions).mockImplementation(
-			({ input }) =>
-				({
-					queryKey: ["nodes", "visibleTree", { input }],
-					queryFn: () => Promise.resolve({ rows: [root], nextCursor: null }),
-				}) as never,
-		);
+		vi.mocked(orpc.nodes.visibleTree.queryOptions).mockReturnValue({
+			queryKey,
+			queryFn: () => Promise.resolve({ rows: [root] }),
+		} as never);
 	});
 
-	it("walks every nextCursor page so expanding a node with more descendants than the page limit doesn't truncate", async () => {
+	// Every descendant is already in the shared cache (the whole tree is
+	// fetched once), so expanding a node with already-loaded children reveals
+	// them instantly, with no further `visibleTree` calls needed.
+	it("reveals already-cached descendants without another visibleTree call", async () => {
 		const queryClient = new QueryClient();
-		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
-			rows: [root],
-			nextCursor: null,
-		});
-		vi.mocked(client.nodes.visibleTree)
-			.mockResolvedValueOnce({ rows: [child("c1", "a0")], nextCursor: ["b0"] })
-			.mockResolvedValueOnce({ rows: [child("c2", "b0")], nextCursor: null });
-		vi.mocked(client.nodes.toggleExpanded).mockResolvedValueOnce(undefined);
-
-		const { result } = renderVisibleTree(queryClient);
-
-		result.current.toggle("root", true);
-
-		await waitFor(() => {
-			const data = queryClient.getQueryData<{ rows: VisibleNodeRow[] }>(
-				visibleTreeOptions(null).queryKey,
-			);
-			expect(data?.rows.map((r) => r.id)).toEqual(["root", "c1", "c2"]);
-		});
-
-		expect(client.nodes.visibleTree).toHaveBeenCalledTimes(2);
-		expect(client.nodes.visibleTree).toHaveBeenNthCalledWith(1, {
-			rootId: "root",
-			cursor: null,
-		});
-		expect(client.nodes.visibleTree).toHaveBeenNthCalledWith(2, {
-			rootId: "root",
-			cursor: ["b0"],
-		});
-	});
-
-	it("expands without paginating further when the subtree fits in a single page", async () => {
-		const queryClient = new QueryClient();
-		queryClient.setQueryData(visibleTreeOptions(null).queryKey, {
-			rows: [root],
-			nextCursor: null,
-		});
-		vi.mocked(client.nodes.visibleTree).mockResolvedValueOnce({
-			rows: [child("c1", "a0")],
-			nextCursor: null,
+		queryClient.setQueryData(visibleTreeOptions().queryKey, {
+			rows: [root, child("c1", "a0"), child("c2", "b0")],
 		});
 		vi.mocked(client.nodes.toggleExpanded).mockResolvedValueOnce(undefined);
 
@@ -139,12 +95,35 @@ describe("useVisibleTree.toggle (expand)", () => {
 		result.current.toggle("root", true);
 
 		await waitFor(() => {
-			const data = queryClient.getQueryData<{ rows: VisibleNodeRow[] }>(
-				visibleTreeOptions(null).queryKey,
+			const data = queryClient.getQueryData<{ rows: FlatNodeRow[] }>(
+				visibleTreeOptions().queryKey,
 			);
-			expect(data?.rows.map((r) => r.id)).toEqual(["root", "c1"]);
+			expect(data?.rows.find((r) => r.id === "root")?.expanded).toBe(true);
 		});
 
-		expect(client.nodes.visibleTree).toHaveBeenCalledTimes(1);
+		expect(client.nodes.visibleTree).not.toHaveBeenCalled();
+		expect(client.nodes.toggleExpanded).toHaveBeenCalledWith({
+			id: "root",
+			expanded: true,
+		});
+	});
+
+	it("patches expanded to false on collapse", async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(visibleTreeOptions().queryKey, {
+			rows: [{ ...root, expanded: true }, child("c1", "a0")],
+		});
+		vi.mocked(client.nodes.toggleExpanded).mockResolvedValueOnce(undefined);
+
+		const { result } = renderVisibleTree(queryClient);
+
+		result.current.toggle("root", false);
+
+		await waitFor(() => {
+			const data = queryClient.getQueryData<{ rows: FlatNodeRow[] }>(
+				visibleTreeOptions().queryKey,
+			);
+			expect(data?.rows.find((r) => r.id === "root")?.expanded).toBe(false);
+		});
 	});
 });

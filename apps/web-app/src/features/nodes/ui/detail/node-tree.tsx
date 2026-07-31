@@ -30,12 +30,7 @@ export function NodeTree({
 	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
-	const tree = useVisibleTree(
-		nodeId,
-		includeCollapsedDescendants,
-		dueDateRange,
-		filters.hideCompleted,
-	);
+	const tree = useVisibleTree(nodeId, includeCollapsedDescendants);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,

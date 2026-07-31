@@ -15,7 +15,7 @@ import type { NodeDetailData } from "./node-detail.types";
 
 /** Resolves the slug to a node id and warms the caches the detail page needs. */
 export async function loadNodeDetail(queryClient: QueryClient, nodeId: string) {
-	queryClient.prefetchQuery(visibleTreeOptions(nodeId));
+	queryClient.prefetchQuery(visibleTreeOptions());
 	queryClient.prefetchQuery(existingTagsOptions());
 	await Promise.all([
 		queryClient.ensureQueryData(

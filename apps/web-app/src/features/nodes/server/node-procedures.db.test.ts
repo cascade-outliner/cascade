@@ -1,4 +1,3 @@
-import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { call } from "@orpc/server";
 import { sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -21,7 +20,6 @@ import {
 	setNodeRecurrence,
 	setNodeTags,
 	setTaskCompleted,
-	toggleNodeExpanded,
 	updateNodeContent,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
@@ -385,186 +383,65 @@ describe("moveNode", () => {
 });
 
 describe("visibleTree", () => {
-	it("walks depth-first, hiding descendants of collapsed nodes by default", async () => {
+	// Depth-first ordering, collapse-gating, and hideCompleted filtering all
+	// moved client-side (see buildVisibleTree/getRowVisibility in
+	// packages/outliner); the server just returns every node for the user,
+	// flat and unordered, with no rootId scoping or pagination.
+	it("returns every node for the user, flat and unfiltered", async () => {
 		const root = await call(createNode, { parentId: null }, { context });
-		await call(
-			toggleNodeExpanded,
-			{ id: root.id, expanded: true },
-			{ context },
-		);
 		const c1 = await call(createNode, { parentId: root.id }, { context });
 		const c2 = await call(
 			createNode,
 			{ parentId: root.id, afterId: c1.id },
 			{ context },
 		);
-		await call(createNode, { parentId: c1.id }, { context });
-
-		const collapsed = await call(
-			visibleTree,
-			{
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: false,
-				limit: 500,
-			},
-			{ context },
-		);
-		expect(collapsed.rows.map((r) => r.id)).toEqual([root.id, c1.id, c2.id]);
-		expect(collapsed.nextCursor).toBeNull();
-
-		const expanded = await call(
-			visibleTree,
-			{
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: true,
-				limit: 500,
-			},
-			{ context },
-		);
-		expect(expanded.rows).toHaveLength(4);
-		expect(expanded.rows[0]).toMatchObject({
-			id: root.id,
-			depth: 0,
-			parentId: null,
-			hasChildren: true,
-			isLastChild: true,
-		});
-		expect(expanded.rows[1]).toMatchObject({ id: c1.id, depth: 1 });
-		// c1's grandchild is depth-first inserted before c2.
-		expect(expanded.rows[2].parentId).toBe(c1.id);
-		expect(expanded.rows[3]).toMatchObject({ id: c2.id, depth: 1 });
-	});
-
-	it("paginates by cursor without gaps, duplicates, or reordering", async () => {
-		const created = [];
-		for (let i = 0; i < 5; i++) {
-			created.push(await call(createNode, { parentId: null }, { context }));
-		}
-
-		const fullPage = await call(
-			visibleTree,
-			{
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: false,
-				limit: 500,
-			},
-			{ context },
-		);
-		expect(fullPage.rows.map((r) => r.id)).toEqual(created.map((n) => n.id));
-		expect(fullPage.nextCursor).toBeNull();
-
-		const paged: string[] = [];
-		let cursor: string[] | null = null;
-		for (let guard = 0; guard < 10; guard++) {
-			const result: { rows: VisibleNodeRow[]; nextCursor: string[] | null } =
-				await call(
-					visibleTree,
-					{
-						rootId: null,
-						cursor,
-						includeCollapsedDescendants: false,
-						limit: 2,
-					},
-					{ context },
-				);
-			paged.push(...result.rows.map((row) => row.id));
-			cursor = result.nextCursor;
-			if (cursor === null) break;
-		}
-
-		expect(paged).toEqual(created.map((n) => n.id));
-	});
-
-	it("excludes completed tasks and their subtrees when hideCompleted is set", async () => {
-		const root = await call(createNode, { parentId: null }, { context });
-		await call(
-			toggleNodeExpanded,
-			{ id: root.id, expanded: true },
-			{ context },
-		);
-		const activeChild = await call(
-			createNode,
-			{ parentId: root.id },
-			{ context },
-		);
+		const grandchild = await call(createNode, { parentId: c1.id }, { context });
 		const completedTask = await call(
 			createNode,
 			{
 				parentId: root.id,
-				afterId: activeChild.id,
-				initialType: { type: "task", metadata: { completed: true } },
-			},
-			{ context },
-		);
-		// A grandchild under the completed task: excluding hideCompleted must stop
-		// the recursion from ever reaching it, even with includeCollapsedDescendants.
-		await call(createNode, { parentId: completedTask.id }, { context });
-
-		const withCompleted = await call(
-			visibleTree,
-			{
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: true,
-				hideCompleted: false,
-				limit: 500,
-			},
-			{ context },
-		);
-		expect(withCompleted.rows).toHaveLength(4);
-
-		const withoutCompleted = await call(
-			visibleTree,
-			{
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: true,
-				hideCompleted: true,
-				limit: 500,
-			},
-			{ context },
-		);
-		expect(withoutCompleted.rows.map((r) => r.id)).toEqual([
-			root.id,
-			activeChild.id,
-		]);
-		expect(
-			withoutCompleted.rows.find((r) => r.id === root.id)?.hasChildren,
-		).toBe(true);
-
-		// A node whose only child is a completed task should report no children
-		// at all once hideCompleted is set, not just fail to expand into one.
-		const onlyCompletedParent = await call(
-			createNode,
-			{ parentId: null },
-			{ context },
-		);
-		await call(
-			createNode,
-			{
-				parentId: onlyCompletedParent.id,
 				initialType: { type: "task", metadata: { completed: true } },
 			},
 			{ context },
 		);
 
-		const secondPass = await call(
-			visibleTree,
-			{
-				rootId: null,
-				cursor: null,
-				includeCollapsedDescendants: true,
-				hideCompleted: true,
-				limit: 500,
-			},
-			{ context },
+		const result = await call(visibleTree, undefined, { context });
+
+		expect(result.rows.map((r) => r.id).sort()).toEqual(
+			[root.id, c1.id, c2.id, grandchild.id, completedTask.id].sort(),
 		);
-		expect(
-			secondPass.rows.find((r) => r.id === onlyCompletedParent.id)?.hasChildren,
-		).toBe(false);
+		expect(result.rows.find((r) => r.id === c1.id)).toMatchObject({
+			parentId: root.id,
+		});
+		expect(result.rows.find((r) => r.id === grandchild.id)).toMatchObject({
+			parentId: c1.id,
+		});
+	});
+
+	it("never aggregates another user's tags into this user's rows", async () => {
+		const other = await createTestUser();
+		try {
+			const node = await call(createNode, { parentId: null }, { context });
+			await call(setNodeTags, { id: node.id, tags: ["mine"] }, { context });
+
+			const otherNode = await call(
+				createNode,
+				{ parentId: null },
+				{ context: other.context },
+			);
+			await call(
+				setNodeTags,
+				{ id: otherNode.id, tags: ["theirs", "also-theirs"] },
+				{ context: other.context },
+			);
+
+			const result = await call(visibleTree, undefined, { context });
+
+			expect(result.rows.map((r) => r.id)).toEqual([node.id]);
+			expect(result.rows[0].tags).toEqual(["mine"]);
+		} finally {
+			await deleteTestUser(other.user.id);
+		}
 	});
 });
 

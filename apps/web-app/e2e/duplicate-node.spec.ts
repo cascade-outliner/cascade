@@ -1,3 +1,4 @@
+import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
 import { expect, test } from "./support/fixtures";
 
 const paragraph = (text: string) => ({
@@ -86,12 +87,10 @@ test("duplicate copies a node's content, tags, due date, and type, recursively c
 		expect(duplicated.tags).toEqual(["q3", "urgent"]);
 		expect(duplicated.hasChildren).toBe(true);
 
-		const page = await orpcClient.nodes.visibleTree({
-			rootId: root.id,
-			cursor: null,
-			includeCollapsedDescendants: true,
-			limit: 100,
-		});
+		const { rows: allRows } = await orpcClient.nodes.visibleTree();
+		const page = {
+			rows: buildVisibleTree(allRows, root.id, { includeCollapsed: true }),
+		};
 
 		// Top-level order: original, its duplicate, then the pre-existing next
 		// sibling — the duplicate must be inserted immediately after the

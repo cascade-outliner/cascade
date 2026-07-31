@@ -1,4 +1,3 @@
-import { patchRow } from "@cascade/outliner/visible-rows";
 import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { existingTagsOptions } from "@/features/nodes/client/tags/use-existing-tags";
@@ -6,6 +5,7 @@ import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutation
 import { undoStore } from "@/features/nodes/client/undo/undo-store";
 import { client } from "@/orpc/client";
 import { patchRows } from "../cache-helpers";
+import { patchRawRow } from "../raw-tree-ops";
 import type { VisibleTreeData } from "../tree-data.types";
 
 export function useSetTagsMutation(queryKey: QueryKey) {
@@ -19,7 +19,7 @@ export function useSetTagsMutation(queryKey: QueryKey) {
 		queryKey,
 		mutationFn: (vars) => client.nodes.setTags(vars),
 		patch: (old, { id, tags }) =>
-			patchRows((rows) => patchRow(rows, id, { tags }), old),
+			patchRows((rows) => patchRawRow(rows, id, { tags }), old),
 		onSuccess: () => {
 			// A brand-new tag name may have just been created; refresh the
 			// suggestion list so it's offered elsewhere without a reload.

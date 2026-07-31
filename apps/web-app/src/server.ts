@@ -1,3 +1,4 @@
+import { compressResponse } from "@cascade/http/response-compression";
 import {
 	applySecurityHeaders,
 	getCspNonce,
@@ -26,6 +27,6 @@ export default {
 		const response = await paraglideMiddleware(request, () =>
 			startHandler(request),
 		);
-		return applySecurityHeaders(response, nonce);
+		return compressResponse(request, applySecurityHeaders(response, nonce));
 	},
 };

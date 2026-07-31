@@ -1,3 +1,4 @@
+import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
 import { expect, test } from "./support/fixtures";
 
 /**
@@ -29,13 +30,12 @@ test("moveNode rejects a targetId that isn't a child of parentId", async ({
 		).rejects.toThrow();
 
 		// The rejected move must not have touched the node's parent/order.
-		const page = await orpcClient.nodes.visibleTree({
-			rootId: parentA.id,
-			cursor: null,
-			includeCollapsedDescendants: true,
-			limit: 10,
-		});
-		expect(page.rows.map((r) => r.id)).toEqual([moved.id]);
+		const { rows } = await orpcClient.nodes.visibleTree();
+		expect(
+			buildVisibleTree(rows, parentA.id, { includeCollapsed: true }).map(
+				(r) => r.id,
+			),
+		).toEqual([moved.id]);
 	} finally {
 		await orpcClient.nodes.delete({ id: parentA.id });
 		await orpcClient.nodes.delete({ id: parentB.id });

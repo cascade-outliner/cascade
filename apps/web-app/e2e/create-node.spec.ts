@@ -1,3 +1,4 @@
+import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
 import { expect, test } from "./support/fixtures";
 
 /**
@@ -27,13 +28,10 @@ test("createNode rejects an afterId that isn't a child of parentId", async ({
 		).rejects.toThrow();
 
 		// The rejected create must not have inserted anything under parentA.
-		const page = await orpcClient.nodes.visibleTree({
-			rootId: parentA.id,
-			cursor: null,
-			includeCollapsedDescendants: true,
-			limit: 10,
-		});
-		expect(page.rows).toEqual([]);
+		const { rows } = await orpcClient.nodes.visibleTree();
+		expect(
+			buildVisibleTree(rows, parentA.id, { includeCollapsed: true }),
+		).toEqual([]);
 	} finally {
 		await orpcClient.nodes.delete({ id: parentA.id });
 		await orpcClient.nodes.delete({ id: parentB.id });
