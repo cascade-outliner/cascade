@@ -1,8 +1,5 @@
 # Changelog
 
-## 2026-07-30
-- [chore] Split `tree-history-procedures.ts` (previously 645 lines, one file for all three history procedures) into one-file-per-operation modules under `tree-history/server/procedures/`, matching the convention already used by node procedures. No behavior change. [#572](https://github.com/cascade-outliner/cascade/issues/572)
-
 ## 2026-07-29
 - [feat] Deleting a node now shows an in-progress toast (matching duplicate) that morphs into a success or error toast once the delete settles. [#565](https://github.com/cascade-outliner/cascade/issues/565)
 - [fix] A node's expand chevron no longer shows when an active filter (tags, due date, or hide-completed) hides every one of its children — expanding it would have revealed nothing. [#506](https://github.com/cascade-outliner/cascade/issues/506)
