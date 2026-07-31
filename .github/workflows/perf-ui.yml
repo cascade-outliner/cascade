@@ -1,0 +1,85 @@
+name: perf-ui
+
+# Runs the Playwright perf project (playwright.perf.config.ts, covering
+# e2e-perf/virtual-tree-motion.spec.ts) against a 20,000-node seeded tree.
+# Unlike perf.yml's before/after benchmark comparison (informational, not a
+# merge gate), this spec makes pass/fail assertions — bounded mounted
+# role="treeitem" count regardless of motion state — so it runs as a normal
+# required-check job rather than posting a comment. Scoped to the same paths
+# as perf.yml so unrelated PRs don't pay for an expensive seeded-tree browser
+# run.
+on:
+  pull_request:
+    paths:
+      - "apps/web-app/**"
+      - "packages/outliner/**"
+      - "packages/auth/**"
+      - "packages/http/**"
+      - ".github/workflows/perf-ui.yml"
+
+env:
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/cascade
+  BETTER_AUTH_SECRET: ci-only-secret-do-not-use-in-production-1234
+  BETTER_AUTH_URL: http://localhost:3001
+  APP_URL: http://localhost:3001
+  PORT: 3001
+
+jobs:
+  perf-ui:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cascade
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply database schema
+        run: pnpm db:migrate:app
+
+      - run: pnpm --filter app exec playwright install --with-deps chromium
+
+      # virtual-tree-motion.spec.ts expects its scratch subtree to live
+      # inside the full 20,000-node seeded tree (see CLAUDE.md's performance-
+      # testing section), not a smaller synthetic one.
+      - name: Seed 20,000-node perf tree
+        run: pnpm perf:seed:app -- --count=20000 --shape=balanced
+
+      # playwright.perf.config.ts's webServer builds and starts the app
+      # itself, then runs auth.setup.ts before the spec projects.
+      - run: pnpm test:perf:ui:app
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-ui-playwright-report
+          path: apps/web-app/playwright-report/
+          retention-days: 7
+
+      - name: Upload motion perf results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-ui-motion-results
+          path: apps/web-app/perf-results/motion-bench.json
+          if-no-files-found: ignore
+          retention-days: 30
