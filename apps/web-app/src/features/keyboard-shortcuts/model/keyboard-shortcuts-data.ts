@@ -13,8 +13,9 @@ export interface ShortcutGroup {
 }
 
 /** Read-only reference of the shortcuts implemented in `packages/outliner`
- * (tree navigation/editing, `use-editor-commands.ts`) and the app-level undo
- * (`features/nodes/client/undo`) shortcuts — see #437.
+ * (tree navigation/editing, `use-editor-commands.ts`) and app-level shortcuts
+ * like undo (`features/nodes/client/undo`) and focus mode
+ * (`features/focus-mode`) — see #437.
  * Keep in sync with those implementations rather than the other way around. */
 export const keyboardShortcutGroups: ShortcutGroup[] = [
 	{
@@ -32,6 +33,10 @@ export const keyboardShortcutGroups: ShortcutGroup[] = [
 			{
 				hotkeys: ["Mod+Shift+Z"],
 				description: () => m.keyboard_shortcuts_redo(),
+			},
+			{
+				hotkeys: ["Mod+Shift+F"],
+				description: () => m.keyboard_shortcuts_toggle_focus_mode(),
 			},
 		],
 	},

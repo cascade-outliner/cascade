@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-31
+- [feat] Added a distraction-free focus mode: toggle it from the header button or `Cmd/Ctrl+Shift+F` to dim every row except the node you're editing and its ancestors. [#490](https://github.com/cascade-outliner/cascade/issues/490)
+
 ## 2026-07-29
 - [feat] Deleting a node now shows an in-progress toast (matching duplicate) that morphs into a success or error toast once the delete settles. [#565](https://github.com/cascade-outliner/cascade/issues/565)
 - [fix] A node's expand chevron no longer shows when an active filter (tags, due date, or hide-completed) hides every one of its children — expanding it would have revealed nothing. [#506](https://github.com/cascade-outliner/cascade/issues/506)

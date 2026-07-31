@@ -6,6 +6,7 @@ import {
 } from "@cascade/outliner/node-filters";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import type { ReactNode } from "react";
+import { useFocusMode } from "#/features/focus-mode/client/focus-mode-context";
 import {
 	useDelayedCompletionHide,
 	withPendingTasksIncomplete,
@@ -27,6 +28,7 @@ export function NodeTree({
 	header: ReactNode;
 }) {
 	const { settings } = useSettings();
+	const { focusMode } = useFocusMode();
 	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
@@ -70,6 +72,7 @@ export function NodeTree({
 			hiddenRowIds={visibility.hiddenIds}
 			completionExitRowIds={completionHide.exitingIds}
 			contextRowIds={visibility.contextIds}
+			focusMode={focusMode}
 			noVisibleChildrenRowIds={visibility.noVisibleChildrenIds}
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}

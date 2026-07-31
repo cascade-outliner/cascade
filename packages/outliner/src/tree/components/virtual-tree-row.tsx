@@ -123,9 +123,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			aria-posinset={position?.posInSet}
 			aria-setsize={position?.setSize}
 			className={twMerge(
-				"top-0 left-0 w-full absolute",
+				"top-0 left-0 w-full absolute transition-opacity duration-150 motion-reduce:transition-none",
 				props.isHidden && "hidden",
 				props.isContext && "opacity-45",
+				props.isFocusDimmed && "opacity-30",
 			)}
 			style={{
 				transform: `translateY(${start}px)`,

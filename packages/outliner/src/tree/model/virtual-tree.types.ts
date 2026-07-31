@@ -29,6 +29,10 @@ export interface VirtualTreeProps {
 	completionExitRowIds?: Set<string>;
 	/** Row ids to render dimmed but still visible, e.g. ancestors kept for context. */
 	contextRowIds?: Set<string>;
+	/** When true, dims every row except the node being edited and its
+	 * ancestor chain, for distraction-free writing. Purely a rendering
+	 * concern — it doesn't change which rows are present. */
+	focusMode?: boolean;
 	/** Row ids whose children are all hidden by an active filter; their
 	 * expand chevron is suppressed since expanding would reveal nothing. */
 	noVisibleChildrenRowIds?: Set<string>;
@@ -69,6 +73,9 @@ export interface VirtualTreeRowProps {
 	isCompletionExiting: boolean;
 	/** Not itself a filter match, but an ancestor of one; rendered dimmed. */
 	isContext: boolean;
+	/** Dimmed by an active focus mode, i.e. not the node being edited or one
+	 * of its ancestors. */
+	isFocusDimmed: boolean;
 	/** Whether expanding this row would reveal at least one visible child;
 	 * false suppresses the expand chevron even when `row.hasChildren`. */
 	hasVisibleChildren: boolean;

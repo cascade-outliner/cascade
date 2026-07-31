@@ -1,10 +1,11 @@
 import { Button } from "@cascade/ui/button";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
-import { type RefObject, useLayoutEffect } from "react";
+import { type RefObject, useLayoutEffect, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
 import { setBlockType } from "../../editor/lexical/content/lexical-content";
 import type { OutlinerLabels } from "../../i18n/outliner-labels-context";
+import { getFocusDimmedRowIds } from "../focus/get-focus-dimmed-row-ids";
 import type { useTreeInteractions } from "../hooks/use-tree-interactions";
 import type { VisibleTree } from "../model/tree.types";
 import type { VirtualTreeProps } from "../model/virtual-tree.types";
@@ -15,6 +16,8 @@ import {
 import { VirtualTreeRow } from "./virtual-tree-row";
 
 type Interactions = ReturnType<typeof useTreeInteractions>;
+
+const EMPTY_ROW_IDS: Set<string> = new Set();
 
 export function VirtualTreeView({
 	tree,
@@ -32,6 +35,7 @@ export function VirtualTreeView({
 	hiddenRowIds,
 	completionExitRowIds,
 	contextRowIds,
+	focusMode,
 	noVisibleChildrenRowIds,
 	existingTags = [],
 	onDeleteTag,
@@ -60,6 +64,7 @@ export function VirtualTreeView({
 	| "hiddenRowIds"
 	| "completionExitRowIds"
 	| "contextRowIds"
+	| "focusMode"
 	| "noVisibleChildrenRowIds"
 	| "existingTags"
 	| "onDeleteTag"
@@ -96,6 +101,14 @@ export function VirtualTreeView({
 	useLayoutEffect(() => {
 		clearExpansionReveal();
 	});
+
+	const focusDimmedRowIds = useMemo(
+		() =>
+			focusMode
+				? getFocusDimmedRowIds(tree.rows, editingNodeId)
+				: EMPTY_ROW_IDS,
+		[focusMode, tree.rows, editingNodeId],
+	);
 
 	return (
 		<div
@@ -141,6 +154,7 @@ export function VirtualTreeView({
 										completionExitRowIds?.has(row.id) ?? false
 									}
 									isContext={contextRowIds?.has(row.id) ?? false}
+									isFocusDimmed={focusDimmedRowIds.has(row.id)}
 									hasVisibleChildren={
 										!(noVisibleChildrenRowIds?.has(row.id) ?? false)
 									}

@@ -2,6 +2,7 @@ import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppHeader } from "@/app/app-header";
 import { getSession } from "@/features/auth/server/get-session";
+import { FocusModeProvider } from "@/features/focus-mode/client/focus-mode-context";
 import type { PremiumStatus } from "@/features/premium/server/premium-procedures";
 import { SettingsProvider } from "@/features/settings/client/settings-context";
 import type { SettingsPatch } from "@/features/settings/model/settings.schema";
@@ -33,8 +34,10 @@ export const Route = createFileRoute("/_authed")({
 function AuthedLayout() {
 	return (
 		<SettingsProvider>
-			<AppHeader />
-			<Outlet />
+			<FocusModeProvider>
+				<AppHeader />
+				<Outlet />
+			</FocusModeProvider>
 		</SettingsProvider>
 	);
 }

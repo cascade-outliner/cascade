@@ -9,6 +9,7 @@ import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { GenericErrorComponent } from "@/app/generic-error";
+import { useFocusMode } from "@/features/focus-mode/client/focus-mode-context";
 import {
 	useDelayedCompletionHide,
 	withPendingTasksIncomplete,
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/_authed/")({
 
 function RootTree() {
 	const { settings } = useSettings();
+	const { focusMode } = useFocusMode();
 	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
@@ -78,6 +80,7 @@ function RootTree() {
 			hiddenRowIds={visibility.hiddenIds}
 			completionExitRowIds={completionHide.exitingIds}
 			contextRowIds={visibility.contextIds}
+			focusMode={focusMode}
 			noVisibleChildrenRowIds={visibility.noVisibleChildrenIds}
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
