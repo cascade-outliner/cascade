@@ -3,6 +3,10 @@ import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	COMPLETED_EXIT_DURATION_MS,
+	COMPLETED_HIDE_DELAY_MS,
+} from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { client } from "@/orpc/client";
 import type { VisibleTreeData } from "../tree-data.types";
 import { useDuplicateMutation } from "./use-duplicate-node";
@@ -201,6 +205,58 @@ describe("optimistic node mutations", () => {
 		});
 	});
 
+	it("defers invalidating visibleTree until the completion grace period elapses", async () => {
+		vi.useFakeTimers({ shouldAdvanceTime: true });
+		try {
+			const { queryClient, wrapper } = setup([
+				row("node", null, 0, ["node"], {
+					type: "task",
+					metadata: { completed: false },
+				}),
+			]);
+			const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+			const { result } = renderHook(
+				() => useSetTaskCompletedMutation(queryKey),
+				{ wrapper },
+			);
+
+			result.current("node", true, null);
+			await waitForPatch(queryClient);
+
+			expect(invalidateSpy).not.toHaveBeenCalled();
+
+			await vi.advanceTimersByTimeAsync(
+				COMPLETED_HIDE_DELAY_MS + COMPLETED_EXIT_DURATION_MS,
+			);
+
+			expect(invalidateSpy).toHaveBeenCalledWith({
+				queryKey: ["nodes", "visibleTree"],
+			});
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	it("invalidates visibleTree immediately when un-completing a task", async () => {
+		const { queryClient, wrapper } = setup([
+			row("node", null, 0, ["node"], {
+				type: "task",
+				metadata: { completed: true },
+			}),
+		]);
+		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+		const { result } = renderHook(() => useSetTaskCompletedMutation(queryKey), {
+			wrapper,
+		});
+
+		result.current("node", false, null);
+		await waitForPatch(queryClient);
+
+		expect(invalidateSpy).toHaveBeenCalledWith({
+			queryKey: ["nodes", "visibleTree"],
+		});
+	});
+
 	it("collapses visible descendants and keeps collapsed descendants in filtered mode", async () => {
 		const rows = [
 			row("parent", null, 0, ["parent"], { hasChildren: true }),
@@ -357,7 +413,7 @@ describe("optimistic node mutations", () => {
 			nextCursor: null,
 		});
 		const { result } = renderHook(
-			() => useLoadMoreMutation(queryKey, null, false, null, ["next"]),
+			() => useLoadMoreMutation(queryKey, null, false, null, false, ["next"]),
 			{ wrapper },
 		);
 

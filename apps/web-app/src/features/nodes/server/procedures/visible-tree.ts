@@ -43,6 +43,7 @@ export const visibleTree = authed
 				includeCollapsedDescendants: z.boolean().default(false),
 				dueDateStart: dueDateSchema.optional(),
 				dueDateEnd: dueDateSchema.optional(),
+				hideCompleted: z.boolean().default(false),
 				limit: z.number().int().min(1).max(2000).default(500),
 			})
 			.refine(
@@ -59,6 +60,7 @@ export const visibleTree = authed
 			includeCollapsedDescendants,
 			dueDateStart,
 			dueDateEnd,
+			hideCompleted,
 			limit,
 		} = input;
 		const userId = context.user.id;
@@ -68,6 +70,26 @@ export const visibleTree = authed
 					sql`, `,
 				)}]::text[]`
 			: sql`NULL::text[]`;
+
+		// A completed task excludes itself and its entire subtree, so the
+		// recursive term also stops descending past one when the caller asked
+		// to hide completed nodes, rather than fetching them just to filter
+		// them out afterwards.
+		const isCompletedTask = sql`(v.type = 'task' AND COALESCE((v.metadata->>'completed')::boolean, false))`;
+		const filterConditions = [
+			dueDateStart && dueDateEnd
+				? sql`EXISTS (
+						SELECT 1
+						FROM matching_paths m
+						WHERE m.path[1:cardinality(v.path)] = v.path
+					)`
+				: null,
+			hideCompleted ? sql`NOT ${isCompletedTask}` : null,
+		].filter((condition) => condition !== null);
+		const filteredWhere =
+			filterConditions.length > 0
+				? sql`WHERE ${sql.join(filterConditions, sql` AND `)}`
+				: sql``;
 
 		const result = (await db.execute(sql`
 			WITH RECURSIVE params AS (
@@ -90,6 +112,7 @@ export const visibleTree = authed
 				CROSS JOIN params
 				WHERE c.user_id = ${userId}
 					AND (${includeCollapsedDescendants} = true OR v.expanded = true)
+					AND (${hideCompleted} = false OR NOT ${isCompletedTask})
 					AND (
 						params.cursor IS NULL
 						OR (v.path || c."order") >= params.cursor[1:array_length(v.path, 1) + 1]
@@ -103,15 +126,7 @@ export const visibleTree = authed
 				filtered AS (
 					SELECT v.*
 					FROM visible v
-					${
-						dueDateStart && dueDateEnd
-							? sql`WHERE EXISTS (
-								SELECT 1
-								FROM matching_paths m
-								WHERE m.path[1:cardinality(v.path)] = v.path
-							)`
-							: sql``
-					}
+					${filteredWhere}
 				),
 				page AS MATERIALIZED (
 					SELECT v.id, v.parent_id, v.content, v.type, v.metadata, v.expanded, v."order", v.due_date, v.recurrence, v.depth, v.path,
@@ -129,6 +144,7 @@ export const visibleTree = authed
 				SELECT n.parent_id, true AS has_children
 				FROM nodes n
 				WHERE n.user_id = ${userId} AND n.parent_id IN (SELECT id FROM page)
+					AND (${hideCompleted} = false OR NOT (n.type = 'task' AND COALESCE((n.metadata->>'completed')::boolean, false)))
 				GROUP BY n.parent_id
 			) hc ON hc.parent_id = p.id
 			LEFT JOIN (

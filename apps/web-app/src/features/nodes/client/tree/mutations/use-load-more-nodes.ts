@@ -10,6 +10,7 @@ export function useLoadMoreMutation(
 	rootId: string | null,
 	includeCollapsedDescendants: boolean,
 	dueDateRange: DueDateRange | null,
+	hideCompleted: boolean,
 	nextCursor: string[] | null,
 ) {
 	const queryClient = useQueryClient();
@@ -20,6 +21,7 @@ export function useLoadMoreMutation(
 				rootId,
 				cursor: nextCursor,
 				includeCollapsedDescendants,
+				hideCompleted,
 				...(dueDateRange
 					? {
 							dueDateStart: formatCalendarDate(dueDateRange.start),

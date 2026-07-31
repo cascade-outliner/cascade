@@ -135,8 +135,29 @@ describe("useVisibleTree.updateContent", () => {
 			input: {
 				rootId: null,
 				includeCollapsedDescendants: true,
+				hideCompleted: false,
 				dueDateStart: "2026-07-21",
 				dueDateEnd: "2026-07-21",
+			},
+		});
+	});
+
+	it("requests hideCompleted when the hide-completed filter is active", () => {
+		const queryClient = new QueryClient();
+
+		renderHook(() => useVisibleTree(null, false, null, true), {
+			wrapper: ({ children }) => (
+				<QueryClientProvider client={queryClient}>
+					{children}
+				</QueryClientProvider>
+			),
+		});
+
+		expect(orpc.nodes.visibleTree.queryOptions).toHaveBeenCalledWith({
+			input: {
+				rootId: null,
+				includeCollapsedDescendants: false,
+				hideCompleted: true,
 			},
 		});
 	});

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-07-30
+- [perf] Completed tasks are no longer fetched from the server at all when the hide-completed filter/setting is active, instead of being fetched and then filtered out client-side. [#531](https://github.com/cascade-outliner/cascade/issues/531)
+
 ## 2026-07-29
 - [feat] Deleting a node now shows an in-progress toast (matching duplicate) that morphs into a success or error toast once the delete settles. [#565](https://github.com/cascade-outliner/cascade/issues/565)
 - [fix] A node's expand chevron no longer shows when an active filter (tags, due date, or hide-completed) hides every one of its children — expanding it would have revealed nothing. [#506](https://github.com/cascade-outliner/cascade/issues/506)

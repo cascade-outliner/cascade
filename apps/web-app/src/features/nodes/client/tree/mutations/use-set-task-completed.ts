@@ -3,6 +3,10 @@ import { nextRecurringDueDate } from "@cascade/outliner/recurrence";
 import { toast } from "@cascade/ui/toast";
 import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+	COMPLETED_EXIT_DURATION_MS,
+	COMPLETED_HIDE_DELAY_MS,
+} from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutations/use-node-mutation";
 import { client, orpc } from "@/orpc/client";
 import { m } from "@/paraglide/messages.js";
@@ -42,7 +46,7 @@ export function useSetTaskCompletedMutation(queryKey: QueryKey) {
 					),
 				old,
 			),
-		onSuccess: (result) => {
+		onSuccess: (result, { completed }) => {
 			if (result.advanced && result.nextDueDate) {
 				toast.success(
 					m.node_recurring_completed({
@@ -53,7 +57,22 @@ export function useSetTaskCompletedMutation(queryKey: QueryKey) {
 					}),
 				);
 			}
-			queryClient.invalidateQueries({ queryKey: orpc.nodes.visibleTree.key() });
+			const invalidate = () =>
+				queryClient.invalidateQueries({
+					queryKey: orpc.nodes.visibleTree.key(),
+				});
+			if (completed) {
+				// A view that hides completed tasks fetches this row's whole
+				// subtree server-side once it's marked complete, so refetching
+				// right away would yank the row out from under the
+				// use-delayed-completion-hide grace period's exit animation.
+				setTimeout(
+					invalidate,
+					COMPLETED_HIDE_DELAY_MS + COMPLETED_EXIT_DURATION_MS,
+				);
+			} else {
+				invalidate();
+			}
 		},
 	});
 

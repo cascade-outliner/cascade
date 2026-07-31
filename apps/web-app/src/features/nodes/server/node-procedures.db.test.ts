@@ -477,6 +477,95 @@ describe("visibleTree", () => {
 
 		expect(paged).toEqual(created.map((n) => n.id));
 	});
+
+	it("excludes completed tasks and their subtrees when hideCompleted is set", async () => {
+		const root = await call(createNode, { parentId: null }, { context });
+		await call(
+			toggleNodeExpanded,
+			{ id: root.id, expanded: true },
+			{ context },
+		);
+		const activeChild = await call(
+			createNode,
+			{ parentId: root.id },
+			{ context },
+		);
+		const completedTask = await call(
+			createNode,
+			{
+				parentId: root.id,
+				afterId: activeChild.id,
+				initialType: { type: "task", metadata: { completed: true } },
+			},
+			{ context },
+		);
+		// A grandchild under the completed task: excluding hideCompleted must stop
+		// the recursion from ever reaching it, even with includeCollapsedDescendants.
+		await call(createNode, { parentId: completedTask.id }, { context });
+
+		const withCompleted = await call(
+			visibleTree,
+			{
+				rootId: null,
+				cursor: null,
+				includeCollapsedDescendants: true,
+				hideCompleted: false,
+				limit: 500,
+			},
+			{ context },
+		);
+		expect(withCompleted.rows).toHaveLength(4);
+
+		const withoutCompleted = await call(
+			visibleTree,
+			{
+				rootId: null,
+				cursor: null,
+				includeCollapsedDescendants: true,
+				hideCompleted: true,
+				limit: 500,
+			},
+			{ context },
+		);
+		expect(withoutCompleted.rows.map((r) => r.id)).toEqual([
+			root.id,
+			activeChild.id,
+		]);
+		expect(
+			withoutCompleted.rows.find((r) => r.id === root.id)?.hasChildren,
+		).toBe(true);
+
+		// A node whose only child is a completed task should report no children
+		// at all once hideCompleted is set, not just fail to expand into one.
+		const onlyCompletedParent = await call(
+			createNode,
+			{ parentId: null },
+			{ context },
+		);
+		await call(
+			createNode,
+			{
+				parentId: onlyCompletedParent.id,
+				initialType: { type: "task", metadata: { completed: true } },
+			},
+			{ context },
+		);
+
+		const secondPass = await call(
+			visibleTree,
+			{
+				rootId: null,
+				cursor: null,
+				includeCollapsedDescendants: true,
+				hideCompleted: true,
+				limit: 500,
+			},
+			{ context },
+		);
+		expect(
+			secondPass.rows.find((r) => r.id === onlyCompletedParent.id)?.hasChildren,
+		).toBe(false);
+	});
 });
 
 describe("deleteNode", () => {

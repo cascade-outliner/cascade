@@ -34,6 +34,7 @@ export function NodeTree({
 		nodeId,
 		includeCollapsedDescendants,
 		dueDateRange,
+		filters.hideCompleted,
 	);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
