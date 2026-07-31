@@ -405,7 +405,7 @@ describe("visibleTree", () => {
 			{ context },
 		);
 
-		const result = await call(visibleTree, {}, { context });
+		const result = await call(visibleTree, undefined, { context });
 
 		expect(result.rows.map((r) => r.id).sort()).toEqual(
 			[root.id, c1.id, c2.id, grandchild.id, completedTask.id].sort(),
@@ -416,6 +416,32 @@ describe("visibleTree", () => {
 		expect(result.rows.find((r) => r.id === grandchild.id)).toMatchObject({
 			parentId: c1.id,
 		});
+	});
+
+	it("never aggregates another user's tags into this user's rows", async () => {
+		const other = await createTestUser();
+		try {
+			const node = await call(createNode, { parentId: null }, { context });
+			await call(setNodeTags, { id: node.id, tags: ["mine"] }, { context });
+
+			const otherNode = await call(
+				createNode,
+				{ parentId: null },
+				{ context: other.context },
+			);
+			await call(
+				setNodeTags,
+				{ id: otherNode.id, tags: ["theirs", "also-theirs"] },
+				{ context: other.context },
+			);
+
+			const result = await call(visibleTree, undefined, { context });
+
+			expect(result.rows.map((r) => r.id)).toEqual([node.id]);
+			expect(result.rows[0].tags).toEqual(["mine"]);
+		} finally {
+			await deleteTestUser(other.user.id);
+		}
 	});
 });
 

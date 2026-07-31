@@ -40,7 +40,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 		LEFT JOIN (
 			SELECT nt.node_id, array_agg(tg.name ORDER BY tg.name) AS tags
 			FROM node_tags nt
-			JOIN tags tg ON tg.id = nt.tag_id
+			JOIN tags tg ON tg.id = nt.tag_id AND tg.user_id = ${userId}
 			GROUP BY nt.node_id
 		) t ON t.node_id = n.id
 		WHERE n.user_id = ${userId}
