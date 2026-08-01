@@ -60,6 +60,14 @@ async function main() {
 		lines.push(`| ${label} | _no tests configured_ | | | |`);
 	}
 
+	lines.push("");
+	lines.push(
+		"_Percentages are of each package's full `src/`, not just the files its tests happen to " +
+			"import — untested files count as 0%, not as missing data. `apps/web-app`'s number " +
+			"additionally excludes `*.db.test.ts` (run separately against a live Postgres, see " +
+			"`test:db:app`), so server code covered only by that suite still shows as untested here._",
+	);
+
 	const markdown = lines.join("\n");
 	console.log(markdown);
 	if (values.out) {
