@@ -1,7 +1,7 @@
 import { Tabs } from "@base-ui/react";
 import type { ReactNode } from "react";
 import { m } from "#/paraglide/messages.js";
-import { TagSettingsPanel } from "@/features/nodes/ui/tag-settings-panel";
+import { TagSettingsPanel } from "@/features/nodes/ui/tag-settings";
 import { SecuritySettingsPanel } from "@/features/sessions/ui/security-settings-panel";
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-settings-panel";

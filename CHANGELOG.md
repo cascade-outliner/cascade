@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-01
+- [chore] Split the Settings tag-management panel into a feature-module folder (`tag-settings/`) with separate row, create-form, and delete-dialog components — no user-facing behavior change. [#584](https://github.com/cascade-outliner/cascade/issues/584)
+
 ## 2026-07-30
 - [perf] Completed tasks are no longer fetched from the server at all when the hide-completed filter/setting is active, instead of being fetched and then filtered out client-side. [#531](https://github.com/cascade-outliner/cascade/issues/531)
 
