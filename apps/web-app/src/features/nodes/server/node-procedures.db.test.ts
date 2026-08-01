@@ -17,6 +17,7 @@ import {
 	resolveNodeSlug,
 	restoreNode,
 	setNodeDueDate,
+	setNodeIcon,
 	setNodeRecurrence,
 	setNodeTags,
 	setTaskCompleted,
@@ -607,5 +608,29 @@ describe("setNodeTags / listTags / deleteTag", () => {
 		await expect(
 			call(renameTag, { name: "first", newName: "SECOND" }, { context }),
 		).rejects.toMatchObject({ code: "CONFLICT" });
+	});
+});
+
+describe("setNodeIcon", () => {
+	it("sets and clears a node's icon", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+
+		await call(setNodeIcon, { id: node.id, icon: "📌" }, { context });
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			icon: "📌",
+		});
+
+		await call(setNodeIcon, { id: node.id, icon: null }, { context });
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			icon: null,
+		});
+	});
+
+	it("rejects a value that isn't a single emoji", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+
+		await expect(
+			call(setNodeIcon, { id: node.id, icon: "not an emoji" }, { context }),
+		).rejects.toBeDefined();
 	});
 });

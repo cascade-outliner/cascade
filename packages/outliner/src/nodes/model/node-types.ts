@@ -15,6 +15,8 @@ export interface FlatNodeRow {
 	dueDate: CalendarDateString | null;
 	recurrence?: RecurrenceRule | null;
 	tags: string[];
+	/** A single emoji, or `null` for no custom icon (see #557). */
+	icon: string | null;
 }
 
 /**

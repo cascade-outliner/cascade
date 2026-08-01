@@ -403,6 +403,9 @@ importers:
       '@tanstack/react-virtual':
         specifier: ^3.14.5
         version: 3.14.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      frimousse:
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.2.7)(typescript@7.0.2)
       lexical:
         specifier: ^0.46.0
         version: 0.46.0(typescript@7.0.2)
@@ -3031,6 +3034,15 @@ packages:
       react:
         optional: true
       react-dom:
+        optional: true
+
+  frimousse@0.3.0:
+    resolution: {integrity: sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ==}
+    peerDependencies:
+      react: ^18 || ^19
+      typescript: '>=5.1.0'
+    peerDependenciesMeta:
+      typescript:
         optional: true
 
   fsevents@2.3.2:
@@ -6182,6 +6194,12 @@ snapshots:
     optionalDependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
+
+  frimousse@0.3.0(react@19.2.7)(typescript@7.0.2):
+    dependencies:
+      react: 19.2.7
+    optionalDependencies:
+      typescript: 7.0.2
 
   fsevents@2.3.2:
     optional: true

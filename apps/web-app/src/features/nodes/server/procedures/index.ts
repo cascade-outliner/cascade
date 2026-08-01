@@ -13,6 +13,7 @@ export { renameTag } from "./rename-tag";
 export { resolveNodeSlug } from "./resolve-node-slug";
 export { restoreNode } from "./restore-node";
 export { setNodeDueDate } from "./set-node-due-date";
+export { setNodeIcon } from "./set-node-icon";
 export { setNodeRecurrence } from "./set-node-recurrence";
 export { setNodeTags } from "./set-node-tags";
 export { setNodeType } from "./set-node-type";

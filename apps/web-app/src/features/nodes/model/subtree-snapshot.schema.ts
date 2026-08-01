@@ -2,6 +2,7 @@ import { typedMetadataSchema } from "@cascade/outliner/node-types";
 import { recurrenceRuleSchema } from "@cascade/outliner/recurrence";
 import { z } from "zod";
 import { dueDateSchema } from "./due-date.schema";
+import { iconSchema } from "./icon.schema";
 import { lexicalElementNodeSchema } from "./node-content.schema";
 
 export const restoreTargetSchema = z.discriminatedUnion("position", [
@@ -17,6 +18,7 @@ const nodeSnapshotSchema = z
 		expanded: z.boolean(),
 		dueDate: dueDateSchema.nullable(),
 		recurrence: recurrenceRuleSchema.nullable().default(null),
+		icon: iconSchema.nullable().default(null),
 		tags: z.array(z.string()),
 	})
 	.and(typedMetadataSchema)

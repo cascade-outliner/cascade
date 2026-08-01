@@ -23,6 +23,7 @@ function collapsedChain(length: number): VisibleNodeRow[] {
 			expanded: false,
 			order: String(i),
 			dueDate: null,
+			icon: null,
 			tags: [],
 			depth: i,
 			path: [String(i)],

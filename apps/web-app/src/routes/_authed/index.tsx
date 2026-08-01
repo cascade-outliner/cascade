@@ -62,7 +62,7 @@ function RootTree() {
 			className="h-full"
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
-				<NodeLink id={node.id} content={node.content} />
+				<NodeLink id={node.id} content={node.content} icon={node.icon} />
 			)}
 			contentClassName="rr-block"
 			header={

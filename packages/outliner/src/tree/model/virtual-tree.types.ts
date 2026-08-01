@@ -16,7 +16,7 @@ export interface VirtualTreeProps {
 	tree: VisibleTree;
 	indentSize?: number;
 	renderNodeLink?: (
-		node: Pick<VisibleTree["rows"][number], "id" | "content">,
+		node: Pick<VisibleTree["rows"][number], "id" | "content" | "icon">,
 	) => ReactNode;
 	header?: ReactNode;
 	/** Overrides the scroll container's default full-viewport-height sizing. */
@@ -57,7 +57,9 @@ export interface VirtualTreeRowProps {
 	start: number;
 	index: number;
 	indentSize: number;
-	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
+	renderNodeLink?: (
+		node: Pick<VisibleNodeRow, "id" | "content" | "icon">,
+	) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
 	/** Row/context-menu features to render; see `VirtualTreeProps.features`. */
 	features?: OutlinerFeature[];
@@ -85,6 +87,7 @@ export interface VirtualTreeRowProps {
 	onSetDueDate: (date: Date | null) => void;
 	onSetRecurrence: (recurrence: RecurrenceInput | null) => void;
 	onSetTags: (tags: string[]) => void;
+	onSetIcon: (icon: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDuplicate: () => void;

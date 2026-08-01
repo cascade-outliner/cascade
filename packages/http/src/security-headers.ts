@@ -7,7 +7,7 @@ function contentSecurityPolicy(nonce: string): string {
 		"style-src 'self' 'unsafe-inline'",
 		"img-src 'self' data: https:",
 		"font-src 'self' data:",
-		"connect-src 'self' https://rybbit.patrickroelofs.com",
+		"connect-src 'self' https://rybbit.patrickroelofs.com https://cdn.jsdelivr.net",
 		"object-src 'none'",
 		"base-uri 'self'",
 		"form-action 'self'",

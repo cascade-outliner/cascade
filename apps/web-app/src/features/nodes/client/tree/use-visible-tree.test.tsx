@@ -14,6 +14,7 @@ vi.mock("@/orpc/client", () => ({
 			create: vi.fn(),
 			updateContent: vi.fn(),
 			setDueDate: vi.fn(),
+			setIcon: vi.fn(),
 			move: vi.fn(),
 			toggleExpanded: vi.fn(),
 			visibleTree: vi.fn(),
@@ -50,6 +51,7 @@ const row: FlatNodeRow = {
 	dueDate: null,
 	recurrence: null,
 	tags: [],
+	icon: null,
 };
 
 const queryKey = ["nodes", "visibleTree"];
@@ -203,6 +205,7 @@ describe("useVisibleTree.add/addAfter", () => {
 		dueDate: null,
 		recurrence: null,
 		tags: [],
+		icon: null,
 		hasChildren: false,
 	};
 

@@ -28,6 +28,8 @@ export function actionLabel(kind: TreeHistoryEventKind): string {
 			return m.tree_history_action_type();
 		case "due_date_changed":
 			return m.tree_history_action_due_date();
+		case "icon_changed":
+			return m.tree_history_action_icon();
 		case "recurrence_changed":
 			return m.tree_history_action_recurrence();
 		case "recurring_task_completed":
@@ -216,6 +218,16 @@ export function EventPreview({ detail }: { detail: TreeHistoryDetail }) {
 			);
 		case "due_date_changed":
 			return <BeforeAfter before={payload.before} after={payload.after} />;
+		case "icon_changed":
+			return (
+				<BeforeAfter
+					before={payload.before}
+					after={payload.after}
+					render={(value) => (
+						<p className="text-2xl">{value ?? m.tree_history_none()}</p>
+					)}
+				/>
+			);
 		case "recurrence_changed":
 			return (
 				<BeforeAfter
