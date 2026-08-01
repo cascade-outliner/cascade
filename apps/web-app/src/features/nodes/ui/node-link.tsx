@@ -30,7 +30,7 @@ export function NodeLink({ id, content, icon }: NodeLinkProps) {
 			)}
 			<span
 				aria-hidden
-				className="absolute inset-0 m-auto h-3.5 w-3.5 rounded-full bg-danger opacity-0 blur-sm transition-opacity group-hover/node-link:opacity-40"
+				className="absolute inset-0 m-auto h-4 w-4 rounded-full bg-white opacity-0 blur-sm transition-opacity group-hover/node-link:opacity-90"
 			/>
 			<span
 				aria-hidden

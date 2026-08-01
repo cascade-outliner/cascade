@@ -14,7 +14,7 @@ export function DefaultNodeLink({ icon }: { icon?: string | null }) {
 			className="group/node-link relative flex h-4 w-4 shrink-0 items-center justify-center"
 		>
 			{icon && <span className="text-sm leading-none select-none">{icon}</span>}
-			<span className="absolute inset-0 m-auto h-3.5 w-3.5 rounded-full bg-ink opacity-0 blur-sm transition-opacity group-hover/node-link:opacity-40 dark:bg-surface" />
+			<span className="absolute inset-0 m-auto h-4 w-4 rounded-full bg-white opacity-0 blur-sm transition-opacity group-hover/node-link:opacity-90" />
 			<span className="absolute inset-0 m-auto h-2 w-2 rounded-full bg-ink opacity-0 transition-opacity group-hover/node-link:opacity-100 dark:bg-surface" />
 		</span>
 	);
