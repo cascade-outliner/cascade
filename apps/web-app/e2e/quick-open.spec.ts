@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { toNodeSlug } from "@/features/nodes/model/node-slug";
 import { expect, test } from "./support/fixtures";
 
@@ -18,6 +19,21 @@ function lexicalContent(text: string) {
 /** `@tanstack/react-hotkeys`' `Mod` resolves to Meta on macOS, Control elsewhere. */
 const modifierKey = process.platform === "darwin" ? "Meta" : "Control";
 
+/**
+ * `page.keyboard.press` has no actionability wait, unlike `.click()` — it
+ * fires immediately, which can race the client hydrating and attaching the
+ * `useHotkey` listener (especially on a loaded CI runner). Retry the press
+ * until the dialog actually opens rather than guessing at a fixed delay.
+ */
+async function openQuickOpen(page: Page) {
+	await expect(async () => {
+		await page.keyboard.press(`${modifierKey}+k`);
+		await expect(
+			page.getByRole("combobox", { name: "Search node content" }),
+		).toBeVisible({ timeout: 1000 });
+	}).toPass({ timeout: 10_000 });
+}
+
 test("Cmd/Ctrl+K opens Quick Open, searching finds a node, and selecting it navigates there", async ({
 	page,
 	orpcClient,
@@ -33,12 +49,11 @@ test("Cmd/Ctrl+K opens Quick Open, searching finds a node, and selecting it navi
 		});
 
 		await page.goto("/");
-		await page.keyboard.press(`${modifierKey}+k`);
+		await openQuickOpen(page);
 
 		const searchBox = page.getByRole("combobox", {
 			name: "Search node content",
 		});
-		await expect(searchBox).toBeVisible();
 		await searchBox.fill(title);
 
 		const option = page.getByRole("option", { name: new RegExp(uniqueSuffix) });
@@ -68,7 +83,7 @@ test("Quick Open can be driven entirely from the keyboard: arrow to a result and
 		});
 
 		await page.goto("/");
-		await page.keyboard.press(`${modifierKey}+k`);
+		await openQuickOpen(page);
 
 		const searchBox = page.getByRole("combobox", {
 			name: "Search node content",
