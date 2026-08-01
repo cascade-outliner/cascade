@@ -61,10 +61,6 @@ export function EmojiPicker({
 		<EmojiPickerPrimitive.Root
 			className="flex h-80 w-72 flex-col"
 			onEmojiSelect={({ emoji }) => onSelect(emoji)}
-			// Consuming apps self-host this under `public/emojibase-data/` so it
-			// stays same-origin under a strict CSP `connect-src`, instead of the
-			// default jsdelivr CDN.
-			emojibaseUrl="/emojibase-data"
 		>
 			<div className="flex h-9 items-center gap-2 border-ink/10 border-b px-2 dark:border-surface/15">
 				<MagnifyingGlassIcon size={14} weight="bold" className="text-muted" />
