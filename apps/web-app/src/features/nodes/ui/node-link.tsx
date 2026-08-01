@@ -31,11 +31,11 @@ export function NodeLink({ id, content, icon }: NodeLinkProps) {
 			)}
 			<span
 				aria-hidden
-				className="absolute inset-0 m-auto h-5 w-5 rounded-full bg-white opacity-0 transition-opacity group-hover/node:opacity-60"
+				className="absolute inset-0 m-auto h-5 w-5 rounded-full bg-white opacity-0 transition-opacity group-hover/node:opacity-50"
 			/>
 			<span
 				aria-hidden
-				className="absolute inset-0 m-auto h-2.5 w-2.5 rounded-full bg-danger opacity-0 transition-opacity group-hover/node:opacity-70"
+				className="absolute inset-0 m-auto h-2.5 w-2.5 rounded-full bg-danger opacity-0 transition-opacity group-hover/node:opacity-100"
 			/>
 		</Link>
 	);
