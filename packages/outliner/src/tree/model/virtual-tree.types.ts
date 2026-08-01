@@ -85,6 +85,7 @@ export interface VirtualTreeRowProps {
 	onSetDueDate: (date: Date | null) => void;
 	onSetRecurrence: (recurrence: RecurrenceInput | null) => void;
 	onSetTags: (tags: string[]) => void;
+	onSetIcon: (icon: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDuplicate: () => void;

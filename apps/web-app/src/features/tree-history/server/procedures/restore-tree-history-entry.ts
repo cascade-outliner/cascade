@@ -14,6 +14,7 @@ import { createHistoryRecorder } from "../history-persistence";
 import { treeHistoryEvents } from "../tree-history-table";
 import { restoreContentChanged } from "./restore/restore-content-changed";
 import { restoreDueDateChanged } from "./restore/restore-due-date-changed";
+import { restoreIconChanged } from "./restore/restore-icon-changed";
 import { restoreNodeMoved } from "./restore/restore-node-moved";
 import { restoreRecurrenceChanged } from "./restore/restore-recurrence-changed";
 import { restoreRecurringTaskCompleted } from "./restore/restore-recurring-task-completed";
@@ -117,6 +118,14 @@ export const restoreTreeHistoryEntry = requirePremium
 							current,
 							payload,
 							throwNotRestorable,
+						);
+						break;
+					case "icon_changed":
+						nextPayload = await restoreIconChanged(
+							transaction,
+							nodeId,
+							current,
+							payload,
 						);
 						break;
 					case "recurrence_changed":

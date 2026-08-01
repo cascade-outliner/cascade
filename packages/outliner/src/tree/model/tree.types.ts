@@ -37,6 +37,7 @@ export interface VisibleTree {
 		expectedDueDate: string | null,
 	) => void | Promise<void>;
 	setTags: (id: string, tags: string[]) => void | Promise<void>;
+	setIcon: (id: string, icon: string | null) => void | Promise<void>;
 	/** Resolves to `null` if the create fails, so callers can skip focusing a node that was never made. */
 	add: (options?: AddNodeOptions) => Promise<string | null>;
 	addAfter: (

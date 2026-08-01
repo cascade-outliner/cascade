@@ -76,6 +76,7 @@ function row(
 		dueDate: null,
 		recurrence: null,
 		tags: [],
+		icon: null,
 		...overrides,
 	};
 }
@@ -342,6 +343,7 @@ describe("optimistic node mutations", () => {
 			dueDate: null,
 			recurrence: null,
 			tags: [],
+			icon: null,
 			hasChildren: false,
 		});
 		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");

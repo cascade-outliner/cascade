@@ -100,6 +100,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		onSetDueDate: props.onSetDueDate,
 		onSetRecurrence: props.onSetRecurrence,
 		onSetTags: props.onSetTags,
+		icon: row.icon,
+		onSetIcon: props.onSetIcon,
 		onTagClick: props.onTagClick,
 		onDeleteTag: props.onDeleteTag,
 		onToggleTask: props.onToggleTask,
@@ -154,7 +156,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 						onToggle={props.onToggle}
 					/>
 					{props.renderNodeLink ? (
-						props.renderNodeLink({ id: row.id, content: row.content })
+						props.renderNodeLink({
+							id: row.id,
+							content: row.content,
+						})
 					) : (
 						<DefaultNodeLink />
 					)}

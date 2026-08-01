@@ -18,6 +18,7 @@ interface SubtreeRow {
 	order: string;
 	due_date: CalendarDateString | null;
 	recurrence: RecurrenceRule | null;
+	icon: string | null;
 }
 
 export interface PreparedSubtreeCopy {
@@ -33,10 +34,10 @@ export async function prepareSubtreeCopy(
 ): Promise<PreparedSubtreeCopy> {
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
-			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date, recurrence
+			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date, recurrence, icon
 			FROM nodes WHERE id = ${sourceId} AND user_id = ${userId}
 			UNION ALL
-			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date, c.recurrence
+			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date, c.recurrence, c.icon
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
@@ -106,6 +107,7 @@ export async function insertSubtreeCopy(
 		order: row.id === sourceId ? rootOrder : row.order,
 		dueDate: row.due_date,
 		recurrence: row.recurrence,
+		icon: row.icon,
 	}));
 	for (const batch of chunk(copiedNodes, DUPLICATE_BATCH_SIZE)) {
 		await transaction.insert(nodes).values(batch);

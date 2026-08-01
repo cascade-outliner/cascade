@@ -107,6 +107,20 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 			}),
 	});
 
+	const setIconMutation = useOptimisticNodeMutation<
+		string | null,
+		void,
+		NodeDetailData
+	>({
+		queryKey,
+		mutationFn: (icon) => client.nodes.setIcon({ id: nodeId, icon }),
+		patch: (old, icon) => (old ? { ...old, icon } : old),
+		onSuccess: () =>
+			queryClient.invalidateQueries({
+				queryKey: orpc.nodes.visibleTree.key(),
+			}),
+	});
+
 	const setTagsMutation = useOptimisticNodeMutation<
 		string[],
 		void,
@@ -154,5 +168,6 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 		setRecurrence: (recurrence: RecurrenceInput | null) =>
 			setRecurrenceMutation.mutate(recurrence),
 		setTags: (tags: string[]) => setTagsMutation.mutate(tags),
+		setIcon: (icon: string | null) => setIconMutation.mutate(icon),
 	};
 }

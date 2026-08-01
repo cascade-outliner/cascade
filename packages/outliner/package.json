@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "exports": {
     ".": "./src/index.tsx",
@@ -12,6 +13,7 @@
     "./node-tags-editor": "./src/features/tags/components/node-tags-editor/node-tags-editor.tsx",
     "./filters-bar": "./src/filters/components/filters-bar.tsx",
     "./node-types": "./src/nodes/model/node-types.ts",
+    "./node-icon": "./src/nodes/model/emoji.ts",
     "./features": "./src/features/index.ts",
     "./node-tags": "./src/nodes/model/node-tags.ts",
     "./tree-types": "./src/tree/model/tree.types.ts",
@@ -37,6 +39,8 @@
     "./features/due-date/due-date-menu-item": "./src/features/due-date/components/due-date-menu-item.tsx",
     "./features/due-date/index": "./src/features/due-date/due-date-feature.tsx",
     "./features/due-date/node-due-date-pill": "./src/features/due-date/components/node-due-date-pill.tsx",
+    "./features/icon/index": "./src/features/icon/icon-feature.tsx",
+    "./features/icon/emoji-picker": "./src/features/icon/components/emoji-picker.tsx",
     "./features/tags/index": "./src/features/tags/tags-feature.tsx",
     "./features/tags/node-tags-editor/delete-tag-dialog": "./src/features/tags/components/node-tags-editor/delete-tag-dialog.tsx",
     "./features/tags/node-tags-editor/node-tags-editor": "./src/features/tags/components/node-tags-editor/node-tags-editor.tsx",
@@ -68,6 +72,7 @@
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^2.0.0",
     "@base-ui/react": "^1.6.0",
     "@cascade/ui": "workspace:*",
+    "frimousse": "^0.3.0",
     "@lexical/history": "^0.46.0",
     "@lexical/link": "^0.46.0",
     "@lexical/markdown": "^0.46.0",
@@ -85,6 +90,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "jsdom": "^29.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "vitest": "^4.1.10"
   }
 }

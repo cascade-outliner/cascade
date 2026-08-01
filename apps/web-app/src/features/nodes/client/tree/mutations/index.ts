@@ -3,6 +3,7 @@ export { useDuplicateMutation } from "./use-duplicate-node";
 export { useMoveMutation } from "./use-move-node";
 export { useRemoveMutation } from "./use-remove-node";
 export { useSetDueDateMutation } from "./use-set-node-due-date";
+export { useSetIconMutation } from "./use-set-node-icon";
 export { useSetRecurrenceMutation } from "./use-set-node-recurrence";
 export { useSetTagsMutation } from "./use-set-node-tags";
 export { useSetTypeMutation } from "./use-set-node-type";

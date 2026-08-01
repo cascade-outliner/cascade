@@ -25,6 +25,7 @@ function taskRow(
 		expanded: true,
 		order: "a",
 		dueDate: null,
+		icon: null,
 		tags: [],
 		depth: 0,
 		path: [],

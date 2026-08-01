@@ -13,6 +13,7 @@ export const treeHistoryEventKindSchema = z.enum([
 	"subtree_restored",
 	"type_changed",
 	"due_date_changed",
+	"icon_changed",
 	"recurrence_changed",
 	"recurring_task_completed",
 	"tags_changed",
@@ -97,6 +98,11 @@ export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
 		afterRecurrence: recurrenceRuleSchema.nullable().optional(),
 	}),
 	basePayloadSchema.extend({
+		kind: z.literal("icon_changed"),
+		before: z.string().nullable(),
+		after: z.string().nullable(),
+	}),
+	basePayloadSchema.extend({
 		kind: z.literal("recurrence_changed"),
 		before: z.object({
 			recurrence: z.unknown().nullable(),
@@ -173,6 +179,7 @@ export interface TreeHistorySnapshot {
 	order: string;
 	dueDate: string | null;
 	recurrence: RecurrenceRule | null;
+	icon: string | null;
 	tags: string[];
 	depth: number;
 	isRoot: boolean;
@@ -195,6 +202,7 @@ export const RESTORABLE_HISTORY_KINDS = new Set<TreeHistoryEventKind>([
 	"subtree_deleted",
 	"type_changed",
 	"due_date_changed",
+	"icon_changed",
 	"recurrence_changed",
 	"recurring_task_completed",
 	"tags_changed",

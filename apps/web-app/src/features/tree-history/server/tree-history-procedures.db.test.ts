@@ -11,6 +11,7 @@ import {
 	listNodes,
 	moveNode,
 	setNodeDueDate,
+	setNodeIcon,
 	setNodeRecurrence,
 	setNodeTags,
 	setNodeType,
@@ -203,6 +204,7 @@ describe("tree history recording", () => {
 			{ context },
 		);
 		await call(setNodeTags, { id: root.id, tags: ["tracked"] }, { context });
+		await call(setNodeIcon, { id: root.id, icon: "📌" }, { context });
 		const duplicate = await call(duplicateNode, { id: root.id }, { context });
 		await call(deleteTag, { name: "tracked" }, { context });
 		await call(deleteNode, { id: duplicate.id }, { context });
@@ -216,6 +218,7 @@ describe("tree history recording", () => {
 				"node_moved",
 				"type_changed",
 				"due_date_changed",
+				"icon_changed",
 				"tags_changed",
 				"subtree_duplicated",
 				"tag_deleted",
@@ -362,6 +365,27 @@ describe("tree history restoration", () => {
 		});
 	});
 
+	it("restores a node's previous icon", async () => {
+		await call(requestPremiumSeat, undefined, { context });
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(setNodeIcon, { id: node.id, icon: "📌" }, { context });
+		await call(setNodeIcon, { id: node.id, icon: "🔥" }, { context });
+
+		const history = await call(listTreeHistory, { limit: 100 }, { context });
+		const firstChange = history.items
+			.filter(({ kind }) => kind === "icon_changed")
+			.at(-1);
+		expect(firstChange).toBeDefined();
+
+		await call(
+			restoreTreeHistoryEntry,
+			{ id: firstChange?.id as string },
+			{ context },
+		);
+		const [restored] = await call(listNodes, { parentId: null }, { context });
+		expect(restored.icon).toBeNull();
+	});
+
 	it("restores a deleted subtree with ids, structure, tags, and due dates", async () => {
 		await call(requestPremiumSeat, undefined, { context });
 		const root = await call(createNode, { parentId: null }, { context });
@@ -371,6 +395,7 @@ describe("tree history restoration", () => {
 			{ id: root.id, dueDate: "2026-09-01" },
 			{ context },
 		);
+		await call(setNodeIcon, { id: root.id, icon: "📌" }, { context });
 		await call(setNodeTags, { id: child.id, tags: ["saved"] }, { context });
 		await call(deleteNode, { id: root.id }, { context });
 
@@ -404,6 +429,7 @@ describe("tree history restoration", () => {
 		expect(restoredRoot).toMatchObject({
 			id: root.id,
 			dueDate: "2026-09-01",
+			icon: "📌",
 		});
 		expect(restoredChild).toMatchObject({
 			id: child.id,

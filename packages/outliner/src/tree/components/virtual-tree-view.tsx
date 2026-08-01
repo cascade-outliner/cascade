@@ -163,6 +163,7 @@ export function VirtualTreeView({
 										tree.setRecurrence(row.id, recurrence)
 									}
 									onSetTags={(tags) => tree.setTags(row.id, tags)}
+									onSetIcon={(icon) => tree.setIcon(row.id, icon)}
 									onDuplicate={() => tree.duplicate(row.id)}
 									onDelete={() => tree.remove(row.id)}
 									onSaveContent={(content) =>

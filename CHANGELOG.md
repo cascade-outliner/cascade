@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-01
+- [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
+
+## 2026-07-31
+- [feat] Added custom per-node emoji icons: pick one from a row's context menu or the node's detail page. A node's icon renders as its tree row's focus circle, which stays hidden until hover unless the node has an icon; hovering shows the plain focus circle on top of the icon. Icon changes integrate with undo/redo and Tree History. [#557](https://github.com/cascade-outliner/cascade/issues/557)
+
 ## 2026-07-30
 - [perf] Completed tasks are no longer fetched from the server at all when the hide-completed filter/setting is active, instead of being fetched and then filtered out client-side. [#531](https://github.com/cascade-outliner/cascade/issues/531)
 

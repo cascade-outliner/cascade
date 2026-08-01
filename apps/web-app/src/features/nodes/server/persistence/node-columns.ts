@@ -19,6 +19,7 @@ export const nodeColumns = (userId: string) => ({
 	order: nodes.order,
 	dueDate: nodes.dueDate,
 	recurrence: nodes.recurrence,
+	icon: nodes.icon,
 	tags: nodeTagNames(sql`nodes.id`),
 	hasChildren: hasChildren(userId),
 });
