@@ -6,7 +6,8 @@
  * The marker is the node's emoji icon when it has one, otherwise empty;
  * either way it's hidden at rest and only the plain focus circle appears,
  * layered on top, on hover over the row (`group/node`, set on the row's own
- * container — see RowDragAndDrop) (see #557).
+ * container — see RowDragAndDrop) (see #557). On touch devices there's no
+ * hover, so the circle is always shown (see #586).
  */
 export function DefaultNodeLink({ icon }: { icon?: string | null }) {
 	return (
@@ -15,8 +16,8 @@ export function DefaultNodeLink({ icon }: { icon?: string | null }) {
 			className="relative flex h-5 w-5 shrink-0 items-center justify-center"
 		>
 			{icon && <span className="text-lg leading-none select-none">{icon}</span>}
-			<span className="absolute inset-0 m-auto h-5 w-5 rounded-full bg-white opacity-0 transition-opacity group-hover/node:opacity-50" />
-			<span className="absolute inset-0 m-auto h-2.5 w-2.5 rounded-full bg-ink opacity-0 transition-opacity group-hover/node:opacity-100 dark:bg-surface" />
+			<span className="absolute inset-0 m-auto h-5 w-5 rounded-full bg-white opacity-0 transition-opacity group-hover/node:opacity-50 pointer-coarse:opacity-50" />
+			<span className="absolute inset-0 m-auto h-2.5 w-2.5 rounded-full bg-ink opacity-0 transition-opacity group-hover/node:opacity-100 pointer-coarse:opacity-100 dark:bg-surface" />
 		</span>
 	);
 }

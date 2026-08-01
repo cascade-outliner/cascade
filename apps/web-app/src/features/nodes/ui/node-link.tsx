@@ -12,7 +12,8 @@ interface NodeLinkProps {
  * The row's "open node" marker. At rest it shows the node's emoji icon (or
  * nothing, if it has none); on hover over the row (`group/node`, set on the
  * row's own container — see RowDragAndDrop) the plain focus circle fades in
- * on top of it, indicating the click target (see #557).
+ * on top of it, indicating the click target (see #557). On touch devices
+ * there's no hover, so the circle is always shown (see #586).
  */
 export function NodeLink({ id, content, icon }: NodeLinkProps) {
 	return (
@@ -31,11 +32,11 @@ export function NodeLink({ id, content, icon }: NodeLinkProps) {
 			)}
 			<span
 				aria-hidden
-				className="absolute inset-0 m-auto h-5 w-5 rounded-full bg-white opacity-0 transition-opacity group-hover/node:opacity-50"
+				className="absolute inset-0 m-auto h-5 w-5 rounded-full bg-white opacity-0 transition-opacity group-hover/node:opacity-50 pointer-coarse:opacity-50"
 			/>
 			<span
 				aria-hidden
-				className="absolute inset-0 m-auto h-2.5 w-2.5 rounded-full bg-danger opacity-0 transition-opacity group-hover/node:opacity-100"
+				className="absolute inset-0 m-auto h-2.5 w-2.5 rounded-full bg-danger opacity-0 transition-opacity group-hover/node:opacity-100 pointer-coarse:opacity-100"
 			/>
 		</Link>
 	);
