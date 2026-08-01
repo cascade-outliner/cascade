@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2026-08-01
-- [fix] A node row's focus circle (the click target that opens it) now renders in the same dark tone as the rest of the row's icons, instead of the accent red. [#589](https://github.com/cascade-outliner/cascade/issues/589)
+- [fix] A node row's focus dot (the click target that opens it) is now a small, always-visible dark marker separate from the node's emoji icon, instead of the accent-red circle that layered on top of the icon on hover. [#589](https://github.com/cascade-outliner/cascade/issues/589)
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
 ## 2026-07-31
