@@ -17,7 +17,9 @@ export interface OutlinerLabels {
 	setIcon: string;
 	changeIcon: string;
 	removeIcon: string;
-	iconPickerCustomPlaceholder: string;
+	iconPickerSearchPlaceholder: string;
+	iconPickerNoResults: string;
+	iconPickerLoading: string;
 	setDueDate: string;
 	changeDueDate: string;
 	changeDueDateAria: string;
