@@ -73,6 +73,7 @@ export async function restoreSubtreeDeleted(
 			expanded: root.expanded,
 			dueDate: root.dueDate,
 			recurrence: root.recurrence,
+			icon: root.icon,
 			tags: root.tags,
 		} as RestoreNodeInput["root"],
 		descendants: snapshotRows
@@ -87,6 +88,7 @@ export async function restoreSubtreeDeleted(
 				expanded: row.expanded,
 				dueDate: row.dueDate,
 				recurrence: row.recurrence,
+				icon: row.icon,
 				tags: row.tags,
 			})) as RestoreNodeInput["descendants"],
 	});
