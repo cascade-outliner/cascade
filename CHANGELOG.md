@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-08-01
+- [chore] PRs now get an auto-updating comment reporting code coverage (lines/statements/branches/functions) for each package and app. [#592](https://github.com/cascade-outliner/cascade/issues/592)
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
 ## 2026-07-31

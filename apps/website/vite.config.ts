@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -7,9 +8,18 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
+import { coverageConfigDefaults } from "vitest/config";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
+	test: {
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "json-summary"],
+			reportsDirectory: "coverage",
+			exclude: [...coverageConfigDefaults.exclude, "**/paraglide/**"],
+		},
+	},
 	build: {
 		rollupOptions: {
 			onLog(level, log, handler) {

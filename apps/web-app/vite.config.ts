@@ -7,6 +7,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
+import { coverageConfigDefaults } from "vitest/config";
 
 export default defineConfig(() => {
 	const isTest = process.env.VITEST === "true";
@@ -22,6 +23,12 @@ export default defineConfig(() => {
 				"**/e2e-perf/**",
 				"**/*.db.test.ts",
 			],
+			coverage: {
+				provider: "v8",
+				reporter: ["text", "json-summary"],
+				reportsDirectory: "coverage",
+				exclude: [...coverageConfigDefaults.exclude, "**/paraglide/**"],
+			},
 		},
 		build: {
 			rollupOptions: {
