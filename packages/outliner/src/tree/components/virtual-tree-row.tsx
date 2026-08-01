@@ -159,10 +159,9 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 						props.renderNodeLink({
 							id: row.id,
 							content: row.content,
-							icon: row.icon,
 						})
 					) : (
-						<DefaultNodeLink icon={row.icon} />
+						<DefaultNodeLink />
 					)}
 					{features.map((feature) => (
 						<Fragment key={feature.id}>

@@ -48,7 +48,7 @@ export function NodeTree({
 			className="h-full"
 			indentSize={settings.indentSize}
 			renderNodeLink={(node) => (
-				<NodeLink id={node.id} content={node.content} icon={node.icon} />
+				<NodeLink id={node.id} content={node.content} />
 			)}
 			header={
 				<>

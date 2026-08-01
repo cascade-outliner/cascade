@@ -16,7 +16,7 @@ export interface VirtualTreeProps {
 	tree: VisibleTree;
 	indentSize?: number;
 	renderNodeLink?: (
-		node: Pick<VisibleTree["rows"][number], "id" | "content" | "icon">,
+		node: Pick<VisibleTree["rows"][number], "id" | "content">,
 	) => ReactNode;
 	header?: ReactNode;
 	/** Overrides the scroll container's default full-viewport-height sizing. */
@@ -57,9 +57,7 @@ export interface VirtualTreeRowProps {
 	start: number;
 	index: number;
 	indentSize: number;
-	renderNodeLink?: (
-		node: Pick<VisibleNodeRow, "id" | "content" | "icon">,
-	) => ReactNode;
+	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
 	/** Row/context-menu features to render; see `VirtualTreeProps.features`. */
 	features?: OutlinerFeature[];
