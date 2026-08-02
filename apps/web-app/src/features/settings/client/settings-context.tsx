@@ -1,6 +1,5 @@
 import { resolveThemeId } from "@cascade/theme/themes";
 import { toast } from "@cascade/ui/toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, use, useEffect, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import {
@@ -8,13 +7,9 @@ import {
 	type SettingsPatch,
 	settingsPatchSchema,
 } from "@/features/settings/model/settings.schema";
-import { orpc } from "@/orpc/client";
 import { defaultSettings } from "../model/default-settings";
-import {
-	applyDocumentFont,
-	applyDocumentFontSize,
-	applyDocumentTheme,
-} from "./apply-document-settings";
+import { useRemoteSettings, useUpdateSettings } from "./settings-queries";
+import { useDocumentThemeEffects } from "./use-document-theme-effects";
 import { useSystemPrefersDark } from "./use-system-theme";
 
 export {
@@ -31,26 +26,18 @@ const SettingsContext = createContext<{
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	const [unsaved, setUnsaved] = useState<SettingsPatch>({});
 	const systemPrefersDark = useSystemPrefersDark();
-	const queryClient = useQueryClient();
 
-	const queryOptions = orpc.settings.get.queryOptions();
-	const { data: remote } = useQuery(queryOptions);
-
-	const { mutate } = useMutation(
-		orpc.settings.update.mutationOptions({
-			onSuccess: (merged, patch) => {
-				queryClient.setQueryData(queryOptions.queryKey, merged);
-				setUnsaved(
-					(prev) =>
-						Object.fromEntries(
-							Object.entries(prev).filter(
-								([key, value]) => patch[key as keyof SettingsPatch] !== value,
-							),
-						) as SettingsPatch,
-				);
-			},
-		}),
-	);
+	const { data: remote } = useRemoteSettings();
+	const { mutate } = useUpdateSettings((_merged, patch) => {
+		setUnsaved(
+			(prev) =>
+				Object.fromEntries(
+					Object.entries(prev).filter(
+						([key, value]) => patch[key as keyof SettingsPatch] !== value,
+					),
+				) as SettingsPatch,
+		);
+	});
 
 	const remoteResult =
 		remote === undefined ? undefined : settingsPatchSchema.safeParse(remote);
@@ -83,17 +70,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 		systemPrefersDark,
 	);
 
-	useEffect(() => {
-		applyDocumentTheme(resolvedTheme);
-	}, [resolvedTheme]);
-
-	useEffect(() => {
-		applyDocumentFont(settings.font);
-	}, [settings.font]);
-
-	useEffect(() => {
-		applyDocumentFontSize(settings.fontSize);
-	}, [settings.fontSize]);
+	useDocumentThemeEffects(resolvedTheme, settings.font, settings.fontSize);
 
 	function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
 		setUnsaved((prev) => ({ ...prev, [key]: value }));

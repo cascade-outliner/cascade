@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-02
+- [chore] Split the Settings provider's data-fetching, DOM theme/font side effects, and Context wiring into separate modules, no behavior change. [#600](https://github.com/cascade-outliner/cascade/issues/600)
+
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
