@@ -4,11 +4,13 @@ import {
 	createLinkMatcherWithRegExp,
 } from "@lexical/react/LexicalAutoLinkPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { HeadingNode } from "@lexical/rich-text";
 import type { FocusPoint } from "../../model/focus-point";
 import { HEADING_CLASSES } from "../model/heading-styles";
 import type { LexicalElementNode } from "../model/lexical-node.types";
 import { EditableContent } from "./editable-content";
+import { MARKDOWN_SHORTCUT_TRANSFORMERS } from "./markdown-shortcuts";
 
 // Same shape as Lexical's playground URL matcher: http(s) URLs plus bare
 // `www.` ones, which get an https:// scheme so they satisfy the server's
@@ -63,6 +65,7 @@ export function LexicalEditView({
 			}}
 		>
 			<AutoLinkPlugin matchers={LINK_MATCHERS} />
+			<MarkdownShortcutPlugin transformers={MARKDOWN_SHORTCUT_TRANSFORMERS} />
 			<EditableContent
 				focusPoint={focusPoint}
 				onSave={onSave}
