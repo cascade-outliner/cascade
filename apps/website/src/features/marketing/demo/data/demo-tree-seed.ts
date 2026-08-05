@@ -48,6 +48,7 @@ function toRow(
 		expanded: node.expanded ?? true,
 		order: String(order),
 		dueDate: node.dueDate ? formatCalendarDate(node.dueDate) : null,
+		dueTime: null,
 		tags: [],
 		icon: null,
 		depth,

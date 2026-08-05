@@ -74,6 +74,7 @@ function row(
 		expanded: true,
 		order: lastOrder,
 		dueDate: null,
+		dueTime: null,
 		recurrence: null,
 		tags: [],
 		icon: null,
@@ -170,7 +171,7 @@ describe("optimistic node mutations", () => {
 		await waitForPatch(queryClient);
 		expect(cachedRows(queryClient)[0]?.tags).toEqual(["urgent", "work"]);
 
-		dueDate.result.current("node", new Date(2026, 6, 31));
+		dueDate.result.current("node", new Date(2026, 6, 31), null);
 		await waitForPatch(queryClient);
 		expect(cachedRows(queryClient)[0]?.dueDate).toBe("2026-07-31");
 
@@ -341,6 +342,7 @@ describe("optimistic node mutations", () => {
 			expanded: false,
 			order: "copy",
 			dueDate: null,
+			dueTime: null,
 			recurrence: null,
 			tags: [],
 			icon: null,

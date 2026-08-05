@@ -1,3 +1,4 @@
+import type { CalendarTimeString } from "@cascade/outliner/calendar-time";
 import { NodeDueDatePill } from "@cascade/outliner/features/due-date/node-due-date-pill";
 import { EmojiPicker } from "@cascade/outliner/features/icon/emoji-picker";
 import { NodeTagsControl } from "@cascade/outliner/features/tags/node-tags-pills";
@@ -42,6 +43,7 @@ function NodeIconTrigger({
 export function NodeDetailHeader({
 	node,
 	dueDate,
+	dueTime,
 	completed,
 	existingTags,
 	onToggleTask,
@@ -53,10 +55,14 @@ export function NodeDetailHeader({
 }: {
 	node: NodeDetailData;
 	dueDate: Date | null;
+	dueTime: CalendarTimeString | null;
 	completed: boolean;
 	existingTags: TagSummary[];
 	onToggleTask: (completed: boolean) => void;
-	onDueDateChange: (dueDate: Date | null) => void;
+	onDueDateChange: (
+		dueDate: Date | null,
+		dueTime: CalendarTimeString | null,
+	) => void;
 	onRecurrenceChange: (recurrence: RecurrenceInput | null) => void;
 	onTagsChange: (tags: string[]) => void;
 	onDeleteTag: (tag: string) => void;
@@ -81,6 +87,7 @@ export function NodeDetailHeader({
 					{dueDate && (
 						<NodeDueDatePill
 							dueDate={dueDate}
+							dueTime={dueTime}
 							completed={completed}
 							recurrence={node.recurrence}
 							recurrenceEnabled={node.type === "task"}

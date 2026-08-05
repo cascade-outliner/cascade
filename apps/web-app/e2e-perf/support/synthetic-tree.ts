@@ -97,6 +97,7 @@ export function buildSyntheticRows(
 			expanded: !hasChildren || random() >= options.collapsedFraction,
 			order: String(nextId),
 			dueDate: random() < options.dueTodayFraction ? today : null,
+			dueTime: null,
 			icon: null,
 			tags: random() < options.taggedFraction ? ["benchmark"] : [],
 			depth: entry.depth,

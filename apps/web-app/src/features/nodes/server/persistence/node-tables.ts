@@ -52,6 +52,13 @@ export const nodes = pgTable(
 		 * the app, so the day it names never shifts under conversion. See #323.
 		 */
 		dueDate: date("due_date", { mode: "string" }),
+		/**
+		 * An optional local wall-clock time (`HH:MM`) paired with `dueDate` that
+		 * turns the day into a specific moment, e.g. for real-time due-date
+		 * notifications (#599). `null` means an all-day due date, unchanged from
+		 * the pre-#599 behavior.
+		 */
+		dueTime: text("due_time"),
 		recurrence: jsonb("recurrence").$type<RecurrenceRule>(),
 		/** A single emoji used as this node's custom icon (see #557). */
 		icon: text(),

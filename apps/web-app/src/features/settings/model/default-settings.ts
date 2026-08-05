@@ -10,6 +10,7 @@ export function defaultSettings(): Settings {
 		fontSize: "default",
 		indentSize: 16,
 		hideCompletedByDefault: false,
+		dueDateNotificationsEnabled: false,
 		preAlphaBannerDismissed: false,
 		onboardingCompleted: true,
 		onboardingSampleNodeIds: {},

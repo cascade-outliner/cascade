@@ -1,12 +1,14 @@
 import { Calendar } from "@cascade/ui/calendar";
 import { cva } from "@cascade/ui/cva.config";
 import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
+import { TimePicker } from "@cascade/ui/time-picker";
 import {
 	ArrowsClockwiseIcon,
 	CalendarDotIcon,
 	CalendarDotsIcon,
 	CalendarIcon,
 } from "@phosphor-icons/react/ssr";
+import type { CalendarTimeString } from "../../../dates/calendar-time";
 import { dueBucket, startOfDay } from "../../../dates/due-date-bucket";
 import type {
 	RecurrenceInput,
@@ -20,10 +22,11 @@ import { RecurrenceEditor } from "./recurrence-editor";
 
 interface NodeDueDatePillProps {
 	dueDate: Date;
+	dueTime: CalendarTimeString | null;
 	completed: boolean;
 	recurrence: RecurrenceRule | null;
 	recurrenceEnabled: boolean;
-	onChange: (date: Date | null) => void;
+	onChange: (date: Date | null, time: CalendarTimeString | null) => void;
 	onRecurrenceChange: (recurrence: RecurrenceInput | null) => void;
 }
 
@@ -36,23 +39,36 @@ const shortDateWithYearFormatter = new Intl.DateTimeFormat(undefined, {
 	day: "numeric",
 	year: "numeric",
 });
+const timeFormatter = new Intl.DateTimeFormat(undefined, {
+	hour: "numeric",
+	minute: "2-digit",
+});
 
 function formatDuePill(
 	dueDate: Date,
+	dueTime: CalendarTimeString | null,
 	labels: Pick<OutlinerLabels, "dueToday" | "dueTomorrow" | "dueYesterday">,
 ): string {
 	const diffDays = Math.round(
 		(startOfDay(dueDate).getTime() - startOfDay(new Date()).getTime()) /
 			86_400_000,
 	);
-	if (diffDays === 0) return labels.dueToday;
-	if (diffDays === 1) return labels.dueTomorrow;
-	if (diffDays === -1) return labels.dueYesterday;
-	const formatter =
-		dueDate.getFullYear() === new Date().getFullYear()
-			? shortDateFormatter
-			: shortDateWithYearFormatter;
-	return formatter.format(dueDate);
+	const day =
+		diffDays === 0
+			? labels.dueToday
+			: diffDays === 1
+				? labels.dueTomorrow
+				: diffDays === -1
+					? labels.dueYesterday
+					: (dueDate.getFullYear() === new Date().getFullYear()
+							? shortDateFormatter
+							: shortDateWithYearFormatter
+						).format(dueDate);
+	if (!dueTime) return day;
+	const [hours, minutes] = dueTime.split(":").map(Number);
+	const withTime = new Date(dueDate);
+	withTime.setHours(hours, minutes, 0, 0);
+	return `${day} · ${timeFormatter.format(withTime)}`;
 }
 
 function pillIcon(dueDate: Date) {
@@ -87,6 +103,7 @@ const pill = cva({
 
 export function NodeDueDatePill({
 	dueDate,
+	dueTime,
 	completed,
 	recurrence,
 	recurrenceEnabled,
@@ -104,14 +121,22 @@ export function NodeDueDatePill({
 				onClick={(e) => e.stopPropagation()}
 			>
 				<span className="shrink-0">{pillIcon(dueDate)}</span>
-				<span className="truncate">{formatDuePill(dueDate, labels)}</span>
+				<span className="truncate">
+					{formatDuePill(dueDate, dueTime, labels)}
+				</span>
 				{recurrence && <ArrowsClockwiseIcon size={11} weight="bold" />}
 			</PopoverTrigger>
 			<PopoverContent>
 				<Calendar
 					value={dueDate}
-					onSelect={onChange}
-					onClear={() => onChange(null)}
+					onSelect={(date) => onChange(date, dueTime)}
+					onClear={() => onChange(null, null)}
+				/>
+				<TimePicker
+					value={dueTime}
+					onChange={(time) => onChange(dueDate, time)}
+					label={labels.dueTimeLabel}
+					clearAriaLabel={labels.dueTimeClearAria}
 				/>
 				<RecurrenceEditor
 					recurrence={recurrence}

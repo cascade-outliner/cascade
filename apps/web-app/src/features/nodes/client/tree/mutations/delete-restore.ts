@@ -23,6 +23,7 @@ function toSnapshotInput(row: FlatNodeRow) {
 		content: row.content as { root: unknown } | null,
 		expanded: row.expanded,
 		dueDate: row.dueDate,
+		dueTime: row.dueTime,
 		recurrence: row.recurrence ?? null,
 		icon: row.icon,
 		tags: row.tags,

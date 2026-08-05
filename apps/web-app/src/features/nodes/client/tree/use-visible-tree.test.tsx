@@ -49,6 +49,7 @@ const row: FlatNodeRow = {
 	expanded: false,
 	order: "a0",
 	dueDate: null,
+	dueTime: null,
 	recurrence: null,
 	tags: [],
 	icon: null,
@@ -136,7 +137,7 @@ describe("useVisibleTree.updateContent", () => {
 
 		const { result } = renderVisibleTree(queryClient);
 
-		result.current.setDueDate("node-1", new Date(2026, 6, 21));
+		result.current.setDueDate("node-1", new Date(2026, 6, 21), null);
 
 		await waitFor(() => expect(queryClient.isMutating()).toBe(0));
 		expect(invalidateSpy).toHaveBeenCalledWith({
@@ -203,6 +204,7 @@ describe("useVisibleTree.add/addAfter", () => {
 		expanded: false,
 		order: "b0",
 		dueDate: null,
+		dueTime: null,
 		recurrence: null,
 		tags: [],
 		icon: null,

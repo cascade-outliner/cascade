@@ -5,6 +5,7 @@ export { deleteTag } from "./delete-tag";
 export { duplicateNode } from "./duplicate-node";
 export { getNode } from "./get-node";
 export { getNodeAncestors } from "./get-node-ancestors";
+export { listDueSoon } from "./list-due-soon";
 export { listNodes } from "./list-nodes";
 export { listTags } from "./list-tags";
 export { moveNode } from "./move-node";

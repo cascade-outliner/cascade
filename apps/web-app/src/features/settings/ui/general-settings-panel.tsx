@@ -1,5 +1,6 @@
 import { Button } from "@cascade/ui/button";
 import { Checkbox } from "@cascade/ui/checkbox";
+import { toast } from "@cascade/ui/toast";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { m } from "#/paraglide/messages.js";
 import type { Settings } from "../model/settings.schema";
@@ -8,6 +9,14 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from "./settings-panel";
+
+async function enableDueDateNotifications(): Promise<void> {
+	if (typeof Notification === "undefined") return;
+	const permission = await Notification.requestPermission();
+	if (permission === "denied") {
+		toast.warning(m.settings_notification_permission_denied());
+	}
+}
 
 interface GeneralSettingsPanelProps {
 	settings: Settings;
@@ -43,6 +52,21 @@ export function GeneralSettingsPanel({
 						onCheckedChange={(checked) => {
 							setSetting("hideCompletedByDefault", checked);
 							void setCompletedOverride(null);
+						}}
+					/>
+				</SettingsRow>
+			</SettingsSection>
+			<SettingsSection title={m.settings_notifications_section()}>
+				<SettingsRow
+					title={m.settings_due_date_notifications()}
+					description={m.settings_due_date_notifications_description()}
+				>
+					<Checkbox
+						aria-label={m.settings_due_date_notifications()}
+						checked={settings.dueDateNotificationsEnabled}
+						onCheckedChange={(checked) => {
+							setSetting("dueDateNotificationsEnabled", checked);
+							if (checked) void enableDueDateNotifications();
 						}}
 					/>
 				</SettingsRow>

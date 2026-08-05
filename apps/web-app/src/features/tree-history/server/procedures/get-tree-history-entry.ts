@@ -67,6 +67,7 @@ export const getTreeHistoryEntry = requirePremium
 					expanded: snapshot.expanded,
 					order: snapshot.order,
 					dueDate: snapshot.dueDate,
+					dueTime: snapshot.dueTime,
 					recurrence: snapshot.recurrence,
 					icon: snapshot.icon,
 					tags: snapshot.tags,

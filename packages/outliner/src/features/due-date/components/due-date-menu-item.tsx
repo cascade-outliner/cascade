@@ -4,6 +4,7 @@ import {
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
 } from "@cascade/ui/context-menu";
+import { TimePicker } from "@cascade/ui/time-picker";
 import { CalendarIcon } from "@phosphor-icons/react/ssr";
 import { useOutlinerLabels } from "../../../i18n/outliner-labels-context";
 import type { DueDateFeatureContext } from "../due-date-feature";
@@ -24,8 +25,14 @@ export function DueDateMenuItem({ ctx }: { ctx: DueDateFeatureContext }) {
 			<ContextMenuSubContent>
 				<Calendar
 					value={ctx.dueDate}
-					onSelect={ctx.onSetDueDate}
-					onClear={() => ctx.onSetDueDate(null)}
+					onSelect={(date) => ctx.onSetDueDate(date, ctx.dueTime)}
+					onClear={() => ctx.onSetDueDate(null, null)}
+				/>
+				<TimePicker
+					value={ctx.dueTime}
+					onChange={(time) => ctx.onSetDueDate(ctx.dueDate, time)}
+					label={labels.dueTimeLabel}
+					clearAriaLabel={labels.dueTimeClearAria}
 				/>
 				<RecurrenceEditor
 					recurrence={ctx.recurrence}

@@ -64,6 +64,8 @@ export interface Settings {
 	fontSize: FontSizeId;
 	indentSize: number;
 	hideCompletedByDefault: boolean;
+	/** Opts in to real-time due-date notifications (browser + in-app toast); see #599. */
+	dueDateNotificationsEnabled: boolean;
 	preAlphaBannerDismissed: boolean;
 	/** Whether the first-run onboarding tour has been dismissed or completed. */
 	onboardingCompleted: boolean;
@@ -81,6 +83,7 @@ export const settingsPatchSchema = z
 		fontSize: z.enum(fontSizeIds),
 		indentSize: z.number().int().min(MIN_INDENT_SIZE).max(MAX_INDENT_SIZE),
 		hideCompletedByDefault: z.boolean(),
+		dueDateNotificationsEnabled: z.boolean(),
 		preAlphaBannerDismissed: z.boolean(),
 		onboardingCompleted: z.boolean(),
 		onboardingSampleNodeIds: onboardingSampleNodeIdsSchema,

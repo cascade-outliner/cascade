@@ -92,6 +92,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const featureCtx = {
 		row,
 		dueDate,
+		dueTime: row.dueTime,
 		recurrence: row.recurrence ?? null,
 		isTask: row.type === "task",
 		completed,

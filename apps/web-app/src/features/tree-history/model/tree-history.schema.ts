@@ -94,6 +94,8 @@ export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
 		kind: z.literal("due_date_changed"),
 		before: z.string().nullable(),
 		after: z.string().nullable(),
+		beforeTime: z.string().nullable().optional(),
+		afterTime: z.string().nullable().optional(),
 		beforeRecurrence: recurrenceRuleSchema.nullable().optional(),
 		afterRecurrence: recurrenceRuleSchema.nullable().optional(),
 	}),
@@ -178,6 +180,7 @@ export interface TreeHistorySnapshot {
 	expanded: boolean;
 	order: string;
 	dueDate: string | null;
+	dueTime: string | null;
 	recurrence: RecurrenceRule | null;
 	icon: string | null;
 	tags: string[];

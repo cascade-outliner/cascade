@@ -1,4 +1,5 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
+import type { CalendarTimeString } from "@cascade/outliner/calendar-time";
 import type { QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOptimisticNodeMutation } from "@/features/nodes/client/tree/mutations/use-node-mutation";
@@ -10,13 +11,17 @@ import type { VisibleTreeData } from "../tree-data.types";
 export function useSetDueDateMutation(queryKey: QueryKey) {
 	const queryClient = useQueryClient();
 	const mutation = useOptimisticNodeMutation<
-		{ id: string; dueDate: string | null },
+		{
+			id: string;
+			dueDate: string | null;
+			dueTime: CalendarTimeString | null;
+		},
 		void,
 		VisibleTreeData
 	>({
 		queryKey,
 		mutationFn: (vars) => client.nodes.setDueDate(vars),
-		patch: (old, { id, dueDate }) =>
+		patch: (old, { id, dueDate, dueTime }) =>
 			patchRows(
 				(rows) =>
 					rows.map((row) =>
@@ -24,6 +29,7 @@ export function useSetDueDateMutation(queryKey: QueryKey) {
 							? {
 									...row,
 									dueDate,
+									dueTime: dueDate ? dueTime : null,
 									recurrence:
 										dueDate && row.recurrence
 											? {
@@ -42,20 +48,30 @@ export function useSetDueDateMutation(queryKey: QueryKey) {
 			}),
 	});
 
-	const rawSetDueDate = (id: string, dueDate: string | null) =>
-		mutation.mutate({ id, dueDate });
+	const rawSetDueDate = (
+		id: string,
+		dueDate: string | null,
+		dueTime: CalendarTimeString | null,
+	) => mutation.mutate({ id, dueDate, dueTime: dueDate ? dueTime : null });
 
-	return (id: string, dueDate: Date | null) => {
+	return (
+		id: string,
+		dueDate: Date | null,
+		dueTime: CalendarTimeString | null,
+	) => {
 		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
-		const previousDueDate = rows?.find((row) => row.id === id)?.dueDate;
+		const previousRow = rows?.find((row) => row.id === id);
+		const previousDueDate = previousRow?.dueDate;
+		const previousDueTime = previousRow?.dueTime ?? null;
 		const nextDueDate = dueDate ? formatCalendarDate(dueDate) : null;
+		const nextDueTime = nextDueDate ? dueTime : null;
 
-		rawSetDueDate(id, nextDueDate);
+		rawSetDueDate(id, nextDueDate, nextDueTime);
 
 		if (previousDueDate !== undefined) {
 			undoStore.push({
-				undo: () => rawSetDueDate(id, previousDueDate),
-				redo: () => rawSetDueDate(id, nextDueDate),
+				undo: () => rawSetDueDate(id, previousDueDate, previousDueTime),
+				redo: () => rawSetDueDate(id, nextDueDate, nextDueTime),
 			});
 		}
 	};

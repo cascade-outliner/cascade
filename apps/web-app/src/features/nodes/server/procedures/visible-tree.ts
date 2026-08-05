@@ -18,6 +18,7 @@ interface VisibleTreeSqlRow {
 	expanded: boolean;
 	order: string;
 	due_date: CalendarDateString | null;
+	due_time: string | null;
 	recurrence: RecurrenceRule | null;
 	icon: string | null;
 	tags: string[];
@@ -35,7 +36,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 
 	const result = (await db.execute(sql`
 		SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order",
-			n.due_date::text AS due_date, n.recurrence, n.icon,
+			n.due_date::text AS due_date, n.due_time, n.recurrence, n.icon,
 			COALESCE(t.tags, '{}') AS tags
 		FROM nodes n
 		LEFT JOIN (
@@ -56,6 +57,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 		expanded: r.expanded,
 		order: r.order,
 		dueDate: r.due_date,
+		dueTime: r.due_time,
 		recurrence: r.recurrence,
 		icon: r.icon,
 		tags: r.tags,

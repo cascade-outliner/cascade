@@ -26,6 +26,7 @@ async function insertDescendants(
 				expanded: node.expanded,
 				order: node.order,
 				dueDate: node.dueDate,
+				dueTime: node.dueTime,
 				recurrence: node.recurrence,
 				icon: node.icon,
 			})),
@@ -90,6 +91,7 @@ export async function restoreSubtree(
 		expanded: root.expanded,
 		order,
 		dueDate: root.dueDate,
+		dueTime: root.dueTime,
 		recurrence: root.recurrence,
 		icon: root.icon,
 	});

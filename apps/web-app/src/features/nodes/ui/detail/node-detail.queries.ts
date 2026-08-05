@@ -1,4 +1,5 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
+import type { CalendarTimeString } from "@cascade/outliner/calendar-time";
 import type { FlatNodeRow } from "@cascade/outliner/node-types";
 import {
 	nextRecurringDueDate,
@@ -169,24 +170,26 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 	});
 
 	const setDueDateMutation = useOptimisticNodeMutation<
-		Date | null,
+		{ date: Date | null; time: CalendarTimeString | null },
 		void,
 		NodeDetailData
 	>({
 		queryKey,
-		mutationFn: (dueDate) =>
+		mutationFn: ({ date, time }) =>
 			client.nodes.setDueDate({
 				id: nodeId,
-				dueDate: dueDate ? formatCalendarDate(dueDate) : null,
+				dueDate: date ? formatCalendarDate(date) : null,
+				dueTime: date ? time : null,
 			}),
-		patch: (old, dueDate) =>
+		patch: (old, { date, time }) =>
 			old
 				? {
 						...old,
-						dueDate: dueDate ? formatCalendarDate(dueDate) : null,
+						dueDate: date ? formatCalendarDate(date) : null,
+						dueTime: date ? time : null,
 						recurrence:
-							dueDate && old.recurrence
-								? { ...old.recurrence, anchorDay: dueDate.getDate() }
+							date && old.recurrence
+								? { ...old.recurrence, anchorDay: date.getDate() }
 								: null,
 					}
 				: old,
@@ -253,7 +256,8 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 
 	return {
 		toggleTask: (completed: boolean) => toggleTaskMutation.mutate(completed),
-		setDueDate: (dueDate: Date | null) => setDueDateMutation.mutate(dueDate),
+		setDueDate: (dueDate: Date | null, dueTime: CalendarTimeString | null) =>
+			setDueDateMutation.mutate({ date: dueDate, time: dueTime }),
 		setRecurrence: (recurrence: RecurrenceInput | null) =>
 			setRecurrenceMutation.mutate(recurrence),
 		setTags: (tags: string[]) => setTagsMutation.mutate(tags),
