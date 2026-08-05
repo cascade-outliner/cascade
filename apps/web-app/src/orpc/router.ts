@@ -1,3 +1,4 @@
+import { exportAccountData } from "@/features/account-data/server/account-data-procedures";
 import {
 	createNode,
 	createTag,
@@ -44,6 +45,9 @@ import {
 } from "@/features/tree-history/server/procedures";
 
 export default {
+	accountData: {
+		export: exportAccountData,
+	},
 	nodes: {
 		list: listNodes,
 		get: getNode,

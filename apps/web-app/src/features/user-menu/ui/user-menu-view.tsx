@@ -78,6 +78,7 @@ export function UserMenuView({
 				onOpenChange={onDeleteDialogOpenChange}
 				onDeleteAccount={onDeleteAccount}
 				isDeleting={isDeleting}
+				userEmail={user.email}
 			/>
 		</>
 	);

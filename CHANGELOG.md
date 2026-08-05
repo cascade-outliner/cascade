@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-05
+- [feat] Settings now has a "Your data" section to download a full JSON export of your account data (nodes, tags, due dates, tree history, and settings), and account deletion is gated behind typing your email address to confirm. [#598](https://github.com/cascade-outliner/cascade/issues/598)
+
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
