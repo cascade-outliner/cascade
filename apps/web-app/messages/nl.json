@@ -381,5 +381,6 @@
 	"agenda_section_today": "Vandaag",
 	"agenda_section_this_week": "Deze week",
 	"agenda_section_upcoming": "Binnenkort",
-	"agenda_hide_completed_toggle": "Voltooide taken verbergen"
+	"agenda_hide_completed_toggle": "Voltooide taken verbergen",
+	"agenda_close": "Agenda sluiten"
 }

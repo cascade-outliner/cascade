@@ -14,7 +14,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteRouteImport } from './routes/_authed/route'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as ApiSplatRouteImport } from './routes/api.$'
-import { Route as AuthedAgendaRouteImport } from './routes/_authed/agenda'
 import { Route as AuthedNodeSlugRouteImport } from './routes/_authed/$nodeSlug'
 import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
 import { Route as ApiMaintenancePurgeTreeHistoryRouteImport } from './routes/api.maintenance.purge-tree-history'
@@ -44,11 +43,6 @@ const ApiSplatRoute = ApiSplatRouteImport.update({
   path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedAgendaRoute = AuthedAgendaRouteImport.update({
-  id: '/agenda',
-  path: '/agenda',
-  getParentRoute: () => AuthedRouteRoute,
-} as any)
 const AuthedNodeSlugRoute = AuthedNodeSlugRouteImport.update({
   id: '/$nodeSlug',
   path: '/$nodeSlug',
@@ -76,7 +70,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/$nodeSlug': typeof AuthedNodeSlugRoute
-  '/agenda': typeof AuthedAgendaRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
@@ -86,7 +79,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/$nodeSlug': typeof AuthedNodeSlugRoute
-  '/agenda': typeof AuthedAgendaRoute
   '/api/$': typeof ApiSplatRoute
   '/': typeof AuthedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -99,7 +91,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authed/$nodeSlug': typeof AuthedNodeSlugRoute
-  '/_authed/agenda': typeof AuthedAgendaRoute
   '/api/$': typeof ApiSplatRoute
   '/_authed/': typeof AuthedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -113,7 +104,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/$nodeSlug'
-    | '/agenda'
     | '/api/$'
     | '/api/auth/$'
     | '/api/maintenance/purge-tree-history'
@@ -123,7 +113,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/$nodeSlug'
-    | '/agenda'
     | '/api/$'
     | '/'
     | '/api/auth/$'
@@ -135,7 +124,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_authed/$nodeSlug'
-    | '/_authed/agenda'
     | '/api/$'
     | '/_authed/'
     | '/api/auth/$'
@@ -190,13 +178,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/agenda': {
-      id: '/_authed/agenda'
-      path: '/agenda'
-      fullPath: '/agenda'
-      preLoaderRoute: typeof AuthedAgendaRouteImport
-      parentRoute: typeof AuthedRouteRoute
-    }
     '/_authed/$nodeSlug': {
       id: '/_authed/$nodeSlug'
       path: '/$nodeSlug'
@@ -230,13 +211,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteRouteChildren {
   AuthedNodeSlugRoute: typeof AuthedNodeSlugRoute
-  AuthedAgendaRoute: typeof AuthedAgendaRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
 }
 
 const AuthedRouteRouteChildren: AuthedRouteRouteChildren = {
   AuthedNodeSlugRoute: AuthedNodeSlugRoute,
-  AuthedAgendaRoute: AuthedAgendaRoute,
   AuthedIndexRoute: AuthedIndexRoute,
 }
 

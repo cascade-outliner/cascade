@@ -3,16 +3,20 @@ import { ArrowsClockwiseIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
 import { m } from "#/paraglide/messages.js";
 import { toNodeSlug } from "@/features/nodes/model/node-slug";
+import { useAgendaPanelClose } from "../model/agenda-panel-context";
 import type { AgendaRow as AgendaRowData } from "../model/build-agenda-groups";
 import { row as rowStyles } from "./agenda.styles";
 
 export function AgendaRow({ row }: { row: AgendaRowData }) {
+	const closePanel = useAgendaPanelClose();
+
 	return (
 		<Link
 			viewTransition
 			to="/$nodeSlug"
 			params={{ nodeSlug: toNodeSlug(row) }}
 			search={true}
+			onClick={closePanel}
 			className={rowStyles()}
 		>
 			<span className="min-w-0 flex-1 truncate">

@@ -79,7 +79,8 @@ test("groups dated nodes into Overdue/Today/Upcoming and hides completed tasks b
 			dueDate: isoDate(daysFromNow(0)),
 		});
 
-		await page.goto("/agenda");
+		await page.goto("/");
+		await page.getByRole("button", { name: "Agenda" }).click();
 
 		const overdueSection = page.getByRole("region", { name: "Overdue" });
 		await expect(
@@ -131,7 +132,8 @@ test("clicking an agenda row navigates to the node in its tree context", async (
 			dueDate: isoDate(daysFromNow(0)),
 		});
 
-		await page.goto("/agenda");
+		await page.goto("/");
+		await page.getByRole("button", { name: "Agenda" }).click();
 		await page.getByText(`Agenda click-through task ${uniqueSuffix}`).click();
 
 		await expect(
@@ -140,6 +142,9 @@ test("clicking an agenda row navigates to the node in its tree context", async (
 		await expect(
 			page.getByText(`Agenda click-through root ${uniqueSuffix}`),
 		).toBeVisible();
+		await expect(
+			page.getByRole("dialog", { name: "Agenda" }),
+		).not.toBeVisible();
 	} finally {
 		await orpcClient.nodes.delete({ id: root.id });
 	}

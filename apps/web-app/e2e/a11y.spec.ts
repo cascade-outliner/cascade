@@ -70,10 +70,13 @@ test("Agenda view has no serious/critical accessibility violations", async ({
 			dueDate: new Date().toISOString().slice(0, 10),
 		});
 
-		await page.goto("/agenda");
-		await expect(page.getByRole("heading", { name: "Agenda" })).toBeVisible();
+		await page.goto("/");
+		await page.getByRole("button", { name: "Agenda" }).click();
+		await expect(page.getByRole("dialog", { name: "Agenda" })).toBeVisible();
 
-		await runA11yScan(page, testInfo, "agenda-view");
+		await runA11yScan(page, testInfo, "agenda-view", {
+			include: '[role="dialog"]',
+		});
 	} finally {
 		await orpcClient.nodes.delete({ id: node.id });
 	}

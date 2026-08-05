@@ -381,5 +381,6 @@
 	"agenda_section_today": "Today",
 	"agenda_section_this_week": "This week",
 	"agenda_section_upcoming": "Upcoming",
-	"agenda_hide_completed_toggle": "Hide completed"
+	"agenda_hide_completed_toggle": "Hide completed",
+	"agenda_close": "Close agenda"
 }

@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2026-08-05
-- [feat] Added an Agenda view listing every dated node grouped into Overdue/Today/This Week/Upcoming sections, with a hide/show-completed toggle and click-through to each node in its tree context; reachable from a new header icon. [#344](https://github.com/cascade-outliner/cascade/issues/344)
+- [feat] Added an Agenda side panel listing every dated node grouped into Overdue/Today/This Week/Upcoming sections, with a hide/show-completed toggle and click-through to each node in its tree context; opens from a new header icon. [#344](https://github.com/cascade-outliner/cascade/issues/344)
 
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
