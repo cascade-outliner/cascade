@@ -36,11 +36,27 @@ const descendantSnapshotSchema = nodeSnapshotSchema.and(
 	z.object({ parentId: z.string(), order: z.string() }),
 );
 
-export const restoreNodeInputSchema = z.object({
-	parentId: z.string().nullable(),
-	target: restoreTargetSchema,
-	root: nodeSnapshotSchema,
-	descendants: z.array(descendantSnapshotSchema),
-});
+export const restoreNodeInputSchema = z
+	.object({
+		parentId: z.string().nullable(),
+		target: restoreTargetSchema,
+		root: nodeSnapshotSchema,
+		descendants: z.array(descendantSnapshotSchema),
+	})
+	.superRefine(({ root, descendants }, context) => {
+		const subtreeIds = new Set([
+			root.id,
+			...descendants.map((node) => node.id),
+		]);
+		descendants.forEach((node, index) => {
+			if (!subtreeIds.has(node.parentId)) {
+				context.addIssue({
+					code: "custom",
+					path: ["descendants", index, "parentId"],
+					message: "Descendant parentId must reference the restored subtree",
+				});
+			}
+		});
+	});
 
 export type RestoreNodeInput = z.infer<typeof restoreNodeInputSchema>;

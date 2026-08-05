@@ -213,6 +213,23 @@ describe("createNode", () => {
 			content: null,
 		});
 	});
+
+	it("rejects attaching a node under another user's parentId", async () => {
+		const { user: otherUser, context: otherContext } = await createTestUser();
+		try {
+			const otherRoot = await call(
+				createNode,
+				{ parentId: null },
+				{ context: otherContext },
+			);
+
+			await expect(
+				call(createNode, { parentId: otherRoot.id }, { context }),
+			).rejects.toMatchObject({ code: "NOT_FOUND" });
+		} finally {
+			await deleteTestUser(otherUser.id);
+		}
+	});
 });
 
 describe("resolveNodeSlug", () => {
@@ -533,6 +550,52 @@ describe("duplicateNode / restoreNode", () => {
 		expect(restoredChildren).toHaveLength(1);
 		expect(restoredChildren[0]?.id).toBe(child.id);
 		expect(restoredChildren[0]?.tags).toEqual(["copied"]);
+	});
+
+	it("rejects a descendant parentId that points outside the restored subtree", async () => {
+		const { user: otherUser, context: otherContext } = await createTestUser();
+		try {
+			const otherRoot = await call(
+				createNode,
+				{ parentId: null },
+				{ context: otherContext },
+			);
+
+			await expect(
+				call(
+					restoreNode,
+					{
+						parentId: null,
+						target: { position: "append" },
+						root: {
+							id: crypto.randomUUID(),
+							content: null,
+							type: "text",
+							metadata: null,
+							expanded: false,
+							dueDate: null,
+							tags: [],
+						},
+						descendants: [
+							{
+								id: crypto.randomUUID(),
+								parentId: otherRoot.id,
+								content: null,
+								type: "text",
+								metadata: null,
+								expanded: false,
+								order: "a0",
+								dueDate: null,
+								tags: [],
+							},
+						],
+					},
+					{ context },
+				),
+			).rejects.toThrow();
+		} finally {
+			await deleteTestUser(otherUser.id);
+		}
 	});
 });
 
