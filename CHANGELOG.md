@@ -1,7 +1,6 @@
 # Changelog
 
 ## 2026-08-05
-- [chore] Tree history's subtree capture now scopes its tag lookup to the current user's own tags, matching the tree view's guard, as defense-in-depth against a future `node_tags` row ever pointing at another user's tag. [#612](https://github.com/cascade-outliner/cascade/issues/612)
 - [perf] Clicking a node's focus dot no longer refetches the node's own record and ancestor chain over the network — that data is now read straight from the already-loaded tree cache, falling back to a network fetch only for cold navigation or an ambiguous slug. [#631](https://github.com/cascade-outliner/cascade/issues/631)
 - [fix] Clicking a node's focus dot now always plays the cross-fade view transition straight into the node's detail page, instead of sometimes transitioning into the full-page loader when the load took a little while — the detail route no longer has a pending loader of its own to transition into. [#628](https://github.com/cascade-outliner/cascade/issues/628)
 - [feat] New accounts now get a small example outline and a first-run guided tour that spotlights the real nodes in that outline — creating nodes, indenting, the node's focus dot, tasks, tags and due dates — plus Filters, Quick Open, and the keyboard shortcuts reference. It's shown once, is dismissible, and can be replayed anytime from Settings → General. [#622](https://github.com/cascade-outliner/cascade/issues/622)
