@@ -47,6 +47,7 @@
 	"changelog_label_feat": "Functie",
 	"changelog_label_fix": "Fix",
 	"changelog_label_chore": "Onderhoud",
+	"changelog_label_perf": "Prestaties",
 	"login_seo_title": "Inloggen - Cascade",
 	"login_seo_description": "Log in bij Cascade, de oneindig geneste outliner.",
 	"login_heading": "Inloggen",
