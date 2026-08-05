@@ -4,7 +4,6 @@ import {
 	Outlet,
 	redirect
 } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { AppHeader } from "@/app/app-header";
 import { getSession } from "@/features/auth/server/get-session";
 import { OnboardingTour } from "@/features/onboarding/ui/onboarding-tour";
