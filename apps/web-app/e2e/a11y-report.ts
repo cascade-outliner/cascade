@@ -2,9 +2,10 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import type { A11yImpact, A11yScanResult } from "./support/a11y";
+import { cliArgs } from "./support/cli-args";
 
 const { values } = parseArgs({
-	args: process.argv.slice(2),
+	args: cliArgs(),
 	options: {
 		resultsDir: { type: "string", default: "a11y-results" },
 		out: { type: "string" },
