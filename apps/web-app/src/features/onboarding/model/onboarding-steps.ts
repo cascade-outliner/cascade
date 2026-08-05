@@ -1,36 +1,100 @@
 import type { DriveStep } from "driver.js";
 import { m } from "#/paraglide/messages.js";
+import type { OnboardingSampleNodeIds } from "@/features/settings/model/settings.schema";
 
 /**
  * Anchors for `[data-onboarding]` attributes placed on the real UI elements
- * the tour spotlights. Kept as a single source of truth so the tour steps
- * below and the attributes on those elements can't drift apart silently.
+ * (outside the tree) the tour spotlights. Kept as a single source of truth
+ * so the tour steps below and the attributes on those elements can't drift
+ * apart silently.
  */
 export const onboardingAnchors = {
-	addNode: "add-node-button",
 	filtersMenu: "filters-menu-trigger",
 	quickOpen: "quick-open-trigger",
 	userMenu: "user-menu-trigger",
 } as const;
 
-/** Driver.js step config for the first-run tour. The first step has no
- * `element`, which driver.js renders as a centered, unanchored popover. */
-export function onboardingSteps(): DriveStep[] {
-	return [
+/** Builds the element selector for a seeded sample-outline node by id. An
+ * attribute selector (rather than `#id`) sidesteps CSS identifier rules,
+ * since node ids are UUIDs and can start with a digit. */
+function nodeSelector(id: string): string {
+	return `[id="${id}"]`;
+}
+
+/**
+ * Driver.js step config for the first-run tour. The first step has no
+ * `element`, which driver.js renders as a centered, unanchored popover.
+ * Remaining steps spotlight the seeded onboarding sample outline's nodes
+ * (see `seedOnboardingContent`) — carrying the actual explanations as
+ * driver.js popovers rather than as the nodes' own text — followed by a
+ * few real header controls (Filters, Quick Open, the profile menu). Steps
+ * whose sample node id isn't available (an account that predates this
+ * feature, or a node the user already deleted) are simply omitted.
+ */
+export function onboardingSteps(
+	sampleNodeIds: OnboardingSampleNodeIds,
+): DriveStep[] {
+	const steps: DriveStep[] = [
 		{
 			popover: {
 				title: m.onboarding_tour_welcome_title(),
 				description: m.onboarding_tour_welcome_description(),
 			},
 		},
-		{
-			element: `[data-onboarding="${onboardingAnchors.addNode}"]`,
+	];
+
+	if (sampleNodeIds.createNode) {
+		steps.push({
+			element: nodeSelector(sampleNodeIds.createNode),
 			popover: {
 				title: m.onboarding_tour_add_node_title(),
 				description: m.onboarding_tour_add_node_description(),
-				side: "top",
+				side: "bottom",
 			},
-		},
+		});
+	}
+	if (sampleNodeIds.indentNode) {
+		steps.push({
+			element: nodeSelector(sampleNodeIds.indentNode),
+			popover: {
+				title: m.onboarding_tour_indent_title(),
+				description: m.onboarding_tour_indent_description(),
+				side: "bottom",
+			},
+		});
+	}
+	if (sampleNodeIds.focusDot) {
+		steps.push({
+			element: nodeSelector(sampleNodeIds.focusDot),
+			popover: {
+				title: m.onboarding_tour_focus_dot_title(),
+				description: m.onboarding_tour_focus_dot_description(),
+				side: "bottom",
+			},
+		});
+	}
+	if (sampleNodeIds.task) {
+		steps.push({
+			element: nodeSelector(sampleNodeIds.task),
+			popover: {
+				title: m.onboarding_tour_task_title(),
+				description: m.onboarding_tour_task_description(),
+				side: "bottom",
+			},
+		});
+	}
+	if (sampleNodeIds.tagged) {
+		steps.push({
+			element: nodeSelector(sampleNodeIds.tagged),
+			popover: {
+				title: m.onboarding_tour_tagged_title(),
+				description: m.onboarding_tour_tagged_description(),
+				side: "bottom",
+			},
+		});
+	}
+
+	steps.push(
 		{
 			element: `[data-onboarding="${onboardingAnchors.filtersMenu}"]`,
 			popover: {
@@ -56,5 +120,7 @@ export function onboardingSteps(): DriveStep[] {
 				align: "end",
 			},
 		},
-	];
+	);
+
+	return steps;
 }

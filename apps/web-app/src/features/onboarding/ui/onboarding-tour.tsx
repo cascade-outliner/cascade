@@ -16,14 +16,28 @@ import { onboardingSteps } from "../model/onboarding-steps";
 export function OnboardingTour() {
 	const { settings, setSetting, saveSettings } = useSettings();
 	const activeRef = useRef(false);
-	// Kept in a ref (rather than the effect's deps) since `setSetting` and
-	// `saveSettings` are new function identities every render, and including
-	// them would restart the tour mid-flight on every settings change.
-	const completeRef = useRef(() => {});
-	completeRef.current = () => {
-		setSetting("onboardingCompleted", true);
-		saveSettings();
-	};
+	// `useSettings`' `setSetting` only queues a local state update; calling
+	// `saveSettings` right after in the same tick would still see the
+	// pre-update state (it reads a closed-over variable, not a ref) and send
+	// an empty patch, so the "completed" flag never reached the server and
+	// the tour restarted on every reload. Deferring the save to the *next*
+	// render's effect — by which point `saveSettings` closes over the
+	// already-updated state — fixes that.
+	const pendingSaveRef = useRef(false);
+
+	// Read via refs (rather than the effect's deps) so the tour, once
+	// started, isn't restarted mid-flight by unrelated settings re-renders.
+	const setSettingRef = useRef(setSetting);
+	setSettingRef.current = setSetting;
+	const sampleNodeIdsRef = useRef(settings.onboardingSampleNodeIds);
+	sampleNodeIdsRef.current = settings.onboardingSampleNodeIds;
+
+	useEffect(() => {
+		if (pendingSaveRef.current) {
+			pendingSaveRef.current = false;
+			saveSettings();
+		}
+	});
 
 	useEffect(() => {
 		if (settings.onboardingCompleted) {
@@ -42,8 +56,11 @@ export function OnboardingTour() {
 			nextBtnText: m.onboarding_tour_next(),
 			prevBtnText: m.onboarding_tour_previous(),
 			doneBtnText: m.onboarding_tour_done(),
-			steps: onboardingSteps(),
-			onDestroyed: () => completeRef.current(),
+			steps: onboardingSteps(sampleNodeIdsRef.current),
+			onDestroyed: () => {
+				setSettingRef.current("onboardingCompleted", true);
+				pendingSaveRef.current = true;
+			},
 		});
 
 		tour.drive();

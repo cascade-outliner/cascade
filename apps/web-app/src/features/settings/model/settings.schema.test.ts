@@ -34,6 +34,7 @@ describe("settingsPatchSchema", () => {
 			hideCompletedByDefault: true,
 			preAlphaBannerDismissed: true,
 			onboardingCompleted: true,
+			onboardingSampleNodeIds: { createNode: "abc-123", task: "def-456" },
 		};
 		expect(settingsPatchSchema.parse(full)).toEqual(full);
 	});

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { NodeTypeName } from "@cascade/outliner/node-types";
 import { sql } from "drizzle-orm";
 import { generateNKeysBetween } from "fractional-indexing";
@@ -8,6 +9,10 @@ import {
 	nodeTags,
 	tags,
 } from "@/features/nodes/server/persistence/node-tables";
+import type {
+	OnboardingSampleNodeIds,
+	OnboardingSampleNodeKey,
+} from "@/features/settings/model/settings.schema";
 import { userSettings } from "@/features/settings/server/settings-table";
 
 type SeedLexicalContent = ReturnType<typeof paragraph>;
@@ -45,6 +50,10 @@ function paragraph(text: string) {
 }
 
 interface WelcomeNodeDef {
+	/** Present only for nodes the onboarding tour spotlights with its own
+	 * driver.js step (see `onboardingSteps`); used as the node's explicit id
+	 * so the tour can build a stable `[id="..."]` selector for it. */
+	anchorKey?: OnboardingSampleNodeKey;
 	content: SeedLexicalContent;
 	type?: "task";
 	dueDate?: string;
@@ -65,43 +74,37 @@ const ROOT_CONTENT = paragraph(
 	"👋 Welcome to Cascade — this is an example outline to show you around",
 );
 
+// Short, self-explanatory node text: the onboarding tour (see
+// `onboardingSteps`) carries the actual explanations as driver.js popovers
+// anchored to these nodes, rather than duplicating that copy here.
 function childDefs(): WelcomeNodeDef[] {
 	return [
 		{
+			anchorKey: "createNode",
 			content: paragraph(
-				"Press Enter at the end of a node to create a new one below it, or click “Add node” at the bottom of the outline.",
+				"Try editing this node, or press Enter to add one below it.",
 			),
 		},
 		{
+			anchorKey: "indentNode",
 			content: paragraph(
-				"Press Tab to indent a node under the one above it, Shift+Tab to outdent, or drag a row to reorder or re-parent it. Try it on this node!",
+				"Drag me, or press Tab / Shift+Tab to indent and outdent.",
 			),
 		},
 		{
-			content: paragraph(
-				"See the small dot to the left of this node? Click it to open this node on its own page — the outline narrows down to just this node and its children.",
-			),
+			anchorKey: "focusDot",
+			content: paragraph("Click the dot to the left of this node to open it."),
 		},
 		{
-			content: paragraph("This is a task — click the checkbox to complete it."),
+			anchorKey: "task",
+			content: paragraph("A task — click the checkbox."),
 			type: "task",
 		},
 		{
-			content: paragraph(
-				"This node has a tag and a due date. Open Filters above the outline to filter by either.",
-			),
+			anchorKey: "tagged",
+			content: paragraph("Tagged, and due tomorrow."),
 			dueDate: tomorrowDateString(),
 			tags: ["example"],
-		},
-		{
-			content: paragraph(
-				"Press Cmd/Ctrl+K anytime to jump straight to any node by name (Quick Open).",
-			),
-		},
-		{
-			content: paragraph(
-				"Press ? anytime to see the full keyboard shortcuts reference.",
-			),
 		},
 		{
 			content: paragraph(
@@ -119,43 +122,38 @@ function childDefs(): WelcomeNodeDef[] {
  */
 export async function seedOnboardingContent(userId: string): Promise<void> {
 	await db.transaction(async (transaction) => {
+		const rootId = randomUUID();
 		const [rootOrder] = generateNKeysBetween(null, null, 1);
-		const [root] = await transaction
-			.insert(nodes)
-			.values({
-				userId,
-				parentId: null,
-				order: rootOrder,
-				content: ROOT_CONTENT,
-				searchText: nodeSearchText(ROOT_CONTENT),
-				expanded: true,
-			})
-			.returning({ id: nodes.id });
+		await transaction.insert(nodes).values({
+			id: rootId,
+			userId,
+			parentId: null,
+			order: rootOrder,
+			content: ROOT_CONTENT,
+			searchText: nodeSearchText(ROOT_CONTENT),
+			expanded: true,
+		});
 
 		const defs = childDefs();
+		const childIds = defs.map(() => randomUUID());
 		const childOrders = generateNKeysBetween(null, null, defs.length);
-		const insertedChildren = await transaction
-			.insert(nodes)
-			.values(
-				defs.map((def, index) => ({
-					userId,
-					parentId: root.id,
-					order: childOrders[index],
-					content: def.content,
-					searchText: nodeSearchText(def.content),
-					type: nodeType(def),
-					metadata: def.type === "task" ? { completed: false } : null,
-					dueDate: def.dueDate ?? null,
-				})),
-			)
-			.returning({ id: nodes.id });
+		await transaction.insert(nodes).values(
+			defs.map((def, index) => ({
+				id: childIds[index],
+				userId,
+				parentId: rootId,
+				order: childOrders[index],
+				content: def.content,
+				searchText: nodeSearchText(def.content),
+				type: nodeType(def),
+				metadata: def.type === "task" ? { completed: false } : null,
+				dueDate: def.dueDate ?? null,
+			})),
+		);
 
 		const taggedChildren = defs
-			.map((def, index) => ({ def, nodeId: insertedChildren[index]?.id }))
-			.filter(
-				(entry): entry is { def: WelcomeNodeDef; nodeId: string } =>
-					entry.nodeId !== undefined && (entry.def.tags?.length ?? 0) > 0,
-			);
+			.map((def, index) => ({ def, nodeId: childIds[index] }))
+			.filter((entry) => (entry.def.tags?.length ?? 0) > 0);
 		for (const { def, nodeId } of taggedChildren) {
 			// def.tags is guaranteed non-empty by the filter above.
 			// biome-ignore lint/style/noNonNullAssertion: filtered for non-empty tags above
@@ -175,9 +173,20 @@ export async function seedOnboardingContent(userId: string): Promise<void> {
 				.values(tagIds.map((tagId) => ({ nodeId, tagId })));
 		}
 
+		const sampleNodeIds: OnboardingSampleNodeIds = {};
+		for (const [index, def] of defs.entries()) {
+			if (def.anchorKey) sampleNodeIds[def.anchorKey] = childIds[index];
+		}
+
 		await transaction
 			.insert(userSettings)
-			.values({ userId, settings: { onboardingCompleted: false } })
+			.values({
+				userId,
+				settings: {
+					onboardingCompleted: false,
+					onboardingSampleNodeIds: sampleNodeIds,
+				},
+			})
 			.onConflictDoNothing({ target: userSettings.userId });
 	});
 }

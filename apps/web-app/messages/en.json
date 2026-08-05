@@ -381,7 +381,7 @@
 	"onboarding_tour_welcome_title": "Welcome to Cascade 👋",
 	"onboarding_tour_welcome_description": "This outline has a few example nodes ready to explore. Want a 30-second tour of the basics first?",
 	"onboarding_tour_add_node_title": "Create nodes",
-	"onboarding_tour_add_node_description": "Press Enter at the end of a node to add a new one below it, or click this button.",
+	"onboarding_tour_add_node_description": "Press Enter at the end of a node to add a new one below it, or click the “Add node” button at the bottom of the outline.",
 	"onboarding_tour_filters_title": "Filter by tag or due date",
 	"onboarding_tour_filters_description": "Narrow the outline down to tagged nodes, tasks due today, or hide completed tasks.",
 	"onboarding_tour_quick_open_title": "Quick Open",
@@ -393,5 +393,13 @@
 	"onboarding_tour_done": "Done",
 	"settings_replay_tour_title": "Onboarding tour",
 	"settings_replay_tour_description": "Show the guided tour of core features again.",
-	"settings_replay_tour_button": "Restart tour"
+	"settings_replay_tour_button": "Restart tour",
+	"onboarding_tour_indent_title": "Nest and reorder",
+	"onboarding_tour_indent_description": "Press Tab to indent a node under the one above it, Shift+Tab to outdent, or drag a row to reorder or re-parent it.",
+	"onboarding_tour_focus_dot_title": "Open a node",
+	"onboarding_tour_focus_dot_description": "Click the dot to the left of any node to open it on its own page — the outline narrows down to just that node and its children.",
+	"onboarding_tour_task_title": "Tasks",
+	"onboarding_tour_task_description": "Click a task's checkbox to mark it complete.",
+	"onboarding_tour_tagged_title": "Tags and due dates",
+	"onboarding_tour_tagged_description": "Nodes can have tags and due dates — use Filters above the outline to narrow down by either."
 }

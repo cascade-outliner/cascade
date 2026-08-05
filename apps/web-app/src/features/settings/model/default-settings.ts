@@ -17,5 +17,6 @@ export function defaultSettings(): Settings {
 		// it. New signups get an explicit `false` row instead of relying on this
 		// default.
 		onboardingCompleted: true,
+		onboardingSampleNodeIds: {},
 	};
 }

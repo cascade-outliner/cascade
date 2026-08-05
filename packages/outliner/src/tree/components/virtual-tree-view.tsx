@@ -184,7 +184,6 @@ export function VirtualTreeView({
 					</div>
 				)}
 				<Button
-					data-onboarding="add-node-button"
 					icon={<PlusIcon className="size-4" />}
 					onClick={onAddRoot}
 					className="mt-4 mb-4"

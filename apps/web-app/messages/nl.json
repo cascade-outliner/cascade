@@ -381,7 +381,7 @@
 	"onboarding_tour_welcome_title": "Welkom bij Cascade 👋",
 	"onboarding_tour_welcome_description": "Dit overzicht heeft een paar voorbeeldknooppunten klaarstaan om te verkennen. Wil je eerst een rondleiding van 30 seconden door de basisfuncties?",
 	"onboarding_tour_add_node_title": "Knooppunten aanmaken",
-	"onboarding_tour_add_node_description": "Druk op Enter aan het einde van een knooppunt om er een nieuwe onder toe te voegen, of klik op deze knop.",
+	"onboarding_tour_add_node_description": "Druk op Enter aan het einde van een knooppunt om er een nieuwe onder toe te voegen, of klik op de knop “Knooppunt toevoegen” onderaan het overzicht.",
 	"onboarding_tour_filters_title": "Filteren op label of vervaldatum",
 	"onboarding_tour_filters_description": "Beperk het overzicht tot gelabelde knooppunten, taken die vandaag moeten, of verberg voltooide taken.",
 	"onboarding_tour_quick_open_title": "Snel openen",
@@ -393,5 +393,13 @@
 	"onboarding_tour_done": "Klaar",
 	"settings_replay_tour_title": "Rondleiding",
 	"settings_replay_tour_description": "Bekijk de rondleiding langs de belangrijkste functies opnieuw.",
-	"settings_replay_tour_button": "Rondleiding herstarten"
+	"settings_replay_tour_button": "Rondleiding herstarten",
+	"onboarding_tour_indent_title": "Nesten en herordenen",
+	"onboarding_tour_indent_description": "Druk op Tab om een knooppunt onder het knooppunt erboven te nesten, Shift+Tab om te de-nesten, of sleep een rij om te herordenen of te verplaatsen.",
+	"onboarding_tour_focus_dot_title": "Een knooppunt openen",
+	"onboarding_tour_focus_dot_description": "Klik op de stip links van een knooppunt om het op zijn eigen pagina te openen — het overzicht beperkt zich dan tot dat knooppunt en de onderliggende knooppunten.",
+	"onboarding_tour_task_title": "Taken",
+	"onboarding_tour_task_description": "Klik op het selectievakje van een taak om deze als voltooid te markeren.",
+	"onboarding_tour_tagged_title": "Labels en vervaldatums",
+	"onboarding_tour_tagged_description": "Knooppunten kunnen labels en vervaldatums hebben — gebruik Filters boven het overzicht om hierop te filteren."
 }
