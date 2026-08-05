@@ -19,6 +19,7 @@
 	"quick_open_untitled": "Naamloos",
 	"quick_open_omitted_ancestors": "{count} bovenliggende niveaus weggelaten",
 	"login_heading": "Inloggen",
+	"login_subheading": "Welkom terug. Ga verder waar je gebleven was.",
 	"login_continue_google": "Doorgaan met Google",
 	"login_or": "of",
 	"login_email_label": "E-mail",
@@ -26,17 +27,51 @@
 	"login_submit": "Inloggen",
 	"login_no_account": "Nog geen account?",
 	"login_create_one": "Maak er een aan",
-	"login_error_fallback": "Er is iets misgegaan. Probeer het opnieuw.",
 	"register_heading": "Account aanmaken",
+	"register_subheading": "Gratis om te starten. Geen creditcard nodig.",
 	"register_name_label": "Naam",
 	"register_email_label": "E-mail",
 	"register_password_label": "Wachtwoord",
+	"register_password_requirements": "Minimaal 8 tekens.",
+	"register_password_strength_weak": "Zwak wachtwoord",
+	"register_password_strength_fair": "Redelijk wachtwoord",
+	"register_password_strength_good": "Goed wachtwoord",
+	"register_password_strength_strong": "Sterk wachtwoord",
 	"register_submit": "Account aanmaken",
 	"register_have_account": "Heb je al een account?",
 	"register_login_link": "Inloggen",
-	"register_error_fallback": "Er is iets misgegaan. Probeer het opnieuw.",
 	"oauth_account_not_linked": "Dit e-mailadres is al geregistreerd met een andere inlogmethode. Log in met je oorspronkelijke methode of gebruik een ander e-mailadres.",
 	"oauth_generic_error": "Er is iets misgegaan bij het inloggen. Probeer het opnieuw.",
+	"auth_field_error_email_required": "E-mail is verplicht.",
+	"auth_field_error_email_invalid": "Vul een geldig e-mailadres in.",
+	"auth_field_error_password_required": "Wachtwoord is verplicht.",
+	"auth_field_error_password_too_short": "Wachtwoord moet minimaal 8 tekens bevatten.",
+	"auth_field_error_name_required": "Naam is verplicht.",
+	"auth_password_show_label": "Wachtwoord tonen",
+	"auth_password_hide_label": "Wachtwoord verbergen",
+	"auth_error_fallback": "Er is iets misgegaan. Probeer het opnieuw.",
+	"auth_error_network": "De server kon niet worden bereikt. Controleer je verbinding en probeer het opnieuw.",
+	"auth_error_invalid_credentials": "Onjuiste e-mail of wachtwoord.",
+	"auth_error_invalid_email": "Vul een geldig e-mailadres in.",
+	"auth_error_invalid_password": "Ongeldig wachtwoord.",
+	"auth_error_email_in_use": "Er bestaat al een account met dit e-mailadres. Log in plaats daarvan.",
+	"auth_error_password_too_short": "Wachtwoord moet minimaal 8 tekens bevatten.",
+	"auth_error_password_too_long": "Wachtwoord is te lang.",
+	"auth_error_credential_account_not_found": "Voor dit account is geen wachtwoord ingesteld. Probeer in te loggen met Google.",
+	"auth_showcase_tree_alt": "Een Cascade-overzicht met geneste taken, tags en een vervaldatum",
+	"auth_showcase_tree_heading": "Eén boom voor alles",
+	"auth_showcase_tree_body": "Nest ideeën, taken en notities zo diep als je wilt. Tags en vervaldatums staan direct op de regel.",
+	"auth_showcase_focus_alt": "Een Cascade-knooppunt geopend in zijn eigen gefocuste weergave, met alleen zijn subtaken en een broodkruimelpad",
+	"auth_showcase_focus_heading": "Klik op de stip om te focussen",
+	"auth_showcase_focus_body": "Klik op de stip van een knooppunt om in te zoomen op alleen die tak, met broodkruimels terug naar waar je begon.",
+	"auth_showcase_filters_alt": "Het filtermenu van Cascade met opties voor vervaldatum en tags",
+	"auth_showcase_filters_heading": "Filter naar wat telt",
+	"auth_showcase_filters_body": "Doorzoek elk overzicht op tag of vervaldatum zonder je plek in de boom te verliezen.",
+	"auth_showcase_search_alt": "Cascade's snel-openen zoekfunctie die knooppunten vindt op trefwoord",
+	"auth_showcase_search_heading": "Spring direct naar alles",
+	"auth_showcase_search_body": "Snel openen vindt elk knooppunt op trefwoord, hoe diep genest ook.",
+	"auth_showcase_dot_label": "Toon dia {number}",
+	"auth_showcase_region_label": "Productoverzicht",
 	"user_menu_trigger_label": "Gebruikersmenu",
 	"user_menu_settings": "Instellingen",
 	"tree_history_menu_item": "Boomgeschiedenis",
@@ -141,8 +176,13 @@
 	"settings_tags_delete_label": "{name} verwijderen",
 	"settings_tags_usage_count": [
 		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "Gebruikt op {count} node",
 				"countPlural=other": "Gebruikt op {count} nodes"
@@ -152,8 +192,14 @@
 	"settings_tags_delete_title": "Label verwijderen?",
 	"settings_tags_delete_description": [
 		{
-			"declarations": ["input name", "input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input name",
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "‘{name}’ wordt van {count} node verwijderd. Dit kan niet ongedaan worden gemaakt.",
 				"countPlural=other": "‘{name}’ wordt van {count} nodes verwijderd. Dit kan niet ongedaan worden gemaakt."
@@ -234,8 +280,13 @@
 	"breadcrumbs_untitled": "Naamloos",
 	"breadcrumbs_hidden_count": [
 		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "Toon {count} verborgen kruimelpad",
 				"countPlural=other": "Toon {count} verborgen kruimelpaden"
@@ -252,8 +303,13 @@
 	"node_duplicate_failed": "Dupliceren van node mislukt",
 	"node_deleted_with_children": [
 		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "Node verwijderd samen met {count} onderliggende node",
 				"countPlural=other": "Node verwijderd samen met {count} onderliggende nodes"
