@@ -1,8 +1,5 @@
 # Changelog
 
-## 2026-08-05
-- [chore] Added automated accessibility (axe-core) regression testing for the main tree view and the Settings dialog (desktop and mobile full-screen layouts), gated in CI with results posted as a PR comment. Along the way, fixed a few violations it found: the language switcher's trigger had no accessible name, the indent-size stepper's input had no label, and several Settings texts (tab labels, section descriptions, group headers) had insufficient color contrast. [#595](https://github.com/cascade-outliner/cascade/issues/595)
-
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
