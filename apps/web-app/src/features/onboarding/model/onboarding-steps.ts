@@ -14,11 +14,13 @@ export const onboardingAnchors = {
 	userMenu: "user-menu-trigger",
 } as const;
 
-/** Builds the element selector for a seeded sample-outline node by id. An
- * attribute selector (rather than `#id`) sidesteps CSS identifier rules,
- * since node ids are UUIDs and can start with a digit. */
+/** Builds the element selector for a seeded sample-outline node by id,
+ * matching the `data-node-id` attribute every tree row carries regardless of
+ * edit state (`packages/outliner`'s `virtual-tree-row.tsx`). Note: a node's
+ * DOM `id` attribute is set only while that specific node is being actively
+ * text-edited (see `NodeEditor`), so it isn't a usable anchor here. */
 function nodeSelector(id: string): string {
-	return `[id="${id}"]`;
+	return `[data-node-id="${id}"]`;
 }
 
 /**

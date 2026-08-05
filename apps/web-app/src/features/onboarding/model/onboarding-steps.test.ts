@@ -25,7 +25,9 @@ describe("onboardingSteps", () => {
 				Object.keys(onboardingAnchors).length,
 		);
 		for (const step of anchoredSteps) {
-			expect(step.element).toMatch(/^\[(id|data-onboarding)="[^"]+"\]$/);
+			expect(step.element).toMatch(
+				/^\[(data-node-id|data-onboarding)="[^"]+"\]$/,
+			);
 			expect(step.popover?.title).toBeTruthy();
 			expect(step.popover?.description).toBeTruthy();
 		}
@@ -43,10 +45,12 @@ describe("onboardingSteps", () => {
 
 	it("includes only the sample-node steps whose id is known", () => {
 		const steps = onboardingSteps({ task: "id-task" });
-		const taskStep = steps.find((step) => step.element === '[id="id-task"]');
-		expect(taskStep).toBeDefined();
-		expect(steps.some((step) => step.element === '[id="id-create"]')).toBe(
-			false,
+		const taskStep = steps.find(
+			(step) => step.element === '[data-node-id="id-task"]',
 		);
+		expect(taskStep).toBeDefined();
+		expect(
+			steps.some((step) => step.element === '[data-node-id="id-create"]'),
+		).toBe(false);
 	});
 });

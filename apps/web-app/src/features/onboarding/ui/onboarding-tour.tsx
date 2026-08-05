@@ -47,6 +47,13 @@ export function OnboardingTour() {
 		if (activeRef.current) return;
 		activeRef.current = true;
 
+		// driver.js 1.8.0's default popover Next/Previous buttons emit
+		// "nextClick"/"prevClick" events that nothing internally listens for
+		// (unlike Escape/close/arrow-key navigation, which are wired up) — so
+		// without these explicit handlers, clicking "Next" does nothing and the
+		// tour gets stuck on the first step forever, with the rest of the page
+		// inert under driver.js's `pointer-events: none` overlay. Calling the
+		// public moveNext()/movePrevious() API directly works around it.
 		const tour = driver({
 			showProgress: true,
 			allowClose: true,
@@ -57,6 +64,11 @@ export function OnboardingTour() {
 			prevBtnText: m.onboarding_tour_previous(),
 			doneBtnText: m.onboarding_tour_done(),
 			steps: onboardingSteps(sampleNodeIdsRef.current),
+			onNextClick: () => {
+				if (tour.isLastStep()) tour.destroy();
+				else tour.moveNext();
+			},
+			onPrevClick: () => tour.movePrevious(),
 			onDestroyed: () => {
 				setSettingRef.current("onboardingCompleted", true);
 				pendingSaveRef.current = true;
