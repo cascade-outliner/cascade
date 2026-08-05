@@ -21,6 +21,7 @@ export default defineConfig(() => {
 				"**/node_modules/**",
 				"**/e2e/**",
 				"**/e2e-perf/**",
+				"**/e2e-visual/**",
 				"**/*.db.test.ts",
 			],
 			coverage: {
