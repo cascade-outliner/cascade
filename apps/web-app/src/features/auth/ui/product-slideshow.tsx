@@ -25,12 +25,6 @@ function useSlides(): Slide[] {
 			body: m.auth_showcase_focus_body(),
 		},
 		{
-			src: "/auth/product-icons.webp",
-			alt: m.auth_showcase_icons_alt(),
-			heading: m.auth_showcase_icons_heading(),
-			body: m.auth_showcase_icons_body(),
-		},
-		{
 			src: "/auth/product-filters.webp",
 			alt: m.auth_showcase_filters_alt(),
 			heading: m.auth_showcase_filters_heading(),
