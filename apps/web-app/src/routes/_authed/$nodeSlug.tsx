@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authed/$nodeSlug")({
 	errorComponent: GenericErrorComponent,
 	component: () => {
 		const { nodeId } = Route.useLoaderData();
-		
+
 		return (
 			<Suspense fallback={<TreeSkeleton />}>
 				<NodeDetailPage nodeId={nodeId} />
