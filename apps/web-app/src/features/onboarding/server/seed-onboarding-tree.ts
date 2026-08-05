@@ -9,9 +9,10 @@ import {
 	nodeTags,
 	tags,
 } from "@/features/nodes/server/persistence/node-tables";
-import type {
-	OnboardingSampleNodeIds,
-	OnboardingSampleNodeKey,
+import type { NodeTransaction } from "@/features/nodes/server/persistence/sibling-order";
+import {
+	type OnboardingSampleNodeIds,
+	onboardingAnchoredNodeKeys,
 } from "@/features/settings/model/settings.schema";
 import { userSettings } from "@/features/settings/server/settings-table";
 
@@ -49,11 +50,7 @@ function paragraph(text: string) {
 	};
 }
 
-interface WelcomeNodeDef {
-	/** Present only for nodes the onboarding tour spotlights with its own
-	 * driver.js step (see `onboardingSteps`); used as the node's explicit id
-	 * so the tour can build a stable `[id="..."]` selector for it. */
-	anchorKey?: OnboardingSampleNodeKey;
+export interface WelcomeNodeDef {
 	content: SeedLexicalContent;
 	type?: "task";
 	dueDate?: string;
@@ -76,42 +73,132 @@ const ROOT_CONTENT = paragraph(
 
 // Short, self-explanatory node text: the onboarding tour (see
 // `onboardingSteps`) carries the actual explanations as driver.js popovers
-// anchored to these nodes, rather than duplicating that copy here.
-function childDefs(): WelcomeNodeDef[] {
-	return [
-		{
-			anchorKey: "createNode",
-			content: paragraph(
-				"Try editing this node, or press Enter to add one below it.",
-			),
-		},
-		{
-			anchorKey: "indentNode",
-			content: paragraph(
-				"Drag me, or press Tab / Shift+Tab to indent and outdent.",
-			),
-		},
-		{
-			anchorKey: "focusDot",
-			content: paragraph("Click the dot to the left of this node to open it."),
-		},
-		{
-			anchorKey: "task",
-			content: paragraph("A task — click the checkbox."),
-			type: "task",
-		},
-		{
-			anchorKey: "tagged",
-			content: paragraph("Tagged, and due tomorrow."),
-			dueDate: tomorrowDateString(),
-			tags: ["example"],
-		},
-		{
-			content: paragraph(
-				"This whole outline is just example content — delete this node (and its children go with it) whenever you're ready.",
-			),
-		},
-	];
+// anchored to these nodes, rather than duplicating that copy here. Keyed by
+// `OnboardingSampleNodeKey` (minus `root`) so a tour replay can rebuild just
+// the one node a user deleted, not the whole tree — see
+// `ensureOnboardingSampleTree`.
+export const anchoredChildDefs: Record<
+	(typeof onboardingAnchoredNodeKeys)[number],
+	WelcomeNodeDef
+> = {
+	createNode: {
+		content: paragraph(
+			"Try editing this node, or press Enter to add one below it.",
+		),
+	},
+	indentNode: {
+		content: paragraph(
+			"Drag me, or press Tab / Shift+Tab to indent and outdent.",
+		),
+	},
+	focusDot: {
+		content: paragraph("Click the dot to the left of this node to open it."),
+	},
+	task: {
+		content: paragraph("A task — click the checkbox."),
+		type: "task",
+	},
+	tagged: {
+		content: paragraph("Tagged, and due tomorrow."),
+		dueDate: tomorrowDateString(),
+		tags: ["example"],
+	},
+};
+
+const deleteHintDef: WelcomeNodeDef = {
+	content: paragraph(
+		"This whole outline is just example content — delete this node (and its children go with it) whenever you're ready.",
+	),
+};
+
+/** Inserts one onboarding node (plus its tags, if any) as a child of
+ * `parentId` at `order`, returning its id. Used both for the initial full
+ * seed and for adding back a single node a user deleted (see
+ * `ensureOnboardingSampleTree`) — never touches any other node. */
+export async function insertOnboardingChild(
+	transaction: NodeTransaction,
+	userId: string,
+	parentId: string,
+	order: string,
+	def: WelcomeNodeDef,
+): Promise<string> {
+	const id = randomUUID();
+	await transaction.insert(nodes).values({
+		id,
+		userId,
+		parentId,
+		order,
+		content: def.content,
+		searchText: nodeSearchText(def.content),
+		type: nodeType(def),
+		metadata: def.type === "task" ? { completed: false } : null,
+		dueDate: def.dueDate ?? null,
+	});
+
+	if (def.tags && def.tags.length > 0) {
+		const tagIds = (
+			await transaction
+				.insert(tags)
+				.values(def.tags.map((name) => ({ userId, name })))
+				.onConflictDoUpdate({
+					target: [tags.userId, tags.name],
+					set: { name: sql`excluded.name` },
+				})
+				.returning({ id: tags.id })
+		).map((row) => row.id);
+		await transaction
+			.insert(nodeTags)
+			.values(tagIds.map((tagId) => ({ nodeId: id, tagId })));
+	}
+
+	return id;
+}
+
+/** Builds a brand-new sample outline (root + every anchored child + the
+ * trailing "delete me" hint) and returns the ids the tour needs. */
+export async function buildOnboardingTree(
+	transaction: NodeTransaction,
+	userId: string,
+): Promise<Required<OnboardingSampleNodeIds>> {
+	const rootId = randomUUID();
+	const [rootOrder] = generateNKeysBetween(null, null, 1);
+	await transaction.insert(nodes).values({
+		id: rootId,
+		userId,
+		parentId: null,
+		order: rootOrder,
+		content: ROOT_CONTENT,
+		searchText: nodeSearchText(ROOT_CONTENT),
+		expanded: true,
+	});
+
+	const childOrders = generateNKeysBetween(
+		null,
+		null,
+		onboardingAnchoredNodeKeys.length + 1,
+	);
+
+	const sampleNodeIds = { root: rootId } as Required<OnboardingSampleNodeIds>;
+	for (const [index, key] of onboardingAnchoredNodeKeys.entries()) {
+		sampleNodeIds[key] = await insertOnboardingChild(
+			transaction,
+			userId,
+			rootId,
+			// biome-ignore lint/style/noNonNullAssertion: index is in-bounds by construction
+			childOrders[index]!,
+			anchoredChildDefs[key],
+		);
+	}
+	await insertOnboardingChild(
+		transaction,
+		userId,
+		rootId,
+		// biome-ignore lint/style/noNonNullAssertion: last of exactly childOrders.length orders generated above
+		childOrders[onboardingAnchoredNodeKeys.length]!,
+		deleteHintDef,
+	);
+
+	return sampleNodeIds;
 }
 
 /**
@@ -122,62 +209,7 @@ function childDefs(): WelcomeNodeDef[] {
  */
 export async function seedOnboardingContent(userId: string): Promise<void> {
 	await db.transaction(async (transaction) => {
-		const rootId = randomUUID();
-		const [rootOrder] = generateNKeysBetween(null, null, 1);
-		await transaction.insert(nodes).values({
-			id: rootId,
-			userId,
-			parentId: null,
-			order: rootOrder,
-			content: ROOT_CONTENT,
-			searchText: nodeSearchText(ROOT_CONTENT),
-			expanded: true,
-		});
-
-		const defs = childDefs();
-		const childIds = defs.map(() => randomUUID());
-		const childOrders = generateNKeysBetween(null, null, defs.length);
-		await transaction.insert(nodes).values(
-			defs.map((def, index) => ({
-				id: childIds[index],
-				userId,
-				parentId: rootId,
-				order: childOrders[index],
-				content: def.content,
-				searchText: nodeSearchText(def.content),
-				type: nodeType(def),
-				metadata: def.type === "task" ? { completed: false } : null,
-				dueDate: def.dueDate ?? null,
-			})),
-		);
-
-		const taggedChildren = defs
-			.map((def, index) => ({ def, nodeId: childIds[index] }))
-			.filter((entry) => (entry.def.tags?.length ?? 0) > 0);
-		for (const { def, nodeId } of taggedChildren) {
-			// def.tags is guaranteed non-empty by the filter above.
-			// biome-ignore lint/style/noNonNullAssertion: filtered for non-empty tags above
-			const tagNames = def.tags!;
-			const tagIds = (
-				await transaction
-					.insert(tags)
-					.values(tagNames.map((name) => ({ userId, name })))
-					.onConflictDoUpdate({
-						target: [tags.userId, tags.name],
-						set: { name: sql`excluded.name` },
-					})
-					.returning({ id: tags.id })
-			).map(({ id }) => id);
-			await transaction
-				.insert(nodeTags)
-				.values(tagIds.map((tagId) => ({ nodeId, tagId })));
-		}
-
-		const sampleNodeIds: OnboardingSampleNodeIds = {};
-		for (const [index, def] of defs.entries()) {
-			if (def.anchorKey) sampleNodeIds[def.anchorKey] = childIds[index];
-		}
-
+		const sampleNodeIds = await buildOnboardingTree(transaction, userId);
 		await transaction
 			.insert(userSettings)
 			.values({

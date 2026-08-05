@@ -30,6 +30,8 @@ export interface UserSettingsDialogViewProps {
 	selectTab: (value: SettingsTab["value"]) => void;
 	openMobilePage: () => void;
 	closeMobilePage: () => void;
+	onReplayTour: () => void;
+	isReplayingTour: boolean;
 }
 
 /** Purely presentational: the dialog chrome, the desktop/mobile tab UIs, and
@@ -51,6 +53,8 @@ export function UserSettingsDialogView({
 	selectTab,
 	openMobilePage,
 	closeMobilePage,
+	onReplayTour,
+	isReplayingTour,
 }: UserSettingsDialogViewProps) {
 	const activeTabLabel = tabGroups
 		.flatMap((group) => group.tabs)
@@ -115,10 +119,8 @@ export function UserSettingsDialogView({
 								isPremium={isPremium}
 								onSignOut={onSignOut}
 								onOpenDeleteDialog={onOpenDeleteDialog}
-								onReplayTour={() => {
-									setSetting("onboardingCompleted", false);
-									onOpenChange(false);
-								}}
+								onReplayTour={onReplayTour}
+								isReplayingTour={isReplayingTour}
 							/>
 						</div>
 					</Tabs.Root>

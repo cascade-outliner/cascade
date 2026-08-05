@@ -19,12 +19,20 @@ export const MAX_INDENT_SIZE = 64;
  * accounts that predate this feature — the tour skips steps it can't
  * anchor. */
 export const onboardingSampleNodeKeys = [
+	"root",
 	"createNode",
 	"indentNode",
 	"focusDot",
 	"task",
 	"tagged",
 ] as const;
+
+/** The subset of `onboardingSampleNodeKeys` the tour anchors a driver.js
+ * step to; `root` is tracked (so a replay can tell whether the whole sample
+ * outline is gone) but isn't itself a tour step. */
+export const onboardingAnchoredNodeKeys = onboardingSampleNodeKeys.filter(
+	(key) => key !== "root",
+) as Exclude<OnboardingSampleNodeKey, "root">[];
 
 export type OnboardingSampleNodeKey = (typeof onboardingSampleNodeKeys)[number];
 

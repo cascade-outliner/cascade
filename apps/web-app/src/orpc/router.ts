@@ -24,6 +24,7 @@ import {
 	updateNodeContent,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
+import { replayOnboardingTour } from "@/features/onboarding/server/procedures/replay-onboarding-tour";
 import {
 	getPremiumStatus,
 	requestPremiumSeat,
@@ -76,6 +77,9 @@ export default {
 	settings: {
 		get: getSettings,
 		update: updateSettings,
+	},
+	onboarding: {
+		replay: replayOnboardingTour,
 	},
 	sessions: {
 		list: listSessions,

@@ -13,12 +13,14 @@ interface GeneralSettingsPanelProps {
 	settings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
 	onReplayTour: () => void;
+	isReplayingTour: boolean;
 }
 
 export function GeneralSettingsPanel({
 	settings,
 	setSetting,
 	onReplayTour,
+	isReplayingTour,
 }: GeneralSettingsPanelProps) {
 	const [, setCompletedOverride] = useQueryState(
 		"completed",
@@ -47,7 +49,12 @@ export function GeneralSettingsPanel({
 			</SettingsSection>
 			<SettingsSection title={m.settings_replay_tour_title()}>
 				<SettingsRow title={m.settings_replay_tour_description()}>
-					<Button size="sm" variant="dark" onClick={onReplayTour}>
+					<Button
+						size="sm"
+						variant="dark"
+						onClick={onReplayTour}
+						disabled={isReplayingTour}
+					>
 						{m.settings_replay_tour_button()}
 					</Button>
 				</SettingsRow>
