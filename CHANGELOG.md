@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-08-05
+- [feat] Redesigned login and registration: a two-panel layout with a product showcase, TanStack Form-powered validation with inline field errors, a password strength meter on registration, clearer error messages for network/credential failures, and the Google sign-in button now only appears when it's actually configured. [#283](https://github.com/cascade-outliner/cascade/issues/283)
 - [feat] Settings now has a "Your data" section to download a full JSON export of your account data (nodes, tags, due dates, tree history, and settings), and account deletion is gated behind typing your email address to confirm. [#598](https://github.com/cascade-outliner/cascade/issues/598)
 
 ## 2026-08-01

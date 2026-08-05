@@ -19,6 +19,7 @@
 	"quick_open_untitled": "Untitled",
 	"quick_open_omitted_ancestors": "{count} ancestor levels omitted",
 	"login_heading": "Log in",
+	"login_subheading": "Welcome back. Pick up your outline where you left off.",
 	"login_continue_google": "Continue with Google",
 	"login_or": "or",
 	"login_email_label": "Email",
@@ -26,17 +27,48 @@
 	"login_submit": "Log in",
 	"login_no_account": "No account yet?",
 	"login_create_one": "Create one",
-	"login_error_fallback": "Something went wrong. Try again.",
 	"register_heading": "Create an account",
+	"register_subheading": "Free to start. No credit card required.",
 	"register_name_label": "Name",
 	"register_email_label": "Email",
 	"register_password_label": "Password",
+	"register_password_requirements": "At least 8 characters.",
+	"register_password_strength_weak": "Weak password",
+	"register_password_strength_fair": "Fair password",
+	"register_password_strength_good": "Good password",
+	"register_password_strength_strong": "Strong password",
 	"register_submit": "Create account",
 	"register_have_account": "Already have an account?",
 	"register_login_link": "Log in",
-	"register_error_fallback": "Something went wrong. Try again.",
 	"oauth_account_not_linked": "That email is already registered with a different sign-in method. Log in with your original method, or use a different email.",
 	"oauth_generic_error": "Something went wrong signing you in. Try again.",
+	"auth_field_error_email_required": "Email is required.",
+	"auth_field_error_email_invalid": "Enter a valid email address.",
+	"auth_field_error_password_required": "Password is required.",
+	"auth_field_error_password_too_short": "Password must be at least 8 characters.",
+	"auth_field_error_name_required": "Name is required.",
+	"auth_password_show_label": "Show password",
+	"auth_password_hide_label": "Hide password",
+	"auth_error_fallback": "Something went wrong. Try again.",
+	"auth_error_network": "Couldn't reach the server. Check your connection and try again.",
+	"auth_error_invalid_credentials": "Incorrect email or password.",
+	"auth_error_invalid_email": "Enter a valid email address.",
+	"auth_error_invalid_password": "Invalid password.",
+	"auth_error_email_in_use": "An account with this email already exists. Log in instead.",
+	"auth_error_password_too_short": "Password must be at least 8 characters.",
+	"auth_error_password_too_long": "Password is too long.",
+	"auth_error_credential_account_not_found": "No password is set for this account. Try signing in with Google instead.",
+	"auth_showcase_tree_alt": "A Cascade outline with nested tasks, tags, and a due date",
+	"auth_showcase_tree_heading": "One tree for everything",
+	"auth_showcase_tree_body": "Nest ideas, tasks, and notes as deep as you need. Tags and due dates live right on the row.",
+	"auth_showcase_filters_alt": "Cascade's filter menu with due-date and tag options",
+	"auth_showcase_filters_heading": "Filter down to what matters",
+	"auth_showcase_filters_body": "Slice any outline by tag or due date without losing your place in the tree.",
+	"auth_showcase_search_alt": "Cascade's quick-open search finding nodes by keyword",
+	"auth_showcase_search_heading": "Jump to anything instantly",
+	"auth_showcase_search_body": "Quick-open finds any node by keyword, however deep it's nested.",
+	"auth_showcase_dot_label": "Show slide {number}",
+	"auth_showcase_region_label": "Product showcase",
 	"user_menu_trigger_label": "User menu",
 	"user_menu_settings": "Settings",
 	"tree_history_menu_item": "Tree history",
@@ -141,8 +173,13 @@
 	"settings_tags_delete_label": "Delete {name}",
 	"settings_tags_usage_count": [
 		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "Used on {count} node",
 				"countPlural=other": "Used on {count} nodes"
@@ -152,8 +189,14 @@
 	"settings_tags_delete_title": "Delete tag?",
 	"settings_tags_delete_description": [
 		{
-			"declarations": ["input name", "input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input name",
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "“{name}” will be removed from {count} node. This cannot be undone.",
 				"countPlural=other": "“{name}” will be removed from {count} nodes. This cannot be undone."
@@ -234,8 +277,13 @@
 	"breadcrumbs_untitled": "Untitled",
 	"breadcrumbs_hidden_count": [
 		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "Show {count} hidden breadcrumb",
 				"countPlural=other": "Show {count} hidden breadcrumbs"
@@ -252,8 +300,13 @@
 	"node_duplicate_failed": "Failed to duplicate node",
 	"node_deleted_with_children": [
 		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
 			"match": {
 				"countPlural=one": "Node deleted along with {count} child node",
 				"countPlural=other": "Node deleted along with {count} child nodes"
