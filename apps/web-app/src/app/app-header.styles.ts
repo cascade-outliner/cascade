@@ -2,14 +2,14 @@ import { cva } from "@cascade/ui/cva.config";
 
 /** Flush/opaque strip on narrow viewports; an inset floating pill (blurred,
  * bordered, shadowed) at sm: and up, replacing the old full-width fade.
- * z-[60] (not z-20) because the mobile action dock lives inside this
- * element: z-index only ranks siblings within the same stacking context,
- * so a high z-index on the dock alone can't out-rank the Agenda/Quick
- * Open dialogs' z-50 backdrop+popup — the header itself, as their common
- * ancestor's stacking context, has to outrank them. */
+ * Deliberately below the Agenda/Quick Open dialogs' z-50 (the popups
+ * start just 12px from the top on mobile, right under this bar) — the
+ * mobile action dock needs to outrank them instead, which it does by
+ * being portaled straight to `document.body` (see `AppHeader`), not by
+ * this bar's own z-index. */
 export const bar = cva({
 	base: [
-		"fixed inset-x-0 top-0 z-[60] flex h-12 shrink-0 items-center gap-2.5 border-ink/10 border-b bg-canvas px-3",
+		"fixed inset-x-0 top-0 z-20 flex h-12 shrink-0 items-center gap-2.5 border-ink/10 border-b bg-canvas px-3",
 		"dark:border-surface/10 dark:bg-ink",
 		"sm:inset-x-3 sm:top-3 sm:h-14 sm:gap-3 sm:rounded-2xl sm:border sm:border-ink/10 sm:bg-canvas/80 sm:px-4 sm:shadow-lg sm:shadow-ink/10 sm:backdrop-blur-md sm:backdrop-saturate-150",
 		"dark:sm:border-surface/15 dark:sm:bg-ink/80 dark:sm:shadow-black/30",
@@ -37,10 +37,11 @@ export const dockItem = cva({
 });
 
 /** Wraps Home/Agenda/QuickOpen/UserMenu. A fixed, floating bottom dock
- * below sm: (the z-[60] here matters within the header's own stacking
- * context; see `bar`'s comment for why the header itself also needs
- * z-[60] for the dock to actually outrank the dialogs). Reverts to a
- * plain right-aligned inline group at sm: and up, where z-index is a
+ * below sm:, portaled straight to `document.body` (see `AppHeader`) so
+ * its z-[60] is compared directly against the dialogs' z-50 in the same
+ * top-level stacking context, rather than being capped by an ancestor's
+ * lower z-index. Reverts to a plain right-aligned inline group — back
+ * inside the header, no portal — at sm: and up, where z-index is a
  * no-op on the sm:static layout. */
 export const actionsDock = cva({
 	base: [
