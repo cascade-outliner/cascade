@@ -19,6 +19,12 @@ function useSlides(): Slide[] {
 			body: m.auth_showcase_tree_body(),
 		},
 		{
+			src: "/auth/product-focus.webp",
+			alt: m.auth_showcase_focus_alt(),
+			heading: m.auth_showcase_focus_heading(),
+			body: m.auth_showcase_focus_body(),
+		},
+		{
 			src: "/auth/product-icons.webp",
 			alt: m.auth_showcase_icons_alt(),
 			heading: m.auth_showcase_icons_heading(),
