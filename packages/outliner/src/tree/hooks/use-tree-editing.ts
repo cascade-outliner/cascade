@@ -8,6 +8,11 @@ import { findNodeRow } from "../model/node-row-dom";
 import type { VisibleTree } from "../model/tree.types";
 import type { VirtualTreeProps } from "../model/virtual-tree.types";
 import {
+	findDeleteEmptyFocusTarget,
+	findFocusNeighbor,
+	navigableRows,
+} from "../rows/navigation";
+import {
 	findIndentTarget,
 	findMoveDownTarget,
 	findMoveUpTarget,
@@ -23,9 +28,12 @@ export function useTreeEditing(
 	newNodeDueDate: VirtualTreeProps["newNodeDueDate"],
 	newNodeTags: VirtualTreeProps["newNodeTags"],
 	viewport: TreeViewport,
+	hiddenRowIds: VirtualTreeProps["hiddenRowIds"],
 ) {
 	const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
+
+	const visibleForNav = navigableRows(tree.rows, hiddenRowIds);
 
 	const startEditing = (id: string, point?: FocusPoint) => {
 		setEditingNodeId(id);
@@ -55,9 +63,7 @@ export function useTreeEditing(
 	};
 
 	const handleDeleteEmpty = (id: string) => {
-		const index = tree.rows.findIndex((row) => row.id === id);
-		const focusTarget =
-			(index > 0 ? tree.rows[index - 1] : null) ?? tree.rows[index + 1] ?? null;
+		const focusTarget = findDeleteEmptyFocusTarget(visibleForNav, id);
 
 		tree.remove(id);
 		setFocusPoint(null);
@@ -70,7 +76,7 @@ export function useTreeEditing(
 	};
 
 	const handleIndent = (id: string) => {
-		const target = findIndentTarget(tree.rows, id);
+		const target = findIndentTarget(visibleForNav, id);
 		if (!target) return;
 
 		const newParent = tree.rows.find((row) => row.id === target.parentId);
@@ -86,7 +92,7 @@ export function useTreeEditing(
 			nodeId: string,
 		) => MoveTarget | null,
 	) => {
-		const target = findTarget(tree.rows, id);
+		const target = findTarget(visibleForNav, id);
 		if (target) tree.move(id, target);
 	};
 
@@ -105,13 +111,13 @@ export function useTreeEditing(
 	};
 
 	const handleFocusNeighbor = (id: string, direction: 1 | -1) => {
-		const index = tree.rows.findIndex((row) => row.id === id);
-		if (index === -1) return;
-
-		const target = tree.rows[index + direction];
+		const target = findFocusNeighbor(visibleForNav, id, direction);
 		if (!target) return;
 
-		viewport.virtualizer.scrollToIndex(index + direction, { align: "auto" });
+		const targetIndex = tree.rows.findIndex((row) => row.id === target.id);
+		if (targetIndex !== -1) {
+			viewport.virtualizer.scrollToIndex(targetIndex, { align: "auto" });
+		}
 		if (editingNodeId === id) {
 			setFocusPoint(null);
 			setEditingNodeId(target.id);

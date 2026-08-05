@@ -8,8 +8,15 @@ export function useTreeInteractions(
 	tree: VisibleTree,
 	newNodeDueDate: VirtualTreeProps["newNodeDueDate"],
 	newNodeTags: VirtualTreeProps["newNodeTags"],
+	hiddenRowIds: VirtualTreeProps["hiddenRowIds"],
 ) {
 	const viewport = useTreeVirtualizer(tree);
-	const editing = useTreeEditing(tree, newNodeDueDate, newNodeTags, viewport);
+	const editing = useTreeEditing(
+		tree,
+		newNodeDueDate,
+		newNodeTags,
+		viewport,
+		hiddenRowIds,
+	);
 	return { ...viewport, ...editing };
 }

@@ -28,7 +28,12 @@ export function Outliner({
 	features,
 }: OutlinerProps) {
 	const labels = useOutlinerLabels();
-	const interactions = useTreeInteractions(tree, newNodeDueDate, newNodeTags);
+	const interactions = useTreeInteractions(
+		tree,
+		newNodeDueDate,
+		newNodeTags,
+		hiddenRowIds,
+	);
 
 	return (
 		<VirtualTreeView
