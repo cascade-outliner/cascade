@@ -1,6 +1,6 @@
 import { marked } from "marked";
 
-export type ChangelogItemType = "feat" | "fix" | "chore";
+export type ChangelogItemType = "feat" | "fix" | "chore" | "perf";
 
 export interface ChangelogItem {
 	type: ChangelogItemType | null;
@@ -12,7 +12,12 @@ export interface ChangelogEntry {
 	items: ChangelogItem[];
 }
 
-const ITEM_TYPES: readonly ChangelogItemType[] = ["feat", "fix", "chore"];
+const ITEM_TYPES: readonly ChangelogItemType[] = [
+	"feat",
+	"fix",
+	"chore",
+	"perf",
+];
 const ITEM_TYPE_PATTERN = /^\[(\w+)\]\s*/;
 
 function parseItem(line: string): ChangelogItem {

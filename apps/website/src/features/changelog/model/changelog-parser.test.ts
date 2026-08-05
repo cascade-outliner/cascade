@@ -30,6 +30,12 @@ describe("parseChangelog", () => {
 		]);
 	});
 
+	it("recognizes the perf type marker", () => {
+		const [entry] = parseChangelog("## Next\n- [perf] Sped things up");
+
+		expect(entry.items).toEqual([{ type: "perf", html: "Sped things up" }]);
+	});
+
 	it("keeps unknown type markers as content", () => {
 		const [entry] = parseChangelog("## Next\n- [docs] Documented behavior");
 
