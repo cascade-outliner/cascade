@@ -1,49 +1,33 @@
-import { lexicalToPlainText } from "@cascade/outliner/lexical-content";
-import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "@tanstack/react-router";
-import { m } from "#/paraglide/messages.js";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useParams } from "@tanstack/react-router";
+import { Suspense } from "react";
 import { splitNodeSlug } from "@/features/nodes/model/node-slug";
+import { Breadcrumbs } from "@/features/nodes/ui/breadcrumbs";
 import { orpc } from "@/orpc/client";
 import { wayfinding } from "./app-header.styles";
 
-/** "Home" everywhere; "Home › <node title>" on a node's detail page. Reads
- * from the same cached queries the detail route's own loader already
- * populated (`orpc.nodes.resolveSlug`/`orpc.nodes.get`), so this never
- * issues an extra request in the common case. */
+/** Resolves the current node's slug to an id and hands off to the app's
+ * one real breadcrumb trail — reused here instead of duplicated, and no
+ * longer rendered inline on the node detail page itself (see #344). */
+function ResolvedBreadcrumbs({ nodeSlug }: { nodeSlug: string }) {
+	const { slugId, slugText } = splitNodeSlug(nodeSlug);
+	const { data } = useSuspenseQuery(
+		orpc.nodes.resolveSlug.queryOptions({ input: { slugId, slugText } }),
+	);
+	return <Breadcrumbs nodeId={data.id} />;
+}
+
+/** Nothing on the tree root (the logo already means "home"); the node's
+ * breadcrumb trail once a node's detail page is open. */
 export function HeaderWayfinding() {
 	const { nodeSlug } = useParams({ strict: false });
-	const split = nodeSlug ? splitNodeSlug(nodeSlug) : null;
-
-	const resolved = useQuery({
-		...orpc.nodes.resolveSlug.queryOptions({
-			input: { slugId: split?.slugId ?? "", slugText: split?.slugText ?? null },
-		}),
-		enabled: split !== null,
-	});
-	const nodeId = resolved.data?.id;
-
-	const node = useQuery({
-		...orpc.nodes.get.queryOptions({ input: { id: nodeId ?? "" } }),
-		enabled: !!nodeId,
-	});
-
-	const currentTitle = nodeId
-		? lexicalToPlainText(node.data?.content) || m.breadcrumbs_untitled()
-		: null;
+	if (!nodeSlug) return null;
 
 	return (
-		<nav aria-label={m.breadcrumbs_nav_label()} className={wayfinding()}>
-			<Link viewTransition to="/" className="shrink-0 hover:text-danger">
-				{m.breadcrumbs_home_label()}
-			</Link>
-			{currentTitle && (
-				<>
-					<span aria-hidden="true" className="opacity-50">
-						›
-					</span>
-					<span className="truncate">{currentTitle}</span>
-				</>
-			)}
-		</nav>
+		<div className={wayfinding()}>
+			<Suspense fallback={null}>
+				<ResolvedBreadcrumbs nodeSlug={nodeSlug} />
+			</Suspense>
+		</div>
 	);
 }

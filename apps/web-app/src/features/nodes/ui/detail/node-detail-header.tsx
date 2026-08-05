@@ -9,7 +9,6 @@ import type { TagSummary } from "@cascade/outliner/node-tags";
 import type { RecurrenceInput } from "@cascade/outliner/recurrence";
 import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
 import { SmileyIcon } from "@phosphor-icons/react/ssr";
-import { Breadcrumbs } from "#/features/nodes/ui/breadcrumbs";
 import type { NodeDetailData } from "./node-detail.types";
 
 function NodeIconTrigger({
@@ -63,39 +62,36 @@ export function NodeDetailHeader({
 	onIconChange: (icon: string | null) => void;
 }) {
 	return (
-		<>
-			<Breadcrumbs nodeId={node.id} />
-			<header
-				style={{ viewTransitionName: `node-${node.id}` }}
-				className="group/node mb-8 flex flex-col gap-3 text-2xl"
-			>
-				<div className="flex items-center gap-3">
-					<NodeIconTrigger icon={node.icon} onChange={onIconChange} />
-					{node.type === "task" && (
-						<NodeCheckbox metadata={node.metadata} onToggle={onToggleTask} />
-					)}
-					<LexicalReadView content={toLexicalContent(node.content)} />
-				</div>
+		<header
+			style={{ viewTransitionName: `node-${node.id}` }}
+			className="group/node mb-8 flex flex-col gap-3 text-2xl"
+		>
+			<div className="flex items-center gap-3">
+				<NodeIconTrigger icon={node.icon} onChange={onIconChange} />
+				{node.type === "task" && (
+					<NodeCheckbox metadata={node.metadata} onToggle={onToggleTask} />
+				)}
+				<LexicalReadView content={toLexicalContent(node.content)} />
+			</div>
 
-				<div className="flex items-start gap-1">
-					{dueDate && (
-						<NodeDueDatePill
-							dueDate={dueDate}
-							completed={completed}
-							recurrence={node.recurrence}
-							recurrenceEnabled={node.type === "task"}
-							onChange={onDueDateChange}
-							onRecurrenceChange={onRecurrenceChange}
-						/>
-					)}
-					<NodeTagsControl
-						tags={node.tags}
-						existingTags={existingTags}
-						onChange={onTagsChange}
-						onDeleteTag={onDeleteTag}
+			<div className="flex items-start gap-1">
+				{dueDate && (
+					<NodeDueDatePill
+						dueDate={dueDate}
+						completed={completed}
+						recurrence={node.recurrence}
+						recurrenceEnabled={node.type === "task"}
+						onChange={onDueDateChange}
+						onRecurrenceChange={onRecurrenceChange}
 					/>
-				</div>
-			</header>
-		</>
+				)}
+				<NodeTagsControl
+					tags={node.tags}
+					existingTags={existingTags}
+					onChange={onTagsChange}
+					onDeleteTag={onDeleteTag}
+				/>
+			</div>
+		</header>
 	);
 }

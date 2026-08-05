@@ -90,8 +90,11 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 	const tail = collapse ? ancestors.slice(-1) : [];
 
 	return (
-		<nav aria-label={m.breadcrumbs_nav_label()} className="mb-4 text-sm">
-			<ol className="flex items-center gap-1.5 flex-wrap">
+		<nav
+			aria-label={m.breadcrumbs_nav_label()}
+			className="min-w-0 overflow-hidden text-sm"
+		>
+			<ol className="flex min-w-0 items-center gap-1.5 overflow-hidden">
 				<li className="flex items-center">
 					<Link
 						viewTransition

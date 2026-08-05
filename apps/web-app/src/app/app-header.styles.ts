@@ -15,9 +15,9 @@ export const brand = cva({
 	base: "flex shrink-0 items-center gap-2 rounded-md font-serif text-xl italic outline-none focus-visible:ring-2 focus-visible:ring-danger/50",
 });
 
-/** "Home › current node" indicator, shown at every viewport size. */
+/** Wraps the reused Breadcrumbs trail when a node's detail page is open. */
 export const wayfinding = cva({
-	base: "flex min-w-0 items-center gap-1.5 truncate border-ink/15 border-l pl-2.5 text-muted text-sm dark:border-surface/15 dark:text-surface/60",
+	base: "min-w-0 border-ink/15 border-l pl-2.5 dark:border-surface/15",
 });
 
 /** An icon-only button in the bar at sm: and up; an icon+label tile inside

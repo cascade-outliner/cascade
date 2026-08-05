@@ -155,15 +155,31 @@ function ToastList() {
 	));
 }
 
+/** Split out from `Toaster` so `useToastManager` can read the live toast
+ * count: the viewport's hit area spans a fixed corner of the screen even
+ * with nothing in it, and without `pointer-events-none` while empty it
+ * silently swallows clicks meant for whatever sits underneath it. */
+function ToastPortalContent() {
+	const { toasts } = Toast.useToastManager();
+
+	return (
+		<Toast.Portal>
+			<Toast.Viewport
+				className={`fixed right-4 bottom-4 z-50 h-16 w-80 outline-none ${
+					toasts.length === 0 ? "pointer-events-none" : ""
+				}`}
+			>
+				<ToastList />
+			</Toast.Viewport>
+		</Toast.Portal>
+	);
+}
+
 export function Toaster({ children }: { children: React.ReactNode }) {
 	return (
 		<Toast.Provider toastManager={toastManager}>
 			{children}
-			<Toast.Portal>
-				<Toast.Viewport className="fixed right-4 bottom-4 z-50 h-16 w-80 outline-none">
-					<ToastList />
-				</Toast.Viewport>
-			</Toast.Portal>
+			<ToastPortalContent />
 		</Toast.Provider>
 	);
 }

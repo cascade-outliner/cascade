@@ -1,7 +1,8 @@
 # Changelog
 
 ## 2026-08-05
-- [feat] Redesigned the app header: a floating bar with a "Home › current node" wayfinding indicator on wider screens, and a thumb-reachable bottom action dock (Agenda, Quick Open, User menu) on narrow screens instead of squeezed-in top icons.
+- [fix] The toast notification region no longer intercepts clicks on whatever sits beneath it when no toast is currently showing — its fixed corner of the screen previously captured pointer events at all times, silently swallowing taps on anything underneath.
+- [feat] Redesigned the app header: a floating bar with the existing breadcrumb trail (moved here from the node detail page, not duplicated) on wider screens, and a thumb-reachable bottom action dock (Agenda, Quick Open, User menu) on narrow screens instead of squeezed-in top icons.
 - [feat] Added an Agenda side panel listing every dated node grouped into Overdue/Today/This Week/Upcoming sections, with a hide/show-completed toggle and click-through to each node in its tree context; opens from a new header icon. [#344](https://github.com/cascade-outliner/cascade/issues/344)
 
 ## 2026-08-01
