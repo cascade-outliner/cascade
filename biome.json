@@ -10,13 +10,17 @@
 		"includes": [
 			"**/src/**/*",
 			"**/e2e/**/*",
+			"**/e2e-visual/**/*",
 			"**/.vscode/**/*",
 			"**/index.html",
 			"**/vite.config.ts",
 			"**/playwright.config.ts",
+			"**/playwright.visual.config.ts",
 			"!**/src/routeTree.gen.ts",
 			"!**/src/styles.css",
 			"!**/e2e/.auth/**/*",
+			"!**/e2e-visual/.auth/**/*",
+			"!**/e2e-visual/__screenshots__/**/*",
 			"!**/src/paraglide"
 		]
 	},

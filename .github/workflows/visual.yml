@@ -1,0 +1,127 @@
+name: visual
+
+# Screenshot-diff testing for the tree/editor UI (#596). Separate from e2e.yml
+# so a purely visual regression can't get lost among the functional suite's
+# unrelated flakiness, and scoped to paths that can actually affect visual
+# output so unrelated PRs don't pay for it. Posts/updates a single PR comment
+# summarizing which screenshotted states changed against their checked-in
+# baseline (apps/web-app/e2e-visual/__screenshots__), built by
+# e2e-visual/support/build-report.ts from Playwright's JSON reporter output.
+on:
+  pull_request:
+    paths:
+      - "apps/web-app/e2e-visual/**"
+      - "apps/web-app/playwright.visual.config.ts"
+      - "packages/outliner/**"
+      - "packages/ui/**"
+      - "packages/theme/**"
+      - ".github/workflows/visual.yml"
+
+env:
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/cascade
+  BETTER_AUTH_SECRET: ci-only-secret-do-not-use-in-production-1234
+  BETTER_AUTH_URL: http://localhost:3001
+  APP_URL: http://localhost:3001
+  PORT: 3001
+  # Lists every screenshotted state in the PR comment, not just the ones that
+  # changed. Forced on temporarily on this workflow's introducing PR to prove
+  # the comment pipeline posts real results end-to-end (there's nothing to
+  # diff otherwise, since this PR doesn't touch tree/editor UI itself) — see
+  # that PR's history for the follow-up commit flipping this back to "false",
+  # which is the steady-state default going forward.
+  FORCE_FULL_VISUAL_REPORT: "true"
+
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cascade
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply database schema
+        run: pnpm db:migrate:app
+
+      - run: pnpm --filter app exec playwright install --with-deps chromium
+
+      - name: Run visual suite
+        id: visual
+        continue-on-error: true
+        run: pnpm test:e2e:visual:app
+
+      - name: Build PR comment
+        if: always()
+        working-directory: apps/web-app
+        run: |
+          node --import tsx/esm e2e-visual/support/build-report.ts \
+            --input=visual-results.json \
+            --out="$RUNNER_TEMP/visual-report.md" \
+            ${{ env.FORCE_FULL_VISUAL_REPORT == 'true' && '--forceFull' || '' }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-visual-report
+          path: |
+            apps/web-app/playwright-report/
+            apps/web-app/test-results/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+            const body = fs.readFileSync(process.env.RUNNER_TEMP + "/visual-report.md", "utf-8");
+            const marker = "<!-- visual-report -->";
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((c) => c.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Fail if the visual suite failed
+        if: steps.visual.outcome == 'failure'
+        run: exit 1

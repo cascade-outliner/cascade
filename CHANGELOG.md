@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-05
+- [feat] Added Playwright screenshot-diff testing for the tree/editor UI (default row, tasks, due-date pill, tag pills, emoji icon, row hover, and row-drag state) across light, dark, and Nord themes, with checked-in baselines and a dedicated `visual` CI gate that comments on PRs when a screenshotted state changes. [#596](https://github.com/cascade-outliner/cascade/issues/596)
+
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 

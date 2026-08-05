@@ -33,6 +33,8 @@ pnpm build:web
 pnpm test:app           # vitest run (apps/web-app)
 pnpm test:web           # vitest run (apps/website)
 pnpm test:e2e:app       # Playwright e2e suite (apps/web-app only, see below)
+pnpm test:e2e:visual:app        # Playwright screenshot-diff suite (see below)
+pnpm test:e2e:visual:update:app # same, but writes new baselines
 
 pnpm check              # biome check (lint + format), the CI gate
 pnpm lint               # biome lint only
@@ -62,6 +64,14 @@ Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:54
 ### End-to-end tests
 
 `apps/web-app/e2e` is a Playwright suite. It needs a running database and builds+starts the app itself (no dev server needs to be running first). It authenticates once (`e2e/auth.setup.ts`, creating/reusing a dedicated `e2e@cascadelist.com` user) and reuses that session across tests; each test gets its own throwaway node via the real oRPC API (`e2e/support/fixtures.ts`'s `scratchNode` fixture) so tests never touch dev seed data and can run in parallel.
+
+### Visual regression testing
+
+`apps/web-app/e2e-visual/` is a screenshot-diff Playwright suite for the tree/editor UI (#596), independent of the functional `apps/web-app/e2e` suite and never run as part of `pnpm test:e2e:app`. It authenticates as its own dedicated `visual-harness@cascadelist.com` user (`e2e-visual/auth.setup.ts`, granted a premium seat so premium-only themes can be screenshotted) and uses `playwright.visual.config.ts` — a separate Playwright config with a fixed 1280×800 viewport, `en-US`/`UTC` locale/timezone, and CSS animations disabled, so screenshots aren't sensitive to the machine or moment they're taken on. `tree-visual.spec.ts` builds a small scratch subtree per test (`e2e-visual/support/scene.ts`, deleted via `deleteNode`'s cascade afterwards) covering a default row, an open and a completed task, a row due today, a row with tag pills, and a row with an emoji icon, then screenshots it — plus the row hover state and an in-progress row-drag state (`e2e-visual/support/drag.ts`, dispatching synthetic `DragEvent`s the same way `e2e/drag-and-drop.spec.ts` does) — across the two built-in Cascade themes and one non-Cascade theme (Nord), the theme most likely to expose a component still hardcoding a Cascade-specific color instead of a theme variable. A due-date row is deliberately set to *today* rather than a fixed calendar date: the due-date pill's label and color bucket depend on how many days out the date is (`packages/outliner/src/dates/due-date-bucket.ts`), so a fixed date would silently drift from "upcoming" to "overdue" as real time passes and produce a spurious diff against the baseline independent of any real UI change — "today" always renders the same "Today" pill.
+
+- `pnpm test:e2e:visual:app` builds+starts the app itself (same as `pnpm test:e2e:app`) and compares against the baselines checked into `e2e-visual/__screenshots__/`.
+- `pnpm test:e2e:visual:update:app` re-runs the suite with `--update-snapshots`, overwriting those baselines. After an intentional visual change, run this, then **review the diff of the updated PNGs like any other code change** before committing — a snapshot update applied blind defeats the point of the suite.
+- `.github/workflows/visual.yml` runs this suite as a CI gate distinct from `e2e.yml`, so a visual regression can't get lost among unrelated functional-suite flakiness; it's scoped to paths that can affect visual output (`apps/web-app/e2e-visual/**`, `packages/outliner/**`, `packages/ui/**`, `packages/theme/**`) so unrelated PRs don't pay for it. It posts/updates a single PR comment (marker `<!-- visual-report -->`) summarizing which screenshotted states differ from their baseline, built by `e2e-visual/support/build-report.ts` from Playwright's JSON reporter output; the full HTML report (actual/expected/diff images for every state) is uploaded as a CI artifact for cases the summary table doesn't make obvious.
 
 ### Performance testing
 
