@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2026-08-05
-- [fix] Clicking a node's focus dot now plays the intended cross-fade view transition into the node's detail page again, instead of instantly swapping to the full-page loader — the detail route no longer forces its pending loader to show immediately. [#628](https://github.com/cascade-outliner/cascade/issues/628)
+- [fix] Clicking a node's focus dot now always plays the cross-fade view transition straight into the node's detail page, instead of sometimes transitioning into the full-page loader when the load took a little while — the detail route no longer has a pending loader of its own to transition into. [#628](https://github.com/cascade-outliner/cascade/issues/628)
 - [feat] New accounts now get a small example outline and a first-run guided tour that spotlights the real nodes in that outline — creating nodes, indenting, the node's focus dot, tasks, tags and due dates — plus Filters, Quick Open, and the keyboard shortcuts reference. It's shown once, is dismissible, and can be replayed anytime from Settings → General. [#622](https://github.com/cascade-outliner/cascade/issues/622)
 - [feat] Settings now has a "Your data" section to download a full JSON export of your account data (nodes, tags, due dates, tree history, and settings), and account deletion is gated behind typing your email address to confirm. [#598](https://github.com/cascade-outliner/cascade/issues/598)
 
