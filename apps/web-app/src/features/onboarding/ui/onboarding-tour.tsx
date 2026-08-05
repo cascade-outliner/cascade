@@ -6,28 +6,10 @@ import { m } from "#/paraglide/messages.js";
 import { useSettings } from "@/features/settings/client/settings-context";
 import { onboardingSteps } from "../model/onboarding-steps";
 
-/**
- * Mounted once in the authed app shell. Starts the driver.js tour whenever
- * `settings.onboardingCompleted` is `false` — true for a brand-new signup
- * (see `seedOnboardingContent`) or after "Replay onboarding tour" in
- * Settings resets the flag — and persists completion the moment the tour
- * ends, however it ends (finished, closed, or navigated away from), so it
- * never reappears unprompted afterwards.
- */
 export function OnboardingTour() {
 	const { settings, setSetting, saveSettings } = useSettings();
 	const activeRef = useRef(false);
-	// `useSettings`' `setSetting` only queues a local state update; calling
-	// `saveSettings` right after in the same tick would still see the
-	// pre-update state (it reads a closed-over variable, not a ref) and send
-	// an empty patch, so the "completed" flag never reached the server and
-	// the tour restarted on every reload. Deferring the save to the *next*
-	// render's effect — by which point `saveSettings` closes over the
-	// already-updated state — fixes that.
 	const pendingSaveRef = useRef(false);
-
-	// Read via refs (rather than the effect's deps) so the tour, once
-	// started, isn't restarted mid-flight by unrelated settings re-renders.
 	const setSettingRef = useRef(setSetting);
 	setSettingRef.current = setSetting;
 	const sampleNodeIdsRef = useRef(settings.onboardingSampleNodeIds);
@@ -48,13 +30,6 @@ export function OnboardingTour() {
 		if (activeRef.current) return;
 		activeRef.current = true;
 
-		// driver.js 1.8.0's default popover Next/Previous buttons emit
-		// "nextClick"/"prevClick" events that nothing internally listens for
-		// (unlike Escape/close/arrow-key navigation, which are wired up) — so
-		// without these explicit handlers, clicking "Next" does nothing and the
-		// tour gets stuck on the first step forever, with the rest of the page
-		// inert under driver.js's `pointer-events: none` overlay. Calling the
-		// public moveNext()/movePrevious() API directly works around it.
 		const tour = driver({
 			showProgress: true,
 			allowClose: true,
