@@ -3,11 +3,12 @@ import { m } from "#/paraglide/messages.js";
 import { Agenda } from "@/features/agenda/ui/agenda";
 import { QuickOpen } from "@/features/quick-open/ui/quick-open";
 import { UserMenu } from "@/features/user-menu/ui/user-menu";
-import { bar, brand } from "./app-header.styles";
+import { actionsDock, bar, brand } from "./app-header.styles";
+import { HeaderWayfinding } from "./header-wayfinding";
 
 export function AppHeader() {
 	return (
-		<div className={bar()}>
+		<header className={bar()}>
 			<Link to="/" className={brand()}>
 				<img
 					width={28}
@@ -17,12 +18,13 @@ export function AppHeader() {
 				/>
 			</Link>
 
-			<Agenda />
+			<HeaderWayfinding />
 
-			<div className="ml-auto flex shrink-0 items-center gap-2">
+			<div className={actionsDock()}>
+				<Agenda />
 				<QuickOpen />
 				<UserMenu />
 			</div>
-		</div>
+		</header>
 	);
 }

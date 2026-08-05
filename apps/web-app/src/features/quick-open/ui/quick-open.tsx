@@ -18,10 +18,11 @@ import {
 } from "@/features/quick-open/ui/quick-open-result";
 
 const triggerClassName = [
-	"flex h-9 cursor-pointer items-center gap-2 rounded-lg border px-2.5 text-sm outline-none",
-	"border-ink/10 bg-white/70 text-ink/70 hover:bg-white hover:text-ink",
-	"dark:border-surface/15 dark:bg-ink/70 dark:text-surface/70 dark:hover:bg-ink dark:hover:text-surface",
-	"focus-visible:ring-2 focus-visible:ring-danger/50",
+	"flex flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-ink/70 outline-none",
+	"hover:bg-surface hover:text-danger focus-visible:ring-2 focus-visible:ring-danger/50",
+	"dark:text-surface/70 dark:hover:text-danger",
+	"sm:h-9 sm:flex-none sm:flex-row sm:items-center sm:gap-2 sm:rounded-lg sm:border sm:border-ink/10 sm:bg-white/70 sm:px-2.5 sm:text-ink/70 sm:text-sm sm:hover:bg-white sm:hover:text-ink",
+	"dark:sm:border-surface/15 dark:sm:bg-ink/70 dark:sm:hover:bg-ink dark:sm:hover:text-surface",
 ].join(" ");
 
 const resultClassName = (isActive: boolean) =>
@@ -41,7 +42,10 @@ export function QuickOpen() {
 				className={triggerClassName}
 				aria-label={m.quick_open_trigger()}
 			>
-				<MagnifyingGlassIcon size={16} weight="bold" />
+				<MagnifyingGlassIcon size={19} weight="bold" />
+				<span className="text-[11px] font-semibold leading-none sm:hidden">
+					{m.quick_open_trigger()}
+				</span>
 				<span className="hidden sm:inline">{m.quick_open_trigger()}</span>
 				<span className="hidden md:inline">
 					<KeyboardShortcutKeys hotkeys={["Mod+K"]} />

@@ -35,11 +35,10 @@ export function UserMenuTrigger({
 				aria-label={m.user_menu_trigger_label()}
 				className={avatarTrigger()}
 			>
-				<Avatar
-					user={user}
-					className="size-10"
-					isPremium={premium?.isPremium}
-				/>
+				<Avatar user={user} className="size-9" isPremium={premium?.isPremium} />
+				<span className="text-[11px] font-semibold leading-none sm:hidden">
+					{m.user_menu_dock_label()}
+				</span>
 			</Menu.Trigger>
 			<Menu.Portal>
 				<Menu.Positioner

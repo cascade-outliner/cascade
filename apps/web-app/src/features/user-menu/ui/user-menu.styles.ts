@@ -3,9 +3,12 @@ import { overlayPopupMotion } from "@cascade/ui/overlay-motion";
 
 export const avatarTrigger = cva({
 	base: [
-		"flex size-12 cursor-pointer items-center justify-center rounded-full border border-ink/10 bg-white text-ink shadow-md shadow-ink/15 outline-none select-none",
-		"hover:bg-surface/70 focus-visible:ring-2 focus-visible:ring-danger/50 data-popup-open:bg-surface/70",
-		"dark:border-surface/15 dark:bg-ink dark:text-surface dark:hover:bg-ink dark:data-popup-open:bg-ink",
+		"flex flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-ink outline-none select-none",
+		"hover:bg-surface focus-visible:ring-2 focus-visible:ring-danger/50 data-popup-open:bg-surface",
+		"dark:text-surface dark:hover:bg-surface/10 dark:data-popup-open:bg-surface/10",
+		"sm:size-12 sm:flex-none sm:flex-row sm:gap-0 sm:rounded-full sm:border sm:border-ink/10 sm:bg-white sm:p-0 sm:shadow-md sm:shadow-ink/15",
+		"sm:hover:bg-surface/70 sm:data-popup-open:bg-surface/70",
+		"dark:sm:border-surface/15 dark:sm:bg-ink dark:sm:hover:bg-ink dark:sm:data-popup-open:bg-ink",
 	],
 });
 

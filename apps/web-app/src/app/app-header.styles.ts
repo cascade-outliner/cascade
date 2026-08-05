@@ -1,13 +1,42 @@
 import { cva } from "@cascade/ui/cva.config";
 
+/** Flush/opaque strip on narrow viewports; an inset floating pill (blurred,
+ * bordered, shadowed) at sm: and up, replacing the old full-width fade. */
 export const bar = cva({
-	base: "flex shrink-0 items-center gap-3 px-4 py-2 absolute top-0 w-full z-10 before:content-[''] before:absolute before:inset-0 before:-z-10 before:backdrop-blur-md before:bg-gradient-to-b before:from-canvas before:to-transparent dark:before:from-ink before:mask-[linear-gradient(to_bottom,black_33%,transparent)] min-[1152px]:before:content-none",
+	base: [
+		"fixed inset-x-0 top-0 z-20 flex h-12 shrink-0 items-center gap-2.5 border-ink/10 border-b bg-canvas px-3",
+		"dark:border-surface/10 dark:bg-ink",
+		"sm:inset-x-3 sm:top-3 sm:h-14 sm:gap-3 sm:rounded-2xl sm:border sm:border-ink/10 sm:bg-canvas/80 sm:px-4 sm:shadow-lg sm:shadow-ink/10 sm:backdrop-blur-md sm:backdrop-saturate-150",
+		"dark:sm:border-surface/15 dark:sm:bg-ink/80 dark:sm:shadow-black/30",
+	],
 });
 
 export const brand = cva({
 	base: "flex shrink-0 items-center gap-2 rounded-md font-serif text-xl italic outline-none focus-visible:ring-2 focus-visible:ring-danger/50",
 });
 
-export const navLink = cva({
-	base: "flex shrink-0 items-center justify-center rounded-md p-1.5 text-ink/70 outline-none hover:text-danger focus-visible:ring-2 focus-visible:ring-danger/50 dark:text-surface/70 dark:hover:text-danger",
+/** "Home › current node" indicator, shown at every viewport size. */
+export const wayfinding = cva({
+	base: "flex min-w-0 items-center gap-1.5 truncate border-ink/15 border-l pl-2.5 text-muted text-sm dark:border-surface/15 dark:text-surface/60",
+});
+
+/** An icon-only button in the bar at sm: and up; an icon+label tile inside
+ * the mobile action dock below sm:. Shared by Agenda's trigger. */
+export const dockItem = cva({
+	base: [
+		"flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-ink/70 outline-none",
+		"hover:bg-surface hover:text-danger focus-visible:ring-2 focus-visible:ring-danger/50",
+		"dark:text-surface/70 dark:hover:text-danger",
+		"sm:flex-none sm:flex-row sm:rounded-md sm:p-1.5",
+	],
+});
+
+/** Wraps Agenda/QuickOpen/UserMenu. A fixed, floating bottom dock below
+ * sm:; reverts to a plain right-aligned inline group at sm: and up. */
+export const actionsDock = cva({
+	base: [
+		"fixed inset-x-3 bottom-3 z-20 flex items-stretch justify-around gap-1 rounded-2xl border border-ink/10 bg-canvas/90 p-1 shadow-lg shadow-ink/10 backdrop-blur-md backdrop-saturate-150",
+		"dark:border-surface/15 dark:bg-ink/90 dark:shadow-black/30",
+		"sm:static sm:inset-auto sm:ml-auto sm:flex sm:shrink-0 sm:items-center sm:justify-end sm:gap-1 sm:rounded-none sm:border-none sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-none",
+	],
 });

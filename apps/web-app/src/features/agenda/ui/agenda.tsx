@@ -8,7 +8,7 @@ import {
 import { CalendarIcon, XIcon } from "@phosphor-icons/react/ssr";
 import { Suspense, useId, useState } from "react";
 import { m } from "#/paraglide/messages.js";
-import { navLink } from "@/app/app-header.styles";
+import { dockItem } from "@/app/app-header.styles";
 import { AgendaPanelContent } from "./agenda-panel-content";
 
 export function Agenda() {
@@ -18,8 +18,14 @@ export function Agenda() {
 
 	return (
 		<Dialog.Root open={open} onOpenChange={setOpen}>
-			<Dialog.Trigger aria-label={m.header_agenda_link()} className={navLink()}>
-				<CalendarIcon size={20} weight="bold" />
+			<Dialog.Trigger
+				aria-label={m.header_agenda_link()}
+				className={dockItem()}
+			>
+				<CalendarIcon size={19} weight="bold" />
+				<span className="text-[11px] font-semibold leading-none sm:hidden">
+					{m.header_agenda_link()}
+				</span>
 			</Dialog.Trigger>
 			<Dialog.Portal>
 				<Dialog.Backdrop className={dialogBackdropMotion()} />
