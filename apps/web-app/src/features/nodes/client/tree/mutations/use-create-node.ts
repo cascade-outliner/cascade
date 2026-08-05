@@ -11,6 +11,7 @@ import { client } from "@/orpc/client";
 import { makeSetRows } from "../cache-helpers";
 import type { VisibleTreeData } from "../tree-data.types";
 import { makeRawDeleteRestore } from "./delete-restore";
+import { recordMutationReconciliation } from "./mutation-reconciliation-perf";
 
 /**
  * Owns both "append as last child of root" (`add`) and "insert after a
@@ -69,6 +70,7 @@ export function useCreateMutation(
 			toast.error(m.node_create_failed());
 			return null;
 		}
+		const responseAt = performance.now();
 
 		const row = {
 			id: created.id,
@@ -86,6 +88,7 @@ export function useCreateMutation(
 		await queryClient.cancelQueries({ queryKey });
 		markRowEntering(row.id);
 		setRows((currentRows) => [...currentRows, row]);
+		recordMutationReconciliation("create", responseAt);
 		pushCreateUndo(row, { position: "append", parentId: rootId });
 		return created.id;
 	};
@@ -110,6 +113,7 @@ export function useCreateMutation(
 			toast.error(m.node_create_failed());
 			return null;
 		}
+		const responseAt = performance.now();
 		const row = {
 			id: created.id,
 			parentId: created.parentId,
@@ -126,6 +130,7 @@ export function useCreateMutation(
 		await queryClient.cancelQueries({ queryKey });
 		markRowEntering(row.id);
 		setRows((currentRows) => [...currentRows, row]);
+		recordMutationReconciliation("create", responseAt);
 		pushCreateUndo(row, {
 			position: "after",
 			targetId: afterId,

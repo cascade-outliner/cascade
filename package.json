@@ -36,6 +36,7 @@
     "perf:mutate:app": "pnpm --filter app perf:mutate",
     "perf:filter:app": "pnpm --filter app perf:filter",
     "perf:workflow:app": "pnpm --filter app perf:workflow",
+    "perf:reconcile:app": "pnpm --filter app perf:reconcile",
     "perf:report:app": "pnpm --filter app perf:report",
     "------": "--------------------------",
     "dev:web": "pnpm --filter web dev",

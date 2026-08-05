@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-05
+- [chore] Added a perf benchmark (`pnpm perf:reconcile:app`, `mutation-reconciliation.spec.ts`) that measures TanStack Query's mutation-reconciliation cost — server response landing to committed UI — the one perf dimension the project's harness previously left unmeasured. [#597](https://github.com/cascade-outliner/cascade/issues/597)
+
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
