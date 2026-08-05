@@ -1,4 +1,7 @@
-import { buildVisibleTree } from "@cascade/outliner/build-visible-tree";
+import {
+	buildChildrenIndex,
+	walkVisibleTree,
+} from "@cascade/outliner/build-visible-tree";
 import type { VisibleTree } from "@cascade/outliner/tree-types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -25,9 +28,9 @@ export { visibleTreeOptions } from "./visible-tree-query";
  * plus every mutation hook under `./mutations` that patches it. Each
  * mutation hook owns its own optimistic patch/reconcile logic against the
  * shared raw `queryKey`; this hook derives the depth-first `rows` a given
- * view (main tree, node-detail subtree) actually renders via
- * `buildVisibleTree`, and assembles the mutations into the `VisibleTree`
- * shape consumers use.
+ * view (main tree, node-detail subtree) actually renders by walking a
+ * `childrenByParent` index, and assembles the mutations into the
+ * `VisibleTree` shape consumers use.
  */
 export function useVisibleTree(
 	rootId: string | null,
@@ -35,12 +38,21 @@ export function useVisibleTree(
 ): VisibleTree {
 	const options = visibleTreeOptions();
 	const { data } = useSuspenseQuery(options);
+	// The index only depends on `data.rows`, and `walkVisibleTree` sorts each
+	// sibling group lazily — so memoizing it apart from `rootId` means
+	// switching which node is focused (e.g. clicking a node's focus dot)
+	// only sorts the clicked subtree's own groups instead of re-sorting the
+	// user's entire tree on every navigation.
+	const childrenIndex = useMemo(
+		() => buildChildrenIndex(data.rows),
+		[data.rows],
+	);
 	const rows = useMemo(
 		() =>
-			buildVisibleTree(data.rows, rootId, {
+			walkVisibleTree(childrenIndex, rootId, {
 				includeCollapsed: includeCollapsedDescendants,
 			}),
-		[data.rows, rootId, includeCollapsedDescendants],
+		[childrenIndex, rootId, includeCollapsedDescendants],
 	);
 
 	const toggle = useToggleMutation(options.queryKey);
