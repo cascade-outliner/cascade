@@ -40,12 +40,40 @@
 	line-height: 1.5;
 }
 
-.driver-popover-arrow {
-	border-color: white;
+/*
+ * driver.js draws the arrow as a 4-sided border where 3 sides are made
+ * transparent by a `.driver-popover-arrow-side-*` class (left/right/top/
+ * bottom), leaving one visible triangle. Overriding `.driver-popover-arrow`
+ * with the `border-color` shorthand would set all 4 sides again — same
+ * specificity as those side selectors, later in the cascade, so it'd win
+ * and undo the transparency, turning the triangle into a square. Matching
+ * the same per-side selectors and touching only the one visible longhand
+ * keeps the other 3 sides transparent as driver.css set them.
+ */
+.driver-popover-arrow-side-left {
+	border-left-color: white;
+}
+.driver-popover-arrow-side-right {
+	border-right-color: white;
+}
+.driver-popover-arrow-side-top {
+	border-top-color: white;
+}
+.driver-popover-arrow-side-bottom {
+	border-bottom-color: white;
 }
 
-:where(.dark, .dark *) .driver-popover-arrow {
-	border-color: var(--color-ink);
+:where(.dark, .dark *) .driver-popover-arrow-side-left {
+	border-left-color: var(--color-ink);
+}
+:where(.dark, .dark *) .driver-popover-arrow-side-right {
+	border-right-color: var(--color-ink);
+}
+:where(.dark, .dark *) .driver-popover-arrow-side-top {
+	border-top-color: var(--color-ink);
+}
+:where(.dark, .dark *) .driver-popover-arrow-side-bottom {
+	border-bottom-color: var(--color-ink);
 }
 
 .driver-popover-close-btn {
