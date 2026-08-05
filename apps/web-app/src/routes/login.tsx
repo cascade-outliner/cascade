@@ -2,14 +2,23 @@ import { authClient } from "@cascade/auth/client";
 import { Button } from "@cascade/ui/button";
 import { Input } from "@cascade/ui/input";
 import { ArrowRightIcon } from "@phosphor-icons/react";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { m } from "#/paraglide/messages.js";
+import { authErrorMessage } from "@/features/auth/model/auth-error-message";
+import {
+	validateEmail,
+	validateRequiredPassword,
+} from "@/features/auth/model/field-validators";
 import { oauthErrorMessage } from "@/features/auth/model/oauth-error-message";
 import { getSession } from "@/features/auth/server/get-session";
+import { getEnabledSocialProviders } from "@/features/auth/server/social-providers";
 import { AuthPageLayout } from "@/features/auth/ui/auth-page-layout";
 import { AuthSubmitError } from "@/features/auth/ui/auth-submit-error";
+import { FieldError } from "@/features/auth/ui/field-error";
+import { PasswordInput } from "@/features/auth/ui/password-input";
 import { SocialSignInButtons } from "@/features/auth/ui/social-sign-in-buttons";
 
 export const Route = createFileRoute("/login")({
@@ -18,37 +27,37 @@ export const Route = createFileRoute("/login")({
 		const session = await getSession();
 		if (session) throw redirect({ to: "/" });
 	},
+	loader: () => getEnabledSocialProviders(),
 	component: Login,
 });
 
 function Login() {
 	const { error: oauthError } = Route.useSearch();
-	const [error, setError] = useState<string | null>(
+	const socialProviders = Route.useLoaderData();
+	const [submitError, setSubmitError] = useState<string | null>(
 		oauthErrorMessage(oauthError),
 	);
-	const [submitting, setSubmitting] = useState(false);
 
-	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-		event.preventDefault();
-		const form = new FormData(event.currentTarget);
-		setError(null);
-		setSubmitting(true);
-
-		const { error: signInError } = await authClient.signIn.email({
-			email: String(form.get("email")),
-			password: String(form.get("password")),
-		});
-		if (signInError) {
-			setSubmitting(false);
-			setError(signInError.message ?? m.login_error_fallback());
-			return;
-		}
-		window.location.href = "/";
-	}
+	const form = useForm({
+		defaultValues: { email: "", password: "" },
+		onSubmit: async ({ value }) => {
+			setSubmitError(null);
+			const { error } = await authClient.signIn.email({
+				email: value.email,
+				password: value.password,
+			});
+			if (error) {
+				setSubmitError(authErrorMessage(error));
+				return;
+			}
+			window.location.href = "/";
+		},
+	});
 
 	return (
 		<AuthPageLayout
 			heading={m.login_heading()}
+			subheading={m.login_subheading()}
 			footer={
 				<>
 					{m.login_no_account()}
@@ -58,35 +67,85 @@ function Login() {
 				</>
 			}
 		>
-			<SocialSignInButtons errorPath={Route.fullPath} />
+			<SocialSignInButtons
+				errorPath={Route.fullPath}
+				googleEnabled={socialProviders.google}
+			/>
 			<form
 				method="post"
-				onSubmit={handleSubmit}
+				onSubmit={(event) => {
+					event.preventDefault();
+					form.handleSubmit();
+				}}
 				className="rr-block flex flex-col gap-4"
+				noValidate
 			>
-				<Input
-					label={m.login_email_label()}
+				<form.Field
 					name="email"
-					type="email"
-					autoComplete="email"
-					required
-				/>
-				<Input
-					label={m.login_password_label()}
-					name="password"
-					type="password"
-					autoComplete="current-password"
-					required
-				/>
-				<AuthSubmitError message={error} />
-				<Button
-					type="submit"
-					disabled={submitting}
-					className="mt-2 self-center"
-					icon={<ArrowRightIcon className="size-4" weight="bold" />}
+					validators={{
+						onChange: ({ value }) => validateEmail(value),
+						onBlur: ({ value }) => validateEmail(value),
+					}}
 				>
-					{m.login_submit()}
-				</Button>
+					{(field) => (
+						<Input
+							label={m.login_email_label()}
+							name={field.name}
+							type="email"
+							autoComplete="email"
+							value={field.state.value}
+							onChange={(event) => field.handleChange(event.target.value)}
+							onBlur={field.handleBlur}
+							aria-invalid={
+								field.state.meta.isTouched && field.state.meta.errors.length > 0
+							}
+							hint={
+								field.state.meta.isTouched ? (
+									<FieldError message={field.state.meta.errors[0]} />
+								) : undefined
+							}
+						/>
+					)}
+				</form.Field>
+				<form.Field
+					name="password"
+					validators={{
+						onChange: ({ value }) => validateRequiredPassword(value),
+						onBlur: ({ value }) => validateRequiredPassword(value),
+					}}
+				>
+					{(field) => (
+						<PasswordInput
+							label={m.login_password_label()}
+							name={field.name}
+							autoComplete="current-password"
+							value={field.state.value}
+							onChange={(event) => field.handleChange(event.target.value)}
+							onBlur={field.handleBlur}
+							aria-invalid={
+								field.state.meta.isTouched && field.state.meta.errors.length > 0
+							}
+							hint={
+								field.state.meta.isTouched ? (
+									<FieldError message={field.state.meta.errors[0]} />
+								) : undefined
+							}
+						/>
+					)}
+				</form.Field>
+				<AuthSubmitError message={submitError} />
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<Button
+							type="submit"
+							disabled={isSubmitting}
+							className="mt-2 self-center"
+							icon={<ArrowRightIcon className="size-4" weight="bold" />}
+						>
+							{m.login_submit()}
+						</Button>
+					)}
+				</form.Subscribe>
 			</form>
 		</AuthPageLayout>
 	);
