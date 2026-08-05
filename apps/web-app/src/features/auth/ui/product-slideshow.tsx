@@ -19,6 +19,12 @@ function useSlides(): Slide[] {
 			body: m.auth_showcase_tree_body(),
 		},
 		{
+			src: "/auth/product-icons.webp",
+			alt: m.auth_showcase_icons_alt(),
+			heading: m.auth_showcase_icons_heading(),
+			body: m.auth_showcase_icons_body(),
+		},
+		{
 			src: "/auth/product-filters.webp",
 			alt: m.auth_showcase_filters_alt(),
 			heading: m.auth_showcase_filters_heading(),
@@ -34,6 +40,7 @@ function useSlides(): Slide[] {
 }
 
 const AUTO_ADVANCE_MS = 5000;
+const SWIPE_THRESHOLD_PX = 40;
 
 export function ProductSlideshow() {
 	const slides = useSlides();
@@ -41,6 +48,7 @@ export function ProductSlideshow() {
 	const [paused, setPaused] = useState(false);
 	const reducedMotion = usePrefersReducedMotion();
 	const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+	const swipeStartXRef = useRef<number | null>(null);
 
 	// `index` is an intentional extra dependency: a manual dot click should
 	// restart the auto-advance countdown, not just let the pending one fire.
@@ -56,6 +64,24 @@ export function ProductSlideshow() {
 	const slide = slides[index];
 	if (!slide) return null;
 
+	function goTo(delta: 1 | -1) {
+		setIndex((current) => (current + delta + slides.length) % slides.length);
+	}
+
+	function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+		if (event.pointerType === "mouse") return;
+		swipeStartXRef.current = event.clientX;
+	}
+
+	function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+		const startX = swipeStartXRef.current;
+		swipeStartXRef.current = null;
+		if (startX === null) return;
+		const delta = event.clientX - startX;
+		if (Math.abs(delta) < SWIPE_THRESHOLD_PX) return;
+		goTo(delta < 0 ? 1 : -1);
+	}
+
 	return (
 		<section
 			aria-label={m.auth_showcase_region_label()}
@@ -65,7 +91,14 @@ export function ProductSlideshow() {
 			onFocus={() => setPaused(true)}
 			onBlur={() => setPaused(false)}
 		>
-			<div className="relative">
+			<div
+				className="relative touch-pan-y select-none"
+				onPointerDown={handlePointerDown}
+				onPointerUp={handlePointerUp}
+				onPointerCancel={() => {
+					swipeStartXRef.current = null;
+				}}
+			>
 				{slides.map((item, itemIndex) => (
 					<div
 						key={item.src}

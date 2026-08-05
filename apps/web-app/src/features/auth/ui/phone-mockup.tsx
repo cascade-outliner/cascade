@@ -15,9 +15,6 @@ export function PhoneMockup({ src, alt }: PhoneMockupProps) {
 						loading="eager"
 					/>
 				</div>
-				<div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center pt-2">
-					<div className="h-5 w-24 rounded-full bg-ink" />
-				</div>
 			</div>
 		</div>
 	);
