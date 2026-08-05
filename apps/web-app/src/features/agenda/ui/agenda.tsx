@@ -6,18 +6,43 @@ import {
 	dialogPopupMotion,
 } from "@cascade/ui/dialog-motion";
 import { CalendarIcon, XIcon } from "@phosphor-icons/react/ssr";
-import { Suspense, useId, useState } from "react";
+import { Suspense, useEffect, useId, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import { dockItem } from "@/app/app-header.styles";
+import { useMobileDockLayout } from "@/app/use-mobile-dock-layout";
 import { AgendaPanelContent } from "./agenda-panel-content";
 
-export function Agenda() {
+export function Agenda({
+	isActive,
+	onActiveChange,
+}: {
+	isActive: boolean;
+	onActiveChange: (active: boolean) => void;
+}) {
 	const [open, setOpen] = useState(false);
 	const [hideCompleted, setHideCompleted] = useState(true);
 	const hideCompletedId = useId();
+	const isMobileDock = useMobileDockLayout();
+
+	const handleOpenChange = (next: boolean) => {
+		setOpen(next);
+		onActiveChange(next);
+	};
+
+	// A sibling panel (Quick Open) opened and claimed the dock — close ours.
+	// Deliberately only reacts to `isActive` (the displacement signal), not
+	// to `open`/`handleOpenChange`, which we set ourselves.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: see above
+	useEffect(() => {
+		if (!isActive && open) handleOpenChange(false);
+	}, [isActive]);
 
 	return (
-		<Dialog.Root open={open} onOpenChange={setOpen}>
+		<Dialog.Root
+			open={open}
+			onOpenChange={handleOpenChange}
+			modal={!isMobileDock}
+		>
 			<Dialog.Trigger
 				aria-label={m.header_agenda_link()}
 				className={dockItem()}
@@ -30,7 +55,7 @@ export function Agenda() {
 			<Dialog.Portal>
 				<Dialog.Backdrop className={dialogBackdropMotion()} />
 				<Dialog.Popup
-					className={`fixed inset-3 z-50 flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white text-ink shadow-lg shadow-ink/10 outline-none dark:border-surface/15 dark:bg-ink dark:text-surface dark:shadow-black/30 sm:inset-y-0 sm:inset-x-auto sm:right-0 sm:w-full sm:max-w-md sm:rounded-none sm:border-0 sm:shadow-2xl sm:dark:border-0 ${dialogPopupMotion({ variant: "drawer-right" })}`}
+					className={`fixed inset-x-3 top-3 bottom-24 z-50 flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white text-ink shadow-lg shadow-ink/10 outline-none dark:border-surface/15 dark:bg-ink dark:text-surface dark:shadow-black/30 sm:inset-y-0 sm:inset-x-auto sm:right-0 sm:w-full sm:max-w-md sm:rounded-none sm:border-0 sm:shadow-2xl sm:dark:border-0 ${dialogPopupMotion({ variant: "drawer-right" })}`}
 				>
 					<header className="flex items-center justify-between gap-4 border-ink/10 border-b px-5 py-4 dark:border-surface/15">
 						<Dialog.Title className="font-serif text-xl italic">
@@ -63,7 +88,7 @@ export function Agenda() {
 						<Suspense fallback={<TreeSkeleton />}>
 							<AgendaPanelContent
 								hideCompleted={hideCompleted}
-								onNavigate={() => setOpen(false)}
+								onNavigate={() => handleOpenChange(false)}
 							/>
 						</Suspense>
 					</div>

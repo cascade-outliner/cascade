@@ -9,7 +9,9 @@ import {
 	MagnifyingGlassIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
+import { useEffect } from "react";
 import { m } from "#/paraglide/messages.js";
+import { useMobileDockLayout } from "@/app/use-mobile-dock-layout";
 import { KeyboardShortcutKeys } from "@/features/keyboard-shortcuts/ui/keyboard-shortcut-keys";
 import { useQuickOpen } from "@/features/quick-open/client/use-quick-open";
 import {
@@ -33,11 +35,36 @@ const resultClassName = (isActive: boolean) =>
 		isActive ? "bg-ink/5 dark:bg-surface/10" : "",
 	].join(" ");
 
-export function QuickOpen() {
+export function QuickOpen({
+	isActive,
+	onActiveChange,
+}: {
+	isActive: boolean;
+	onActiveChange: (active: boolean) => void;
+}) {
 	const quickOpen = useQuickOpen();
+	const isMobileDock = useMobileDockLayout();
+
+	// Report our own open state up (covers self-triggered opens/closes as
+	// well as Escape/backdrop dismissal via useQuickOpen's own state).
+	useEffect(() => {
+		onActiveChange(quickOpen.open);
+	}, [quickOpen.open, onActiveChange]);
+
+	// A sibling panel (Agenda) opened and claimed the dock — close ours.
+	// Deliberately only reacts to `isActive` (the displacement signal), not
+	// to `quickOpen.open`, which we set ourselves.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: see above
+	useEffect(() => {
+		if (!isActive && quickOpen.open) quickOpen.onOpenChange(false);
+	}, [isActive]);
 
 	return (
-		<Dialog.Root open={quickOpen.open} onOpenChange={quickOpen.onOpenChange}>
+		<Dialog.Root
+			open={quickOpen.open}
+			onOpenChange={quickOpen.onOpenChange}
+			modal={!isMobileDock}
+		>
 			<Dialog.Trigger
 				className={triggerClassName}
 				aria-label={m.quick_open_trigger()}
@@ -55,7 +82,7 @@ export function QuickOpen() {
 				<Dialog.Backdrop className={dialogBackdropMotion()} />
 				<Dialog.Popup
 					initialFocus={quickOpen.inputRef}
-					className={`fixed top-[min(18vh,9rem)] left-1/2 z-50 flex max-h-[min(620px,calc(100vh-1rem))] w-[min(680px,calc(100vw-1.5rem))] -translate-x-1/2 origin-top flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface ${dialogPopupMotion()}`}
+					className={`fixed inset-x-3 top-3 bottom-24 z-50 flex origin-top flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface sm:inset-x-auto sm:top-[min(18vh,9rem)] sm:bottom-auto sm:left-1/2 sm:max-h-[min(620px,calc(100vh-1.5rem))] sm:w-[min(680px,calc(100vw-1.5rem))] sm:-translate-x-1/2 ${dialogPopupMotion()}`}
 				>
 					<Dialog.Title className="sr-only">
 						{m.quick_open_title()}
@@ -93,7 +120,7 @@ export function QuickOpen() {
 						</Dialog.Close>
 					</div>
 
-					<div className="min-h-32 overflow-auto p-2">
+					<div className="min-h-32 flex-1 overflow-auto p-2">
 						{!quickOpen.canSearch ? (
 							<p className="px-3 py-8 text-center text-ink/55 text-sm dark:text-surface/55">
 								{m.quick_open_hint()}
