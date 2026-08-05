@@ -55,7 +55,7 @@ export function QuickOpen() {
 				<Dialog.Backdrop className={dialogBackdropMotion()} />
 				<Dialog.Popup
 					initialFocus={quickOpen.inputRef}
-					className={`fixed top-[min(18vh,9rem)] left-1/2 z-50 flex max-h-[min(620px,calc(100vh-1rem))] w-[min(680px,calc(100vw-1rem))] -translate-x-1/2 origin-top flex-col overflow-hidden rounded-xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface ${dialogPopupMotion()}`}
+					className={`fixed top-[min(18vh,9rem)] left-1/2 z-50 flex max-h-[min(620px,calc(100vh-1rem))] w-[min(680px,calc(100vw-1.5rem))] -translate-x-1/2 origin-top flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white text-ink shadow-2xl outline-none dark:border-surface/15 dark:bg-ink dark:text-surface ${dialogPopupMotion()}`}
 				>
 					<Dialog.Title className="sr-only">
 						{m.quick_open_title()}

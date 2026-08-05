@@ -30,7 +30,7 @@ export function Agenda() {
 			<Dialog.Portal>
 				<Dialog.Backdrop className={dialogBackdropMotion()} />
 				<Dialog.Popup
-					className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-hidden bg-white text-ink shadow-2xl outline-none dark:bg-ink dark:text-surface ${dialogPopupMotion({ variant: "drawer-right" })}`}
+					className={`fixed inset-3 z-50 flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white text-ink shadow-lg shadow-ink/10 outline-none dark:border-surface/15 dark:bg-ink dark:text-surface dark:shadow-black/30 sm:inset-y-0 sm:inset-x-auto sm:right-0 sm:w-full sm:max-w-md sm:rounded-none sm:border-0 sm:shadow-2xl sm:dark:border-0 ${dialogPopupMotion({ variant: "drawer-right" })}`}
 				>
 					<header className="flex items-center justify-between gap-4 border-ink/10 border-b px-5 py-4 dark:border-surface/15">
 						<Dialog.Title className="font-serif text-xl italic">
