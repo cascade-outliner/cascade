@@ -15,9 +15,26 @@ import type { SettingsPatch } from "@/features/settings/model/settings.schema";
 import { orpc } from "@/orpc/client";
 import { Route as NodeSlugRoute } from "./$nodeSlug";
 
+// Session checks go through the query client (with a staleTime) rather than
+// a bare `getSession()` call, because `beforeLoad` isn't subject to a
+// route's `staleTime` option the way `loader` is — it re-runs on every
+// single in-app navigation, including between sibling routes that stay
+// under this same authed layout (e.g. clicking a node's focus dot). Without
+// this cache, every one of those navigations paid for a real network round
+// trip before it could even start rendering, gated by pendingMs/pendingMinMs
+// below. A revoked session still gets caught within this window, or the
+// moment an API call itself returns unauthorized.
+function sessionOptions() {
+	return {
+		queryKey: ["session"],
+		queryFn: () => getSession(),
+		staleTime: 60_000,
+	};
+}
+
 export const Route = createFileRoute("/_authed")({
-	beforeLoad: async () => {
-		const session = await getSession();
+	beforeLoad: async ({ context: { queryClient } }) => {
+		const session = await queryClient.ensureQueryData(sessionOptions());
 		if (!session) {
 			throw redirect({ to: "/login" });
 		}
@@ -32,6 +49,9 @@ export const Route = createFileRoute("/_authed")({
 			.catch((): PremiumStatus => ({ isPremium: false, grantedAt: null }));
 		return { settings, premium };
 	},
+	// The router's default staleTime (0) would otherwise also re-run this
+	// loader's settings/premium fetch on every in-app navigation.
+	staleTime: 5 * 60 * 1000,
 	pendingComponent: CascadeLoader,
 	pendingMs: 0,
 	pendingMinMs: 200,
