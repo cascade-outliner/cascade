@@ -29,6 +29,8 @@ export interface Settings {
 	indentSize: number;
 	hideCompletedByDefault: boolean;
 	preAlphaBannerDismissed: boolean;
+	/** Whether the first-run onboarding tour has been dismissed or completed. */
+	onboardingCompleted: boolean;
 }
 
 /** A partial settings object: unknown keys are stripped, values validated. */
@@ -42,6 +44,7 @@ export const settingsPatchSchema = z
 		indentSize: z.number().int().min(MIN_INDENT_SIZE).max(MAX_INDENT_SIZE),
 		hideCompletedByDefault: z.boolean(),
 		preAlphaBannerDismissed: z.boolean(),
+		onboardingCompleted: z.boolean(),
 	})
 	.partial();
 

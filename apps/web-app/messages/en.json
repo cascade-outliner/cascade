@@ -377,5 +377,21 @@
 	"keyboard_shortcuts_indent": "Indent, making it a child of the node above",
 	"keyboard_shortcuts_outdent": "Outdent, moving it up a level",
 	"keyboard_shortcuts_move_up": "Move the node up among its siblings",
-	"keyboard_shortcuts_move_down": "Move the node down among its siblings"
+	"keyboard_shortcuts_move_down": "Move the node down among its siblings",
+	"onboarding_tour_welcome_title": "Welcome to Cascade 👋",
+	"onboarding_tour_welcome_description": "This outline has a few example nodes ready to explore. Want a 30-second tour of the basics first?",
+	"onboarding_tour_add_node_title": "Create nodes",
+	"onboarding_tour_add_node_description": "Press Enter at the end of a node to add a new one below it, or click this button.",
+	"onboarding_tour_filters_title": "Filter by tag or due date",
+	"onboarding_tour_filters_description": "Narrow the outline down to tagged nodes, tasks due today, or hide completed tasks.",
+	"onboarding_tour_quick_open_title": "Quick Open",
+	"onboarding_tour_quick_open_description": "Press Cmd/Ctrl+K anytime to jump straight to any node by name.",
+	"onboarding_tour_user_menu_title": "Settings and shortcuts",
+	"onboarding_tour_user_menu_description": "Your profile menu has appearance settings, tree history, and account options. Press ? anytime for the full keyboard shortcuts reference.",
+	"onboarding_tour_next": "Next",
+	"onboarding_tour_previous": "Back",
+	"onboarding_tour_done": "Done",
+	"settings_replay_tour_title": "Onboarding tour",
+	"settings_replay_tour_description": "Show the guided tour of core features again.",
+	"settings_replay_tour_button": "Restart tour"
 }

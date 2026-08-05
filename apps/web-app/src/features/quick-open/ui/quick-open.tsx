@@ -40,6 +40,7 @@ export function QuickOpen() {
 			<Dialog.Trigger
 				className={triggerClassName}
 				aria-label={m.quick_open_trigger()}
+				data-onboarding="quick-open-trigger"
 			>
 				<MagnifyingGlassIcon size={16} weight="bold" />
 				<span className="hidden sm:inline">{m.quick_open_trigger()}</span>

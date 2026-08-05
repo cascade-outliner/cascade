@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-08-05
+- [feat] New accounts now get a small example outline and a first-run guided tour (via [driver.js](https://driverjs.com)) spotlighting node creation, indenting, filters, Quick Open, and the keyboard shortcuts reference. It's shown once, is dismissible, and can be replayed anytime from Settings → General. [#622](https://github.com/cascade-outliner/cascade/issues/622)
 - [feat] Settings now has a "Your data" section to download a full JSON export of your account data (nodes, tags, due dates, tree history, and settings), and account deletion is gated behind typing your email address to confirm. [#598](https://github.com/cascade-outliner/cascade/issues/598)
 
 ## 2026-08-01

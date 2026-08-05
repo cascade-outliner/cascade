@@ -1,3 +1,4 @@
+import { Button } from "@cascade/ui/button";
 import { Checkbox } from "@cascade/ui/checkbox";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { m } from "#/paraglide/messages.js";
@@ -11,11 +12,13 @@ import {
 interface GeneralSettingsPanelProps {
 	settings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+	onReplayTour: () => void;
 }
 
 export function GeneralSettingsPanel({
 	settings,
 	setSetting,
+	onReplayTour,
 }: GeneralSettingsPanelProps) {
 	const [, setCompletedOverride] = useQueryState(
 		"completed",
@@ -40,6 +43,13 @@ export function GeneralSettingsPanel({
 							void setCompletedOverride(null);
 						}}
 					/>
+				</SettingsRow>
+			</SettingsSection>
+			<SettingsSection title={m.settings_replay_tour_title()}>
+				<SettingsRow title={m.settings_replay_tour_description()}>
+					<Button size="sm" variant="dark" onClick={onReplayTour}>
+						{m.settings_replay_tour_button()}
+					</Button>
 				</SettingsRow>
 			</SettingsSection>
 		</>

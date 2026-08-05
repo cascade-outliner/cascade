@@ -115,6 +115,10 @@ export function UserSettingsDialogView({
 								isPremium={isPremium}
 								onSignOut={onSignOut}
 								onOpenDeleteDialog={onOpenDeleteDialog}
+								onReplayTour={() => {
+									setSetting("onboardingCompleted", false);
+									onOpenChange(false);
+								}}
 							/>
 						</div>
 					</Tabs.Root>

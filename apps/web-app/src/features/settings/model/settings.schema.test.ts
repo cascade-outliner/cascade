@@ -33,6 +33,7 @@ describe("settingsPatchSchema", () => {
 			indentSize: 24,
 			hideCompletedByDefault: true,
 			preAlphaBannerDismissed: true,
+			onboardingCompleted: true,
 		};
 		expect(settingsPatchSchema.parse(full)).toEqual(full);
 	});

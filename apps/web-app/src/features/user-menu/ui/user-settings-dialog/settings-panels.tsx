@@ -49,6 +49,7 @@ interface SettingsPanelsProps {
 	isPremium: boolean | undefined;
 	onSignOut: () => void;
 	onOpenDeleteDialog: () => void;
+	onReplayTour: () => void;
 }
 
 export function SettingsPanels({
@@ -59,6 +60,7 @@ export function SettingsPanels({
 	isPremium,
 	onSignOut,
 	onOpenDeleteDialog,
+	onReplayTour,
 }: SettingsPanelsProps) {
 	return (
 		<div className="relative min-h-0 flex-1">
@@ -67,7 +69,11 @@ export function SettingsPanels({
 				heading={m.user_menu_general_tab()}
 				visited={visitedTabs.has("general")}
 			>
-				<GeneralSettingsPanel settings={settings} setSetting={setSetting} />
+				<GeneralSettingsPanel
+					settings={settings}
+					setSetting={setSetting}
+					onReplayTour={onReplayTour}
+				/>
 			</SettingsTabPanel>
 			<SettingsTabPanel
 				value="appearance"
