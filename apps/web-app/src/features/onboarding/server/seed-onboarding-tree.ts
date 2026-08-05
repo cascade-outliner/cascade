@@ -78,6 +78,11 @@ function childDefs(): WelcomeNodeDef[] {
 			),
 		},
 		{
+			content: paragraph(
+				"See the small dot to the left of this node? Click it to open this node on its own page — the outline narrows down to just this node and its children.",
+			),
+		},
+		{
 			content: paragraph("This is a task — click the checkbox to complete it."),
 			type: "task",
 		},
