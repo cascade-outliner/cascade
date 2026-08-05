@@ -1,5 +1,6 @@
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import "./onboarding-tour.css";
 import { useEffect, useRef } from "react";
 import { m } from "#/paraglide/messages.js";
 import { useSettings } from "@/features/settings/client/settings-context";
