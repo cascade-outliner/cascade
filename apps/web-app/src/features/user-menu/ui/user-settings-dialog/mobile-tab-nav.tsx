@@ -25,7 +25,7 @@ export function MobileTabNav({
 		>
 			{tabGroups.map((group) => (
 				<section key={group.label()} className="mb-6 last:mb-0">
-					<h2 className="mb-2 px-1 text-xs font-semibold tracking-wider text-ink/45 uppercase dark:text-surface/45">
+					<h2 className="mb-2 px-1 text-xs font-semibold tracking-wider text-ink/70 uppercase dark:text-surface/45">
 						{group.label()}
 					</h2>
 					<div className="overflow-hidden rounded-xl border border-ink/10 bg-white dark:border-surface/15 dark:bg-surface/5">

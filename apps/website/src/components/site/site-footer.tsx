@@ -37,6 +37,7 @@ export function SiteFooter() {
 						{m.footer_terms()}
 					</Link>
 					<LanguageSwitcher
+						aria-label={m.footer_language()}
 						locales={locales}
 						currentLocale={getLocale()}
 						onSelect={(locale) => setLocale(locale as Locale)}

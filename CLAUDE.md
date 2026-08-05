@@ -33,6 +33,7 @@ pnpm build:web
 pnpm test:app           # vitest run (apps/web-app)
 pnpm test:web           # vitest run (apps/website)
 pnpm test:e2e:app       # Playwright e2e suite (apps/web-app only, see below)
+pnpm test:a11y:app      # axe-core accessibility scan (apps/web-app only, see below)
 
 pnpm check              # biome check (lint + format), the CI gate
 pnpm lint               # biome lint only
@@ -62,6 +63,10 @@ Requires Node 22+, pnpm, and Postgres (`docker compose up -d` starts one on `:54
 ### End-to-end tests
 
 `apps/web-app/e2e` is a Playwright suite. It needs a running database and builds+starts the app itself (no dev server needs to be running first). It authenticates once (`e2e/auth.setup.ts`, creating/reusing a dedicated `e2e@cascadelist.com` user) and reuses that session across tests; each test gets its own throwaway node via the real oRPC API (`e2e/support/fixtures.ts`'s `scratchNode` fixture) so tests never touch dev seed data and can run in parallel.
+
+### Accessibility testing
+
+`apps/web-app/e2e/a11y.spec.ts` (see issue #595) runs axe-core (`@axe-core/playwright`) scans against WCAG 2.0/2.1 A/AA rules over the main tree view and the Settings dialog (desktop sidebar layout and the mobile full-screen panel layout, at a narrow viewport). It shares `playwright.config.ts` and the same authenticated session as the rest of `apps/web-app/e2e` — `pnpm test:a11y:app` just narrows `playwright test` to that one file — rather than a separate project, since it needs the same running app/database and doesn't need a differently-shaped harness the way the perf suite does. Each scan's helper (`e2e/support/a11y.ts`'s `runA11yScan`) records a JSON summary under `apps/web-app/a11y-results/` (gitignored) and fails the test if any `critical`/`serious` violation is found; `moderate`/`minor` findings are recorded but non-blocking. Scans run with `page.emulateMedia({ reducedMotion: "reduce" })` (`test.beforeEach` in the spec) so a scan landing mid-transition — e.g. the Settings dialog's panel-swap animation — can't misreport a transient, still-animating opacity as a color-contrast violation. `.github/workflows/a11y.yml` runs the suite on PRs touching `apps/web-app`/`packages/outliner`/`packages/ui`/`packages/theme`/`packages/auth`/`packages/http`, fails the job on a critical/serious violation, and either way posts/updates a single PR comment (`e2e/a11y-report.ts`, run via `pnpm a11y:report:app`) summarizing violation counts per scanned page.
 
 ### Performance testing
 

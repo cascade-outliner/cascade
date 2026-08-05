@@ -20,5 +20,6 @@ test-results/
 **/e2e/.auth/
 **/e2e-perf/.auth/
 **/perf-results/
+**/a11y-results/
 **/coverage/
 sitemap.xml

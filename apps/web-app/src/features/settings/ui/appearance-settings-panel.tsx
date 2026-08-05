@@ -115,7 +115,6 @@ export function AppearanceSettingsPanel({
 			>
 				<SettingsRow title={m.user_menu_indent_size()}>
 					<NumberField.Root
-						aria-label={m.user_menu_indent_size()}
 						value={settings.indentSize}
 						min={MIN_INDENT_SIZE}
 						max={MAX_INDENT_SIZE}
@@ -131,7 +130,10 @@ export function AppearanceSettingsPanel({
 							<NumberField.Decrement className={stepperClass}>
 								<MinusIcon size={12} weight="bold" />
 							</NumberField.Decrement>
-							<NumberField.Input className={indentInputClass} />
+							<NumberField.Input
+								aria-label={m.user_menu_indent_size()}
+								className={indentInputClass}
+							/>
 							<NumberField.Increment className={stepperClass}>
 								<PlusIcon size={12} weight="bold" />
 							</NumberField.Increment>
@@ -145,6 +147,7 @@ export function AppearanceSettingsPanel({
 			>
 				<SettingsRow title={m.user_menu_language()}>
 					<LanguageSwitcher
+						aria-label={m.user_menu_language()}
 						locales={locales}
 						currentLocale={getLocale()}
 						onSelect={(locale) => setLocale(locale as Locale)}
