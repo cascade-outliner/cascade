@@ -26,7 +26,7 @@ export function SettingsSection({
 					{title}
 				</h3>
 				{description && (
-					<p className="mt-0.5 text-sm text-ink/55 dark:text-surface/55">
+					<p className="mt-0.5 text-sm text-ink/70 dark:text-surface/55">
 						{description}
 					</p>
 				)}
@@ -60,7 +60,7 @@ export function SettingsRow({
 			<div className="min-w-0">
 				<div className="text-sm font-medium">{title}</div>
 				{description && (
-					<div className="mt-0.5 text-sm text-ink/55 dark:text-surface/55">
+					<div className="mt-0.5 text-sm text-ink/70 dark:text-surface/55">
 						{description}
 					</div>
 				)}
@@ -72,7 +72,7 @@ export function SettingsRow({
 
 export function SettingsPageDescription({ children }: { children: ReactNode }) {
 	return (
-		<p className="max-w-xl text-sm leading-relaxed text-ink/60 dark:text-surface/60">
+		<p className="max-w-xl text-sm leading-relaxed text-ink/70 dark:text-surface/60">
 			{children}
 		</p>
 	);

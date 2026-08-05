@@ -14,6 +14,7 @@
     "test:db": "vitest run --config vitest.db.config.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:a11y": "playwright test e2e/a11y.spec.ts",
     "test:perf:ui": "playwright test --config=playwright.perf.config.ts",
     "start": "node ./src/db/migrate.ts && node ./.output/server/index.mjs",
     "db:generate": "drizzle-kit generate",
@@ -28,7 +29,8 @@
     "perf:mutate": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/mutation-bench.ts",
     "perf:filter": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/filter-bench.ts",
     "perf:workflow": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/workflow-bench.ts",
-    "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/report.ts"
+    "perf:report": "node --env-file-if-exists=.env.local --import tsx/esm ./e2e-perf/report.ts",
+    "a11y:report": "node --import tsx/esm ./e2e/a11y-report.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -76,6 +78,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@faker-js/faker": "^10.5.0",
     "@inlang/plugin-message-format": "4.4.0",
     "@lexical/link": "^0.46.0",

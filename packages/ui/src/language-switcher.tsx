@@ -37,6 +37,13 @@ export interface LanguageSwitcherProps {
 	currentLocale: string;
 	/** Called with the newly selected locale code. */
 	onSelect: (locale: string) => void;
+	/**
+	 * Accessible name for the trigger. `role="combobox"` takes its name from
+	 * the author, not its content, so the visible `Select.Value` text alone
+	 * doesn't give it one — the caller supplies this from its own message
+	 * catalog, same as `@cascade/ui/select.tsx`'s `Select`.
+	 */
+	"aria-label"?: string;
 	className?: string;
 }
 
@@ -50,6 +57,7 @@ export function LanguageSwitcher({
 	locales,
 	currentLocale,
 	onSelect,
+	"aria-label": ariaLabel,
 	className,
 }: LanguageSwitcherProps) {
 	const displayNames = new Intl.DisplayNames([currentLocale], {
@@ -68,8 +76,8 @@ export function LanguageSwitcher({
 				if (value) onSelect(value);
 			}}
 		>
-			<Select.Trigger className={trigger({ className })}>
-				<GlobeIcon size={14} weight="bold" />
+			<Select.Trigger aria-label={ariaLabel} className={trigger({ className })}>
+				<GlobeIcon size={14} weight="bold" aria-hidden="true" />
 				<Select.Value />
 				<Select.Icon>
 					<CaretUpDownIcon size={12} weight="bold" />

@@ -26,7 +26,7 @@ export const menuItem = cva({
 
 export const tabTrigger = cva({
 	base: [
-		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-ink/60 outline-none",
+		"flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-ink/70 outline-none",
 		"transition-colors duration-small-enter",
 		"hover:bg-surface/70 hover:text-ink focus-visible:ring-2 focus-visible:ring-danger/50 data-active:bg-surface data-active:font-medium data-active:text-ink",
 		"dark:text-surface/60 dark:hover:bg-surface/10 dark:hover:text-surface dark:data-active:bg-surface/15 dark:data-active:text-surface",
