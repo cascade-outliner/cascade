@@ -79,7 +79,7 @@ export async function captureSubtree(
 		LEFT JOIN (
 			SELECT nt.node_id, array_agg(tg.name ORDER BY tg.name) AS tags
 			FROM node_tags nt
-			JOIN tags tg ON tg.id = nt.tag_id
+			JOIN tags tg ON tg.id = nt.tag_id AND tg.user_id = ${userId}
 			WHERE nt.node_id IN (SELECT id FROM subtree)
 			GROUP BY nt.node_id
 		) t ON t.node_id = s.id
