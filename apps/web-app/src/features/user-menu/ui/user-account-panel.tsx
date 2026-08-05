@@ -1,6 +1,11 @@
 import { Button } from "@cascade/ui/button";
-import { SignOutIcon, TrashIcon } from "@phosphor-icons/react/ssr";
+import {
+	DownloadSimpleIcon,
+	SignOutIcon,
+	TrashIcon,
+} from "@phosphor-icons/react/ssr";
 import { m } from "#/paraglide/messages.js";
+import { useExportAccountData } from "@/features/account-data/client/use-account-data-export";
 import {
 	SettingsPageDescription,
 	SettingsRow,
@@ -22,6 +27,8 @@ export function UserAccountPanel({
 	onSignOut,
 	onOpenDeleteDialog,
 }: UserAccountPanelProps) {
+	const { exportData, isExporting } = useExportAccountData();
+
 	return (
 		<>
 			<SettingsPageDescription>
@@ -51,6 +58,23 @@ export function UserAccountPanel({
 						icon={<SignOutIcon size={14} weight="bold" />}
 					>
 						{m.user_menu_sign_out()}
+					</Button>
+				</SettingsRow>
+			</SettingsSection>
+			<SettingsSection title={m.settings_data_section()}>
+				<SettingsRow
+					title={m.settings_export_button()}
+					description={m.settings_export_description()}
+				>
+					<Button
+						type="button"
+						size="sm"
+						variant="dark"
+						onClick={exportData}
+						disabled={isExporting}
+						icon={<DownloadSimpleIcon size={14} weight="bold" />}
+					>
+						{isExporting ? m.settings_exporting() : m.settings_export_button()}
 					</Button>
 				</SettingsRow>
 			</SettingsSection>

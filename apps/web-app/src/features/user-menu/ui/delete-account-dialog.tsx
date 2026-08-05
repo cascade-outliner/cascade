@@ -4,6 +4,8 @@ import {
 	dialogBackdropMotion,
 	dialogPopupMotion,
 } from "@cascade/ui/dialog-motion";
+import { Input } from "@cascade/ui/input";
+import { useEffect, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import { alertPopup } from "./user-menu.styles";
 
@@ -12,6 +14,7 @@ export interface DeleteAccountDialogProps {
 	onOpenChange: (open: boolean) => void;
 	onDeleteAccount: () => void;
 	isDeleting: boolean;
+	userEmail: string;
 }
 
 export function DeleteAccountDialog({
@@ -19,7 +22,18 @@ export function DeleteAccountDialog({
 	onOpenChange,
 	onDeleteAccount,
 	isDeleting,
+	userEmail,
 }: DeleteAccountDialogProps) {
+	const [confirmText, setConfirmText] = useState("");
+
+	// Reset the typed confirmation whenever the dialog is (re)opened, so a
+	// prior confirmation can't linger and silently re-arm the delete button.
+	useEffect(() => {
+		if (open) setConfirmText("");
+	}, [open]);
+
+	const isConfirmed = confirmText.trim() === userEmail;
+
 	return (
 		<AlertDialog.Root open={open} onOpenChange={onOpenChange}>
 			<AlertDialog.Portal>
@@ -34,6 +48,21 @@ export function DeleteAccountDialog({
 							{m.user_menu_delete_confirm_warning()}
 						</p>
 					</AlertDialog.Description>
+					<div className="mt-4">
+						<Input
+							label={m.user_menu_delete_confirm_type_label({
+								email: userEmail,
+							})}
+							value={confirmText}
+							onChange={(event) => setConfirmText(event.target.value)}
+							placeholder={userEmail}
+							disabled={isDeleting}
+							autoComplete="off"
+							autoCorrect="off"
+							autoCapitalize="off"
+							spellCheck={false}
+						/>
+					</div>
 					<div className="mt-6 flex justify-end gap-2">
 						<AlertDialog.Close
 							disabled={isDeleting}
@@ -46,7 +75,7 @@ export function DeleteAccountDialog({
 							size="sm"
 							variant="danger"
 							onClick={onDeleteAccount}
-							disabled={isDeleting}
+							disabled={isDeleting || !isConfirmed}
 						>
 							{isDeleting
 								? m.user_menu_deleting()
