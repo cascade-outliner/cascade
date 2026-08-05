@@ -1,4 +1,6 @@
+import { TreeSkeleton } from "@cascade/outliner/tree-skeleton";
 import { createFileRoute } from "@tanstack/react-router";
+import { Suspense } from "react";
 import { GenericErrorComponent } from "#/app/generic-error";
 import { loadNodeDetail, NodeDetailPage } from "#/features/nodes/ui/detail";
 
@@ -10,6 +12,11 @@ export const Route = createFileRoute("/_authed/$nodeSlug")({
 	errorComponent: GenericErrorComponent,
 	component: () => {
 		const { nodeId } = Route.useLoaderData();
-		return <NodeDetailPage nodeId={nodeId} />;
+
+		return (
+			<Suspense fallback={<TreeSkeleton />}>
+				<NodeDetailPage nodeId={nodeId} />
+			</Suspense>
+		);
 	},
 });

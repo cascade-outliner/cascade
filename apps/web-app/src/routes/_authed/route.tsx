@@ -8,9 +8,17 @@ import { SettingsProvider } from "@/features/settings/client/settings-context";
 import type { SettingsPatch } from "@/features/settings/model/settings.schema";
 import { orpc } from "@/orpc/client";
 
+function sessionOptions() {
+	return {
+		queryKey: ["session"],
+		queryFn: () => getSession(),
+		staleTime: 60_000,
+	};
+}
+
 export const Route = createFileRoute("/_authed")({
-	beforeLoad: async () => {
-		const session = await getSession();
+	beforeLoad: async ({ context: { queryClient } }) => {
+		const session = await queryClient.ensureQueryData(sessionOptions());
 		if (!session) {
 			throw redirect({ to: "/login" });
 		}
@@ -25,6 +33,7 @@ export const Route = createFileRoute("/_authed")({
 			.catch((): PremiumStatus => ({ isPremium: false, grantedAt: null }));
 		return { settings, premium };
 	},
+	staleTime: 5 * 60 * 1000,
 	pendingComponent: CascadeLoader,
 	pendingMs: 0,
 	pendingMinMs: 200,

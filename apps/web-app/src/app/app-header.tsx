@@ -7,7 +7,7 @@ import { bar, brand } from "./app-header.styles";
 export function AppHeader() {
 	return (
 		<div className={bar()}>
-			<Link to="/" className={brand()}>
+			<Link viewTransition to="/" className={brand()}>
 				<img
 					width={28}
 					height={28}
