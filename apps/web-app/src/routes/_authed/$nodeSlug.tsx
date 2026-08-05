@@ -1,4 +1,3 @@
-import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute } from "@tanstack/react-router";
 import { GenericErrorComponent } from "#/app/generic-error";
 import { splitNodeSlug } from "#/features/nodes/model/node-slug";
@@ -14,7 +13,6 @@ export const Route = createFileRoute("/_authed/$nodeSlug")({
 		await loadNodeDetail(queryClient, nodeId);
 		return { nodeId };
 	},
-	pendingComponent: CascadeLoader,
 	errorComponent: GenericErrorComponent,
 	component: () => {
 		const { nodeId } = Route.useLoaderData();
