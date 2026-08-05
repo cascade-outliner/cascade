@@ -1,6 +1,6 @@
 import { normalizeTags } from "@cascade/outliner/node-tags";
 import { typedMetadataSchema } from "@cascade/outliner/node-types";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
@@ -23,7 +23,7 @@ export const createNode = authed
 	.errors({
 		NOT_FOUND: {
 			status: 404,
-			message: "Anchor node is not a child of the requested parent",
+			message: "Parent node not found, or anchor is not its child",
 		},
 	})
 	.input(
@@ -40,6 +40,16 @@ export const createNode = authed
 		return db.transaction(async (transaction) => {
 			await lockNodeOrdering(transaction, userId);
 			const history = await createHistoryRecorder(transaction, userId);
+
+			if (input.parentId !== null) {
+				const [parent] = await transaction
+					.select({ id: nodes.id })
+					.from(nodes)
+					.where(and(eq(nodes.id, input.parentId), eq(nodes.userId, userId)))
+					.limit(1);
+				if (!parent) throw errors.NOT_FOUND();
+			}
+
 			const target = input.afterId
 				? { position: "after" as const, targetId: input.afterId }
 				: { position: "append" as const };
