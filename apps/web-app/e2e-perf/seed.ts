@@ -2,10 +2,6 @@ import { parseArgs } from "node:util";
 import { user } from "@cascade/auth/schema";
 import { faker } from "@faker-js/faker";
 import { eq } from "drizzle-orm";
-import { cliArgs } from "./support/cli-args";
-import { config } from "./support/config";
-import { auth } from "@/features/auth/server/auth";
-import { nodes } from "@/features/nodes/server/persistence/node-tables";
 import { db } from "@/db";
 import {
 	assertNotProduction,
@@ -14,6 +10,10 @@ import {
 	insertRows,
 	type TreeShapeConfig,
 } from "@/db/seed-tree";
+import { auth } from "@/features/auth/server/auth";
+import { nodes } from "@/features/nodes/server/persistence/node-tables";
+import { cliArgs } from "./support/cli-args";
+import { config } from "./support/config";
 
 type Shape = "wide" | "deep" | "balanced";
 
@@ -37,8 +37,14 @@ if (!Number.isFinite(seed)) {
 	console.error(`--seed must be an integer, got ${values.seed}`);
 	process.exit(1);
 }
-if (values.shape !== "wide" && values.shape !== "deep" && values.shape !== "balanced") {
-	console.error(`--shape must be one of wide, deep, balanced; got ${values.shape}`);
+if (
+	values.shape !== "wide" &&
+	values.shape !== "deep" &&
+	values.shape !== "balanced"
+) {
+	console.error(
+		`--shape must be one of wide, deep, balanced; got ${values.shape}`,
+	);
 	process.exit(1);
 }
 const shape = values.shape as Shape;
@@ -76,13 +82,23 @@ function shapeConfig(shape: Shape, count: number): TreeShapeConfig {
 }
 
 async function ensurePerfUser(email: string): Promise<string> {
-	const existing = await db.select({ id: user.id }).from(user).where(eq(user.email, email));
+	const existing = await db
+		.select({ id: user.id })
+		.from(user)
+		.where(eq(user.email, email));
 	if (existing.length > 0) return existing[0].id;
 
 	await auth.api.signUpEmail({
-		body: { email, password: config.perfUserPassword, name: config.perfUserName },
+		body: {
+			email,
+			password: config.perfUserPassword,
+			name: config.perfUserName,
+		},
 	});
-	const [created] = await db.select({ id: user.id }).from(user).where(eq(user.email, email));
+	const [created] = await db
+		.select({ id: user.id })
+		.from(user)
+		.where(eq(user.email, email));
 	return created.id;
 }
 

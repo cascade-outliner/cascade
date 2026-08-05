@@ -192,9 +192,7 @@ test.describe("virtual tree motion (issue #509 perf gate)", () => {
 
 			const measurement = await measureAction(page, async () => {
 				await page.keyboard.press("Enter");
-				await expect
-					.poll(() => mountedRowCount(page))
-					.toBeGreaterThan(before);
+				await expect.poll(() => mountedRowCount(page)).toBeGreaterThan(before);
 			});
 			const after = await mountedRowCount(page);
 

@@ -41,7 +41,9 @@ async function benchCreate(
 	const samples: LatencySample[] = [];
 	const createdIds: string[] = [];
 	for (let i = 0; i < creates; i++) {
-		const outcome = await time(() => client.nodes.create({ parentId, afterId: null }));
+		const outcome = await time(() =>
+			client.nodes.create({ parentId, afterId: null }),
+		);
 		samples.push({ ok: outcome.ok, ms: outcome.ms });
 		if (outcome.ok) createdIds.push(outcome.result.id);
 		else console.error(`create ${i} failed:`, outcome.error);
@@ -94,7 +96,9 @@ async function benchDuplicate(
 ): Promise<LatencySample[]> {
 	const samples: LatencySample[] = [];
 	for (let i = 0; i < duplicates; i++) {
-		const outcome = await time(() => client.nodes.duplicate({ id: templateId }));
+		const outcome = await time(() =>
+			client.nodes.duplicate({ id: templateId }),
+		);
 		samples.push({ ok: outcome.ok, ms: outcome.ms });
 		if (!outcome.ok) console.error(`duplicate ${i} failed:`, outcome.error);
 	}
@@ -108,7 +112,10 @@ async function main() {
 	const parentA = await client.nodes.create({ parentId: null, afterId: null });
 	const parentB = await client.nodes.create({ parentId: null, afterId: null });
 	const parentC = await client.nodes.create({ parentId: null, afterId: null });
-	const movedSeed = await client.nodes.create({ parentId: parentA.id, afterId: null });
+	const movedSeed = await client.nodes.create({
+		parentId: parentA.id,
+		afterId: null,
+	});
 
 	try {
 		console.log(
@@ -123,17 +130,32 @@ async function main() {
 		if (warmup > 0) {
 			console.log(`Warming up with ${warmup} untimed create+move call(s)...`);
 			for (let i = 0; i < warmup; i++) {
-				const warm = await client.nodes.create({ parentId: parentA.id, afterId: null });
-				await client.nodes.move({ id: warm.id, parentId: parentB.id, position: "append" });
+				const warm = await client.nodes.create({
+					parentId: parentA.id,
+					afterId: null,
+				});
+				await client.nodes.move({
+					id: warm.id,
+					parentId: parentB.id,
+					position: "append",
+				});
 				await client.nodes.delete({ id: warm.id });
 			}
 		}
 
 		console.log(`Running ${creates} timed create(s)...`);
-		const { samples: createSamples, createdIds } = await benchCreate(client, parentA.id);
+		const { samples: createSamples, createdIds } = await benchCreate(
+			client,
+			parentA.id,
+		);
 
 		console.log(`Running ${moves} timed move(s)...`);
-		const moveSamples = await benchMove(client, movedSeed.id, parentA.id, parentB.id);
+		const moveSamples = await benchMove(
+			client,
+			movedSeed.id,
+			parentA.id,
+			parentB.id,
+		);
 
 		console.log(
 			`Running ${duplicates} timed duplicate(s) of a ${duplicateSubtreeSize}-node subtree...`,
@@ -155,7 +177,9 @@ async function main() {
 			duplicateNode: duplicateSummary,
 		});
 		console.log(`Wrote results to ${outPath}`);
-		console.log(`(created ${createdIds.length} scratch node(s) during the create benchmark)`);
+		console.log(
+			`(created ${createdIds.length} scratch node(s) during the create benchmark)`,
+		);
 	} finally {
 		console.log("Cleaning up scratch parents...");
 		await client.nodes.delete({ id: parentA.id });

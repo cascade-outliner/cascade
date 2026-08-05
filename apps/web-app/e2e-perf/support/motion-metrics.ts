@@ -102,7 +102,12 @@ export async function nativeRowDragAndDrop(
 			const y = targetRect.top + 2;
 			const dataTransfer = new DataTransfer();
 
-			function fire(el: Element, type: string, clientX: number, clientY: number) {
+			function fire(
+				el: Element,
+				type: string,
+				clientX: number,
+				clientY: number,
+			) {
 				const event = new DragEvent(type, {
 					bubbles: true,
 					cancelable: true,
