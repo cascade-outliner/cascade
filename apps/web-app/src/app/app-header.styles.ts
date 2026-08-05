@@ -7,3 +7,7 @@ export const bar = cva({
 export const brand = cva({
 	base: "flex shrink-0 items-center gap-2 rounded-md font-serif text-xl italic outline-none focus-visible:ring-2 focus-visible:ring-danger/50",
 });
+
+export const navLink = cva({
+	base: "flex shrink-0 items-center justify-center rounded-md p-1.5 text-ink/70 outline-none hover:text-danger focus-visible:ring-2 focus-visible:ring-danger/50 dark:text-surface/70 dark:hover:text-danger",
+});

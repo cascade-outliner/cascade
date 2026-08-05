@@ -370,5 +370,16 @@
 	"keyboard_shortcuts_indent": "Indent, making it a child of the node above",
 	"keyboard_shortcuts_outdent": "Outdent, moving it up a level",
 	"keyboard_shortcuts_move_up": "Move the node up among its siblings",
-	"keyboard_shortcuts_move_down": "Move the node down among its siblings"
+	"keyboard_shortcuts_move_down": "Move the node down among its siblings",
+	"header_agenda_link": "Agenda",
+	"agenda_heading": "Agenda",
+	"agenda_empty": "No upcoming due dates.",
+	"agenda_untitled": "Untitled",
+	"agenda_recurring_label": "Repeats",
+	"agenda_overdue_badge": "Overdue",
+	"agenda_section_overdue": "Overdue",
+	"agenda_section_today": "Today",
+	"agenda_section_this_week": "This week",
+	"agenda_section_upcoming": "Upcoming",
+	"agenda_hide_completed_toggle": "Hide completed"
 }

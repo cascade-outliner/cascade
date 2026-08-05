@@ -370,5 +370,16 @@
 	"keyboard_shortcuts_indent": "Inspringen, als kind van de node erboven",
 	"keyboard_shortcuts_outdent": "Uitspringen, een niveau omhoog",
 	"keyboard_shortcuts_move_up": "De node omhoog verplaatsen tussen zijn broers/zussen",
-	"keyboard_shortcuts_move_down": "De node omlaag verplaatsen tussen zijn broers/zussen"
+	"keyboard_shortcuts_move_down": "De node omlaag verplaatsen tussen zijn broers/zussen",
+	"header_agenda_link": "Agenda",
+	"agenda_heading": "Agenda",
+	"agenda_empty": "Geen aankomende vervaldatums.",
+	"agenda_untitled": "Zonder titel",
+	"agenda_recurring_label": "Herhaalt",
+	"agenda_overdue_badge": "Te laat",
+	"agenda_section_overdue": "Te laat",
+	"agenda_section_today": "Vandaag",
+	"agenda_section_this_week": "Deze week",
+	"agenda_section_upcoming": "Binnenkort",
+	"agenda_hide_completed_toggle": "Voltooide taken verbergen"
 }

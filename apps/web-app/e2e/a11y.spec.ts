@@ -49,6 +49,36 @@ test("main tree view has no serious/critical accessibility violations", async ({
 	}
 });
 
+test("Agenda view has no serious/critical accessibility violations", async ({
+	page,
+	orpcClient,
+}, testInfo) => {
+	const node = await orpcClient.nodes.create({ parentId: null });
+
+	try {
+		await orpcClient.nodes.updateContent({
+			id: node.id,
+			content: lexicalContent(`a11y agenda scratch node ${Date.now()}`),
+		});
+		await orpcClient.nodes.setType({
+			id: node.id,
+			type: "task",
+			metadata: { completed: false },
+		});
+		await orpcClient.nodes.setDueDate({
+			id: node.id,
+			dueDate: new Date().toISOString().slice(0, 10),
+		});
+
+		await page.goto("/agenda");
+		await expect(page.getByRole("heading", { name: "Agenda" })).toBeVisible();
+
+		await runA11yScan(page, testInfo, "agenda-view");
+	} finally {
+		await orpcClient.nodes.delete({ id: node.id });
+	}
+});
+
 test("Settings dialog (desktop) has no serious/critical accessibility violations", async ({
 	page,
 }, testInfo) => {
