@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-08-05
+- [perf] The first click on a node's focus dot in a session no longer flashes while its detail page's code is fetched over the network — that code is now warmed proactively as soon as the tree loads, instead of only on hover (which a first click or a touch tap has no chance to trigger). [#635](https://github.com/cascade-outliner/cascade/issues/635)
 - [perf] Clicking a node's focus dot no longer refetches the node's own record and ancestor chain over the network — that data is now read straight from the already-loaded tree cache, falling back to a network fetch only for cold navigation or an ambiguous slug. [#631](https://github.com/cascade-outliner/cascade/issues/631)
 - [fix] Clicking a node's focus dot now always plays the cross-fade view transition straight into the node's detail page, instead of sometimes transitioning into the full-page loader when the load took a little while — the detail route no longer has a pending loader of its own to transition into. [#628](https://github.com/cascade-outliner/cascade/issues/628)
 - [feat] New accounts now get a small example outline and a first-run guided tour that spotlights the real nodes in that outline — creating nodes, indenting, the node's focus dot, tasks, tags and due dates — plus Filters, Quick Open, and the keyboard shortcuts reference. It's shown once, is dismissible, and can be replayed anytime from Settings → General. [#622](https://github.com/cascade-outliner/cascade/issues/622)
