@@ -1,8 +1,5 @@
 # Changelog
 
-## 2026-08-05
-- [chore] `apps/web-app/e2e-perf` (the performance test harness) is now covered by Biome lint/format checks, like the rest of `apps/web-app`. [#610](https://github.com/cascade-outliner/cascade/issues/610)
-
 ## 2026-08-01
 - [fix] A node row's focus circle (the click target that opens it) is now always visible on touch devices, instead of only appearing on hover — which touch has no equivalent for. [#586](https://github.com/cascade-outliner/cascade/issues/586)
 
