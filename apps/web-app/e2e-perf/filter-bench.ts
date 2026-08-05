@@ -1,9 +1,8 @@
 import { parseArgs } from "node:util";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
-import { noFilters, type NodeFilters } from "@cascade/outliner/node-filters";
+import { type NodeFilters, noFilters } from "@cascade/outliner/node-filters";
 import type { VisibleNodeRow } from "@cascade/outliner/node-types";
 import { cliArgs } from "./support/cli-args";
-import { buildSyntheticRows, type Shape } from "./support/synthetic-tree";
 import {
 	type LatencySample,
 	printSummary,
@@ -11,6 +10,7 @@ import {
 	time,
 	writeResultsFile,
 } from "./support/stats";
+import { buildSyntheticRows, type Shape } from "./support/synthetic-tree";
 
 const { values } = parseArgs({
 	args: cliArgs(),
@@ -25,8 +25,14 @@ const { values } = parseArgs({
 });
 
 const count = Number.parseInt(values.count, 10);
-if (values.shape !== "wide" && values.shape !== "deep" && values.shape !== "balanced") {
-	console.error(`--shape must be one of wide, deep, balanced; got ${values.shape}`);
+if (
+	values.shape !== "wide" &&
+	values.shape !== "deep" &&
+	values.shape !== "balanced"
+) {
+	console.error(
+		`--shape must be one of wide, deep, balanced; got ${values.shape}`,
+	);
 	process.exit(1);
 }
 const shape = values.shape as Shape;
@@ -46,7 +52,9 @@ async function benchFilter(
 ): Promise<LatencySample[]> {
 	const samples: LatencySample[] = [];
 	for (let i = 0; i < iterations; i++) {
-		const outcome = await time(() => Promise.resolve(getRowVisibility(rows, filters)));
+		const outcome = await time(() =>
+			Promise.resolve(getRowVisibility(rows, filters)),
+		);
 		samples.push({ ok: outcome.ok, ms: outcome.ms });
 	}
 	return samples;
@@ -96,7 +104,15 @@ async function main() {
 
 	const outPath = await writeResultsFile("filter-bench.json", {
 		timestamp: new Date().toISOString(),
-		params: { count, shape, seed, collapsedFraction, iterations, warmup, rows: rows.length },
+		params: {
+			count,
+			shape,
+			seed,
+			collapsedFraction,
+			iterations,
+			warmup,
+			rows: rows.length,
+		},
 		tagFilter: tagSummary,
 		dueTodayFilter: dueTodaySummary,
 	});

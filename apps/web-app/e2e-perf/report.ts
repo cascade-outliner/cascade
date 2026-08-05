@@ -60,7 +60,8 @@ function row(
 	after: number | undefined,
 	unit: string,
 ): string {
-	const delta = before !== undefined && after !== undefined ? pct(before, after) : "—";
+	const delta =
+		before !== undefined && after !== undefined ? pct(before, after) : "—";
 	return `| ${label} | ${fmt(before, unit)} | ${fmt(after, unit)} | ${delta} |`;
 }
 
@@ -99,10 +100,20 @@ async function main() {
 
 	if (beforeQuery || afterQuery) {
 		lines.push(
-			row("visibleTree p50", beforeQuery?.visibleTree.p50Ms, afterQuery?.visibleTree.p50Ms, "ms"),
+			row(
+				"visibleTree p50",
+				beforeQuery?.visibleTree.p50Ms,
+				afterQuery?.visibleTree.p50Ms,
+				"ms",
+			),
 		);
 		lines.push(
-			row("visibleTree p95", beforeQuery?.visibleTree.p95Ms, afterQuery?.visibleTree.p95Ms, "ms"),
+			row(
+				"visibleTree p95",
+				beforeQuery?.visibleTree.p95Ms,
+				afterQuery?.visibleTree.p95Ms,
+				"ms",
+			),
 		);
 	} else {
 		lines.push("| query-bench results missing | — | — | — |");
@@ -126,10 +137,20 @@ async function main() {
 			),
 		);
 		lines.push(
-			row("moveNode p50", beforeMutation?.moveNode.p50Ms, afterMutation?.moveNode.p50Ms, "ms"),
+			row(
+				"moveNode p50",
+				beforeMutation?.moveNode.p50Ms,
+				afterMutation?.moveNode.p50Ms,
+				"ms",
+			),
 		);
 		lines.push(
-			row("moveNode p95", beforeMutation?.moveNode.p95Ms, afterMutation?.moveNode.p95Ms, "ms"),
+			row(
+				"moveNode p95",
+				beforeMutation?.moveNode.p95Ms,
+				afterMutation?.moveNode.p95Ms,
+				"ms",
+			),
 		);
 		lines.push(
 			row(

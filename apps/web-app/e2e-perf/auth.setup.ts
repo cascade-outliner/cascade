@@ -9,18 +9,22 @@ import { authFile } from "./support/env";
  * only establishes the session.
  */
 test("authenticate as the perf harness user", async ({ page }) => {
-	const signUp = await page.request.post(`${config.appUrl}/api/auth/sign-up/email`, {
-		headers: { origin: config.appUrl },
-		data: {
-			email: config.perfUserEmail,
-			password: config.perfUserPassword,
-			name: config.perfUserName,
+	const signUp = await page.request.post(
+		`${config.appUrl}/api/auth/sign-up/email`,
+		{
+			headers: { origin: config.appUrl },
+			data: {
+				email: config.perfUserEmail,
+				password: config.perfUserPassword,
+				name: config.perfUserName,
+			},
 		},
-	});
+	);
 	if (!signUp.ok()) {
 		const body = await signUp.json().catch(() => ({}));
 		const alreadyExists =
-			typeof body.code === "string" && body.code.includes("USER_ALREADY_EXISTS");
+			typeof body.code === "string" &&
+			body.code.includes("USER_ALREADY_EXISTS");
 		if (!alreadyExists) {
 			throw new Error(
 				`Failed to create perf user (${signUp.status()}): ${JSON.stringify(body)}`,
@@ -28,13 +32,16 @@ test("authenticate as the perf harness user", async ({ page }) => {
 		}
 	}
 
-	const signIn = await page.request.post(`${config.appUrl}/api/auth/sign-in/email`, {
-		headers: { origin: config.appUrl },
-		data: {
-			email: config.perfUserEmail,
-			password: config.perfUserPassword,
+	const signIn = await page.request.post(
+		`${config.appUrl}/api/auth/sign-in/email`,
+		{
+			headers: { origin: config.appUrl },
+			data: {
+				email: config.perfUserEmail,
+				password: config.perfUserPassword,
+			},
 		},
-	});
+	);
 	if (!signIn.ok()) {
 		const body = await signIn.json().catch(() => ({}));
 		throw new Error(

@@ -38,16 +38,27 @@ async function runWorkflow(
 	parentA: string,
 	parentB: string,
 ): Promise<void> {
-	const created = await client.nodes.create({ parentId: parentA, afterId: null });
+	const created = await client.nodes.create({
+		parentId: parentA,
+		afterId: null,
+	});
 	await client.nodes.updateContent({
 		id: created.id,
 		content: textToLexicalContent("perf workflow node"),
 	});
-	await client.nodes.setType({ id: created.id, type: "task", metadata: { completed: false } });
+	await client.nodes.setType({
+		id: created.id,
+		type: "task",
+		metadata: { completed: false },
+	});
 	await client.nodes.setDueDate({ id: created.id, dueDate: "2026-12-31" });
 	await client.nodes.setTags({ id: created.id, tags: ["perf", "workflow"] });
 	await client.nodes.toggleExpanded({ id: created.id, expanded: false });
-	await client.nodes.move({ id: created.id, parentId: parentB, position: "append" });
+	await client.nodes.move({
+		id: created.id,
+		parentId: parentB,
+		position: "append",
+	});
 	const duplicate = await client.nodes.duplicate({ id: created.id });
 	await client.nodes.ancestors({ id: duplicate.id });
 	await client.nodes.delete({ id: duplicate.id });
@@ -72,7 +83,9 @@ async function main() {
 		console.log(`Running ${iterations} timed workflow pass(es)...`);
 		const samples: LatencySample[] = [];
 		for (let i = 0; i < iterations; i++) {
-			const outcome = await time(() => runWorkflow(client, parentA.id, parentB.id));
+			const outcome = await time(() =>
+				runWorkflow(client, parentA.id, parentB.id),
+			);
 			samples.push({ ok: outcome.ok, ms: outcome.ms });
 			if (!outcome.ok) console.error(`workflow ${i} failed:`, outcome.error);
 		}

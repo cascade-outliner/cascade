@@ -66,7 +66,10 @@ export async function time<T>(fn: () => Promise<T>): Promise<TimedOutcome<T>> {
 }
 
 /** Writes JSON results under apps/web-app/perf-results/ (gitignored), returning the path written. */
-export async function writeResultsFile(fileName: string, data: unknown): Promise<string> {
+export async function writeResultsFile(
+	fileName: string,
+	data: unknown,
+): Promise<string> {
 	const outPath = path.join(process.cwd(), "perf-results", fileName);
 	await mkdir(path.dirname(outPath), { recursive: true });
 	await writeFile(outPath, JSON.stringify(data, null, 2));

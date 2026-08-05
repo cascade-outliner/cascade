@@ -10,6 +10,7 @@
 		"includes": [
 			"**/src/**/*",
 			"**/e2e/**/*",
+			"**/e2e-perf/**/*",
 			"**/.vscode/**/*",
 			"**/index.html",
 			"**/vite.config.ts",

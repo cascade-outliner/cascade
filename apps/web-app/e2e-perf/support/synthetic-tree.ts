@@ -77,7 +77,10 @@ export function buildSyntheticRows(
 	count: number,
 	options: SyntheticTreeOptions,
 ): VisibleNodeRow[] {
-	const { roots, maxDepth, minChildren, maxChildren } = shapeConfig(shape, count);
+	const { roots, maxDepth, minChildren, maxChildren } = shapeConfig(
+		shape,
+		count,
+	);
 	const random = mulberry32(options.seed);
 	const rows: VisibleNodeRow[] = [];
 	const today = formatCalendarDate(new Date());
