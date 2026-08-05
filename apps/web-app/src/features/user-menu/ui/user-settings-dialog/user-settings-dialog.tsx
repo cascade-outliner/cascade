@@ -1,3 +1,4 @@
+import { useReplayOnboardingTour } from "@/features/onboarding/client/use-replay-onboarding-tour";
 import { usePremiumStatus } from "@/features/premium/client/use-premium";
 import type { UserSettingsDialogProps } from "./types";
 import { useSettingsDialogNav } from "./use-settings-dialog-nav";
@@ -14,6 +15,7 @@ export function UserSettingsDialog({
 }: UserSettingsDialogProps) {
 	const { data: premium } = usePremiumStatus();
 	const nav = useSettingsDialogNav({ open, onOpenChange });
+	const replayTour = useReplayOnboardingTour();
 
 	return (
 		<UserSettingsDialogView
@@ -31,6 +33,15 @@ export function UserSettingsDialog({
 			selectTab={nav.selectTab}
 			openMobilePage={nav.openMobilePage}
 			closeMobilePage={nav.closeMobilePage}
+			onReplayTour={() => {
+				// Wait for the mutation before closing: it may need to add
+				// sample nodes back, and the tour shouldn't start until they
+				// actually exist.
+				replayTour.mutate(undefined, {
+					onSuccess: () => nav.handleOpenChange(false),
+				});
+			}}
+			isReplayingTour={replayTour.isPending}
 		/>
 	);
 }

@@ -11,5 +11,7 @@ export function defaultSettings(): Settings {
 		indentSize: 16,
 		hideCompletedByDefault: false,
 		preAlphaBannerDismissed: false,
+		onboardingCompleted: true,
+		onboardingSampleNodeIds: {},
 	};
 }

@@ -34,6 +34,7 @@ export function UserMenuTrigger({
 			<Menu.Trigger
 				aria-label={m.user_menu_trigger_label()}
 				className={avatarTrigger()}
+				data-onboarding="user-menu-trigger"
 			>
 				<Avatar
 					user={user}

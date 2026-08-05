@@ -64,6 +64,7 @@
     "@tanstack/router-plugin": "^1.168.19",
     "bowser": "^2.14.1",
     "cva": "0.0.0",
+    "driver.js": "^1.8.0",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "fractional-indexing": "^4.0.0",

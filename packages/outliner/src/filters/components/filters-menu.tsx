@@ -33,7 +33,10 @@ export function FiltersMenu({
 
 	return (
 		<Menu.Root open={open} onOpenChange={setOpen}>
-			<Menu.Trigger className={trigger()}>
+			<Menu.Trigger
+				className={trigger()}
+				data-onboarding="filters-menu-trigger"
+			>
 				<FunnelIcon size={12} weight="bold" />
 				{labels.filtersTrigger}
 			</Menu.Trigger>

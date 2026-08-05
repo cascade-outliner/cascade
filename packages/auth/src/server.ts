@@ -11,7 +11,14 @@ const productionOrigins = [
 ];
 const devOrigins = ["http://localhost:3000", "http://localhost:3001"];
 
-export function createAuth(db: object | string) {
+export interface CreateAuthHooks {
+	/** Called once, right after a new user row is created (sign-up or first
+	 * social login) — the natural hook point for first-run setup like seeding
+	 * onboarding content. Not called for existing users. */
+	onUserCreated?: (user: { id: string }) => Promise<void>;
+}
+
+export function createAuth(db: object | string, hooks: CreateAuthHooks = {}) {
 	const resolvedDb =
 		typeof db === "string" ? drizzle(postgres(db), { schema }) : db;
 
@@ -25,6 +32,15 @@ export function createAuth(db: object | string) {
 		user: {
 			deleteUser: {
 				enabled: true,
+			},
+		},
+		databaseHooks: {
+			user: {
+				create: {
+					after: async (user) => {
+						await hooks.onUserCreated?.(user);
+					},
+				},
 			},
 		},
 		socialProviders: {
