@@ -220,6 +220,67 @@
 	"settings_tags_rename_failed": "Failed to rename tag",
 	"settings_tags_delete_success": "Tag deleted",
 	"settings_tags_delete_failed": "Failed to delete tag",
+	"settings_statuses_tab": "Statuses",
+	"settings_statuses_description": "Manage the statuses available throughout your outline.",
+	"settings_statuses_section": "Your statuses",
+	"settings_statuses_section_description": "Renaming or recoloring a status updates every node that uses it.",
+	"settings_statuses_create_section": "Create status",
+	"settings_statuses_create_description": "Add a status here, then assign it from a node's right-click menu or its detail page.",
+	"settings_statuses_create_placeholder": "Status name",
+	"settings_statuses_create": "Create status",
+	"settings_statuses_creating": "Creating…",
+	"settings_statuses_create_success": "Status created",
+	"settings_statuses_create_failed": "Failed to create status",
+	"settings_statuses_loading": "Loading statuses…",
+	"settings_statuses_load_failed": "Statuses couldn't be loaded.",
+	"settings_statuses_empty": "No statuses yet",
+	"settings_statuses_empty_description": "Statuses you create here will appear in every node's status picker.",
+	"settings_statuses_name_label": "Status name",
+	"settings_statuses_name_exists": "A status with this name already exists.",
+	"settings_statuses_color_label": "Color",
+	"settings_statuses_color_option": "Use the {color} color",
+	"settings_statuses_save": "Save",
+	"settings_statuses_saving": "Saving…",
+	"settings_statuses_edit_label": "Edit {name}",
+	"settings_statuses_delete_label": "Delete {name}",
+	"settings_statuses_usage_count": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "Used on {count} node",
+				"countPlural=other": "Used on {count} nodes"
+			}
+		}
+	],
+	"settings_statuses_delete_title": "Delete status?",
+	"settings_statuses_delete_description": [
+		{
+			"declarations": [
+				"input name",
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "“{name}” will be removed from {count} node. The node itself is kept. This cannot be undone.",
+				"countPlural=other": "“{name}” will be removed from {count} nodes. The nodes themselves are kept. This cannot be undone."
+			}
+		}
+	],
+	"settings_statuses_delete": "Delete status",
+	"settings_statuses_deleting": "Deleting…",
+	"settings_statuses_update_success": "Status updated",
+	"settings_statuses_update_failed": "Failed to update status",
+	"settings_statuses_delete_success": "Status deleted",
+	"settings_statuses_delete_failed": "Failed to delete status",
 	"user_menu_user_tab": "User",
 	"user_menu_premium_tab": "Premium",
 	"security_tab": "Security",
@@ -472,8 +533,6 @@
 	"onboarding_tour_tagged_description": "Nodes can have tags and due dates — use Filters above the outline to narrow down by either.",
 	"tree_history_action_priority": "Changed priority",
 	"tree_history_action_status": "Changed status",
-	"status_create_failed": "Status couldn't be created",
-	"status_delete_failed": "Status couldn't be deleted",
 	"outliner_set_priority": "Set priority",
 	"outliner_change_priority": "Change priority",
 	"outliner_change_priority_aria": "Change priority",
@@ -485,11 +544,7 @@
 	"outliner_set_status": "Set status",
 	"outliner_change_status": "Change status",
 	"outliner_change_status_aria": "Change status",
-	"outliner_status_empty": "No statuses yet.",
-	"outliner_status_input_placeholder": "New status…",
-	"outliner_create_status": "Create",
-	"outliner_status_name_too_long": "Status name is too long (max {max} characters)",
-	"outliner_delete_status_aria": "Delete status",
+	"outliner_status_empty": "No statuses yet — create one in Settings → Statuses.",
 	"filters_bar_priority_group": "Priority",
 	"filters_bar_remove_priority": "Remove priority filter",
 	"filters_bar_status_group": "Status",

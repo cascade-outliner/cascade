@@ -12,6 +12,12 @@ export interface StatusSummary {
 	color: string;
 }
 
+/** A status plus how many nodes are currently in it, as the statuses
+ * settings panel lists them. */
+export interface StatusWithUsage extends StatusSummary {
+	count: number;
+}
+
 /** Longest allowed status name (after trimming), enforced in both the status
  * editor UI and the server's createStatus input schema. */
 export const MAX_STATUS_LENGTH = 64;

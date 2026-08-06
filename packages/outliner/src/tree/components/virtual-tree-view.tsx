@@ -37,8 +37,6 @@ export function VirtualTreeView({
 	existingTags = [],
 	existingStatuses = [],
 	onDeleteTag,
-	onCreateStatus,
-	onDeleteStatus,
 	onTagClick,
 	features,
 	onAddRoot,
@@ -67,8 +65,6 @@ export function VirtualTreeView({
 	| "noVisibleChildrenRowIds"
 	| "existingTags"
 	| "existingStatuses"
-	| "onCreateStatus"
-	| "onDeleteStatus"
 	| "onDeleteTag"
 	| "onTagClick"
 	| "features"
@@ -151,8 +147,6 @@ export function VirtualTreeView({
 										existingTags={existingTags}
 										existingStatuses={existingStatuses}
 										onDeleteTag={onDeleteTag}
-										onCreateStatus={onCreateStatus}
-										onDeleteStatus={onDeleteStatus}
 										onTagClick={onTagClick}
 										features={features}
 										isHidden={hiddenRowIds?.has(row.id) ?? false}

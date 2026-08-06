@@ -24,8 +24,6 @@ export function StatusMenuItem({ ctx }: { ctx: StatusFeatureContext }) {
 					statusId={ctx.status?.id ?? null}
 					existingStatuses={ctx.existingStatuses}
 					onSelect={ctx.onSetStatus}
-					onCreateStatus={ctx.onCreateStatus}
-					onDeleteStatus={ctx.onDeleteStatus}
 				/>
 			</ContextMenuSubContent>
 		</ContextMenuSub>

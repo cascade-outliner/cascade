@@ -106,8 +106,6 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		onSetTags: props.onSetTags,
 		onSetPriority: props.onSetPriority,
 		onSetStatus: props.onSetStatus,
-		onCreateStatus: props.onCreateStatus,
-		onDeleteStatus: props.onDeleteStatus,
 		icon: row.icon,
 		onSetIcon: props.onSetIcon,
 		onTagClick: props.onTagClick,

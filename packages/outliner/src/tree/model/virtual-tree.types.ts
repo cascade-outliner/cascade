@@ -45,13 +45,6 @@ export interface VirtualTreeProps {
 	existingTags?: TagSummary[];
 	/** All of this user's statuses, for the status picker and filters. */
 	existingStatuses?: StatusSummary[];
-	/** Creates a status and resolves to it, so the picker can select it
-	 * immediately. Not a `VisibleTree` mutation since it isn't scoped to this
-	 * view's rows. Omit to hide inline status creation. */
-	onCreateStatus?: (name: string) => Promise<StatusSummary | null>;
-	/** Deletes a status outright; every node in it loses it but survives.
-	 * Omit to hide the delete affordance. */
-	onDeleteStatus?: (id: string) => void | Promise<void>;
 	/** Deletes a tag outright (every node that has it loses it), not just
 	 * one node's use of it. Not a `VisibleTree` mutation since it isn't
 	 * scoped to this view's rows. Omit to hide the delete affordance. */
@@ -101,8 +94,6 @@ export interface VirtualTreeRowProps {
 	onSetTags: (tags: string[]) => void;
 	onSetPriority: (priority: PriorityName | null) => void;
 	onSetStatus: (statusId: string | null) => void;
-	onCreateStatus?: (name: string) => Promise<StatusSummary | null>;
-	onDeleteStatus?: (id: string) => void | Promise<void>;
 	onSetIcon: (icon: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;

@@ -26,4 +26,5 @@ export { setNodeType } from "./set-node-type";
 export { setTaskCompleted } from "./set-task-completed";
 export { toggleNodeExpanded } from "./toggle-node-expanded";
 export { updateNodeContent } from "./update-node-content";
+export { updateStatus } from "./update-status";
 export { visibleTree } from "./visible-tree";

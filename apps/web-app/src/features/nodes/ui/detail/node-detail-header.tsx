@@ -59,8 +59,6 @@ export function NodeDetailHeader({
 	onIconChange,
 	onPriorityChange,
 	onStatusChange,
-	onCreateStatus,
-	onDeleteStatus,
 }: {
 	node: NodeDetailData;
 	dueDate: Date | null;
@@ -79,8 +77,6 @@ export function NodeDetailHeader({
 	onIconChange: (icon: string | null) => void;
 	onPriorityChange: (priority: PriorityName | null) => void;
 	onStatusChange: (statusId: string | null) => void;
-	onCreateStatus: (name: string) => Promise<StatusSummary | null>;
-	onDeleteStatus: (id: string) => void | Promise<void>;
 }) {
 	return (
 		<>
@@ -117,8 +113,6 @@ export function NodeDetailHeader({
 						status={node.status}
 						existingStatuses={existingStatuses}
 						onSelect={onStatusChange}
-						onCreateStatus={onCreateStatus}
-						onDeleteStatus={onDeleteStatus}
 					/>
 					<NodeTagsControl
 						tags={node.tags}

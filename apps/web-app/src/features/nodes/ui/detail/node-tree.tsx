@@ -11,11 +11,7 @@ import {
 	withPendingTasksIncomplete,
 } from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
-import {
-	useCreateStatus,
-	useDeleteStatus,
-	useExistingStatuses,
-} from "#/features/nodes/client/statuses/use-existing-statuses";
+import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
 import {
 	useDeleteTag,
 	useExistingTags,
@@ -47,8 +43,6 @@ export function NodeTree({
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 	const existingStatuses = useExistingStatuses();
-	const createStatus = useCreateStatus();
-	const deleteStatus = useDeleteStatus();
 
 	return (
 		<VirtualTree
@@ -81,8 +75,6 @@ export function NodeTree({
 			existingTags={existingTags}
 			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
-			onCreateStatus={createStatus}
-			onDeleteStatus={deleteStatus}
 			onTagClick={(tag) =>
 				setFilters({
 					...filters,

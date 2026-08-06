@@ -54,10 +54,6 @@ export interface OutlinerLabels {
 	changeStatus: string;
 	changeStatusAria: string;
 	statusEmpty: string;
-	statusInputPlaceholder: string;
-	createStatus: string;
-	statusNameTooLong: string;
-	deleteStatusAria: string;
 	addTag: string;
 	manageTags: string;
 	tagsInputPlaceholder: string;

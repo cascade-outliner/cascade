@@ -220,6 +220,67 @@
 	"settings_tags_rename_failed": "Label hernoemen mislukt",
 	"settings_tags_delete_success": "Label verwijderd",
 	"settings_tags_delete_failed": "Label verwijderen mislukt",
+	"settings_statuses_tab": "Statussen",
+	"settings_statuses_description": "Beheer de statussen die in je boomstructuur beschikbaar zijn.",
+	"settings_statuses_section": "Jouw statussen",
+	"settings_statuses_section_description": "Als je een status hernoemt of van kleur verandert, worden alle nodes bijgewerkt die hem gebruiken.",
+	"settings_statuses_create_section": "Status aanmaken",
+	"settings_statuses_create_description": "Maak hier een status aan en wijs hem daarna toe via het rechtermuisknopmenu van een node of via de detailpagina.",
+	"settings_statuses_create_placeholder": "Statusnaam",
+	"settings_statuses_create": "Status aanmaken",
+	"settings_statuses_creating": "Aanmaken…",
+	"settings_statuses_create_success": "Status aangemaakt",
+	"settings_statuses_create_failed": "Status aanmaken mislukt",
+	"settings_statuses_loading": "Statussen laden…",
+	"settings_statuses_load_failed": "Statussen konden niet worden geladen.",
+	"settings_statuses_empty": "Nog geen statussen",
+	"settings_statuses_empty_description": "Statussen die je hier aanmaakt, verschijnen in de statuskiezer van elke node.",
+	"settings_statuses_name_label": "Statusnaam",
+	"settings_statuses_name_exists": "Er bestaat al een status met deze naam.",
+	"settings_statuses_color_label": "Kleur",
+	"settings_statuses_color_option": "Gebruik de kleur {color}",
+	"settings_statuses_save": "Opslaan",
+	"settings_statuses_saving": "Opslaan…",
+	"settings_statuses_edit_label": "{name} bewerken",
+	"settings_statuses_delete_label": "{name} verwijderen",
+	"settings_statuses_usage_count": [
+		{
+			"declarations": [
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "Gebruikt op {count} node",
+				"countPlural=other": "Gebruikt op {count} nodes"
+			}
+		}
+	],
+	"settings_statuses_delete_title": "Status verwijderen?",
+	"settings_statuses_delete_description": [
+		{
+			"declarations": [
+				"input name",
+				"input count",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "‘{name}’ wordt van {count} node verwijderd. De node zelf blijft bestaan. Dit kan niet ongedaan worden gemaakt.",
+				"countPlural=other": "‘{name}’ wordt van {count} nodes verwijderd. De nodes zelf blijven bestaan. Dit kan niet ongedaan worden gemaakt."
+			}
+		}
+	],
+	"settings_statuses_delete": "Status verwijderen",
+	"settings_statuses_deleting": "Verwijderen…",
+	"settings_statuses_update_success": "Status bijgewerkt",
+	"settings_statuses_update_failed": "Status bijwerken mislukt",
+	"settings_statuses_delete_success": "Status verwijderd",
+	"settings_statuses_delete_failed": "Status verwijderen mislukt",
 	"user_menu_user_tab": "Gebruiker",
 	"user_menu_premium_tab": "Premium",
 	"security_tab": "Beveiliging",
@@ -472,8 +533,6 @@
 	"onboarding_tour_tagged_description": "Knooppunten kunnen labels en vervaldatums hebben — gebruik Filters boven het overzicht om hierop te filteren.",
 	"tree_history_action_priority": "Prioriteit gewijzigd",
 	"tree_history_action_status": "Status gewijzigd",
-	"status_create_failed": "Status kon niet worden aangemaakt",
-	"status_delete_failed": "Status kon niet worden verwijderd",
 	"outliner_set_priority": "Prioriteit instellen",
 	"outliner_change_priority": "Prioriteit wijzigen",
 	"outliner_change_priority_aria": "Prioriteit wijzigen",
@@ -485,11 +544,7 @@
 	"outliner_set_status": "Status instellen",
 	"outliner_change_status": "Status wijzigen",
 	"outliner_change_status_aria": "Status wijzigen",
-	"outliner_status_empty": "Nog geen statussen.",
-	"outliner_status_input_placeholder": "Nieuwe status…",
-	"outliner_create_status": "Aanmaken",
-	"outliner_status_name_too_long": "Statusnaam is te lang (max {max} tekens)",
-	"outliner_delete_status_aria": "Status verwijderen",
+	"outliner_status_empty": "Nog geen statussen — maak er een aan in Instellingen → Statussen.",
 	"filters_bar_priority_group": "Prioriteit",
 	"filters_bar_remove_priority": "Prioriteitsfilter verwijderen",
 	"filters_bar_status_group": "Status",

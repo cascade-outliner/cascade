@@ -7,15 +7,11 @@ export interface StatusFeatureContext {
 	status: StatusSummary | null;
 	existingStatuses: StatusSummary[];
 	onSetStatus: (statusId: string | null) => void;
-	/** Creates a status and resolves to it, so the picker can select it
-	 * immediately. Omit to hide inline creation. */
-	onCreateStatus?: (name: string) => Promise<StatusSummary | null>;
-	/** Deletes a status outright; nodes in it lose it but survive. */
-	onDeleteStatus?: (id: string) => void | Promise<void>;
 }
 
 /** Custom statuses (#576): a trailing pill on rows that have one, plus a
- * "Set/Change status" context-menu submenu with inline creation. */
+ * "Set/Change status" context-menu submenu that picks from the statuses
+ * managed in Settings. */
 export const statusFeature: OutlinerFeature<StatusFeatureContext> = {
 	id: "status",
 	renderTrailing: (ctx) =>
@@ -24,8 +20,6 @@ export const statusFeature: OutlinerFeature<StatusFeatureContext> = {
 				status={ctx.status}
 				existingStatuses={ctx.existingStatuses}
 				onSelect={ctx.onSetStatus}
-				onCreateStatus={ctx.onCreateStatus}
-				onDeleteStatus={ctx.onDeleteStatus}
 			/>
 		) : null,
 	renderContextMenuItem: (ctx) => <StatusMenuItem ctx={ctx} />,

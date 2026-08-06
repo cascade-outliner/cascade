@@ -3,7 +3,6 @@ import {
 	type OutlinerLabels,
 	OutlinerLabelsProvider,
 } from "@cascade/outliner/labels-context";
-import { MAX_STATUS_LENGTH } from "@cascade/outliner/node-statuses";
 import { MAX_TAG_LENGTH } from "@cascade/outliner/node-tags";
 import {
 	defaultUiLabels,
@@ -90,12 +89,6 @@ function createOutlinerLabels(): OutlinerLabels {
 		changeStatus: m.outliner_change_status(),
 		changeStatusAria: m.outliner_change_status_aria(),
 		statusEmpty: m.outliner_status_empty(),
-		statusInputPlaceholder: m.outliner_status_input_placeholder(),
-		createStatus: m.outliner_create_status(),
-		statusNameTooLong: m.outliner_status_name_too_long({
-			max: MAX_STATUS_LENGTH,
-		}),
-		deleteStatusAria: m.outliner_delete_status_aria(),
 		addTag: m.outliner_add_tag(),
 		manageTags: m.outliner_manage_tags(),
 		tagsInputPlaceholder: m.outliner_tags_input_placeholder(),
