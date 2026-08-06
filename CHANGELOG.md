@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-06
+- [chore] Split up the Settings → Security panel's mixed concerns (inline query hooks, a device icon, a session row, and a confirm dialog all in one file) into a facade hook and separate components, matching the pattern already used by the tags settings panel. No behavior change. [#642](https://github.com/cascade-outliner/cascade/issues/642)
+
 ## 2026-08-05
 - [perf] Clicking a node's focus dot no longer refetches the node's own record and ancestor chain over the network — that data is now read straight from the already-loaded tree cache, falling back to a network fetch only for cold navigation or an ambiguous slug. [#631](https://github.com/cascade-outliner/cascade/issues/631)
 - [fix] Clicking a node's focus dot now always plays the cross-fade view transition straight into the node's detail page, instead of sometimes transitioning into the full-page loader when the load took a little while — the detail route no longer has a pending loader of its own to transition into. [#628](https://github.com/cascade-outliner/cascade/issues/628)
