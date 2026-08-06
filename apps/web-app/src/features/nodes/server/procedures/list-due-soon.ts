@@ -18,14 +18,16 @@ export interface DueSoonTask {
 }
 
 /**
- * Tasks due in roughly the next day, for the client's real-time due-date
- * notification scheduler (see #599). Deliberately not scoped by tree
- * expansion/pagination like `visibleTree` — a task the user hasn't expanded
- * into view should still notify. The date window is padded a day on each
- * side of the server's own "today" so a due date that's already "today" in
- * the user's local timezone, but not yet (or no longer) the server's, is
- * still picked up; the client narrows to the exact instant via
- * `combineDueDateTime`.
+ * Nodes due in roughly the next day, for the client's real-time due-date
+ * notification scheduler (see #599). Due dates aren't exclusive to task-type
+ * nodes (the due-date pill/menu is available on every node type), so this
+ * isn't scoped by `type` — only by having a due date at all. Also
+ * deliberately not scoped by tree expansion/pagination like `visibleTree` —
+ * a node the user hasn't expanded into view should still notify. The date
+ * window is padded a day on each side of the server's own "today" so a due
+ * date that's already "today" in the user's local timezone, but not yet (or
+ * no longer) the server's, is still picked up; the client narrows to the
+ * exact instant via `combineDueDateTime`.
  */
 export const listDueSoon = authed.handler(async ({ context }) => {
 	const userId = context.user.id;
@@ -43,7 +45,6 @@ export const listDueSoon = authed.handler(async ({ context }) => {
 		.where(
 			and(
 				eq(nodes.userId, userId),
-				eq(nodes.type, "task"),
 				isNotNull(nodes.dueDate),
 				sql`${nodes.dueDate} BETWEEN (CURRENT_DATE - INTERVAL '1 day') AND (CURRENT_DATE + INTERVAL '2 day')`,
 			),
