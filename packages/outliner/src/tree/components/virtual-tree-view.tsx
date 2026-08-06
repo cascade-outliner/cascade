@@ -34,7 +34,10 @@ export function VirtualTreeView({
 	contextRowIds,
 	noVisibleChildrenRowIds,
 	existingTags = [],
+	existingStatuses = [],
 	onDeleteTag,
+	onCreateStatus,
+	onDeleteStatus,
 	onTagClick,
 	features,
 	onAddRoot,
@@ -62,6 +65,9 @@ export function VirtualTreeView({
 	| "contextRowIds"
 	| "noVisibleChildrenRowIds"
 	| "existingTags"
+	| "existingStatuses"
+	| "onCreateStatus"
+	| "onDeleteStatus"
 	| "onDeleteTag"
 	| "onTagClick"
 	| "features"
@@ -133,7 +139,10 @@ export function VirtualTreeView({
 									renderNodeLink={renderNodeLink}
 									measureElement={virtualizer.measureElement}
 									existingTags={existingTags}
+									existingStatuses={existingStatuses}
 									onDeleteTag={onDeleteTag}
+									onCreateStatus={onCreateStatus}
+									onDeleteStatus={onDeleteStatus}
 									onTagClick={onTagClick}
 									features={features}
 									isHidden={hiddenRowIds?.has(row.id) ?? false}
@@ -165,6 +174,10 @@ export function VirtualTreeView({
 										tree.setRecurrence(row.id, recurrence)
 									}
 									onSetTags={(tags) => tree.setTags(row.id, tags)}
+									onSetPriority={(priority) =>
+										tree.setPriority(row.id, priority)
+									}
+									onSetStatus={(statusId) => tree.setStatus(row.id, statusId)}
 									onSetIcon={(icon) => tree.setIcon(row.id, icon)}
 									onDuplicate={() => tree.duplicate(row.id)}
 									onDelete={() => tree.remove(row.id)}

@@ -23,7 +23,10 @@ export function Outliner({
 	newNodeDueDate,
 	newNodeTags,
 	existingTags,
+	existingStatuses,
 	onDeleteTag,
+	onCreateStatus,
+	onDeleteStatus,
 	onTagClick,
 	features,
 }: OutlinerProps) {
@@ -54,7 +57,10 @@ export function Outliner({
 			contextRowIds={contextRowIds}
 			noVisibleChildrenRowIds={noVisibleChildrenRowIds}
 			existingTags={existingTags}
+			existingStatuses={existingStatuses}
 			onDeleteTag={onDeleteTag}
+			onCreateStatus={onCreateStatus}
+			onDeleteStatus={onDeleteStatus}
 			onTagClick={onTagClick}
 			features={features}
 			onAddRoot={interactions.handleAddRoot}

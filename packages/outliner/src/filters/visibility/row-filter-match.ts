@@ -21,6 +21,20 @@ export function rowMatchesFilters(
 		return false;
 	}
 
+	if (
+		filters.priorities.length > 0 &&
+		(!row.priority || !filters.priorities.includes(row.priority))
+	) {
+		return false;
+	}
+
+	if (
+		filters.statusIds.length > 0 &&
+		(!row.status || !filters.statusIds.includes(row.status.id))
+	) {
+		return false;
+	}
+
 	if (!hasActiveDueDateFilter(filters)) return true;
 	if (!row.dueDate) return false;
 

@@ -1,5 +1,7 @@
 import { formatCalendarDate } from "@cascade/outliner/calendar-date";
 import type { CalendarTimeString } from "@cascade/outliner/calendar-time";
+import type { PriorityName } from "@cascade/outliner/node-priority";
+import type { StatusSummary } from "@cascade/outliner/node-statuses";
 import type { FlatNodeRow } from "@cascade/outliner/node-types";
 import {
 	nextRecurringDueDate,
@@ -8,6 +10,7 @@ import {
 import { toast } from "@cascade/ui/toast";
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { existingStatusesOptions } from "#/features/nodes/client/statuses/use-existing-statuses";
 import { existingTagsOptions } from "#/features/nodes/client/tags/use-existing-tags";
 import { useOptimisticNodeMutation } from "#/features/nodes/client/tree/mutations/use-node-mutation";
 import { visibleTreeOptions } from "#/features/nodes/client/tree/use-visible-tree";
@@ -75,6 +78,7 @@ export async function loadNodeDetail(
 	nodeSlug: string,
 ) {
 	queryClient.prefetchQuery(existingTagsOptions());
+	queryClient.prefetchQuery(existingStatusesOptions());
 
 	const tree = queryClient.getQueryData(visibleTreeOptions().queryKey);
 	const nodeId = tree ? findNodeIdInCache(tree.rows, nodeSlug) : null;
@@ -85,6 +89,8 @@ export async function loadNodeDetail(
 			const node: NodeDetailData = {
 				...row,
 				recurrence: row.recurrence ?? null,
+				priority: row.priority ?? null,
+				status: row.status ?? null,
 				hasChildren: tree.rows.some((r) => r.parentId === nodeId),
 			};
 			queryClient.setQueryData(
@@ -227,6 +233,45 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 			}),
 	});
 
+	const setPriorityMutation = useOptimisticNodeMutation<
+		PriorityName | null,
+		void,
+		NodeDetailData
+	>({
+		queryKey,
+		mutationFn: (priority) =>
+			client.nodes.setPriority({ id: nodeId, priority }),
+		patch: (old, priority) => (old ? { ...old, priority } : old),
+		onSuccess: () =>
+			queryClient.invalidateQueries({
+				queryKey: orpc.nodes.visibleTree.key(),
+			}),
+	});
+
+	const setStatusMutation = useOptimisticNodeMutation<
+		string | null,
+		void,
+		NodeDetailData
+	>({
+		queryKey,
+		mutationFn: (statusId) => client.nodes.setStatus({ id: nodeId, statusId }),
+		patch: (old, statusId) => {
+			if (!old) return old;
+			const statuses =
+				queryClient.getQueryData<StatusSummary[]>(
+					existingStatusesOptions().queryKey,
+				) ?? [];
+			return {
+				...old,
+				status: statuses.find((status) => status.id === statusId) ?? null,
+			};
+		},
+		onSuccess: () =>
+			queryClient.invalidateQueries({
+				queryKey: orpc.nodes.visibleTree.key(),
+			}),
+	});
+
 	const setRecurrenceMutation = useOptimisticNodeMutation<
 		RecurrenceInput | null,
 		void,
@@ -261,6 +306,9 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 		setRecurrence: (recurrence: RecurrenceInput | null) =>
 			setRecurrenceMutation.mutate(recurrence),
 		setTags: (tags: string[]) => setTagsMutation.mutate(tags),
+		setPriority: (priority: PriorityName | null) =>
+			setPriorityMutation.mutate(priority),
+		setStatus: (statusId: string | null) => setStatusMutation.mutate(statusId),
 		setIcon: (icon: string | null) => setIconMutation.mutate(icon),
 	};
 }

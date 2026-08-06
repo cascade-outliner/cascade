@@ -12,7 +12,9 @@ import {
 	useRemoveMutation,
 	useSetDueDateMutation,
 	useSetIconMutation,
+	useSetPriorityMutation,
 	useSetRecurrenceMutation,
+	useSetStatusMutation,
 	useSetTagsMutation,
 	useSetTaskCompletedMutation,
 	useSetTypeMutation,
@@ -66,6 +68,8 @@ export function useVisibleTree(
 	const setRecurrence = useSetRecurrenceMutation(options.queryKey);
 	const setTaskCompleted = useSetTaskCompletedMutation(options.queryKey);
 	const setTags = useSetTagsMutation(options.queryKey);
+	const setPriority = useSetPriorityMutation(options.queryKey);
+	const setStatus = useSetStatusMutation(options.queryKey);
 	const { add, addAfter } = useCreateMutation(options.queryKey, rootId, rows);
 
 	return {
@@ -81,6 +85,8 @@ export function useVisibleTree(
 		setRecurrence,
 		setTaskCompleted,
 		setTags,
+		setPriority,
+		setStatus,
 		add,
 		addAfter,
 	};

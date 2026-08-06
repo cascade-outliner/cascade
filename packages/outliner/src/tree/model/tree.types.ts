@@ -1,5 +1,6 @@
 import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceInput } from "../../dates/recurrence";
+import type { PriorityName } from "../../nodes/model/node-priority";
 import type {
 	TypedMetadata,
 	VisibleNodeRow,
@@ -42,6 +43,11 @@ export interface VisibleTree {
 		expectedDueDate: string | null,
 	) => void | Promise<void>;
 	setTags: (id: string, tags: string[]) => void | Promise<void>;
+	setPriority: (
+		id: string,
+		priority: PriorityName | null,
+	) => void | Promise<void>;
+	setStatus: (id: string, statusId: string | null) => void | Promise<void>;
 	setIcon: (id: string, icon: string | null) => void | Promise<void>;
 	/** Resolves to `null` if the create fails, so callers can skip focusing a node that was never made. */
 	add: (options?: AddNodeOptions) => Promise<string | null>;

@@ -16,6 +16,7 @@ import { restoreContentChanged } from "./restore/restore-content-changed";
 import { restoreDueDateChanged } from "./restore/restore-due-date-changed";
 import { restoreIconChanged } from "./restore/restore-icon-changed";
 import { restoreNodeMoved } from "./restore/restore-node-moved";
+import { restorePriorityChanged } from "./restore/restore-priority-changed";
 import { restoreRecurrenceChanged } from "./restore/restore-recurrence-changed";
 import { restoreRecurringTaskCompleted } from "./restore/restore-recurring-task-completed";
 import { restoreSubtreeDeleted } from "./restore/restore-subtree-deleted";
@@ -122,6 +123,14 @@ export const restoreTreeHistoryEntry = requirePremium
 						break;
 					case "icon_changed":
 						nextPayload = await restoreIconChanged(
+							transaction,
+							nodeId,
+							current,
+							payload,
+						);
+						break;
+					case "priority_changed":
+						nextPayload = await restorePriorityChanged(
 							transaction,
 							nodeId,
 							current,

@@ -15,6 +15,12 @@ import {
 } from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
+	existingStatusesOptions,
+	useCreateStatus,
+	useDeleteStatus,
+	useExistingStatuses,
+} from "@/features/nodes/client/statuses/use-existing-statuses";
+import {
 	existingTagsOptions,
 	useDeleteTag,
 	useExistingTags,
@@ -30,6 +36,7 @@ export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
 		queryClient.prefetchQuery(visibleTreeOptions());
 		queryClient.prefetchQuery(existingTagsOptions());
+		queryClient.prefetchQuery(existingStatusesOptions());
 	},
 	errorComponent: GenericErrorComponent,
 	component: () => (
@@ -55,6 +62,9 @@ function RootTree() {
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const existingStatuses = useExistingStatuses();
+	const createStatus = useCreateStatus();
+	const deleteStatus = useDeleteStatus();
 
 	return (
 		<VirtualTree
@@ -69,6 +79,7 @@ function RootTree() {
 				<FiltersBar
 					filters={filters}
 					existingTags={existingTags}
+					existingStatuses={existingStatuses}
 					onFiltersChange={setFilters}
 					completedFilterMode={
 						settings.hideCompletedByDefault ? "show" : "hide"
@@ -82,7 +93,10 @@ function RootTree() {
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
+			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
+			onCreateStatus={createStatus}
+			onDeleteStatus={deleteStatus}
 			onTagClick={(tag) =>
 				setFilters({
 					...filters,

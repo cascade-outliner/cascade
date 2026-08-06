@@ -4,12 +4,15 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import {
 	createNode,
+	createStatus,
 	createTag,
 	deleteNode,
+	deleteStatus,
 	deleteTag,
 	duplicateNode,
 	getNode,
 	listNodes,
+	listStatuses,
 	listTags,
 	moveNode,
 	quickOpen,
@@ -18,7 +21,9 @@ import {
 	restoreNode,
 	setNodeDueDate,
 	setNodeIcon,
+	setNodePriority,
 	setNodeRecurrence,
+	setNodeStatus,
 	setNodeTags,
 	setTaskCompleted,
 	updateNodeContent,
@@ -695,5 +700,114 @@ describe("setNodeIcon", () => {
 		await expect(
 			call(setNodeIcon, { id: node.id, icon: "not an emoji" }, { context }),
 		).rejects.toBeDefined();
+	});
+});
+
+describe("setNodePriority", () => {
+	it("sets and clears a node's priority", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+
+		await call(
+			setNodePriority,
+			{ id: node.id, priority: "urgent" },
+			{ context },
+		);
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			priority: "urgent",
+		});
+
+		await call(setNodePriority, { id: node.id, priority: null }, { context });
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			priority: null,
+		});
+	});
+
+	it("rejects a priority outside the fixed vocabulary", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+
+		await expect(
+			call(
+				setNodePriority,
+				{ id: node.id, priority: "whenever" as never },
+				{ context },
+			),
+		).rejects.toBeDefined();
+	});
+});
+
+describe("createStatus / listStatuses / setNodeStatus / deleteStatus", () => {
+	it("creates a status, rejects duplicate names, and lists it in creation order", async () => {
+		const first = await call(createStatus, { name: "To do" }, { context });
+		const second = await call(createStatus, { name: "Done" }, { context });
+
+		expect(await call(listStatuses, undefined, { context })).toEqual([
+			{ id: first.id, name: "To do", color: first.color },
+			{ id: second.id, name: "Done", color: second.color },
+		]);
+		await expect(
+			call(createStatus, { name: "TO DO" }, { context }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+	});
+
+	it("sets a node's status and surfaces it denormalized on the node", async () => {
+		const status = await call(createStatus, { name: "Blocked" }, { context });
+		const node = await call(createNode, { parentId: null }, { context });
+
+		await call(
+			setNodeStatus,
+			{ id: node.id, statusId: status.id },
+			{ context },
+		);
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			status: { id: status.id, name: "Blocked" },
+		});
+
+		await call(setNodeStatus, { id: node.id, statusId: null }, { context });
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			status: null,
+		});
+	});
+
+	it("rejects a status id that belongs to another user", async () => {
+		const { user: otherUser, context: otherContext } = await createTestUser();
+		try {
+			const foreign = await call(
+				createStatus,
+				{ name: "Someone else's" },
+				{ context: otherContext },
+			);
+			const node = await call(createNode, { parentId: null }, { context });
+
+			await expect(
+				call(setNodeStatus, { id: node.id, statusId: foreign.id }, { context }),
+			).rejects.toMatchObject({ code: "STATUS_NOT_FOUND" });
+		} finally {
+			await deleteTestUser(otherUser.id);
+		}
+	});
+
+	it("clears the status from nodes it was on instead of deleting them", async () => {
+		const status = await call(createStatus, { name: "In review" }, { context });
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			setNodeStatus,
+			{ id: node.id, statusId: status.id },
+			{ context },
+		);
+
+		await call(deleteStatus, { id: status.id }, { context });
+
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			status: null,
+		});
+		expect(
+			(await call(listStatuses, undefined, { context })).map(({ id }) => id),
+		).not.toContain(status.id);
+	});
+
+	it("rejects deleting an unknown status with NOT_FOUND", async () => {
+		await expect(
+			call(deleteStatus, { id: "does-not-exist" }, { context }),
+		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 });

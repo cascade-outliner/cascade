@@ -206,6 +206,8 @@ describe("useVisibleTree.add/addAfter", () => {
 		dueDate: null,
 		dueTime: null,
 		recurrence: null,
+		priority: null,
+		status: null,
 		tags: [],
 		icon: null,
 		hasChildren: false,

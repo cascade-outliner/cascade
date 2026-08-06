@@ -1,11 +1,15 @@
 import type { CalendarTimeString } from "@cascade/outliner/calendar-time";
 import { NodeDueDatePill } from "@cascade/outliner/features/due-date/node-due-date-pill";
 import { EmojiPicker } from "@cascade/outliner/features/icon/emoji-picker";
+import { NodePriorityControl } from "@cascade/outliner/features/priority/node-priority-control";
+import { NodeStatusControl } from "@cascade/outliner/features/status/node-status-control";
 import { NodeTagsControl } from "@cascade/outliner/features/tags/node-tags-pills";
 import { NodeCheckbox } from "@cascade/outliner/features/task/node-checkbox";
 import { useOutlinerLabels } from "@cascade/outliner/labels-context";
 import { LexicalReadView } from "@cascade/outliner/lexical/read/lexical-read-view";
 import { toLexicalContent } from "@cascade/outliner/lexical-content";
+import type { PriorityName } from "@cascade/outliner/node-priority";
+import type { StatusSummary } from "@cascade/outliner/node-statuses";
 import type { TagSummary } from "@cascade/outliner/node-tags";
 import type { RecurrenceInput } from "@cascade/outliner/recurrence";
 import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
@@ -46,18 +50,24 @@ export function NodeDetailHeader({
 	dueTime,
 	completed,
 	existingTags,
+	existingStatuses,
 	onToggleTask,
 	onDueDateChange,
 	onRecurrenceChange,
 	onTagsChange,
 	onDeleteTag,
 	onIconChange,
+	onPriorityChange,
+	onStatusChange,
+	onCreateStatus,
+	onDeleteStatus,
 }: {
 	node: NodeDetailData;
 	dueDate: Date | null;
 	dueTime: CalendarTimeString | null;
 	completed: boolean;
 	existingTags: TagSummary[];
+	existingStatuses: StatusSummary[];
 	onToggleTask: (completed: boolean) => void;
 	onDueDateChange: (
 		dueDate: Date | null,
@@ -67,6 +77,10 @@ export function NodeDetailHeader({
 	onTagsChange: (tags: string[]) => void;
 	onDeleteTag: (tag: string) => void;
 	onIconChange: (icon: string | null) => void;
+	onPriorityChange: (priority: PriorityName | null) => void;
+	onStatusChange: (statusId: string | null) => void;
+	onCreateStatus: (name: string) => Promise<StatusSummary | null>;
+	onDeleteStatus: (id: string) => void | Promise<void>;
 }) {
 	return (
 		<>
@@ -95,6 +109,17 @@ export function NodeDetailHeader({
 							onRecurrenceChange={onRecurrenceChange}
 						/>
 					)}
+					<NodePriorityControl
+						priority={node.priority}
+						onChange={onPriorityChange}
+					/>
+					<NodeStatusControl
+						status={node.status}
+						existingStatuses={existingStatuses}
+						onSelect={onStatusChange}
+						onCreateStatus={onCreateStatus}
+						onDeleteStatus={onDeleteStatus}
+					/>
 					<NodeTagsControl
 						tags={node.tags}
 						existingTags={existingTags}

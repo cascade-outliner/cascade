@@ -344,6 +344,8 @@ describe("optimistic node mutations", () => {
 			dueDate: null,
 			dueTime: null,
 			recurrence: null,
+			priority: null,
+			status: null,
 			tags: [],
 			icon: null,
 			hasChildren: false,

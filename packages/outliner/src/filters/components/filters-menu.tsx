@@ -2,12 +2,16 @@ import { Menu } from "@base-ui/react";
 import {
 	CaretRightIcon,
 	CheckIcon,
+	CircleDashedIcon,
+	FlagIcon,
 	FunnelIcon,
 	TagIcon,
 } from "@phosphor-icons/react/ssr";
 import { useState } from "react";
+import { StatusEditor } from "../../features/status/components/status-editor";
 import { NodeTagsEditor } from "../../features/tags/components/node-tags-editor/node-tags-editor";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
+import { PRIORITY_NAMES } from "../../nodes/model/node-priority";
 import type { FiltersBarProps } from "../model/filters-bar.types";
 import { DueDateFilterMenu } from "./due-date-filter-menu";
 import {
@@ -21,6 +25,7 @@ import {
 export function FiltersMenu({
 	filters,
 	existingTags = [],
+	existingStatuses = [],
 	onFiltersChange,
 	completedFilterMode = "hide",
 }: FiltersBarProps) {
@@ -48,6 +53,78 @@ export function FiltersMenu({
 							onFiltersChange={onFiltersChange}
 							onCompleteSelection={() => setOpen(false)}
 						/>
+						<Menu.SubmenuRoot>
+							<Menu.SubmenuTrigger className={menuItem()}>
+								<FlagIcon size={13} weight="bold" />
+								{labels.filtersPriorityGroup}
+								<CaretRightIcon size={13} weight="bold" className="ml-auto" />
+							</Menu.SubmenuTrigger>
+							<Menu.Portal>
+								<Menu.Positioner className="z-50 outline-none" sideOffset={6}>
+									<Menu.Popup className={popup()}>
+										{PRIORITY_NAMES.map((level) => {
+											const checked = filters.priorities.includes(level);
+											return (
+												<Menu.CheckboxItem
+													key={level}
+													className={menuItem()}
+													checked={checked}
+													onCheckedChange={(next) =>
+														onFiltersChange({
+															...filters,
+															priorities: next
+																? [...filters.priorities, level]
+																: filters.priorities.filter(
+																		(name) => name !== level,
+																	),
+														})
+													}
+												>
+													<span className={checkbox({ checked })}>
+														{checked && <CheckIcon size={10} weight="bold" />}
+													</span>
+													{labels.priorityLabels[level]}
+												</Menu.CheckboxItem>
+											);
+										})}
+									</Menu.Popup>
+								</Menu.Positioner>
+							</Menu.Portal>
+						</Menu.SubmenuRoot>
+						{existingStatuses.length > 0 && (
+							<Menu.SubmenuRoot>
+								<Menu.SubmenuTrigger className={menuItem()}>
+									<CircleDashedIcon size={13} weight="bold" />
+									{labels.filtersStatusGroup}
+									<CaretRightIcon size={13} weight="bold" className="ml-auto" />
+								</Menu.SubmenuTrigger>
+								<Menu.Portal>
+									<Menu.Positioner className="z-50 outline-none" sideOffset={6}>
+										<Menu.Popup className={popup()}>
+											<StatusEditor
+												mode="filter"
+												statusId={null}
+												selectedIds={filters.statusIds}
+												existingStatuses={existingStatuses}
+												onSelect={(statusId) =>
+													onFiltersChange({
+														...filters,
+														statusIds:
+															statusId === null
+																? []
+																: filters.statusIds.includes(statusId)
+																	? filters.statusIds.filter(
+																			(id) => id !== statusId,
+																		)
+																	: [...filters.statusIds, statusId],
+													})
+												}
+											/>
+										</Menu.Popup>
+									</Menu.Positioner>
+								</Menu.Portal>
+							</Menu.SubmenuRoot>
+						)}
 						{existingTags.length > 0 && (
 							<Menu.SubmenuRoot>
 								<Menu.SubmenuTrigger className={menuItem()}>

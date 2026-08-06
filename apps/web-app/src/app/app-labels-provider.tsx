@@ -3,6 +3,7 @@ import {
 	type OutlinerLabels,
 	OutlinerLabelsProvider,
 } from "@cascade/outliner/labels-context";
+import { MAX_STATUS_LENGTH } from "@cascade/outliner/node-statuses";
 import { MAX_TAG_LENGTH } from "@cascade/outliner/node-tags";
 import {
 	defaultUiLabels,
@@ -73,6 +74,26 @@ function createOutlinerLabels(): OutlinerLabels {
 			interval: "{interval}",
 			unit: "{unit}",
 		}),
+		setPriority: m.outliner_set_priority(),
+		changePriority: m.outliner_change_priority(),
+		changePriorityAria: m.outliner_change_priority_aria(),
+		priorityNone: m.outliner_priority_none(),
+		priorityLabels: {
+			urgent: m.outliner_priority_urgent(),
+			high: m.outliner_priority_high(),
+			medium: m.outliner_priority_medium(),
+			low: m.outliner_priority_low(),
+		},
+		setStatus: m.outliner_set_status(),
+		changeStatus: m.outliner_change_status(),
+		changeStatusAria: m.outliner_change_status_aria(),
+		statusEmpty: m.outliner_status_empty(),
+		statusInputPlaceholder: m.outliner_status_input_placeholder(),
+		createStatus: m.outliner_create_status(),
+		statusNameTooLong: m.outliner_status_name_too_long({
+			max: MAX_STATUS_LENGTH,
+		}),
+		deleteStatusAria: m.outliner_delete_status_aria(),
 		addTag: m.outliner_add_tag(),
 		manageTags: m.outliner_manage_tags(),
 		tagsInputPlaceholder: m.outliner_tags_input_placeholder(),
@@ -114,6 +135,10 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersDueOn: m.filters_bar_due_on(),
 		filtersRemoveDueOnDate: m.filters_bar_remove_due_on_date(),
 		filtersRemoveDueDateRange: m.filters_bar_remove_due_date_range(),
+		filtersPriorityGroup: m.filters_bar_priority_group(),
+		filtersRemovePriority: m.filters_bar_remove_priority(),
+		filtersStatusGroup: m.filters_bar_status_group(),
+		filtersRemoveStatus: m.filters_bar_remove_status(),
 		filtersTagsGroup: m.filters_bar_tags_group(),
 		filtersSearchTags: m.filters_bar_search_tags(),
 		filtersRemoveTag: m.filters_bar_remove_tag(),
