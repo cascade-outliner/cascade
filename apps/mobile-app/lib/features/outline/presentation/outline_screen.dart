@@ -19,6 +19,7 @@ class OutlineScreen extends StatefulWidget {
 
 class _OutlineScreenState extends State<OutlineScreen> {
   final _editing = OutlineRowEditingControllers();
+  final _scrollController = ScrollController();
 
   OutlineController get _controller => widget.controller;
 
@@ -31,6 +32,7 @@ class _OutlineScreenState extends State<OutlineScreen> {
   @override
   void dispose() {
     _editing.disposeAll();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -81,28 +83,40 @@ class _OutlineScreenState extends State<OutlineScreen> {
           if (rows.isEmpty) {
             return const Center(child: Text('No notes yet — tap + to add one.'));
           }
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: rows.length,
-            itemBuilder: (context, index) {
-              final row = rows[index];
-              final node = row.node;
-              return OutlineRow(
-                key: ValueKey(node.id),
-                depth: row.depth,
-                hasChildren: node.hasChildren,
-                expanded: node.expanded,
-                controller: _editing.textControllerFor(node.id, initialText: node.text),
-                focusNode: _editing.focusNodeFor(node.id),
-                onToggleExpanded: () => _controller.toggleExpanded(node.id),
-                onChanged: (text) => _controller.updateText(node.id, text),
-                onSubmitted: () => _addSiblingAfter(node.id),
-                onIndent: () => _indent(node.id),
-                onOutdent: () => _outdent(node.id),
-                onAddChild: () => _addChild(node.id),
-                onDelete: () => _delete(node.id),
-              );
-            },
+          return Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              // A fixed extent (every OutlineRow is exactly this tall — see
+              // its doc comment) lets Flutter compute scroll position and
+              // the scrollbar thumb size in O(1) instead of laying out
+              // every row between here and the target offset. Without it,
+              // flinging to the bottom of a tree with thousands of nodes
+              // gets progressively more expensive the further it scrolls.
+              itemExtent: OutlineRow.height,
+              itemCount: rows.length,
+              itemBuilder: (context, index) {
+                final row = rows[index];
+                final node = row.node;
+                return OutlineRow(
+                  key: ValueKey(node.id),
+                  depth: row.depth,
+                  hasChildren: node.hasChildren,
+                  expanded: node.expanded,
+                  controller: _editing.textControllerFor(node.id, initialText: node.text),
+                  focusNode: _editing.focusNodeFor(node.id),
+                  onToggleExpanded: () => _controller.toggleExpanded(node.id),
+                  onChanged: (text) => _controller.updateText(node.id, text),
+                  onSubmitted: () => _addSiblingAfter(node.id),
+                  onIndent: () => _indent(node.id),
+                  onOutdent: () => _outdent(node.id),
+                  onAddChild: () => _addChild(node.id),
+                  onDelete: () => _delete(node.id),
+                );
+              },
+            ),
           );
         },
       ),
