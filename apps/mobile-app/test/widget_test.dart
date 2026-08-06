@@ -5,7 +5,11 @@ import 'package:mobile/features/outline/application/outline_controller.dart';
 import 'package:mobile/features/outline/data/in_memory_outline_repository.dart';
 import 'package:mobile/main.dart';
 
-OutlineController _controller() => OutlineController(repository: InMemoryOutlineRepository());
+OutlineController _controller() {
+  final controller = OutlineController(repository: InMemoryOutlineRepository());
+  addTearDown(controller.dispose);
+  return controller;
+}
 
 void main() {
   testWidgets('shows the seeded outline nodes', (WidgetTester tester) async {
@@ -26,6 +30,10 @@ void main() {
     await tester.pump();
 
     expect(find.text('Tap the chevron to expand or collapse a node'), findsNothing);
+
+    // Flushes the debounced persist timer the tap above scheduled, so it
+    // doesn't outlive the test.
+    await tester.pump(const Duration(milliseconds: 500));
   });
 
   testWidgets('tapping the FAB adds a new empty root node', (WidgetTester tester) async {
@@ -39,5 +47,9 @@ void main() {
 
     final textFieldsAfter = find.byType(TextField).evaluate().length;
     expect(textFieldsAfter, textFieldsBefore + 1);
+
+    // Flushes the debounced persist timer the tap above scheduled, so it
+    // doesn't outlive the test.
+    await tester.pump(const Duration(milliseconds: 500));
   });
 }

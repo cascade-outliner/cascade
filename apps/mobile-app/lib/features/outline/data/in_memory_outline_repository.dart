@@ -3,8 +3,8 @@ import 'outline_repository.dart';
 
 /// Holds the whole tree in memory and seeds it with a few demo nodes.
 ///
-/// Placeholder for a real, network-backed `OutlineRepository` — nothing
-/// persists across app restarts.
+/// Used for tests/widget previews rather than the real app, which uses
+/// `SqliteOutlineRepository` — nothing persists across app restarts here.
 class InMemoryOutlineRepository implements OutlineRepository {
   InMemoryOutlineRepository({OutlineIdGenerator? idGenerator}) : _idGenerator = idGenerator ?? OutlineIdGenerator();
 
@@ -24,4 +24,9 @@ class InMemoryOutlineRepository implements OutlineRepository {
 
     return [welcome, second];
   }
+
+  /// No-op: the tree passed in is the same in-memory object graph this
+  /// repository would otherwise hold, so there's nothing separate to write.
+  @override
+  Future<void> saveTree(List<OutlineNode> roots) async {}
 }
