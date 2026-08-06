@@ -2,6 +2,8 @@ import { z } from "zod";
 import type { CalendarDateString } from "../../dates/calendar-date";
 import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceRule } from "../../dates/recurrence";
+import type { PriorityName } from "./node-priority";
+import type { StatusSummary } from "./node-statuses";
 
 /** A single node as the server sends it: unordered, with no tree structure computed. */
 export interface FlatNodeRow {
@@ -17,6 +19,10 @@ export interface FlatNodeRow {
 	/** Local wall-clock time paired with `dueDate`, or `null` for an all-day due date. */
 	dueTime: CalendarTimeString | null;
 	recurrence?: RecurrenceRule | null;
+	/** Fixed priority level, or `null`/absent for no priority (see #576). */
+	priority?: PriorityName | null;
+	/** The user-defined status this node is in, denormalized by the server. */
+	status?: StatusSummary | null;
 	tags: string[];
 	/** A single emoji, or `null` for no custom icon (see #557). */
 	icon: string | null;

@@ -4,6 +4,7 @@ import {
 	parseCalendarDate,
 } from "@cascade/outliner/calendar-date";
 import type { NodeFilters } from "@cascade/outliner/node-filters";
+import { PRIORITY_NAMES } from "@cascade/outliner/node-priority";
 import {
 	createParser,
 	parseAsArrayOf,
@@ -26,6 +27,10 @@ const parseAsLocalDate = createParser<Date>({
 
 const filterParsers = {
 	tag: parseAsArrayOf(parseAsString).withDefault([]),
+	priority: parseAsArrayOf(parseAsStringLiteral(PRIORITY_NAMES)).withDefault(
+		[],
+	),
+	status: parseAsArrayOf(parseAsString).withDefault([]),
 	filter: parseAsStringLiteral(["today", "week"]),
 	due: parseAsLocalDate,
 	due_start: parseAsLocalDate,
@@ -56,8 +61,10 @@ export function completedFilterOverride(
 export function useNodeFilters(
 	hideCompletedByDefault = false,
 ): [NodeFilters, (filters: NodeFilters) => void] {
-	const [{ tag, filter, due, due_start, due_end, completed }, setQueryFilters] =
-		useQueryStates(filterParsers);
+	const [
+		{ tag, priority, status, filter, due, due_start, due_end, completed },
+		setQueryFilters,
+	] = useQueryStates(filterParsers);
 
 	const dueDateRange =
 		due_start !== null && due_end !== null && due_start <= due_end
@@ -67,6 +74,8 @@ export function useNodeFilters(
 	return [
 		{
 			tags: tag,
+			priorities: priority,
+			statusIds: status,
 			dueToday: filter === "today",
 			dueThisWeek: filter === "week",
 			dueOnDate: due,
@@ -76,6 +85,8 @@ export function useNodeFilters(
 		(filters) =>
 			setQueryFilters({
 				tag: filters.tags.length > 0 ? filters.tags : null,
+				priority: filters.priorities.length > 0 ? filters.priorities : null,
+				status: filters.statusIds.length > 0 ? filters.statusIds : null,
 				filter: filters.dueToday
 					? "today"
 					: filters.dueThisWeek

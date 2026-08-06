@@ -1,3 +1,4 @@
+import type { StatusSummary } from "@cascade/outliner/node-statuses";
 import { type SQL, sql } from "drizzle-orm";
 import { nodes } from "@/features/nodes/server/persistence/node-tables";
 
@@ -8,6 +9,12 @@ export const nodeTagNames = (nodeId: SQL) =>
 	sql<
 		string[]
 	>`COALESCE((SELECT array_agg(t.name ORDER BY t.name) FROM node_tags nt JOIN tags t ON t.id = nt.tag_id WHERE nt.node_id = ${nodeId}), '{}')`;
+
+/** The node's status denormalized into the shape clients render (#576). */
+export const nodeStatus = sql<StatusSummary | null>`(
+	SELECT json_build_object('id', s.id, 'name', s.name, 'color', s.color)
+	FROM statuses s WHERE s.id = nodes.status_id
+)`;
 
 export const nodeColumns = (userId: string) => ({
 	id: nodes.id,
@@ -21,6 +28,8 @@ export const nodeColumns = (userId: string) => ({
 	dueTime: nodes.dueTime,
 	recurrence: nodes.recurrence,
 	icon: nodes.icon,
+	priority: nodes.priority,
+	status: nodeStatus,
 	tags: nodeTagNames(sql`nodes.id`),
 	hasChildren: hasChildren(userId),
 });

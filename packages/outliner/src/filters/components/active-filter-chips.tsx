@@ -6,11 +6,14 @@ import {
 import {
 	CalendarIcon,
 	CheckSquareIcon,
+	CircleDashedIcon,
+	FlagIcon,
 	TagIcon,
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
+import type { StatusSummary } from "../../nodes/model/node-statuses";
 import {
 	formatDueDateRange,
 	formatDueOnDate,
@@ -21,12 +24,14 @@ import { chip, removeChipButton } from "./filters-bar.styles";
 
 interface ActiveFilterChipsProps {
 	filters: NodeFilters;
+	existingStatuses?: StatusSummary[];
 	onFiltersChange: (filters: NodeFilters) => void;
 	completedFilterMode?: "hide" | "show";
 }
 
 export function ActiveFilterChips({
 	filters,
+	existingStatuses = [],
 	onFiltersChange,
 	completedFilterMode = "hide",
 }: ActiveFilterChipsProps) {
@@ -85,6 +90,42 @@ export function ActiveFilterChips({
 					onRemove={() => onFiltersChange({ ...filters, dueDateRange: null })}
 				/>
 			)}
+
+			{filters.priorities.map((priority) => (
+				<FilterChip
+					key={`priority:${priority}`}
+					icon={<FlagIcon size={11} weight="bold" />}
+					label={labels.priorityLabels[priority]}
+					removeLabel={`${labels.filtersRemovePriority}: ${labels.priorityLabels[priority]}`}
+					onRemove={() =>
+						onFiltersChange({
+							...filters,
+							priorities: filters.priorities.filter(
+								(name) => name !== priority,
+							),
+						})
+					}
+				/>
+			))}
+
+			{filters.statusIds.map((statusId) => {
+				const status = existingStatuses.find(({ id }) => id === statusId);
+				if (!status) return null;
+				return (
+					<FilterChip
+						key={`status:${statusId}`}
+						icon={<CircleDashedIcon size={11} weight="bold" />}
+						label={status.name}
+						removeLabel={`${labels.filtersRemoveStatus}: ${status.name}`}
+						onRemove={() =>
+							onFiltersChange({
+								...filters,
+								statusIds: filters.statusIds.filter((id) => id !== statusId),
+							})
+						}
+					/>
+				);
+			})}
 
 			{filters.tags.map((tag) => (
 				<FilterChip

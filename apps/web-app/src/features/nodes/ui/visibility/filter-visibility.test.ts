@@ -622,3 +622,90 @@ describe("getRowVisibility with dueDateRange", () => {
 		);
 	});
 });
+
+describe("getRowVisibility with priority and status filters", () => {
+	const todo = { id: "status-todo", name: "To do", color: "sky" };
+	const done = { id: "status-done", name: "Done", color: "emerald" };
+
+	it("keeps only rows at one of the selected priorities", () => {
+		const rows = [
+			{ ...row("urgent", null, 0, null), priority: "urgent" as const },
+			{ ...row("low", null, 0, null), priority: "low" as const },
+			row("none", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			priorities: ["urgent"],
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["low", "none"]));
+	});
+
+	it("treats several selected priorities as a union", () => {
+		const rows = [
+			{ ...row("urgent", null, 0, null), priority: "urgent" as const },
+			{ ...row("high", null, 0, null), priority: "high" as const },
+			{ ...row("low", null, 0, null), priority: "low" as const },
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			priorities: ["urgent", "high"],
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["low"]));
+	});
+
+	it("keeps only rows in one of the selected statuses", () => {
+		const rows = [
+			{ ...row("in-todo", null, 0, null), status: todo },
+			{ ...row("in-done", null, 0, null), status: done },
+			row("no-status", null, 0, null),
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			statusIds: [todo.id],
+		});
+		expect(visibility.hiddenIds).toEqual(new Set(["in-done", "no-status"]));
+	});
+
+	it("requires a row to match both an active priority and status filter", () => {
+		const rows = [
+			{
+				...row("both", null, 0, null),
+				priority: "urgent" as const,
+				status: todo,
+			},
+			{ ...row("priority-only", null, 0, null), priority: "urgent" as const },
+			{ ...row("status-only", null, 0, null), status: todo },
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			priorities: ["urgent"],
+			statusIds: [todo.id],
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["priority-only", "status-only"]),
+		);
+	});
+
+	it("combines a priority filter with an active due-date filter", () => {
+		const friday = new Date(2026, 6, 17);
+		const rows = [
+			{
+				...row("urgent-this-week", null, 0, friday),
+				priority: "urgent" as const,
+			},
+			{
+				...row("urgent-next-week", null, 0, new Date(2026, 6, 20)),
+				priority: "urgent" as const,
+			},
+			{ ...row("low-this-week", null, 0, friday), priority: "low" as const },
+		];
+		const visibility = getRowVisibility(rows, {
+			...noFilters,
+			dueThisWeek: true,
+			priorities: ["urgent"],
+		});
+		expect(visibility.hiddenIds).toEqual(
+			new Set(["urgent-next-week", "low-this-week"]),
+		);
+	});
+});

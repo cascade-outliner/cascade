@@ -12,6 +12,11 @@ import {
 } from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
 import {
+	useCreateStatus,
+	useDeleteStatus,
+	useExistingStatuses,
+} from "#/features/nodes/client/statuses/use-existing-statuses";
+import {
 	useDeleteTag,
 	useExistingTags,
 } from "#/features/nodes/client/tags/use-existing-tags";
@@ -41,6 +46,9 @@ export function NodeTree({
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const existingStatuses = useExistingStatuses();
+	const createStatus = useCreateStatus();
+	const deleteStatus = useDeleteStatus();
 
 	return (
 		<VirtualTree
@@ -55,6 +63,7 @@ export function NodeTree({
 					<FiltersBar
 						filters={filters}
 						existingTags={existingTags}
+						existingStatuses={existingStatuses}
 						onFiltersChange={setFilters}
 						completedFilterMode={
 							settings.hideCompletedByDefault ? "show" : "hide"
@@ -70,7 +79,10 @@ export function NodeTree({
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
+			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
+			onCreateStatus={createStatus}
+			onDeleteStatus={deleteStatus}
 			onTagClick={(tag) =>
 				setFilters({
 					...filters,

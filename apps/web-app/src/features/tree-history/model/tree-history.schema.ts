@@ -14,6 +14,8 @@ export const treeHistoryEventKindSchema = z.enum([
 	"type_changed",
 	"due_date_changed",
 	"icon_changed",
+	"priority_changed",
+	"status_changed",
 	"recurrence_changed",
 	"recurring_task_completed",
 	"tags_changed",
@@ -101,6 +103,16 @@ export const treeHistoryPayloadSchema = z.discriminatedUnion("kind", [
 	}),
 	basePayloadSchema.extend({
 		kind: z.literal("icon_changed"),
+		before: z.string().nullable(),
+		after: z.string().nullable(),
+	}),
+	basePayloadSchema.extend({
+		kind: z.literal("priority_changed"),
+		before: z.string().nullable(),
+		after: z.string().nullable(),
+	}),
+	basePayloadSchema.extend({
+		kind: z.literal("status_changed"),
 		before: z.string().nullable(),
 		after: z.string().nullable(),
 	}),
@@ -206,6 +218,10 @@ export const RESTORABLE_HISTORY_KINDS = new Set<TreeHistoryEventKind>([
 	"type_changed",
 	"due_date_changed",
 	"icon_changed",
+	"priority_changed",
+	// `status_changed` is deliberately absent: the status a node was in may
+	// have been deleted since, and restoring would resurrect a dangling
+	// reference the `set null` FK exists to prevent.
 	"recurrence_changed",
 	"recurring_task_completed",
 	"tags_changed",

@@ -4,6 +4,11 @@ import { TreeSkeleton } from "@cascade/outliner/tree-skeleton";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
 import {
+	useCreateStatus,
+	useDeleteStatus,
+	useExistingStatuses,
+} from "#/features/nodes/client/statuses/use-existing-statuses";
+import {
 	useDeleteTag,
 	useExistingTags,
 } from "#/features/nodes/client/tags/use-existing-tags";
@@ -17,6 +22,9 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 	const { data: node } = useSuspenseQuery(options);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const existingStatuses = useExistingStatuses();
+	const createStatus = useCreateStatus();
+	const deleteStatus = useDeleteStatus();
 	const mutations = useNodeDetailMutations(nodeId, options.queryKey);
 
 	// node.dueDate is a `YYYY-MM-DD` calendar date, not a Date; parse it here
@@ -37,12 +45,17 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 						dueTime={node.dueTime}
 						completed={completed}
 						existingTags={existingTags}
+						existingStatuses={existingStatuses}
 						onToggleTask={mutations.toggleTask}
 						onDueDateChange={mutations.setDueDate}
 						onRecurrenceChange={mutations.setRecurrence}
 						onTagsChange={mutations.setTags}
 						onDeleteTag={deleteTag}
 						onIconChange={mutations.setIcon}
+						onPriorityChange={mutations.setPriority}
+						onStatusChange={mutations.setStatus}
+						onCreateStatus={createStatus}
+						onDeleteStatus={deleteStatus}
 					/>
 				}
 			/>
