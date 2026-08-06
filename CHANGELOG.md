@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2026-08-06
-- [fix] Fixed the `apps/web-app` e2e suite, which broadly failed in CI after the first-run onboarding tour landed: the shared e2e test account now has the tour marked completed up front, instead of its overlay intercepting clicks throughout the suite. [#644](https://github.com/cascade-outliner/cascade/issues/644)
+- [fix] Fixed the `apps/web-app` e2e suite, which broadly failed in CI after the first-run onboarding tour landed: the shared e2e test account now has the tour marked completed up front, instead of its overlay intercepting clicks throughout the suite. The same change also introduced a duplicate `data-node-id` attribute on every tree row (breaking anything selecting a row by that attribute) and a tag pill color that fell just short of WCAG AA contrast — both fixed alongside it. [#644](https://github.com/cascade-outliner/cascade/issues/644)
 
 ## 2026-08-05
 - [perf] Clicking a node's focus dot no longer refetches the node's own record and ancestor chain over the network — that data is now read straight from the already-loaded tree cache, falling back to a network fetch only for cold navigation or an ambiguous slug. [#631](https://github.com/cascade-outliner/cascade/issues/631)
