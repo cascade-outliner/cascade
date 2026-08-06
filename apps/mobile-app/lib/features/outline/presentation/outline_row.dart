@@ -4,6 +4,11 @@ import 'package:flutter/services.dart';
 /// A single, presentational row of the outliner: a chevron to expand or
 /// collapse children, a bullet, an editable text field for the node's
 /// content, and per-row actions (indent, outdent, add child, delete).
+///
+/// Purely a function of its parameters — it knows nothing about
+/// `OutlineController` or how the tree is stored, so it's reusable as-is
+/// however the tree ends up being edited (e.g. a future drag-and-drop
+/// reorder) as long as the caller wires up the callbacks.
 class OutlineRow extends StatelessWidget {
   const OutlineRow({
     super.key,
