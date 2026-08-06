@@ -94,6 +94,7 @@ export interface VirtualTreeRowProps {
 	onSetTags: (tags: string[]) => void;
 	onSetPriority: (priority: PriorityName | null) => void;
 	onSetStatus: (statusId: string | null) => void;
+	onSetBoardView: (isBoard: boolean) => void;
 	onSetIcon: (icon: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;

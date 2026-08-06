@@ -548,5 +548,10 @@
 	"filters_bar_priority_group": "Priority",
 	"filters_bar_remove_priority": "Remove priority filter",
 	"filters_bar_status_group": "Status",
-	"filters_bar_remove_status": "Remove status filter"
+	"filters_bar_remove_status": "Remove status filter",
+	"outliner_convert_option_board": "Board",
+	"outliner_convert_option_tree": "Tree",
+	"outliner_board_unassigned_column": "No status",
+	"outliner_board_empty_column": "No cards",
+	"outliner_board_add_card": "Add card"
 }

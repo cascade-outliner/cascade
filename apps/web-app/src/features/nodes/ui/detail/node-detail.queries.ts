@@ -91,6 +91,7 @@ export async function loadNodeDetail(
 				recurrence: row.recurrence ?? null,
 				priority: row.priority ?? null,
 				status: row.status ?? null,
+				isBoard: row.isBoard ?? false,
 				hasChildren: tree.rows.some((r) => r.parentId === nodeId),
 			};
 			queryClient.setQueryData(

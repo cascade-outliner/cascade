@@ -26,6 +26,10 @@ export interface FlatNodeRow {
 	tags: string[];
 	/** A single emoji, or `null` for no custom icon (see #557). */
 	icon: string | null;
+	/** Whether this node's own detail page renders its direct children as a
+	 * status-grouped board instead of the tree, or `false`/absent for the
+	 * default tree (see #455). */
+	isBoard?: boolean;
 }
 
 /**

@@ -114,4 +114,9 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	filtersShowCompleted: "Show completed",
 	filtersRemoveShowCompleted: "Remove Show completed filter",
 	filtersClear: "Clear filters",
+	convertOptionBoard: "Board",
+	convertOptionTree: "Tree",
+	boardUnassignedColumn: "No status",
+	boardEmptyColumn: "No cards",
+	boardAddCard: "Add card",
 };

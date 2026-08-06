@@ -548,5 +548,10 @@
 	"filters_bar_priority_group": "Prioriteit",
 	"filters_bar_remove_priority": "Prioriteitsfilter verwijderen",
 	"filters_bar_status_group": "Status",
-	"filters_bar_remove_status": "Statusfilter verwijderen"
+	"filters_bar_remove_status": "Statusfilter verwijderen",
+	"outliner_convert_option_board": "Bord",
+	"outliner_convert_option_tree": "Boom",
+	"outliner_board_unassigned_column": "Geen status",
+	"outliner_board_empty_column": "Geen kaarten",
+	"outliner_board_add_card": "Kaart toevoegen"
 }

@@ -70,6 +70,8 @@
     "./virtual-tree/virtual-tree-row": "./src/tree/components/virtual-tree-row.tsx",
     "./virtual-tree/virtual-tree-view": "./src/tree/components/virtual-tree-view.tsx",
     "./virtual-tree/virtual-tree": "./src/tree/components/virtual-tree.tsx",
+    "./board-view": "./src/board/board-view.tsx",
+    "./board-types": "./src/board/model/board.types.ts",
     "./expansion-reveal-motion": "./src/tree/motion/expansion-reveal.ts",
     "./row-lifecycle-motion": "./src/tree/motion/row-lifecycle.ts"
   },

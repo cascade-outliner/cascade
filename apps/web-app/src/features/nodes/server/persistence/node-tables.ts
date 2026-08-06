@@ -103,6 +103,13 @@ export const nodes = pgTable(
 		statusId: text("status_id").references(() => statuses.id, {
 			onDelete: "set null",
 		}),
+		/**
+		 * Whether this node's own detail page renders its direct children as
+		 * a status-grouped board instead of the tree (see #455) — an explicit
+		 * per-node choice ("convert this node into a board"), not a session
+		 * view toggle every node gets.
+		 */
+		isBoard: boolean("is_board").notNull().default(false),
 	},
 	(t) => [
 		index("nodes_parent_id_idx").on(t.parentId),
