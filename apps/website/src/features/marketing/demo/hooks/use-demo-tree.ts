@@ -167,6 +167,10 @@ export function useDemoTree(rootId: string | null) {
 		setAllNodes((current) => patchRow(current, id, { status: null }));
 	};
 
+	const setBoardView: VisibleTree["setBoardView"] = (id, isBoard) => {
+		setAllNodes((current) => patchRow(current, id, { isBoard }));
+	};
+
 	const add: VisibleTree["add"] = async ({
 		dueDate = null,
 	}: AddNodeOptions = {}) => {
@@ -220,6 +224,7 @@ export function useDemoTree(rootId: string | null) {
 		setIcon,
 		setPriority,
 		setStatus,
+		setBoardView,
 		add,
 		addAfter,
 		ancestors,
