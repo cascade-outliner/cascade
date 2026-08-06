@@ -39,8 +39,8 @@ function renderPanel(data: StatusWithUsage[] | undefined = statuses) {
 	vi.mocked(useStatusManagement).mockReturnValue(
 		management as unknown as ReturnType<typeof useStatusManagement>,
 	);
-	render(<StatusSettingsPanel />);
-	return management;
+	const { container } = render(<StatusSettingsPanel />);
+	return { ...management, container };
 }
 
 describe("StatusSettingsPanel", () => {
@@ -50,19 +50,20 @@ describe("StatusSettingsPanel", () => {
 	});
 
 	it("creates a status with the color picked from the palette", () => {
-		const { createStatus } = renderPanel();
+		const { createStatus, container } = renderPanel();
+		const form = within(container.querySelector("form") as HTMLElement);
 
 		fireEvent.change(
-			screen.getByPlaceholderText(m.settings_statuses_create_placeholder()),
+			form.getByPlaceholderText(m.settings_statuses_create_placeholder()),
 			{ target: { value: "  In review  " } },
 		);
 		fireEvent.click(
-			screen.getByRole("radio", {
+			form.getByRole("radio", {
 				name: m.settings_statuses_color_option({ color: "rose" }),
 			}),
 		);
 		fireEvent.click(
-			screen.getByRole("button", { name: m.settings_statuses_create() }),
+			form.getByRole("button", { name: m.settings_statuses_create() }),
 		);
 
 		expect(createStatus).toHaveBeenCalledWith(
@@ -80,33 +81,36 @@ describe("StatusSettingsPanel", () => {
 			{ target: { value: "to do" } },
 		);
 
-		expect(screen.getByRole("alert")).toHaveTextContent(
+		expect(screen.getByRole("alert").textContent).toBe(
 			m.settings_statuses_name_exists(),
 		);
 		expect(
-			screen.getByRole("button", { name: m.settings_statuses_create() }),
-		).toBeDisabled();
+			screen
+				.getByRole("button", { name: m.settings_statuses_create() })
+				.hasAttribute("disabled"),
+		).toBe(true);
 		expect(createStatus).not.toHaveBeenCalled();
 	});
 
 	it("renames and recolors an existing status", () => {
-		const { updateStatus } = renderPanel();
+		const { updateStatus, container } = renderPanel();
 
 		fireEvent.click(
 			screen.getByRole("button", {
 				name: m.settings_statuses_edit_label({ name: "To do" }),
 			}),
 		);
-		fireEvent.change(screen.getByLabelText(m.settings_statuses_name_label()), {
+		const row = within(container.querySelectorAll("li")[0] as HTMLElement);
+		fireEvent.change(row.getByLabelText(m.settings_statuses_name_label()), {
 			target: { value: "Backlog" },
 		});
 		fireEvent.click(
-			screen.getByRole("radio", {
+			row.getByRole("radio", {
 				name: m.settings_statuses_color_option({ color: "violet" }),
 			}),
 		);
 		fireEvent.click(
-			screen.getByRole("button", { name: m.settings_statuses_save() }),
+			row.getByRole("button", { name: m.settings_statuses_save() }),
 		);
 
 		expect(updateStatus).toHaveBeenCalledWith(
@@ -126,7 +130,7 @@ describe("StatusSettingsPanel", () => {
 		);
 
 		const dialog = screen.getByRole("alertdialog");
-		expect(dialog).toHaveTextContent(
+		expect(dialog.textContent).toContain(
 			m.settings_statuses_delete_description({ name: "To do", count: 3 }),
 		);
 		fireEvent.click(
@@ -141,9 +145,8 @@ describe("StatusSettingsPanel", () => {
 	it("shows an empty state when the user has no statuses yet", () => {
 		renderPanel([]);
 
-		expect(screen.getByText(m.settings_statuses_empty())).toBeInTheDocument();
-		expect(
-			screen.getByText(m.settings_statuses_empty_description()),
-		).toBeInTheDocument();
+		// Both throw if the empty state isn't rendered.
+		screen.getByText(m.settings_statuses_empty());
+		screen.getByText(m.settings_statuses_empty_description());
 	});
 });

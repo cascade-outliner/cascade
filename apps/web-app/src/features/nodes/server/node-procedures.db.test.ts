@@ -27,6 +27,7 @@ import {
 	setNodeTags,
 	setTaskCompleted,
 	updateNodeContent,
+	updateStatus,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
 import { requestPremiumSeat } from "@/features/premium/server/premium-procedures";
@@ -735,14 +736,14 @@ describe("setNodePriority", () => {
 	});
 });
 
-describe("createStatus / listStatuses / setNodeStatus / deleteStatus", () => {
+describe("createStatus / listStatuses / updateStatus / setNodeStatus / deleteStatus", () => {
 	it("creates a status, rejects duplicate names, and lists it in creation order", async () => {
 		const first = await call(createStatus, { name: "To do" }, { context });
 		const second = await call(createStatus, { name: "Done" }, { context });
 
 		expect(await call(listStatuses, undefined, { context })).toEqual([
-			{ id: first.id, name: "To do", color: first.color },
-			{ id: second.id, name: "Done", color: second.color },
+			{ id: first.id, name: "To do", color: first.color, count: 0 },
+			{ id: second.id, name: "Done", color: second.color, count: 0 },
 		]);
 		await expect(
 			call(createStatus, { name: "TO DO" }, { context }),
@@ -803,6 +804,59 @@ describe("createStatus / listStatuses / setNodeStatus / deleteStatus", () => {
 		expect(
 			(await call(listStatuses, undefined, { context })).map(({ id }) => id),
 		).not.toContain(status.id);
+	});
+
+	it("counts the nodes each status is on", async () => {
+		const status = await call(createStatus, { name: "Counted" }, { context });
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(
+			setNodeStatus,
+			{ id: node.id, statusId: status.id },
+			{ context },
+		);
+
+		expect(
+			(await call(listStatuses, undefined, { context })).find(
+				({ id }) => id === status.id,
+			),
+		).toMatchObject({ count: 1 });
+	});
+
+	it("renames and recolors a status, rejecting a name another status has", async () => {
+		const status = await call(createStatus, { name: "Draft" }, { context });
+		const other = await call(createStatus, { name: "Shipped" }, { context });
+
+		expect(
+			await call(
+				updateStatus,
+				{ id: status.id, name: "Drafting", color: "violet" },
+				{ context },
+			),
+		).toMatchObject({ id: status.id, name: "Drafting", color: "violet" });
+
+		await expect(
+			call(updateStatus, { id: status.id, name: "SHIPPED" }, { context }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+		await expect(
+			call(updateStatus, { id: other.id, name: "Shipped" }, { context }),
+		).resolves.toMatchObject({ name: "Shipped" });
+	});
+
+	it("rejects updating a status that belongs to another user", async () => {
+		const { user: otherUser, context: otherContext } = await createTestUser();
+		try {
+			const foreign = await call(
+				createStatus,
+				{ name: "Theirs" },
+				{ context: otherContext },
+			);
+
+			await expect(
+				call(updateStatus, { id: foreign.id, name: "Mine" }, { context }),
+			).rejects.toMatchObject({ code: "NOT_FOUND" });
+		} finally {
+			await deleteTestUser(otherUser.id);
+		}
 	});
 
 	it("rejects deleting an unknown status with NOT_FOUND", async () => {
