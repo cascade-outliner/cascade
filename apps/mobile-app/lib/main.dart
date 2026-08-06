@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'features/outline/application/outline_controller.dart';
-import 'features/outline/data/in_memory_outline_repository.dart';
+import 'features/outline/data/sqlite/sqlite_outline_repository.dart';
 import 'features/outline/domain/outline_node.dart';
 import 'features/outline/presentation/outline_screen.dart';
 
@@ -10,11 +10,11 @@ void main() {
 }
 
 /// Shares one `OutlineIdGenerator` between the repository (which seeds the
-/// initial demo nodes) and the controller (which creates nodes afterwards)
-/// so their ids can never collide.
+/// initial demo nodes on a fresh install) and the controller (which
+/// creates nodes afterwards) so their ids can never collide.
 OutlineController _buildController() {
   final idGenerator = OutlineIdGenerator();
-  final repository = InMemoryOutlineRepository(idGenerator: idGenerator);
+  final repository = SqliteOutlineRepository(idGenerator: idGenerator);
   return OutlineController(repository: repository, idGenerator: idGenerator);
 }
 

@@ -14,6 +14,9 @@ class _LargeTreeRepository implements OutlineRepository {
   Future<List<OutlineNode>> loadTree() async {
     return List.generate(_nodeCount, (i) => OutlineNode(id: 'node-$i', text: 'Node $i'));
   }
+
+  @override
+  Future<void> saveTree(List<OutlineNode> roots) async {}
 }
 
 void main() {
@@ -25,6 +28,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final controller = OutlineController(repository: _LargeTreeRepository());
+    addTearDown(controller.dispose);
     await tester.pumpWidget(MaterialApp(home: OutlineScreen(controller: controller)));
     await tester.pump();
 
