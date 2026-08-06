@@ -23,6 +23,7 @@ interface SubtreeRow {
 	icon: string | null;
 	priority: PriorityName | null;
 	status_id: string | null;
+	is_board: boolean;
 }
 
 export interface PreparedSubtreeCopy {
@@ -38,10 +39,10 @@ export async function prepareSubtreeCopy(
 ): Promise<PreparedSubtreeCopy> {
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
-			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date, due_time, recurrence, icon, priority, status_id
+			SELECT id, parent_id, content, search_text, type, metadata, expanded, "order", due_date, due_time, recurrence, icon, priority, status_id, is_board
 			FROM nodes WHERE id = ${sourceId} AND user_id = ${userId}
 			UNION ALL
-			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date, c.due_time, c.recurrence, c.icon, c.priority, c.status_id
+			SELECT c.id, c.parent_id, c.content, c.search_text, c.type, c.metadata, c.expanded, c."order", c.due_date, c.due_time, c.recurrence, c.icon, c.priority, c.status_id, c.is_board
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
@@ -115,6 +116,7 @@ export async function insertSubtreeCopy(
 		icon: row.icon,
 		priority: row.priority,
 		statusId: row.status_id,
+		isBoard: row.is_board,
 	}));
 	for (const batch of chunk(copiedNodes, DUPLICATE_BATCH_SIZE)) {
 		await transaction.insert(nodes).values(batch);

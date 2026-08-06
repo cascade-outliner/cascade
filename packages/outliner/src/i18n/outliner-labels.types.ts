@@ -93,4 +93,9 @@ export interface OutlinerLabels {
 	filtersShowCompleted: string;
 	filtersRemoveShowCompleted: string;
 	filtersClear: string;
+	convertOptionBoard: string;
+	convertOptionTree: string;
+	boardUnassignedColumn: string;
+	boardEmptyColumn: string;
+	boardAddCard: string;
 }

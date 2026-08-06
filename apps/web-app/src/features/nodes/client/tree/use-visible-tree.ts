@@ -10,6 +10,7 @@ import {
 	useDuplicateMutation,
 	useMoveMutation,
 	useRemoveMutation,
+	useSetBoardViewMutation,
 	useSetDueDateMutation,
 	useSetIconMutation,
 	useSetPriorityMutation,
@@ -70,6 +71,7 @@ export function useVisibleTree(
 	const setTags = useSetTagsMutation(options.queryKey);
 	const setPriority = useSetPriorityMutation(options.queryKey);
 	const setStatus = useSetStatusMutation(options.queryKey);
+	const setBoardView = useSetBoardViewMutation(options.queryKey);
 	const { add, addAfter } = useCreateMutation(options.queryKey, rootId, rows);
 
 	return {
@@ -87,6 +89,7 @@ export function useVisibleTree(
 		setTags,
 		setPriority,
 		setStatus,
+		setBoardView,
 		add,
 		addAfter,
 	};

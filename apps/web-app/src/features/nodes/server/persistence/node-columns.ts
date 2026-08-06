@@ -32,4 +32,5 @@ export const nodeColumns = (userId: string) => ({
 	status: nodeStatus,
 	tags: nodeTagNames(sql`nodes.id`),
 	hasChildren: hasChildren(userId),
+	isBoard: nodes.isBoard,
 });

@@ -148,8 +148,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 				<NodeActions
 					nodeType={row.type}
 					blockType={blockType}
+					isBoard={row.isBoard ?? false}
 					onConvert={props.onConvert}
 					onTurnInto={props.onTurnInto}
+					onSetBoardView={props.onSetBoardView}
 					onConversionSuccess={() => acknowledgeMountedRowConversion(row.id)}
 					onDuplicate={props.onDuplicate}
 					onDelete={props.onDelete}

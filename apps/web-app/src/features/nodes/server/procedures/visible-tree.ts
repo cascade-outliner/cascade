@@ -27,6 +27,7 @@ interface VisibleTreeSqlRow {
 	status_name: string | null;
 	status_color: string | null;
 	tags: string[];
+	is_board: boolean;
 }
 
 /**
@@ -42,6 +43,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 	const result = (await db.execute(sql`
 		SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order",
 			n.due_date::text AS due_date, n.due_time, n.recurrence, n.icon, n.priority,
+			n.is_board,
 			s.id AS status_id, s.name AS status_name, s.color AS status_color,
 			COALESCE(t.tags, '{}') AS tags
 		FROM nodes n
@@ -77,6 +79,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 					}
 				: null,
 		tags: r.tags,
+		isBoard: r.is_board,
 	}));
 
 	return { rows };

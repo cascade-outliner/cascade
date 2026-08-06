@@ -210,6 +210,7 @@ describe("useVisibleTree.add/addAfter", () => {
 		status: null,
 		tags: [],
 		icon: null,
+		isBoard: false,
 		hasChildren: false,
 	};
 

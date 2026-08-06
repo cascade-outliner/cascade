@@ -11,6 +11,7 @@ import {
 import {
 	CheckSquareIcon,
 	CopyIcon,
+	KanbanIcon,
 	ParagraphIcon,
 	TextHFiveIcon,
 	TextHFourIcon,
@@ -19,6 +20,7 @@ import {
 	TextHThreeIcon,
 	TextHTwoIcon,
 	TrashIcon,
+	TreeStructureIcon,
 } from "@phosphor-icons/react/ssr";
 import { Fragment, type ReactNode } from "react";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
@@ -70,8 +72,13 @@ export async function runNodeConversion(
 interface NodeActionsProps {
 	nodeType: NodeTypeName;
 	blockType: BlockType;
+	/** Whether this node is currently a board (see #455) — an axis
+	 * orthogonal to `nodeType`/`blockType`: a board can hold a paragraph,
+	 * heading, or task just like a tree node can. */
+	isBoard: boolean;
 	onConvert: (type: NodeTypeName) => undefined | Promise<boolean>;
 	onTurnInto: (blockType: BlockType) => undefined | Promise<boolean>;
+	onSetBoardView: (isBoard: boolean) => void;
 	onConversionSuccess: () => void;
 	onDuplicate: () => void;
 	onDelete: () => void;
@@ -85,8 +92,10 @@ interface NodeActionsProps {
 export function NodeActions({
 	nodeType,
 	blockType,
+	isBoard,
 	onConvert,
 	onTurnInto,
+	onSetBoardView,
 	onConversionSuccess,
 	onDuplicate,
 	onDelete,
@@ -105,6 +114,12 @@ export function NodeActions({
 
 	async function selectOption(option: ConvertOption) {
 		await runNodeConversion(option, onConvert, onTurnInto, onConversionSuccess);
+	}
+
+	function selectBoardView(nextIsBoard: boolean) {
+		if (nextIsBoard === isBoard) return;
+		onSetBoardView(nextIsBoard);
+		onConversionSuccess();
 	}
 
 	return (
@@ -129,6 +144,25 @@ export function NodeActions({
 						{labels.convertInto}
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent>
+						{/* A separate axis from the content-type options below
+						(#455 follow-up): a tree or a board can each still hold a
+						paragraph, heading, or task, so this stays its own group,
+						first since it's the broader choice. */}
+						<ContextMenuItem
+							icon={<TreeStructureIcon size={14} weight="bold" />}
+							disabled={!isBoard}
+							onClick={() => selectBoardView(false)}
+						>
+							{labels.convertOptionTree}
+						</ContextMenuItem>
+						<ContextMenuItem
+							icon={<KanbanIcon size={14} weight="bold" />}
+							disabled={isBoard}
+							onClick={() => selectBoardView(true)}
+						>
+							{labels.convertOptionBoard}
+						</ContextMenuItem>
+						<ContextMenuSeparator />
 						{BLOCK_OPTIONS.map((option) => (
 							<ContextMenuItem
 								key={option}

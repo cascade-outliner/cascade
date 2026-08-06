@@ -141,6 +141,11 @@ function createOutlinerLabels(): OutlinerLabels {
 		filtersShowCompleted: m.filters_bar_show_completed(),
 		filtersRemoveShowCompleted: m.filters_bar_remove_show_completed(),
 		filtersClear: m.filters_bar_clear(),
+		convertOptionBoard: m.outliner_convert_option_board(),
+		convertOptionTree: m.outliner_convert_option_tree(),
+		boardUnassignedColumn: m.outliner_board_unassigned_column(),
+		boardEmptyColumn: m.outliner_board_empty_column(),
+		boardAddCard: m.outliner_board_add_card(),
 	};
 }
 

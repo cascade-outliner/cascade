@@ -172,6 +172,9 @@ export function VirtualTreeView({
 										tree.setPriority(row.id, priority)
 									}
 									onSetStatus={(statusId) => tree.setStatus(row.id, statusId)}
+									onSetBoardView={(isBoard) =>
+										tree.setBoardView(row.id, isBoard)
+									}
 									onSetIcon={(icon) => tree.setIcon(row.id, icon)}
 									onDuplicate={() => tree.duplicate(row.id)}
 									onDelete={() => tree.remove(row.id)}
