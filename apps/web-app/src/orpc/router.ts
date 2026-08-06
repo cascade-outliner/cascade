@@ -28,6 +28,7 @@ import {
 	setTaskCompleted,
 	toggleNodeExpanded,
 	updateNodeContent,
+	updateStatus,
 	visibleTree,
 } from "@/features/nodes/server/procedures";
 import { replayOnboardingTour } from "@/features/onboarding/server/procedures/replay-onboarding-tour";
@@ -81,6 +82,7 @@ export default {
 		setStatus: setNodeStatus,
 		listStatuses,
 		createStatus,
+		updateStatus,
 		deleteStatus,
 		listTags,
 		renameTag,

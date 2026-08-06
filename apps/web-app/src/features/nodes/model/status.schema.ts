@@ -17,7 +17,15 @@ export const statusColorSchema = z.enum(STATUS_COLORS);
 
 export const createStatusInputSchema = z.object({
 	name: statusNameSchema,
-	/** Omitted by the inline picker, which lets the server rotate the palette. */
+	/** Omitted to let the server rotate through the palette. */
+	color: statusColorSchema.optional(),
+});
+
+/** Renaming and recoloring share one procedure: the settings panel is the only
+ * place either happens, and it edits both on the same row. */
+export const updateStatusInputSchema = z.object({
+	id: z.string(),
+	name: statusNameSchema.optional(),
 	color: statusColorSchema.optional(),
 });
 

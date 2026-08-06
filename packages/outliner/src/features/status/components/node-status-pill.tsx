@@ -14,14 +14,10 @@ export function NodeStatusPill({
 	status,
 	existingStatuses,
 	onSelect,
-	onCreateStatus,
-	onDeleteStatus,
 }: {
 	status: StatusSummary;
 	existingStatuses: StatusSummary[];
 	onSelect: (statusId: string | null) => void;
-	onCreateStatus?: (name: string) => Promise<StatusSummary | null>;
-	onDeleteStatus?: (id: string) => void | Promise<void>;
 }) {
 	const labels = useOutlinerLabels();
 	const hue = toStatusColor(status.color);
@@ -41,8 +37,6 @@ export function NodeStatusPill({
 					statusId={status.id}
 					existingStatuses={existingStatuses}
 					onSelect={onSelect}
-					onCreateStatus={onCreateStatus}
-					onDeleteStatus={onDeleteStatus}
 				/>
 			</PopoverContent>
 		</Popover>

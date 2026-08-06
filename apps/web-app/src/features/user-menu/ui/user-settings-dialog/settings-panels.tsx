@@ -1,6 +1,7 @@
 import { Tabs } from "@base-ui/react";
 import type { ReactNode } from "react";
 import { m } from "#/paraglide/messages.js";
+import { StatusSettingsPanel } from "@/features/nodes/ui/status-settings";
 import { TagSettingsPanel } from "@/features/nodes/ui/tag-settings";
 import { SecuritySettingsPanel } from "@/features/sessions/ui/security-settings-panel";
 import type { Settings } from "@/features/settings/model/settings.schema";
@@ -107,6 +108,13 @@ export function SettingsPanels({
 				visited={visitedTabs.has("tags")}
 			>
 				<TagSettingsPanel />
+			</SettingsTabPanel>
+			<SettingsTabPanel
+				value="statuses"
+				heading={m.settings_statuses_tab()}
+				visited={visitedTabs.has("statuses")}
+			>
+				<StatusSettingsPanel />
 			</SettingsTabPanel>
 			<SettingsTabPanel
 				value="security"

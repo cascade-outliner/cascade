@@ -1,4 +1,3 @@
-import { MAX_STATUS_LENGTH } from "../nodes/model/node-statuses";
 import { MAX_TAG_LENGTH } from "../nodes/model/node-tags";
 import {
 	type NodeTypeName,
@@ -61,11 +60,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	setStatus: "Set status",
 	changeStatus: "Change status",
 	changeStatusAria: "Change status",
-	statusEmpty: "No statuses yet.",
-	statusInputPlaceholder: "New status…",
-	createStatus: "Create",
-	statusNameTooLong: `Status name is too long (max ${MAX_STATUS_LENGTH} characters)`,
-	deleteStatusAria: "Delete status",
+	statusEmpty: "No statuses yet — create one in Settings → Statuses.",
 	addTag: "Add tag",
 	manageTags: "Manage tags",
 	tagsInputPlaceholder: "Add tag…",

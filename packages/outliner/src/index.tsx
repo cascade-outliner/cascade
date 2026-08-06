@@ -25,8 +25,6 @@ export function Outliner({
 	existingTags,
 	existingStatuses,
 	onDeleteTag,
-	onCreateStatus,
-	onDeleteStatus,
 	onTagClick,
 	features,
 }: OutlinerProps) {
@@ -59,8 +57,6 @@ export function Outliner({
 			existingTags={existingTags}
 			existingStatuses={existingStatuses}
 			onDeleteTag={onDeleteTag}
-			onCreateStatus={onCreateStatus}
-			onDeleteStatus={onDeleteStatus}
 			onTagClick={onTagClick}
 			features={features}
 			onAddRoot={interactions.handleAddRoot}

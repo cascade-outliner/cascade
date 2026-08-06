@@ -16,8 +16,6 @@ import {
 import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
 	existingStatusesOptions,
-	useCreateStatus,
-	useDeleteStatus,
 	useExistingStatuses,
 } from "@/features/nodes/client/statuses/use-existing-statuses";
 import {
@@ -63,8 +61,6 @@ function RootTree() {
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 	const existingStatuses = useExistingStatuses();
-	const createStatus = useCreateStatus();
-	const deleteStatus = useDeleteStatus();
 
 	return (
 		<VirtualTree
@@ -95,8 +91,6 @@ function RootTree() {
 			existingTags={existingTags}
 			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
-			onCreateStatus={createStatus}
-			onDeleteStatus={deleteStatus}
 			onTagClick={(tag) =>
 				setFilters({
 					...filters,
