@@ -9,7 +9,7 @@ export const tagPill = cva({
 			neutral:
 				"border-ink/15 bg-transparent text-muted dark:border-surface/15 dark:text-surface/60",
 			amber:
-				"border-amber-600/30 bg-amber-600/10 text-amber-700 dark:border-amber-400/35 dark:bg-amber-400/15 dark:text-amber-300",
+				"border-amber-600/30 bg-amber-600/10 text-amber-800 dark:border-amber-400/35 dark:bg-amber-400/15 dark:text-amber-300",
 			emerald:
 				"border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400/35 dark:bg-emerald-400/15 dark:text-emerald-300",
 			sky: "border-sky-600/30 bg-sky-600/10 text-sky-700 dark:border-sky-400/35 dark:bg-sky-400/15 dark:text-sky-300",
