@@ -115,7 +115,6 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		<div
 			ref={setRowElement}
 			data-index={index}
-			data-node-id={row.id}
 			role="treeitem"
 			// Focus lives on the nested node-text control (roving tabindex);
 			// the row itself is reachable via the tree, not the tab order.
