@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../theme/cascade_theme.dart';
+
 /// A single, presentational row of the outliner: a chevron to expand or
 /// collapse children, a bullet, an editable text field for the node's
 /// content, and per-row actions (indent, outdent, add child, delete).
@@ -72,7 +74,7 @@ class OutlineRow extends StatelessWidget {
                       onPressed: onToggleExpanded,
                     )
                   : const Center(
-                      child: Icon(Icons.circle, size: 6, color: Colors.black45),
+                      child: Icon(Icons.circle, size: 6, color: CascadeColors.muted),
                     ),
             ),
             Expanded(

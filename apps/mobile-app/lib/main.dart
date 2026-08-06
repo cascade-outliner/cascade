@@ -4,6 +4,7 @@ import 'features/outline/application/outline_controller.dart';
 import 'features/outline/data/sqlite/sqlite_outline_repository.dart';
 import 'features/outline/domain/outline_node.dart';
 import 'features/outline/presentation/outline_screen.dart';
+import 'theme/cascade_theme.dart';
 
 void main() {
   runApp(CascadeApp(controller: _buildController()));
@@ -27,7 +28,9 @@ class CascadeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cascade',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
+      theme: CascadeTheme.light(),
+      darkTheme: CascadeTheme.dark(),
+      themeMode: ThemeMode.system,
       home: OutlineScreen(controller: controller),
     );
   }
