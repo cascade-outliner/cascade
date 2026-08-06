@@ -84,7 +84,7 @@ export function RecurrenceEditor({
 	};
 
 	return (
-		<div className="border-ink/10 border-t px-3 pt-3 pb-3 mt-1 dark:border-surface/15">
+		<div className="mt-3 border-ink/10 border-t pt-3 dark:border-surface/15">
 			<div className="flex items-center justify-between gap-3">
 				<span className="text-sm font-medium">{labels.repeatLabel}</span>
 				<Select

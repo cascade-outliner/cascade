@@ -85,7 +85,12 @@ describe("useDueDateNotifications", () => {
 		expect(toast.info).not.toHaveBeenCalled();
 		await vi.advanceTimersByTimeAsync(5 * 60_000);
 		expect(toast.info).toHaveBeenCalledTimes(1);
-		expect(toast.info).toHaveBeenCalledWith("Ship it", expect.any(String));
+		expect(toast.info).toHaveBeenCalledWith(
+			"Ship it",
+			expect.any(String),
+			// Sticks around until the user dismisses it.
+			{ timeout: 0 },
+		);
 	});
 
 	it("does not schedule anything while disabled", async () => {

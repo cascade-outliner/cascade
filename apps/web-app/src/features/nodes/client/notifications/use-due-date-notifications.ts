@@ -106,7 +106,9 @@ function fireDueDateNotification(
 	router: ReturnType<typeof useRouter>,
 ) {
 	const title = task.label || m.due_date_notification_title();
-	toast.info(title, m.due_date_notification_title());
+	// A due-date alert is worth acting on, not glancing past — keep it on
+	// screen until the user dismisses it instead of auto-expiring.
+	toast.info(title, m.due_date_notification_title(), { timeout: 0 });
 
 	if (
 		typeof Notification === "undefined" ||

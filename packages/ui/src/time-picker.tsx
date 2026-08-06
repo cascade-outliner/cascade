@@ -5,7 +5,6 @@ export interface TimePickerProps {
 	/** `HH:MM` local time, or `null` for no time set. */
 	value: string | null;
 	onChange: (value: string | null) => void;
-	label?: string;
 	clearAriaLabel?: string;
 }
 
@@ -27,12 +26,10 @@ const clearButton = cva({
 export function TimePicker({
 	value,
 	onChange,
-	label,
 	clearAriaLabel,
 }: TimePickerProps) {
 	return (
 		<div className="flex items-center gap-2">
-			{label && <span className="text-xs font-medium text-muted">{label}</span>}
 			<input
 				type="time"
 				step={60}

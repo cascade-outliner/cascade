@@ -1,7 +1,5 @@
-import { Calendar } from "@cascade/ui/calendar";
 import { cva } from "@cascade/ui/cva.config";
 import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
-import { TimePicker } from "@cascade/ui/time-picker";
 import {
 	ArrowsClockwiseIcon,
 	CalendarDotIcon,
@@ -18,7 +16,7 @@ import {
 	type OutlinerLabels,
 	useOutlinerLabels,
 } from "../../../i18n/outliner-labels-context";
-import { RecurrenceEditor } from "./recurrence-editor";
+import { DueDateEditor } from "./due-date-editor";
 
 interface NodeDueDatePillProps {
 	dueDate: Date;
@@ -127,21 +125,13 @@ export function NodeDueDatePill({
 				{recurrence && <ArrowsClockwiseIcon size={11} weight="bold" />}
 			</PopoverTrigger>
 			<PopoverContent>
-				<Calendar
-					value={dueDate}
-					onSelect={(date) => onChange(date, dueTime)}
-					onClear={() => onChange(null, null)}
-				/>
-				<TimePicker
-					value={dueTime}
-					onChange={(time) => onChange(dueDate, time)}
-					label={labels.dueTimeLabel}
-					clearAriaLabel={labels.dueTimeClearAria}
-				/>
-				<RecurrenceEditor
+				<DueDateEditor
+					dueDate={dueDate}
+					dueTime={dueTime}
 					recurrence={recurrence}
-					enabled={recurrenceEnabled}
-					onChange={onRecurrenceChange}
+					recurrenceEnabled={recurrenceEnabled}
+					onChangeDate={onChange}
+					onChangeRecurrence={onRecurrenceChange}
 				/>
 			</PopoverContent>
 		</Popover>
