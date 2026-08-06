@@ -9,9 +9,14 @@ import { NodeLink } from "#/features/nodes/ui/node-link";
 export function NodeBoard({
 	nodeId,
 	header,
+	className = "h-full",
 }: {
 	nodeId: string;
-	header: ReactNode;
+	header?: ReactNode;
+	/** Overrides the full-viewport-height default so this can also render
+	 * embedded inline in an outline row (see `renderEmbeddedBoard`), where
+	 * `h-dvh` would blow the row out to full screen height. */
+	className?: string;
 }) {
 	const tree = useVisibleTree(nodeId);
 	const existingStatuses = useExistingStatuses();
@@ -49,7 +54,7 @@ export function NodeBoard({
 			onDrop={handleDrop}
 			onAddCard={handleAddCard}
 			header={header}
-			className="h-full"
+			className={className}
 		/>
 	);
 }

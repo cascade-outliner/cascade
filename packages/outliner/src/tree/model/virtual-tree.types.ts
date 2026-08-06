@@ -21,6 +21,10 @@ export interface VirtualTreeProps {
 	renderNodeLink?: (
 		node: Pick<VisibleTree["rows"][number], "id" | "content">,
 	) => ReactNode;
+	/** Renders a board-converted row's embedded card board in place of its
+	 * (never-flattened, see `walkVisibleTree`) tree children — omit to hide
+	 * boards from this view entirely (e.g. a filtered/read-only render). */
+	renderBoard?: (row: VisibleNodeRow) => ReactNode;
 	header?: ReactNode;
 	/** Overrides the scroll container's default full-viewport-height sizing. */
 	className?: string;
@@ -63,6 +67,7 @@ export interface VirtualTreeRowProps {
 	index: number;
 	indentSize: number;
 	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
+	renderBoard?: (row: VisibleNodeRow) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
 	/** Row/context-menu features to render; see `VirtualTreeProps.features`. */
 	features?: OutlinerFeature[];

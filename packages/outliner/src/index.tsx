@@ -13,6 +13,7 @@ export function Outliner({
 	tree,
 	indentSize,
 	renderNodeLink,
+	renderBoard,
 	header,
 	className,
 	contentClassName,
@@ -47,6 +48,7 @@ export function Outliner({
 			focusPoint={interactions.focusPoint}
 			indentSize={indentSize}
 			renderNodeLink={renderNodeLink}
+			renderBoard={renderBoard}
 			header={header}
 			className={className}
 			contentClassName={contentClassName}

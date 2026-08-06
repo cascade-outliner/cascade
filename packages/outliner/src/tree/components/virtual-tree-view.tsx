@@ -27,6 +27,7 @@ export function VirtualTreeView({
 	focusPoint,
 	indentSize,
 	renderNodeLink,
+	renderBoard,
 	header,
 	className,
 	contentClassName,
@@ -56,6 +57,7 @@ export function VirtualTreeView({
 	VirtualTreeProps,
 	| "indentSize"
 	| "renderNodeLink"
+	| "renderBoard"
 	| "header"
 	| "className"
 	| "contentClassName"
@@ -143,6 +145,7 @@ export function VirtualTreeView({
 										index={virtualItem.index}
 										indentSize={indentSize ?? 16}
 										renderNodeLink={renderNodeLink}
+										renderBoard={renderBoard}
 										measureElement={virtualizer.measureElement}
 										existingTags={existingTags}
 										existingStatuses={existingStatuses}

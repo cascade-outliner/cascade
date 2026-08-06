@@ -70,7 +70,14 @@ export function walkVisibleTree(
 				hasChildren,
 				isLastChild: childIndex === children.length - 1,
 			});
-			if (options.includeCollapsed || child.expanded) {
+			// A board node's children render as embedded board cards (issue
+			// #455 follow-up), not further tree rows — so a board encountered
+			// mid-walk never flattens its own subtree here, regardless of its
+			// `expanded`/`includeCollapsed` state. Walking it as the root
+			// itself (its own detail page, or the embedded board's own card
+			// list) is unaffected: this check only guards *its children's*
+			// recursion, not the walk that starts at the board node itself.
+			if (!child.isBoard && (options.includeCollapsed || child.expanded)) {
 				walk(child.id, depth + 1, path);
 			}
 		});

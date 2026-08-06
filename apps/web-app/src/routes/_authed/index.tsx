@@ -27,6 +27,7 @@ import {
 	useVisibleTree,
 	visibleTreeOptions,
 } from "@/features/nodes/client/tree/use-visible-tree";
+import { renderEmbeddedBoard } from "@/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "@/features/nodes/ui/node-link";
 import { useSettings } from "@/features/settings/client/settings-context";
 
@@ -70,6 +71,7 @@ function RootTree() {
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
+			renderBoard={renderEmbeddedBoard}
 			contentClassName="rr-block"
 			header={
 				<FiltersBar

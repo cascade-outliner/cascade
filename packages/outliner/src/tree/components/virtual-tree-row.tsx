@@ -205,6 +205,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					</div>
 				</NodeActions>
 			</RowDragAndDrop>
+			{row.isBoard && row.expanded && props.renderBoard && (
+				<div style={{ paddingLeft: (row.depth + 1) * props.indentSize }}>
+					{props.renderBoard(row)}
+				</div>
+			)}
 		</div>
 	);
 }

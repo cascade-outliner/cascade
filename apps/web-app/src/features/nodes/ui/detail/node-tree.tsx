@@ -17,6 +17,7 @@ import {
 	useExistingTags,
 } from "#/features/nodes/client/tags/use-existing-tags";
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
+import { renderEmbeddedBoard } from "#/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "#/features/nodes/ui/node-link";
 import { useSettings } from "#/features/settings/client/settings-context";
 
@@ -52,6 +53,7 @@ export function NodeTree({
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
+			renderBoard={renderEmbeddedBoard}
 			header={
 				<>
 					<FiltersBar
