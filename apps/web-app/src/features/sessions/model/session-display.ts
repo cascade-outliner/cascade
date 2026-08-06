@@ -1,4 +1,6 @@
 import Bowser from "bowser";
+import { m } from "#/paraglide/messages.js";
+import type { ActiveSession } from "@/features/sessions/server/session-procedures";
 
 export type SessionDeviceType = "desktop" | "mobile" | "tablet" | "unknown";
 
@@ -40,4 +42,15 @@ export function formatSessionActivity(
 		-daysAgo,
 		"day",
 	);
+}
+
+export function formatDeviceLabel(session: ActiveSession): string {
+	const device = parseSessionDevice(session.userAgent);
+	if (device.browser && device.os) {
+		return m.security_device_browser_os({
+			browser: device.browser,
+			os: device.os,
+		});
+	}
+	return device.browser ?? device.os ?? m.security_unknown_device();
 }

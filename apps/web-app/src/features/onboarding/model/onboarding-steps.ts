@@ -16,7 +16,7 @@ export const onboardingAnchors = {
 
 /** Builds the element selector for a seeded sample-outline node by id,
  * matching the `data-node-id` attribute every tree row carries regardless of
- * edit state (`packages/outliner`'s `virtual-tree-row.tsx`). Note: a node's
+ * edit state (`packages/outliner`'s `row-drag-and-drop.tsx`). Note: a node's
  * DOM `id` attribute is set only while that specific node is being actively
  * text-edited (see `NodeEditor`), so it isn't a usable anchor here. */
 function nodeSelector(id: string): string {
