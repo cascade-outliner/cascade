@@ -28,6 +28,7 @@ function row(
 		expanded: true,
 		order: id,
 		dueDate: dueDate ? formatCalendarDate(dueDate) : null,
+		dueTime: null,
 		icon: null,
 		tags: [],
 		depth,

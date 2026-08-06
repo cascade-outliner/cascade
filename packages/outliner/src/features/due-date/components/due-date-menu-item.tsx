@@ -1,4 +1,3 @@
-import { Calendar } from "@cascade/ui/calendar";
 import {
 	ContextMenuSub,
 	ContextMenuSubContent,
@@ -7,7 +6,8 @@ import {
 import { CalendarIcon } from "@phosphor-icons/react/ssr";
 import { useOutlinerLabels } from "../../../i18n/outliner-labels-context";
 import type { DueDateFeatureContext } from "../due-date-feature";
-import { formatRecurrence, RecurrenceEditor } from "./recurrence-editor";
+import { DueDateEditor } from "./due-date-editor";
+import { formatRecurrence } from "./recurrence-editor";
 
 export function DueDateMenuItem({ ctx }: { ctx: DueDateFeatureContext }) {
 	const labels = useOutlinerLabels();
@@ -22,15 +22,13 @@ export function DueDateMenuItem({ ctx }: { ctx: DueDateFeatureContext }) {
 				{ctx.recurrence ? ` · ${formatRecurrence(ctx.recurrence, labels)}` : ""}
 			</ContextMenuSubTrigger>
 			<ContextMenuSubContent>
-				<Calendar
-					value={ctx.dueDate}
-					onSelect={ctx.onSetDueDate}
-					onClear={() => ctx.onSetDueDate(null)}
-				/>
-				<RecurrenceEditor
+				<DueDateEditor
+					dueDate={ctx.dueDate}
+					dueTime={ctx.dueTime}
 					recurrence={ctx.recurrence}
-					enabled={ctx.isTask && ctx.dueDate !== null}
-					onChange={ctx.onSetRecurrence}
+					recurrenceEnabled={ctx.isTask && ctx.dueDate !== null}
+					onChangeDate={ctx.onSetDueDate}
+					onChangeRecurrence={ctx.onSetRecurrence}
 				/>
 			</ContextMenuSubContent>
 		</ContextMenuSub>

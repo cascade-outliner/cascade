@@ -20,6 +20,7 @@ function row(
 		expanded: true,
 		order: id,
 		dueDate: null,
+		dueTime: null,
 		icon: null,
 		tags: [],
 		depth,

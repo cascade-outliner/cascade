@@ -1,7 +1,7 @@
 import { typedMetadataSchema } from "@cascade/outliner/node-types";
 import { recurrenceRuleSchema } from "@cascade/outliner/recurrence";
 import { z } from "zod";
-import { dueDateSchema } from "./due-date.schema";
+import { dueDateSchema, dueTimeSchema } from "./due-date.schema";
 import { iconSchema } from "./icon.schema";
 import { lexicalElementNodeSchema } from "./node-content.schema";
 
@@ -17,6 +17,7 @@ const nodeSnapshotSchema = z
 		content: z.object({ root: lexicalElementNodeSchema }).nullable(),
 		expanded: z.boolean(),
 		dueDate: dueDateSchema.nullable(),
+		dueTime: dueTimeSchema.optional().default(null),
 		recurrence: recurrenceRuleSchema.nullable().default(null),
 		icon: iconSchema.nullable().default(null),
 		tags: z.array(z.string()),

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceInput } from "../../dates/recurrence";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
@@ -82,7 +83,7 @@ export interface VirtualTreeRowProps {
 	onConvert: (type: NodeTypeName) => undefined | Promise<boolean>;
 	onTurnInto: (blockType: BlockType) => undefined | Promise<boolean>;
 	onToggleTask: (completed: boolean) => void;
-	onSetDueDate: (date: Date | null) => void;
+	onSetDueDate: (date: Date | null, time: CalendarTimeString | null) => void;
 	onSetRecurrence: (recurrence: RecurrenceInput | null) => void;
 	onSetTags: (tags: string[]) => void;
 	onSetIcon: (icon: string | null) => void;

@@ -31,6 +31,8 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	dueToday: "Today",
 	dueTomorrow: "Tomorrow",
 	dueYesterday: "Yesterday",
+	dueTimeLabel: "Time",
+	dueTimeClearAria: "Clear due time",
 	repeatLabel: "Repeat",
 	repeatNever: "Never",
 	repeatDaily: "Daily",

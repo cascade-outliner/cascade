@@ -54,6 +54,8 @@ function createOutlinerLabels(): OutlinerLabels {
 		dueToday: m.outliner_due_today(),
 		dueTomorrow: m.outliner_due_tomorrow(),
 		dueYesterday: m.outliner_due_yesterday(),
+		dueTimeLabel: m.outliner_due_time_label(),
+		dueTimeClearAria: m.outliner_due_time_clear_aria(),
 		repeatLabel: m.outliner_repeat_label(),
 		repeatNever: m.outliner_repeat_never(),
 		repeatDaily: m.outliner_repeat_daily(),

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CalendarDateString } from "../../dates/calendar-date";
+import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceRule } from "../../dates/recurrence";
 
 /** A single node as the server sends it: unordered, with no tree structure computed. */
@@ -13,6 +14,8 @@ export interface FlatNodeRow {
 	expanded: boolean;
 	order: string;
 	dueDate: CalendarDateString | null;
+	/** Local wall-clock time paired with `dueDate`, or `null` for an all-day due date. */
+	dueTime: CalendarTimeString | null;
 	recurrence?: RecurrenceRule | null;
 	tags: string[];
 	/** A single emoji, or `null` for no custom icon (see #557). */

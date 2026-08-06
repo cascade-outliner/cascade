@@ -26,6 +26,8 @@ export interface OutlinerLabels {
 	dueToday: string;
 	dueTomorrow: string;
 	dueYesterday: string;
+	dueTimeLabel: string;
+	dueTimeClearAria: string;
 	repeatLabel: string;
 	repeatNever: string;
 	repeatDaily: string;

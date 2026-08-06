@@ -30,6 +30,7 @@ export interface CapturedHistoryNode {
 	expanded: boolean;
 	order: string;
 	dueDate: string | null;
+	dueTime: string | null;
 	recurrence: RecurrenceRule | null;
 	icon: string | null;
 	tags: string[];
@@ -47,6 +48,7 @@ interface CapturedSqlRow {
 	expanded: boolean;
 	order: string;
 	due_date: string | null;
+	due_time: string | null;
 	recurrence: RecurrenceRule | null;
 	icon: string | null;
 	depth: number;
@@ -62,18 +64,18 @@ export async function captureSubtree(
 	const rows = (await transaction.execute(sql`
 		WITH RECURSIVE subtree AS (
 			SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded,
-				n."order", n.due_date, n.recurrence, n.icon, 0 AS depth, ARRAY[n."order"] AS path
+				n."order", n.due_date, n.due_time, n.recurrence, n.icon, 0 AS depth, ARRAY[n."order"] AS path
 			FROM nodes n
 			WHERE n.id = ${rootId} AND n.user_id = ${userId}
 			UNION ALL
 			SELECT c.id, c.parent_id, c.content, c.type, c.metadata, c.expanded,
-				c."order", c.due_date, c.recurrence, c.icon, s.depth + 1, s.path || c."order"
+				c."order", c.due_date, c.due_time, c.recurrence, c.icon, s.depth + 1, s.path || c."order"
 			FROM nodes c
 			JOIN subtree s ON c.parent_id = s.id
 			WHERE c.user_id = ${userId}
 		)
 		SELECT s.id, s.parent_id, s.content, s.type, s.metadata, s.expanded,
-			s."order", s.due_date::text AS due_date, s.recurrence, s.icon, s.depth,
+			s."order", s.due_date::text AS due_date, s.due_time, s.recurrence, s.icon, s.depth,
 			COALESCE(t.tags, '{}') AS tags
 		FROM subtree s
 		LEFT JOIN (
@@ -95,6 +97,7 @@ export async function captureSubtree(
 		expanded: row.expanded,
 		order: row.order,
 		dueDate: row.due_date,
+		dueTime: row.due_time,
 		recurrence: row.recurrence,
 		icon: row.icon,
 		tags: row.tags,
@@ -232,6 +235,7 @@ export async function createHistoryRecorder(
 				expanded: snapshot.expanded,
 				order: snapshot.order,
 				dueDate: snapshot.dueDate,
+				dueTime: snapshot.dueTime,
 				recurrence: snapshot.recurrence,
 				icon: snapshot.icon,
 				tags: snapshot.tags,

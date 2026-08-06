@@ -9,7 +9,7 @@ import {
 	historyNodeLabel,
 } from "@/features/tree-history/server/history-persistence";
 import { authed } from "@/orpc/context";
-import { dueDateSchema } from "../../model/due-date.schema";
+import { dueDateSchema, dueTimeSchema } from "../../model/due-date.schema";
 import { tagsArraySchema } from "../../model/tag-name.schema";
 import { nodeColumns } from "../persistence/node-columns";
 import { nodes, nodeTags, tags } from "../persistence/node-tables";
@@ -32,6 +32,7 @@ export const createNode = authed
 			afterId: z.string().nullable().optional(),
 			initialType: typedMetadataSchema.optional(),
 			dueDate: dueDateSchema.nullable().optional(),
+			dueTime: dueTimeSchema.optional(),
 			tags: tagsArraySchema.optional(),
 		}),
 	)
@@ -70,6 +71,7 @@ export const createNode = authed
 					type: input.initialType?.type,
 					metadata: input.initialType?.metadata,
 					dueDate: input.dueDate ?? null,
+					dueTime: input.dueDate ? (input.dueTime ?? null) : null,
 				})
 				.returning({ id: nodes.id });
 

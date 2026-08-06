@@ -18,6 +18,7 @@ export const nodeColumns = (userId: string) => ({
 	expanded: nodes.expanded,
 	order: nodes.order,
 	dueDate: nodes.dueDate,
+	dueTime: nodes.dueTime,
 	recurrence: nodes.recurrence,
 	icon: nodes.icon,
 	tags: nodeTagNames(sql`nodes.id`),

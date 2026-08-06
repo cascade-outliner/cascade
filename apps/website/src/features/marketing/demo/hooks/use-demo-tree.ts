@@ -76,7 +76,7 @@ export function useDemoTree(rootId: string | null) {
 		);
 	};
 
-	const setDueDate: VisibleTree["setDueDate"] = (id, dueDate) => {
+	const setDueDate: VisibleTree["setDueDate"] = (id, dueDate, dueTime) => {
 		setAllNodes((current) =>
 			current.map((row) => {
 				if (row.id !== id) return row;
@@ -84,6 +84,7 @@ export function useDemoTree(rootId: string | null) {
 				return {
 					...row,
 					dueDate: formattedDueDate,
+					dueTime: formattedDueDate ? dueTime : null,
 					recurrence:
 						formattedDueDate && row.recurrence
 							? {

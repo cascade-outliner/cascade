@@ -58,6 +58,7 @@ export const treeHistorySnapshots = pgTable(
 		expanded: boolean().notNull(),
 		order: text().notNull(),
 		dueDate: date("due_date", { mode: "string" }),
+		dueTime: text("due_time"),
 		recurrence: jsonb("recurrence").$type<RecurrenceRule>(),
 		icon: text(),
 		tags: jsonb().notNull().$type<string[]>(),

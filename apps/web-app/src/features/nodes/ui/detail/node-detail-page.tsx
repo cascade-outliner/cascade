@@ -34,6 +34,7 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 					<NodeDetailHeader
 						node={node}
 						dueDate={dueDate}
+						dueTime={node.dueTime}
 						completed={completed}
 						existingTags={existingTags}
 						onToggleTask={mutations.toggleTask}

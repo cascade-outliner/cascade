@@ -27,6 +27,7 @@ function row(
 		expanded: true,
 		order: id,
 		dueDate: null,
+		dueTime: null,
 		recurrence: null,
 		icon: null,
 		tags: [],

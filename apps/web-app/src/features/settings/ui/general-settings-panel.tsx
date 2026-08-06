@@ -1,6 +1,8 @@
 import { Button } from "@cascade/ui/button";
 import { Checkbox } from "@cascade/ui/checkbox";
+import { toast } from "@cascade/ui/toast";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import type { Settings } from "../model/settings.schema";
 import {
@@ -8,6 +10,30 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from "./settings-panel";
+
+async function enableDueDateNotifications(): Promise<void> {
+	if (typeof Notification === "undefined") {
+		toast.info(m.settings_notification_unsupported());
+		return;
+	}
+	const permission = await Notification.requestPermission();
+	if (permission === "denied") {
+		toast.warning(m.settings_notification_permission_denied());
+	}
+}
+
+/**
+ * `Notification` support can only be checked client-side, so this starts
+ * `false` (matching SSR) and flips after mount rather than being computed
+ * during render, to avoid a hydration mismatch.
+ */
+function useNotificationsUnsupported(): boolean {
+	const [unsupported, setUnsupported] = useState(false);
+	useEffect(() => {
+		setUnsupported(typeof Notification === "undefined");
+	}, []);
+	return unsupported;
+}
 
 interface GeneralSettingsPanelProps {
 	settings: Settings;
@@ -26,6 +52,7 @@ export function GeneralSettingsPanel({
 		"completed",
 		parseAsStringLiteral(["hidden", "visible"]),
 	);
+	const notificationsUnsupported = useNotificationsUnsupported();
 
 	return (
 		<>
@@ -43,6 +70,25 @@ export function GeneralSettingsPanel({
 						onCheckedChange={(checked) => {
 							setSetting("hideCompletedByDefault", checked);
 							void setCompletedOverride(null);
+						}}
+					/>
+				</SettingsRow>
+			</SettingsSection>
+			<SettingsSection title={m.settings_notifications_section()}>
+				<SettingsRow
+					title={m.settings_due_date_notifications()}
+					description={
+						notificationsUnsupported
+							? m.settings_due_date_notifications_description_unsupported()
+							: m.settings_due_date_notifications_description()
+					}
+				>
+					<Checkbox
+						aria-label={m.settings_due_date_notifications()}
+						checked={settings.dueDateNotificationsEnabled}
+						onCheckedChange={(checked) => {
+							setSetting("dueDateNotificationsEnabled", checked);
+							if (checked) void enableDueDateNotifications();
 						}}
 					/>
 				</SettingsRow>

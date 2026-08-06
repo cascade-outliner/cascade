@@ -25,6 +25,7 @@
     "./node-filters": "./src/filters/model/node-filters.ts",
     "./due-date-bucket": "./src/dates/due-date-bucket.ts",
     "./calendar-date": "./src/dates/calendar-date.ts",
+    "./calendar-time": "./src/dates/calendar-time.ts",
     "./recurrence": "./src/dates/recurrence.ts",
     "./lexical-content": "./src/editor/lexical/content/lexical-content.ts",
     "./lexical/link-url": "./src/editor/lexical/content/link-url.ts",

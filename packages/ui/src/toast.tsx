@@ -14,23 +14,41 @@ type ToastType = "success" | "error" | "warning" | "info" | "loading";
 
 export const toastManager = Toast.createToastManager();
 
+interface ToastOptions {
+	/** Amount of time (ms) before auto-dismissing; `0` disables auto-dismiss entirely. */
+	timeout?: number;
+}
+
 function addToast(
 	type: ToastType,
 	description: React.ReactNode,
 	title?: React.ReactNode,
+	options?: ToastOptions,
 ) {
-	return toastManager.add({ type, title, description });
+	return toastManager.add({ type, title, description, ...options });
 }
 
 export const toast = {
-	success: (description: React.ReactNode, title?: React.ReactNode) =>
-		addToast("success", description, title),
-	error: (description: React.ReactNode, title?: React.ReactNode) =>
-		addToast("error", description, title),
-	warning: (description: React.ReactNode, title?: React.ReactNode) =>
-		addToast("warning", description, title),
-	info: (description: React.ReactNode, title?: React.ReactNode) =>
-		addToast("info", description, title),
+	success: (
+		description: React.ReactNode,
+		title?: React.ReactNode,
+		options?: ToastOptions,
+	) => addToast("success", description, title, options),
+	error: (
+		description: React.ReactNode,
+		title?: React.ReactNode,
+		options?: ToastOptions,
+	) => addToast("error", description, title, options),
+	warning: (
+		description: React.ReactNode,
+		title?: React.ReactNode,
+		options?: ToastOptions,
+	) => addToast("warning", description, title, options),
+	info: (
+		description: React.ReactNode,
+		title?: React.ReactNode,
+		options?: ToastOptions,
+	) => addToast("info", description, title, options),
 	loading: (description: React.ReactNode, title?: React.ReactNode) =>
 		addToast("loading", description, title),
 	dismiss: (id?: string) => toastManager.close(id),

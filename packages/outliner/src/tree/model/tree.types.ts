@@ -1,3 +1,4 @@
+import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceInput } from "../../dates/recurrence";
 import type {
 	TypedMetadata,
@@ -26,7 +27,11 @@ export interface VisibleTree {
 		content: { root: unknown },
 	) => undefined | Promise<boolean>;
 	setType: (id: string, typed: TypedMetadata) => undefined | Promise<boolean>;
-	setDueDate: (id: string, dueDate: Date | null) => void | Promise<void>;
+	setDueDate: (
+		id: string,
+		dueDate: Date | null,
+		dueTime: CalendarTimeString | null,
+	) => void | Promise<void>;
 	setRecurrence: (
 		id: string,
 		recurrence: RecurrenceInput | null,

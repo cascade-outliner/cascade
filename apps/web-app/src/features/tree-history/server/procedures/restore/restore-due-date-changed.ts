@@ -18,6 +18,7 @@ export async function restoreDueDateChanged(
 		.update(nodes)
 		.set({
 			dueDate: payload.before,
+			dueTime: payload.beforeTime !== undefined ? payload.beforeTime : null,
 			...(payload.beforeRecurrence !== undefined
 				? { recurrence: payload.beforeRecurrence }
 				: {}),
@@ -28,6 +29,8 @@ export async function restoreDueDateChanged(
 		label: historyNodeLabel(current.content),
 		before: current.dueDate,
 		after: payload.before,
+		beforeTime: current.dueTime,
+		afterTime: payload.beforeTime,
 		beforeRecurrence: current.recurrence,
 		afterRecurrence: payload.beforeRecurrence,
 	};
