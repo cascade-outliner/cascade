@@ -1,9 +1,14 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
+import type { CalendarTimeString } from "../dates/calendar-time";
+import type { RecurrenceInput } from "../dates/recurrence";
 import type { BlockType } from "../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../editor/lexical/model/lexical-node.types";
+import type { OutlinerFeature } from "../features/model/outliner-feature.types";
+import type { PriorityName } from "../nodes/model/node-priority";
 import type { StatusSummary } from "../nodes/model/node-statuses";
+import type { TagSummary } from "../nodes/model/node-tags";
 import type { NodeTypeName, VisibleNodeRow } from "../nodes/model/node-types";
 import { BoardColumn } from "./components/board-column";
 import type { BoardCardEdge } from "./drag-and-drop/use-board-card-drag-and-drop";
@@ -45,9 +50,30 @@ export interface BoardViewProps {
 	/** All of this user's statuses, in display order, one column each — plus
 	 * an always-first "unassigned" column for cards without a status. */
 	existingStatuses: StatusSummary[];
+	/** All of this user's tags with usage counts, for a card's tag editor. */
+	existingTags: TagSummary[];
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
+	/** Row/context-menu features a card renders — icon, task, due date,
+	 * priority, status, tags by default (see `defaultOutlinerFeatures`),
+	 * same as a tree row. */
+	features?: OutlinerFeature[];
 	onToggleTask: (id: string, completed: boolean) => void;
 	onSaveContent: (id: string, content: { root: LexicalElementNode }) => void;
+	onSetDueDate: (
+		id: string,
+		date: Date | null,
+		time: CalendarTimeString | null,
+	) => void;
+	onSetRecurrence: (id: string, recurrence: RecurrenceInput | null) => void;
+	onSetTags: (id: string, tags: string[]) => void;
+	onSetPriority: (id: string, priority: PriorityName | null) => void;
+	onSetStatus: (id: string, statusId: string | null) => void;
+	onSetIcon: (id: string, icon: string | null) => void;
+	/** Handles clicking a tag pill on a card, e.g. to activate a filter. */
+	onTagClick?: (tag: string) => void;
+	/** Deletes a tag outright (every node that has it loses it), not just
+	 * one card's use of it. Omit to hide the delete affordance. */
+	onDeleteTag?: (name: string) => void | Promise<void>;
 	/** A card was dropped into a (possibly different) column, at a specific
 	 * position: `result.statusId` is the column's status and `result.target`
 	 * is where among its new siblings it landed. */
@@ -78,9 +104,19 @@ export function BoardView({
 	rows,
 	rootId,
 	existingStatuses,
+	existingTags,
 	renderNodeLink,
+	features,
 	onToggleTask,
 	onSaveContent,
+	onSetDueDate,
+	onSetRecurrence,
+	onSetTags,
+	onSetPriority,
+	onSetStatus,
+	onSetIcon,
+	onTagClick,
+	onDeleteTag,
 	onDrop,
 	onAddCard,
 	onConvert,
@@ -124,8 +160,19 @@ export function BoardView({
 						key={column.status?.id ?? "unassigned"}
 						column={column}
 						renderNodeLink={renderNodeLink}
+						features={features}
+						existingTags={existingTags}
+						existingStatuses={existingStatuses}
 						onToggleTask={onToggleTask}
 						onSaveContent={onSaveContent}
+						onSetDueDate={onSetDueDate}
+						onSetRecurrence={onSetRecurrence}
+						onSetTags={onSetTags}
+						onSetPriority={onSetPriority}
+						onSetStatus={onSetStatus}
+						onSetIcon={onSetIcon}
+						onTagClick={onTagClick}
+						onDeleteTag={onDeleteTag}
 						onCardDrop={handleCardDrop}
 						onColumnDrop={handleColumnDrop}
 						onAddCard={onAddCard}

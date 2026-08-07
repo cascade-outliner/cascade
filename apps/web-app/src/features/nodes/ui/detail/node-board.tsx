@@ -16,6 +16,10 @@ import {
 } from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
 import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
+import {
+	useDeleteTag,
+	useExistingTags,
+} from "#/features/nodes/client/tags/use-existing-tags";
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
 import { NodeLink } from "#/features/nodes/ui/node-link";
 import { useSettings } from "#/features/settings/client/settings-context";
@@ -39,7 +43,7 @@ export function NodeBoard({
 	// filters still in the URL) hides/shows its cards the same way the tree
 	// would, instead of always showing every card regardless of active
 	// filters (see #455 follow-up).
-	const [filters] = useNodeFilters(settings.hideCompletedByDefault);
+	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const tree = useVisibleTree(nodeId, includeCollapsedDescendants);
 	const completionHide = useDelayedCompletionHide(
@@ -51,6 +55,8 @@ export function NodeBoard({
 		filters,
 	);
 	const existingStatuses = useExistingStatuses();
+	const existingTags = useExistingTags();
+	const deleteTag = useDeleteTag();
 	const directChildren = useMemo(
 		() =>
 			tree.rows.filter(
@@ -83,6 +89,7 @@ export function NodeBoard({
 			rows={directChildren}
 			rootId={nodeId}
 			existingStatuses={existingStatuses}
+			existingTags={existingTags}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
@@ -91,6 +98,23 @@ export function NodeBoard({
 				tree.setTaskCompleted(id, completed, row?.dueDate ?? null);
 			}}
 			onSaveContent={(id, content) => tree.updateContent(id, content)}
+			onSetDueDate={(id, date, time) => tree.setDueDate(id, date, time)}
+			onSetRecurrence={(id, recurrence) => tree.setRecurrence(id, recurrence)}
+			onSetTags={(id, tags) => tree.setTags(id, tags)}
+			onSetPriority={(id, priority) => tree.setPriority(id, priority)}
+			onSetStatus={(id, statusId) => tree.setStatus(id, statusId)}
+			onSetIcon={(id, icon) => tree.setIcon(id, icon)}
+			onDeleteTag={deleteTag}
+			onTagClick={(tag) =>
+				setFilters({
+					...filters,
+					tags: filters.tags.some(
+						(name) => name.toLowerCase() === tag.toLowerCase(),
+					)
+						? filters.tags
+						: [...filters.tags, tag],
+				})
+			}
 			onDrop={handleDrop}
 			onAddCard={handleAddCard}
 			onConvert={(id, type: NodeTypeName) =>

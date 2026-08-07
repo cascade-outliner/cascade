@@ -1,15 +1,18 @@
-import { FlagIcon } from "@phosphor-icons/react/ssr";
-import { type ReactNode, useState } from "react";
+import { Fragment, type ReactNode, useState } from "react";
+import { parseCalendarDate } from "../../dates/calendar-date";
+import type { CalendarTimeString } from "../../dates/calendar-time";
+import type { RecurrenceInput } from "../../dates/recurrence";
 import { NodeEditor } from "../../editor/components/node-editor";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import { getBlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
 import type { FocusPoint } from "../../editor/model/focus-point";
-import { priorityPill } from "../../features/priority/components/priority-pill.styles";
-import { NodeTagPills } from "../../features/tags/components/node-tag-pills";
-import { NodeCheckbox } from "../../features/task/components/node-checkbox";
-import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
+import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
+import { defaultOutlinerFeatures } from "../../features/registry/default-outliner-features";
 import { NodeActions } from "../../nodes/components/node-actions";
+import type { PriorityName } from "../../nodes/model/node-priority";
+import type { StatusSummary } from "../../nodes/model/node-statuses";
+import type { TagSummary } from "../../nodes/model/node-tags";
 import type {
 	NodeTypeName,
 	VisibleNodeRow,
@@ -22,8 +25,24 @@ interface BoardCardProps {
 	row: VisibleNodeRow;
 	columnStatusId: string | null;
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
+	/** Row/context-menu features to render; see `BoardViewProps.features`. */
+	features?: OutlinerFeature[];
+	existingTags: TagSummary[];
+	existingStatuses: StatusSummary[];
 	onToggleTask: (id: string, completed: boolean) => void;
 	onSaveContent: (id: string, content: { root: LexicalElementNode }) => void;
+	onSetDueDate: (
+		id: string,
+		date: Date | null,
+		time: CalendarTimeString | null,
+	) => void;
+	onSetRecurrence: (id: string, recurrence: RecurrenceInput | null) => void;
+	onSetTags: (id: string, tags: string[]) => void;
+	onSetPriority: (id: string, priority: PriorityName | null) => void;
+	onSetStatus: (id: string, statusId: string | null) => void;
+	onSetIcon: (id: string, icon: string | null) => void;
+	onTagClick?: (tag: string) => void;
+	onDeleteTag?: (name: string) => void | Promise<void>;
 	onCardDrop: (
 		draggedId: string,
 		edge: BoardCardEdge,
@@ -43,16 +62,30 @@ interface BoardCardProps {
 /** A single card in the board view — a subtree's direct child. The title
  * uses the same `NodeEditor` (click to edit, same Lexical editing surface)
  * the tree row does, rather than a read-only summary, so a node stays fully
- * editable from the board. Only a dedicated drag handle is draggable (not
- * the whole card, see #455 follow-up) so the rest of the card stays tappable
- * on touch devices — including for the row's own "Convert into"/duplicate/
- * delete context menu, the same one a tree row has. */
+ * editable from the board. A card is otherwise a node like any other: it
+ * shares the tree row's own feature set (icon, task checkbox, due date,
+ * priority, status, tags — via the same `OutlinerFeature`s, defaulting to
+ * `defaultOutlinerFeatures`) and its "Convert into"/duplicate/delete context
+ * menu, just reflowed into a card instead of a single row. Only a dedicated
+ * drag handle is draggable (not the whole card, see #455 follow-up) so the
+ * rest of the card stays tappable on touch devices. */
 export function BoardCard({
 	row,
 	columnStatusId,
 	renderNodeLink,
+	features = defaultOutlinerFeatures,
+	existingTags,
+	existingStatuses,
 	onToggleTask,
 	onSaveContent,
+	onSetDueDate,
+	onSetRecurrence,
+	onSetTags,
+	onSetPriority,
+	onSetStatus,
+	onSetIcon,
+	onTagClick,
+	onDeleteTag,
 	onCardDrop,
 	onConvert,
 	onTurnInto,
@@ -60,7 +93,6 @@ export function BoardCard({
 	onDuplicate,
 	onDelete,
 }: BoardCardProps) {
-	const labels = useOutlinerLabels();
 	const [editing, setEditing] = useState(false);
 	const [focusPoint, setFocusPoint] = useState<FocusPoint | null>(null);
 	const { cardRef, handleRef, isDragging, closestEdge } =
@@ -73,6 +105,47 @@ export function BoardCard({
 	const isTask = row.type === "task";
 	const completed = isTask && (row.metadata?.completed ?? false);
 	const blockType = getBlockType(row.content);
+	// row.dueDate is a `YYYY-MM-DD` calendar date, not a Date; parse it here
+	// (in local time, not UTC), same as the tree row does.
+	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
+
+	// Same shape as the tree row's own featureCtx (virtual-tree-row.tsx), so
+	// a card renders exactly what a tree row would for the same node.
+	const featureCtx = {
+		row,
+		dueDate,
+		dueTime: row.dueTime,
+		recurrence: row.recurrence ?? null,
+		isTask,
+		completed,
+		tags: row.tags,
+		existingTags,
+		priority: row.priority ?? null,
+		status: row.status ?? null,
+		existingStatuses,
+		onSetDueDate: (date: Date | null, time: CalendarTimeString | null) =>
+			onSetDueDate(row.id, date, time),
+		onSetRecurrence: (recurrence: RecurrenceInput | null) =>
+			onSetRecurrence(row.id, recurrence),
+		onSetTags: (tags: string[]) => onSetTags(row.id, tags),
+		onSetPriority: (priority: PriorityName | null) =>
+			onSetPriority(row.id, priority),
+		onSetStatus: (statusId: string | null) => onSetStatus(row.id, statusId),
+		icon: row.icon,
+		onSetIcon: (icon: string | null) => onSetIcon(row.id, icon),
+		onTagClick,
+		onDeleteTag,
+		onToggleTask: (nextCompleted: boolean) =>
+			onToggleTask(row.id, nextCompleted),
+	};
+	const menuItems = features.flatMap((feature) => {
+		const node = feature.renderContextMenuItem?.(featureCtx);
+		return node ? [{ id: feature.id, node }] : [];
+	});
+	const trailingItems = features.flatMap((feature) => {
+		const node = feature.renderTrailing?.(featureCtx);
+		return node ? [{ id: feature.id, node }] : [];
+	});
 
 	return (
 		<div
@@ -99,18 +172,15 @@ export function BoardCard({
 					onConversionSuccess={() => {}}
 					onDuplicate={() => onDuplicate(row.id)}
 					onDelete={() => onDelete(row.id)}
-					menuItems={[]}
+					menuItems={menuItems}
 					className="flex min-w-0 flex-1 flex-col items-stretch gap-2"
 				>
 					<div className="flex items-start gap-2">
-						{isTask && (
-							<NodeCheckbox
-								metadata={row.metadata}
-								onToggle={(nextCompleted) =>
-									onToggleTask(row.id, nextCompleted)
-								}
-							/>
-						)}
+						{features.map((feature) => (
+							<Fragment key={feature.id}>
+								{feature.renderLeading?.(featureCtx)}
+							</Fragment>
+						))}
 						<div className="min-w-0 flex-1 text-sm">
 							<NodeEditor
 								id={row.id}
@@ -131,17 +201,11 @@ export function BoardCard({
 						</div>
 						{renderNodeLink(row)}
 					</div>
-					{(row.priority || row.tags.length > 0) && (
+					{trailingItems.length > 0 && (
 						<div className="flex flex-wrap items-center gap-1">
-							{row.priority && (
-								<span className={priorityPill({ level: row.priority })}>
-									<FlagIcon size={11} weight="bold" className="shrink-0" />
-									<span className="truncate">
-										{labels.priorityLabels[row.priority]}
-									</span>
-								</span>
-							)}
-							{row.tags.length > 0 && <NodeTagPills tags={row.tags} />}
+							{trailingItems.map(({ id, node }) => (
+								<Fragment key={id}>{node}</Fragment>
+							))}
 						</div>
 					)}
 				</NodeActions>

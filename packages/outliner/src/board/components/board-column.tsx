@@ -1,10 +1,16 @@
 import { PlusIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
+import type { CalendarTimeString } from "../../dates/calendar-time";
+import type { RecurrenceInput } from "../../dates/recurrence";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
+import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
 import { statusDot } from "../../features/status/components/status-pill.styles";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
+import type { PriorityName } from "../../nodes/model/node-priority";
+import type { StatusSummary } from "../../nodes/model/node-statuses";
 import { toStatusColor } from "../../nodes/model/node-statuses";
+import type { TagSummary } from "../../nodes/model/node-tags";
 import type {
 	NodeTypeName,
 	VisibleNodeRow,
@@ -17,8 +23,23 @@ import { BoardCard } from "./board-card";
 interface BoardColumnProps {
 	column: BoardColumnData;
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
+	features?: OutlinerFeature[];
+	existingTags: TagSummary[];
+	existingStatuses: StatusSummary[];
 	onToggleTask: (id: string, completed: boolean) => void;
 	onSaveContent: (id: string, content: { root: LexicalElementNode }) => void;
+	onSetDueDate: (
+		id: string,
+		date: Date | null,
+		time: CalendarTimeString | null,
+	) => void;
+	onSetRecurrence: (id: string, recurrence: RecurrenceInput | null) => void;
+	onSetTags: (id: string, tags: string[]) => void;
+	onSetPriority: (id: string, priority: PriorityName | null) => void;
+	onSetStatus: (id: string, statusId: string | null) => void;
+	onSetIcon: (id: string, icon: string | null) => void;
+	onTagClick?: (tag: string) => void;
+	onDeleteTag?: (name: string) => void | Promise<void>;
 	onCardDrop: (
 		draggedId: string,
 		edge: BoardCardEdge,
@@ -40,8 +61,19 @@ interface BoardColumnProps {
 export function BoardColumn({
 	column,
 	renderNodeLink,
+	features,
+	existingTags,
+	existingStatuses,
 	onToggleTask,
 	onSaveContent,
+	onSetDueDate,
+	onSetRecurrence,
+	onSetTags,
+	onSetPriority,
+	onSetStatus,
+	onSetIcon,
+	onTagClick,
+	onDeleteTag,
 	onCardDrop,
 	onColumnDrop,
 	onAddCard,
@@ -89,8 +121,19 @@ export function BoardColumn({
 							row={row}
 							columnStatusId={column.status?.id ?? null}
 							renderNodeLink={renderNodeLink}
+							features={features}
+							existingTags={existingTags}
+							existingStatuses={existingStatuses}
 							onToggleTask={onToggleTask}
 							onSaveContent={onSaveContent}
+							onSetDueDate={onSetDueDate}
+							onSetRecurrence={onSetRecurrence}
+							onSetTags={onSetTags}
+							onSetPriority={onSetPriority}
+							onSetStatus={onSetStatus}
+							onSetIcon={onSetIcon}
+							onTagClick={onTagClick}
+							onDeleteTag={onDeleteTag}
 							onCardDrop={onCardDrop}
 							onConvert={onConvert}
 							onTurnInto={onTurnInto}
