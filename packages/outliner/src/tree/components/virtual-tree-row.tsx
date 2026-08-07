@@ -36,7 +36,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
 	const position = siblingPosition(props.rows, index);
 	const blockType = getBlockType(row.content);
-	const showToggle = row.hasChildren && props.hasVisibleChildren;
+	// A board's embedded content is its own view mode, not "does this row
+	// have children" — a board with zero cards still needs a toggle to
+	// reveal its (empty) board, which `hasChildren` alone would hide.
+	const showToggle =
+		row.isBoard || (row.hasChildren && props.hasVisibleChildren);
 
 	// Candidate motion (issue #509): animate this row's own transform via
 	// WAAPI when its virtualized offset changes (drag reorder, indent/
