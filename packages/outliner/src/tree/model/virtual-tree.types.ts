@@ -5,6 +5,8 @@ import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
 import type { FocusPoint } from "../../editor/model/focus-point";
 import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
+import type { PriorityName } from "../../nodes/model/node-priority";
+import type { StatusSummary } from "../../nodes/model/node-statuses";
 import type { TagSummary } from "../../nodes/model/node-tags";
 import type {
 	NodeTypeName,
@@ -19,6 +21,10 @@ export interface VirtualTreeProps {
 	renderNodeLink?: (
 		node: Pick<VisibleTree["rows"][number], "id" | "content">,
 	) => ReactNode;
+	/** Renders a board-converted row's embedded card board in place of its
+	 * (never-flattened, see `walkVisibleTree`) tree children — omit to hide
+	 * boards from this view entirely (e.g. a filtered/read-only render). */
+	renderBoard?: (row: VisibleNodeRow) => ReactNode;
 	header?: ReactNode;
 	/** Overrides the scroll container's default full-viewport-height sizing. */
 	className?: string;
@@ -41,6 +47,8 @@ export interface VirtualTreeProps {
 	newNodeTags?: string[];
 	/** All of this user's tags with usage counts, for the tag editor. */
 	existingTags?: TagSummary[];
+	/** All of this user's statuses, for the status picker and filters. */
+	existingStatuses?: StatusSummary[];
 	/** Deletes a tag outright (every node that has it loses it), not just
 	 * one node's use of it. Not a `VisibleTree` mutation since it isn't
 	 * scoped to this view's rows. Omit to hide the delete affordance. */
@@ -59,11 +67,14 @@ export interface VirtualTreeRowProps {
 	index: number;
 	indentSize: number;
 	renderNodeLink?: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
+	renderBoard?: (row: VisibleNodeRow) => ReactNode;
 	measureElement: (element: HTMLElement | null) => void;
 	/** Row/context-menu features to render; see `VirtualTreeProps.features`. */
 	features?: OutlinerFeature[];
 	/** All of this user's tags with usage counts, for the tag editor. */
 	existingTags: TagSummary[];
+	/** All of this user's statuses, for the status picker. */
+	existingStatuses: StatusSummary[];
 	/** Excluded by an active filter; rendered collapsed and out of the tab order. */
 	isHidden: boolean;
 	/** Direct completion is in its opacity-only exit phase. */
@@ -86,6 +97,9 @@ export interface VirtualTreeRowProps {
 	onSetDueDate: (date: Date | null, time: CalendarTimeString | null) => void;
 	onSetRecurrence: (recurrence: RecurrenceInput | null) => void;
 	onSetTags: (tags: string[]) => void;
+	onSetPriority: (priority: PriorityName | null) => void;
+	onSetStatus: (statusId: string | null) => void;
+	onSetBoardView: (isBoard: boolean) => void;
 	onSetIcon: (icon: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;

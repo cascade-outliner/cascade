@@ -13,6 +13,7 @@ export function Outliner({
 	tree,
 	indentSize,
 	renderNodeLink,
+	renderBoard,
 	header,
 	className,
 	contentClassName,
@@ -23,6 +24,7 @@ export function Outliner({
 	newNodeDueDate,
 	newNodeTags,
 	existingTags,
+	existingStatuses,
 	onDeleteTag,
 	onTagClick,
 	features,
@@ -46,6 +48,7 @@ export function Outliner({
 			focusPoint={interactions.focusPoint}
 			indentSize={indentSize}
 			renderNodeLink={renderNodeLink}
+			renderBoard={renderBoard}
 			header={header}
 			className={className}
 			contentClassName={contentClassName}
@@ -54,6 +57,7 @@ export function Outliner({
 			contextRowIds={contextRowIds}
 			noVisibleChildrenRowIds={noVisibleChildrenRowIds}
 			existingTags={existingTags}
+			existingStatuses={existingStatuses}
 			onDeleteTag={onDeleteTag}
 			onTagClick={onTagClick}
 			features={features}

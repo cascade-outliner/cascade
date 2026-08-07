@@ -36,7 +36,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const dueDate = row.dueDate ? parseCalendarDate(row.dueDate) : null;
 	const position = siblingPosition(props.rows, index);
 	const blockType = getBlockType(row.content);
-	const showToggle = row.hasChildren && props.hasVisibleChildren;
+	// A board's embedded content is its own view mode, not "does this row
+	// have children" — a board with zero cards still needs a toggle to
+	// reveal its (empty) board, which `hasChildren` alone would hide.
+	const showToggle =
+		row.isBoard || (row.hasChildren && props.hasVisibleChildren);
 
 	// Candidate motion (issue #509): animate this row's own transform via
 	// WAAPI when its virtualized offset changes (drag reorder, indent/
@@ -98,9 +102,14 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		completed,
 		tags: row.tags,
 		existingTags: props.existingTags,
+		priority: row.priority ?? null,
+		status: row.status ?? null,
+		existingStatuses: props.existingStatuses,
 		onSetDueDate: props.onSetDueDate,
 		onSetRecurrence: props.onSetRecurrence,
 		onSetTags: props.onSetTags,
+		onSetPriority: props.onSetPriority,
+		onSetStatus: props.onSetStatus,
 		icon: row.icon,
 		onSetIcon: props.onSetIcon,
 		onTagClick: props.onTagClick,
@@ -143,8 +152,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 				<NodeActions
 					nodeType={row.type}
 					blockType={blockType}
+					isBoard={row.isBoard ?? false}
 					onConvert={props.onConvert}
 					onTurnInto={props.onTurnInto}
+					onSetBoardView={props.onSetBoardView}
 					onConversionSuccess={() => acknowledgeMountedRowConversion(row.id)}
 					onDuplicate={props.onDuplicate}
 					onDelete={props.onDelete}
@@ -198,6 +209,11 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					</div>
 				</NodeActions>
 			</RowDragAndDrop>
+			{row.isBoard && row.expanded && props.renderBoard && (
+				<div style={{ paddingLeft: (row.depth + 1) * props.indentSize }}>
+					{props.renderBoard(row)}
+				</div>
+			)}
 		</div>
 	);
 }

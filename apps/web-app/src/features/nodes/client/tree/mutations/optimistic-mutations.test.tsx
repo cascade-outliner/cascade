@@ -344,8 +344,11 @@ describe("optimistic node mutations", () => {
 			dueDate: null,
 			dueTime: null,
 			recurrence: null,
+			priority: null,
+			status: null,
 			tags: [],
 			icon: null,
+			isBoard: false,
 			hasChildren: false,
 		});
 		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");

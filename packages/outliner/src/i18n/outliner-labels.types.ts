@@ -1,4 +1,5 @@
 import type { BlockType } from "../editor/lexical/content/lexical-content";
+import type { PriorityName } from "../nodes/model/node-priority";
 import type { NodeTypeName } from "../nodes/model/node-types";
 
 export interface OutlinerLabels {
@@ -44,6 +45,15 @@ export interface OutlinerLabels {
 	repeatApply: string;
 	repeatRequiresTaskDate: string;
 	repeatEveryInterval: string;
+	setPriority: string;
+	changePriority: string;
+	changePriorityAria: string;
+	priorityNone: string;
+	priorityLabels: Record<PriorityName, string>;
+	setStatus: string;
+	changeStatus: string;
+	changeStatusAria: string;
+	statusEmpty: string;
 	addTag: string;
 	manageTags: string;
 	tagsInputPlaceholder: string;
@@ -72,6 +82,10 @@ export interface OutlinerLabels {
 	filtersDueOn: string;
 	filtersRemoveDueOnDate: string;
 	filtersRemoveDueDateRange: string;
+	filtersPriorityGroup: string;
+	filtersRemovePriority: string;
+	filtersStatusGroup: string;
+	filtersRemoveStatus: string;
 	filtersTagsGroup: string;
 	filtersSearchTags: string;
 	filtersRemoveTag: string;
@@ -81,4 +95,9 @@ export interface OutlinerLabels {
 	filtersShowCompleted: string;
 	filtersRemoveShowCompleted: string;
 	filtersClear: string;
+	convertOptionBoard: string;
+	convertOptionTree: string;
+	boardUnassignedColumn: string;
+	boardEmptyColumn: string;
+	boardAddCard: string;
 }

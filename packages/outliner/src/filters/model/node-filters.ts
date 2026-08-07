@@ -1,4 +1,5 @@
 import { startOfDay, startOfWeek } from "../../dates/due-date-bucket";
+import type { PriorityName } from "../../nodes/model/node-priority";
 
 export interface DueDateRange {
 	start: Date;
@@ -8,6 +9,10 @@ export interface DueDateRange {
 export interface NodeFilters {
 	/** Show only nodes carrying every selected tag. */
 	tags: string[];
+	/** Show only nodes at one of these priority levels; empty means any. */
+	priorities: PriorityName[];
+	/** Show only nodes in one of these statuses (by id); empty means any. */
+	statusIds: string[];
 	dueToday: boolean;
 	dueThisWeek: boolean;
 	/** Show only nodes due on this specific calendar date. */
@@ -19,6 +24,8 @@ export interface NodeFilters {
 
 export const noFilters: NodeFilters = {
 	tags: [],
+	priorities: [],
+	statusIds: [],
 	dueToday: false,
 	dueThisWeek: false,
 	dueOnDate: null,
@@ -60,6 +67,8 @@ export function activeDueDateRange(
 export function hasActiveFilters(filters: NodeFilters): boolean {
 	return (
 		filters.tags.length > 0 ||
+		filters.priorities.length > 0 ||
+		filters.statusIds.length > 0 ||
 		hasActiveDueDateFilter(filters) ||
 		filters.hideCompleted
 	);

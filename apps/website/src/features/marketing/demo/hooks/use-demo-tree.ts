@@ -157,6 +157,16 @@ export function useDemoTree(rootId: string | null) {
 		setAllNodes((current) => patchRow(current, id, { icon }));
 	};
 
+	const setPriority: VisibleTree["setPriority"] = (id, priority) => {
+		setAllNodes((current) => patchRow(current, id, { priority }));
+	};
+
+	// The demo has no status list of its own, so a row can only ever be
+	// cleared here; the picker's create affordance is app-only.
+	const setStatus: VisibleTree["setStatus"] = (id) => {
+		setAllNodes((current) => patchRow(current, id, { status: null }));
+	};
+
 	const add: VisibleTree["add"] = async ({
 		dueDate = null,
 	}: AddNodeOptions = {}) => {
@@ -208,6 +218,8 @@ export function useDemoTree(rootId: string | null) {
 		setTaskCompleted,
 		setTags,
 		setIcon,
+		setPriority,
+		setStatus,
 		add,
 		addAfter,
 		ancestors,

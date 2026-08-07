@@ -82,6 +82,33 @@ describe("buildVisibleTree", () => {
 		expect(result[1].depth).toBe(1);
 	});
 
+	it("never flattens a board node's descendants when encountered mid-walk, regardless of expanded", () => {
+		const rows = [
+			row("root", null, "a0"),
+			row("board", "root", "a0", { isBoard: true, expanded: true }),
+			row("card", "board", "a0"),
+		];
+
+		expect(buildVisibleTree(rows, null).map((r) => r.id)).toEqual([
+			"root",
+			"board",
+		]);
+		expect(
+			buildVisibleTree(rows, null, { includeCollapsed: true }).map((r) => r.id),
+		).toEqual(["root", "board"]);
+	});
+
+	it("still flattens a board node's own direct children when it's the walk root", () => {
+		const rows = [
+			row("board", null, "a0", { isBoard: true, expanded: true }),
+			row("card", "board", "a0"),
+		];
+
+		const result = buildVisibleTree(rows, "board");
+		expect(result.map((r) => r.id)).toEqual(["card"]);
+		expect(result[0].depth).toBe(0);
+	});
+
 	it("marks isLastChild for the final sibling in each group", () => {
 		const rows = [
 			row("a", null, "a0"),

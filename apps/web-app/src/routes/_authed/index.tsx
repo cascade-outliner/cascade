@@ -15,6 +15,10 @@ import {
 } from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
+	existingStatusesOptions,
+	useExistingStatuses,
+} from "@/features/nodes/client/statuses/use-existing-statuses";
+import {
 	existingTagsOptions,
 	useDeleteTag,
 	useExistingTags,
@@ -23,6 +27,7 @@ import {
 	useVisibleTree,
 	visibleTreeOptions,
 } from "@/features/nodes/client/tree/use-visible-tree";
+import { renderEmbeddedBoard } from "@/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "@/features/nodes/ui/node-link";
 import { useSettings } from "@/features/settings/client/settings-context";
 
@@ -30,6 +35,7 @@ export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
 		queryClient.prefetchQuery(visibleTreeOptions());
 		queryClient.prefetchQuery(existingTagsOptions());
+		queryClient.prefetchQuery(existingStatusesOptions());
 	},
 	errorComponent: GenericErrorComponent,
 	component: () => (
@@ -55,6 +61,7 @@ function RootTree() {
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const existingStatuses = useExistingStatuses();
 
 	return (
 		<VirtualTree
@@ -64,11 +71,13 @@ function RootTree() {
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
+			renderBoard={renderEmbeddedBoard}
 			contentClassName="rr-block"
 			header={
 				<FiltersBar
 					filters={filters}
 					existingTags={existingTags}
+					existingStatuses={existingStatuses}
 					onFiltersChange={setFilters}
 					completedFilterMode={
 						settings.hideCompletedByDefault ? "show" : "hide"
@@ -82,6 +91,7 @@ function RootTree() {
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
+			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
 			onTagClick={(tag) =>
 				setFilters({

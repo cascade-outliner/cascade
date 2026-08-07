@@ -104,6 +104,8 @@ function collectNoVisibleChildrenIds(
 function hasPositiveFilters(filters: NodeFilters): boolean {
 	return !(
 		filters.tags.length === 0 &&
+		filters.priorities.length === 0 &&
+		filters.statusIds.length === 0 &&
 		!filters.dueToday &&
 		!filters.dueThisWeek &&
 		!filters.dueOnDate &&

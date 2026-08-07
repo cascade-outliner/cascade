@@ -11,11 +11,13 @@ import {
 	withPendingTasksIncomplete,
 } from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
+import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
 import {
 	useDeleteTag,
 	useExistingTags,
 } from "#/features/nodes/client/tags/use-existing-tags";
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
+import { renderEmbeddedBoard } from "#/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "#/features/nodes/ui/node-link";
 import { useSettings } from "#/features/settings/client/settings-context";
 
@@ -41,6 +43,7 @@ export function NodeTree({
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const existingStatuses = useExistingStatuses();
 
 	return (
 		<VirtualTree
@@ -50,11 +53,13 @@ export function NodeTree({
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
+			renderBoard={renderEmbeddedBoard}
 			header={
 				<>
 					<FiltersBar
 						filters={filters}
 						existingTags={existingTags}
+						existingStatuses={existingStatuses}
 						onFiltersChange={setFilters}
 						completedFilterMode={
 							settings.hideCompletedByDefault ? "show" : "hide"
@@ -70,6 +75,7 @@ export function NodeTree({
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
+			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
 			onTagClick={(tag) =>
 				setFilters({

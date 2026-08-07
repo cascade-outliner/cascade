@@ -9,6 +9,7 @@ import { FiltersMenu } from "./filters-menu";
 export function FiltersBar({
 	filters,
 	existingTags = [],
+	existingStatuses = [],
 	onFiltersChange,
 	completedFilterMode = "hide",
 }: FiltersBarProps) {
@@ -27,11 +28,13 @@ export function FiltersBar({
 				<FiltersMenu
 					filters={filters}
 					existingTags={existingTags}
+					existingStatuses={existingStatuses}
 					onFiltersChange={onFiltersChange}
 					completedFilterMode={completedFilterMode}
 				/>
 				<ActiveFilterChips
 					filters={filters}
+					existingStatuses={existingStatuses}
 					onFiltersChange={onFiltersChange}
 					completedFilterMode={completedFilterMode}
 				/>

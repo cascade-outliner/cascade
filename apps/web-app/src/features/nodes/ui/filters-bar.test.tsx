@@ -67,3 +67,82 @@ describe("FiltersBar tag filters", () => {
 		expect(screen.queryByText(/Tag:/)).toBeNull();
 	});
 });
+
+describe("FiltersBar priority and status filters", () => {
+	const blocked = { id: "status-blocked", name: "Blocked", color: "sky" };
+
+	it("toggles a priority level from the filter menu", async () => {
+		const onFiltersChange = vi.fn();
+		renderWithMotion(
+			<FiltersBar filters={noFilters} onFiltersChange={onFiltersChange} />,
+		);
+
+		fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+		fireEvent.click(await screen.findByRole("menuitem", { name: "Priority" }));
+		fireEvent.click(
+			await screen.findByRole("menuitemcheckbox", { name: "Urgent" }),
+		);
+
+		expect(onFiltersChange).toHaveBeenCalledWith({
+			...noFilters,
+			priorities: ["urgent"],
+		});
+	});
+
+	it("selects a status from the filter menu", async () => {
+		const onFiltersChange = vi.fn();
+		renderWithMotion(
+			<FiltersBar
+				filters={noFilters}
+				existingStatuses={[blocked]}
+				onFiltersChange={onFiltersChange}
+			/>,
+		);
+
+		fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+		fireEvent.click(await screen.findByRole("menuitem", { name: "Status" }));
+		fireEvent.click(await screen.findByRole("button", { name: "Blocked" }));
+
+		expect(onFiltersChange).toHaveBeenCalledWith({
+			...noFilters,
+			statusIds: [blocked.id],
+		});
+	});
+
+	it("hides the status submenu until the user has a status", async () => {
+		renderWithMotion(
+			<FiltersBar filters={noFilters} onFiltersChange={() => undefined} />,
+		);
+
+		fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+		await screen.findByRole("menuitem", { name: "Priority" });
+		expect(screen.queryByRole("menuitem", { name: "Status" })).toBeNull();
+	});
+
+	it("renders removable chips for active priority and status filters", () => {
+		const onFiltersChange = vi.fn();
+		renderWithMotion(
+			<FiltersBar
+				filters={{
+					...noFilters,
+					priorities: ["urgent"],
+					statusIds: [blocked.id],
+				}}
+				existingStatuses={[blocked]}
+				onFiltersChange={onFiltersChange}
+			/>,
+		);
+
+		expect(screen.getByText("Urgent")).toBeTruthy();
+		expect(screen.getByText("Blocked")).toBeTruthy();
+
+		fireEvent.click(
+			screen.getByRole("button", { name: "Remove priority filter: Urgent" }),
+		);
+		expect(onFiltersChange).toHaveBeenCalledWith({
+			...noFilters,
+			priorities: [],
+			statusIds: [blocked.id],
+		});
+	});
+});

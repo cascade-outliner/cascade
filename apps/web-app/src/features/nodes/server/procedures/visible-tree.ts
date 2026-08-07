@@ -1,4 +1,5 @@
 import type { CalendarDateString } from "@cascade/outliner/calendar-date";
+import type { PriorityName } from "@cascade/outliner/node-priority";
 import type {
 	FlatNodeRow,
 	NodeMetadata,
@@ -21,7 +22,12 @@ interface VisibleTreeSqlRow {
 	due_time: string | null;
 	recurrence: RecurrenceRule | null;
 	icon: string | null;
+	priority: PriorityName | null;
+	status_id: string | null;
+	status_name: string | null;
+	status_color: string | null;
 	tags: string[];
+	is_board: boolean;
 }
 
 /**
@@ -36,9 +42,12 @@ export const visibleTree = authed.handler(async ({ context }) => {
 
 	const result = (await db.execute(sql`
 		SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order",
-			n.due_date::text AS due_date, n.due_time, n.recurrence, n.icon,
+			n.due_date::text AS due_date, n.due_time, n.recurrence, n.icon, n.priority,
+			n.is_board,
+			s.id AS status_id, s.name AS status_name, s.color AS status_color,
 			COALESCE(t.tags, '{}') AS tags
 		FROM nodes n
+		LEFT JOIN statuses s ON s.id = n.status_id AND s.user_id = ${userId}
 		LEFT JOIN (
 			SELECT nt.node_id, array_agg(tg.name ORDER BY tg.name) AS tags
 			FROM node_tags nt
@@ -60,7 +69,17 @@ export const visibleTree = authed.handler(async ({ context }) => {
 		dueTime: r.due_time,
 		recurrence: r.recurrence,
 		icon: r.icon,
+		priority: r.priority,
+		status:
+			r.status_id && r.status_name
+				? {
+						id: r.status_id,
+						name: r.status_name,
+						color: r.status_color ?? "sky",
+					}
+				: null,
 		tags: r.tags,
+		isBoard: r.is_board,
 	}));
 
 	return { rows };

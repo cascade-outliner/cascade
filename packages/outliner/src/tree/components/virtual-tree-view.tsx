@@ -27,6 +27,7 @@ export function VirtualTreeView({
 	focusPoint,
 	indentSize,
 	renderNodeLink,
+	renderBoard,
 	header,
 	className,
 	contentClassName,
@@ -35,6 +36,7 @@ export function VirtualTreeView({
 	contextRowIds,
 	noVisibleChildrenRowIds,
 	existingTags = [],
+	existingStatuses = [],
 	onDeleteTag,
 	onTagClick,
 	features,
@@ -55,6 +57,7 @@ export function VirtualTreeView({
 	VirtualTreeProps,
 	| "indentSize"
 	| "renderNodeLink"
+	| "renderBoard"
 	| "header"
 	| "className"
 	| "contentClassName"
@@ -63,6 +66,7 @@ export function VirtualTreeView({
 	| "contextRowIds"
 	| "noVisibleChildrenRowIds"
 	| "existingTags"
+	| "existingStatuses"
 	| "onDeleteTag"
 	| "onTagClick"
 	| "features"
@@ -141,8 +145,10 @@ export function VirtualTreeView({
 										index={virtualItem.index}
 										indentSize={indentSize ?? 16}
 										renderNodeLink={renderNodeLink}
+										renderBoard={renderBoard}
 										measureElement={virtualizer.measureElement}
 										existingTags={existingTags}
+										existingStatuses={existingStatuses}
 										onDeleteTag={onDeleteTag}
 										onTagClick={onTagClick}
 										features={features}
@@ -177,6 +183,17 @@ export function VirtualTreeView({
 											tree.setRecurrence(row.id, recurrence)
 										}
 										onSetTags={(tags) => tree.setTags(row.id, tags)}
+										onSetPriority={(priority) =>
+											tree.setPriority(row.id, priority)
+										}
+										onSetStatus={(statusId) => tree.setStatus(row.id, statusId)}
+										onSetBoardView={(isBoard) => {
+											tree.setBoardView(row.id, isBoard);
+											// Expand on conversion so the (possibly empty) board is
+											// immediately visible instead of looking like nothing
+											// happened — collapsed is otherwise this row's default.
+											if (isBoard && !row.expanded) tree.toggle(row.id, true);
+										}}
 										onSetIcon={(icon) => tree.setIcon(row.id, icon)}
 										onDuplicate={() => tree.duplicate(row.id)}
 										onDelete={() => tree.remove(row.id)}

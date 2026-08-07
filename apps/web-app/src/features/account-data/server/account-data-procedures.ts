@@ -3,6 +3,7 @@ import { db } from "@/db";
 import {
 	nodes,
 	nodeTags,
+	statuses,
 	tags,
 } from "@/features/nodes/server/persistence/node-tables";
 import { premiumSeats } from "@/features/premium/server/premium-table";
@@ -26,6 +27,7 @@ export interface AccountDataExport {
 	premium: { isPremium: boolean; grantedAt: string | null };
 	nodes: (typeof nodes.$inferSelect)[];
 	tags: (typeof tags.$inferSelect)[];
+	statuses: (typeof statuses.$inferSelect)[];
 	nodeTags: (typeof nodeTags.$inferSelect)[];
 	treeHistoryEvents: (typeof treeHistoryEvents.$inferSelect)[];
 	treeHistorySnapshots: (typeof treeHistorySnapshots.$inferSelect)[];
@@ -33,7 +35,7 @@ export interface AccountDataExport {
 
 /**
  * A full JSON dump of everything this user owns — nodes (which carry due
- * dates directly), tags, tree history, settings, and premium status. Scoped
+ * dates directly), tags, statuses, tree history, settings, and premium status. Scoped
  * entirely to `context.user.id`, same as every other account/node procedure.
  */
 export const exportAccountData = authed.handler(
@@ -43,12 +45,14 @@ export const exportAccountData = authed.handler(
 		const [
 			userNodes,
 			userTags,
+			userStatuses,
 			userTreeHistoryEvents,
 			[settingsRow],
 			[premiumRow],
 		] = await Promise.all([
 			db.select().from(nodes).where(eq(nodes.userId, userId)),
 			db.select().from(tags).where(eq(tags.userId, userId)),
+			db.select().from(statuses).where(eq(statuses.userId, userId)),
 			db
 				.select()
 				.from(treeHistoryEvents)
@@ -95,6 +99,7 @@ export const exportAccountData = authed.handler(
 			},
 			nodes: userNodes,
 			tags: userTags,
+			statuses: userStatuses,
 			nodeTags: userNodeTags,
 			treeHistoryEvents: userTreeHistoryEvents,
 			treeHistorySnapshots: userTreeHistorySnapshots,
