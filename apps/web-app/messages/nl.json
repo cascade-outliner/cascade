@@ -552,6 +552,6 @@
 	"outliner_convert_option_board": "Bord",
 	"outliner_convert_option_tree": "Boom",
 	"outliner_board_unassigned_column": "Geen status",
-	"outliner_board_empty_column": "Geen kaarten",
-	"outliner_board_add_card": "Kaart toevoegen"
+	"outliner_board_empty_column": "Geen nodes",
+	"outliner_board_add_card": "Node toevoegen"
 }

@@ -52,8 +52,8 @@ export interface BoardViewProps {
 	 * position: `result.statusId` is the column's status and `result.target`
 	 * is where among its new siblings it landed. */
 	onDrop: (draggedId: string, result: BoardDropResult) => void;
-	/** A column's "Add card" control was used; `columnStatusId` is the
-	 * status the new card should be created with (`null` for the
+	/** A column's "Add node" control was used; `columnStatusId` is the
+	 * status the new node should be created with (`null` for the
 	 * unassigned column). Omit to hide the control entirely. */
 	onAddCard?: (columnStatusId: string | null) => void;
 	/** A card's "Convert into"/duplicate/delete context menu — the same one

@@ -117,6 +117,6 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	convertOptionBoard: "Board",
 	convertOptionTree: "Tree",
 	boardUnassignedColumn: "No status",
-	boardEmptyColumn: "No cards",
-	boardAddCard: "Add card",
+	boardEmptyColumn: "No nodes",
+	boardAddCard: "Add node",
 };

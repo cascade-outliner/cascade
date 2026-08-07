@@ -552,6 +552,6 @@
 	"outliner_convert_option_board": "Board",
 	"outliner_convert_option_tree": "Tree",
 	"outliner_board_unassigned_column": "No status",
-	"outliner_board_empty_column": "No cards",
-	"outliner_board_add_card": "Add card"
+	"outliner_board_empty_column": "No nodes",
+	"outliner_board_add_card": "Add node"
 }
