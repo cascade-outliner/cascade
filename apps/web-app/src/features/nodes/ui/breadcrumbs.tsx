@@ -6,6 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { orpc } from "#/orpc/client";
 import { m } from "#/paraglide/messages.js";
+import { HeaderBreadcrumbPortal } from "@/app/header-breadcrumb-slot";
 import { toNodeSlug } from "../model/node-slug";
 
 interface BreadcrumbsProps {
@@ -90,46 +91,57 @@ export function Breadcrumbs({ nodeId }: BreadcrumbsProps) {
 	const tail = collapse ? ancestors.slice(-1) : [];
 
 	return (
-		<nav aria-label={m.breadcrumbs_nav_label()} className="mb-4 text-sm">
-			<ol className="flex items-center gap-1.5 flex-wrap">
-				<li className="flex items-center">
-					<Link
-						viewTransition
-						to="/"
-						search={true}
-						aria-label={m.breadcrumbs_home_label()}
-						className="hover:text-danger"
-					>
-						<HouseIcon size={16} weight="bold" />
-					</Link>
-				</li>
-				{head.map((crumb) => (
-					<li key={crumb.id} className="flex items-center gap-1.5 min-w-0">
-						<Separator />
-						<CrumbLink crumb={crumb} />
+		<HeaderBreadcrumbPortal>
+			<nav aria-label={m.breadcrumbs_nav_label()} className="min-w-0 text-sm">
+				<ol className="flex items-center gap-1.5 flex-nowrap overflow-hidden">
+					<li className="flex items-center shrink-0">
+						<Link
+							viewTransition
+							to="/"
+							search={true}
+							aria-label={m.breadcrumbs_home_label()}
+							className="hover:text-danger"
+						>
+							<HouseIcon size={16} weight="bold" />
+						</Link>
 					</li>
-				))}
-				{hidden.length > 0 && (
-					<li className="flex items-center gap-1.5">
-						<Separator />
-						<CollapsedCrumbs crumbs={hidden} />
-					</li>
-				)}
-				{tail.map((crumb) => (
-					<li key={crumb.id} className="flex items-center gap-1.5 min-w-0">
-						<Separator />
-						<CrumbLink crumb={crumb} />
-					</li>
-				))}
-				{current && (
-					<li className="flex items-center gap-1.5 min-w-0">
-						<Separator />
-						<span aria-current="page" className="max-w-48 truncate opacity-60">
-							{crumbLabel(current)}
-						</span>
-					</li>
-				)}
-			</ol>
-		</nav>
+					{head.map((crumb) => (
+						<li
+							key={crumb.id}
+							className="flex items-center gap-1.5 min-w-0 shrink"
+						>
+							<Separator />
+							<CrumbLink crumb={crumb} />
+						</li>
+					))}
+					{hidden.length > 0 && (
+						<li className="flex items-center gap-1.5 shrink-0">
+							<Separator />
+							<CollapsedCrumbs crumbs={hidden} />
+						</li>
+					)}
+					{tail.map((crumb) => (
+						<li
+							key={crumb.id}
+							className="flex items-center gap-1.5 min-w-0 shrink"
+						>
+							<Separator />
+							<CrumbLink crumb={crumb} />
+						</li>
+					))}
+					{current && (
+						<li className="flex items-center gap-1.5 min-w-0 shrink">
+							<Separator />
+							<span
+								aria-current="page"
+								className="max-w-48 truncate opacity-60"
+							>
+								{crumbLabel(current)}
+							</span>
+						</li>
+					)}
+				</ol>
+			</nav>
+		</HeaderBreadcrumbPortal>
 	);
 }

@@ -3,6 +3,7 @@ import { m } from "#/paraglide/messages.js";
 import { QuickOpen } from "@/features/quick-open/ui/quick-open";
 import { UserMenu } from "@/features/user-menu/ui/user-menu";
 import { bar, brand } from "./app-header.styles";
+import { HeaderBreadcrumbSlot } from "./header-breadcrumb-slot";
 
 export function AppHeader() {
 	return (
@@ -15,6 +16,8 @@ export function AppHeader() {
 					src="/logo192.png"
 				/>
 			</Link>
+
+			<HeaderBreadcrumbSlot className="min-w-0 flex-1" />
 
 			<div className="ml-auto flex shrink-0 items-center gap-2">
 				<QuickOpen />
