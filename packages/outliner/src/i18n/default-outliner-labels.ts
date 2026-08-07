@@ -18,6 +18,8 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	delete: "Delete",
 	emptyTree: "This tree is empty. Add a node to get started.",
 	emptyFilterResults: "No nodes match the current filters.",
+	rowErrorMessage: "This node couldn't be displayed.",
+	rowErrorDeleteAction: "Delete node",
 	addNode: "Add node",
 	setIcon: "Set icon",
 	changeIcon: "Change icon",

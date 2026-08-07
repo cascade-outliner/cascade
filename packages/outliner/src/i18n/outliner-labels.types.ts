@@ -13,6 +13,8 @@ export interface OutlinerLabels {
 	delete: string;
 	emptyTree: string;
 	emptyFilterResults: string;
+	rowErrorMessage: string;
+	rowErrorDeleteAction: string;
 	addNode: string;
 	setIcon: string;
 	changeIcon: string;

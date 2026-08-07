@@ -41,6 +41,8 @@ function createOutlinerLabels(): OutlinerLabels {
 		delete: m.outliner_delete(),
 		emptyTree: m.outliner_empty_tree(),
 		emptyFilterResults: m.outliner_empty_filter_results(),
+		rowErrorMessage: m.outliner_row_error_message(),
+		rowErrorDeleteAction: m.outliner_row_error_delete_action(),
 		addNode: m.outliner_add_node(),
 		setIcon: m.outliner_set_icon(),
 		changeIcon: m.outliner_change_icon(),
