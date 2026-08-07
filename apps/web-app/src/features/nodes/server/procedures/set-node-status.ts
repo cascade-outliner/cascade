@@ -32,15 +32,20 @@ export const setNodeStatus = authed
 			if (!before) throw errors.NOT_FOUND();
 			if (before.statusId === input.statusId) return;
 
-			// Re-scope the target status by user: without this a caller could
-			// point one of their nodes at somebody else's status id.
+			// Re-scope the target status by user and board: without this a
+			// caller could point one of their nodes at somebody else's status,
+			// or at a status that belongs to a different board.
 			let nextName: string | null = null;
 			if (input.statusId !== null) {
 				const [status] = await transaction
 					.select({ id: statuses.id, name: statuses.name })
 					.from(statuses)
 					.where(
-						and(eq(statuses.id, input.statusId), eq(statuses.userId, userId)),
+						and(
+							eq(statuses.id, input.statusId),
+							eq(statuses.userId, userId),
+							eq(statuses.boardId, input.boardId),
+						),
 					)
 					.limit(1);
 				if (!status) throw errors.STATUS_NOT_FOUND();

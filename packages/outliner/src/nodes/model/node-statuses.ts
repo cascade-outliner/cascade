@@ -12,9 +12,16 @@ export interface StatusSummary {
 	color: string;
 }
 
+/** A status as returned by a board-scoped `listStatuses` call: like
+ * `StatusSummary`, plus whether it's hidden from the board/picker (its
+ * column disappears, but nodes keep the assignment until it's unhidden). */
+export interface StatusOption extends StatusSummary {
+	hidden: boolean;
+}
+
 /** A status plus how many nodes are currently in it, as the statuses
  * settings panel lists them. */
-export interface StatusWithUsage extends StatusSummary {
+export interface StatusWithUsage extends StatusOption {
 	count: number;
 }
 

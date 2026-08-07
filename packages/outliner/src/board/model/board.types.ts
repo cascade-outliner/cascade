@@ -1,14 +1,16 @@
-import type { StatusSummary } from "../../nodes/model/node-statuses";
+import type { StatusOption } from "../../nodes/model/node-statuses";
 import type { VisibleNodeRow } from "../../nodes/model/node-types";
 import type { MoveTarget } from "../../tree/rows/visible-rows";
 
 /**
  * One board column. `status` is `null` for the "unassigned" column that
  * holds cards without a status, always rendered first regardless of the
- * user's status sort order.
+ * user's status sort order. A hidden status still gets its own column
+ * (rendered dimmed by `BoardColumn`, see `status.hidden`) rather than being
+ * dropped, so cards already carrying it stay visible in place.
  */
 export interface BoardColumn {
-	status: StatusSummary | null;
+	status: StatusOption | null;
 	cards: VisibleNodeRow[];
 }
 

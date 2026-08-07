@@ -349,6 +349,7 @@ describe("optimistic node mutations", () => {
 			tags: [],
 			icon: null,
 			isBoard: false,
+			parentIsBoard: false,
 			hasChildren: false,
 		});
 		const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");

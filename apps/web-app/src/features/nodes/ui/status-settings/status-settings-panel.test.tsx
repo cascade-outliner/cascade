@@ -17,8 +17,8 @@ vi.mock("@/features/nodes/client/statuses/use-existing-statuses", () => ({
 }));
 
 const statuses: StatusWithUsage[] = [
-	{ id: "status-1", name: "To do", color: "sky", count: 3 },
-	{ id: "status-2", name: "Done", color: "emerald", count: 0 },
+	{ id: "status-1", name: "To do", color: "sky", hidden: false, count: 3 },
+	{ id: "status-2", name: "Done", color: "emerald", hidden: false, count: 0 },
 ];
 
 function renderPanel(data: StatusWithUsage[] | undefined = statuses) {
@@ -39,7 +39,7 @@ function renderPanel(data: StatusWithUsage[] | undefined = statuses) {
 	vi.mocked(useStatusManagement).mockReturnValue(
 		management as unknown as ReturnType<typeof useStatusManagement>,
 	);
-	const { container } = render(<StatusSettingsPanel />);
+	const { container } = render(<StatusSettingsPanel boardId="board-1" />);
 	return { ...management, container };
 }
 
@@ -140,6 +140,22 @@ describe("StatusSettingsPanel", () => {
 		);
 
 		expect(deleteStatus).toHaveBeenCalledWith("status-1", expect.any(Function));
+	});
+
+	it("toggles a status's hidden state", () => {
+		const { updateStatus } = renderPanel();
+
+		fireEvent.click(
+			screen.getByRole("button", {
+				name: m.settings_statuses_hide_label({ name: "To do" }),
+			}),
+		);
+
+		expect(updateStatus).toHaveBeenCalledWith(
+			"status-1",
+			{ hidden: true },
+			expect.any(Function),
+		);
 	});
 
 	it("shows an empty state when the user has no statuses yet", () => {

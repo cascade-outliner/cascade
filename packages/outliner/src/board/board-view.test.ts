@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { StatusSummary } from "../nodes/model/node-statuses";
+import type { StatusOption, StatusSummary } from "../nodes/model/node-statuses";
 import type { VisibleNodeRow } from "../nodes/model/node-types";
 import { groupRowsIntoColumns } from "./board-view";
 
@@ -30,8 +30,18 @@ function row(
 	};
 }
 
-const todo: StatusSummary = { id: "s-todo", name: "To do", color: "sky" };
-const done: StatusSummary = { id: "s-done", name: "Done", color: "emerald" };
+const todo: StatusOption = {
+	id: "s-todo",
+	name: "To do",
+	color: "sky",
+	hidden: false,
+};
+const done: StatusOption = {
+	id: "s-done",
+	name: "Done",
+	color: "emerald",
+	hidden: false,
+};
 
 describe("groupRowsIntoColumns", () => {
 	it("puts an always-first unassigned column ahead of one column per status", () => {
@@ -79,5 +89,21 @@ describe("groupRowsIntoColumns", () => {
 		const columns = groupRowsIntoColumns([row("a", todo)], [todo, done]);
 
 		expect(columns.find((c) => c.status?.id === "s-done")?.cards).toEqual([]);
+	});
+
+	it("still gives a hidden status its own column, carrying its hidden flag, rather than folding it away", () => {
+		const hiddenStatus: StatusOption = { ...done, hidden: true };
+		const rows = [row("a", todo), row("b", hiddenStatus), row("c", null)];
+
+		const columns = groupRowsIntoColumns(rows, [todo, hiddenStatus]);
+
+		expect(columns.map((c) => c.status?.id ?? null)).toEqual([
+			null,
+			"s-todo",
+			"s-done",
+		]);
+		const hiddenColumn = columns.find((c) => c.status?.id === "s-done");
+		expect(hiddenColumn?.status?.hidden).toBe(true);
+		expect(hiddenColumn?.cards.map((r) => r.id)).toEqual(["b"]);
 	});
 });

@@ -127,6 +127,13 @@
       "when": 1786046282941,
       "tag": "0017_blushing_wrecker",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1786108667711,
+      "tag": "0018_steep_paladin",
+      "breakpoints": true
     }
   ]
 }

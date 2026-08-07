@@ -1,4 +1,4 @@
-import { PlusIcon } from "@phosphor-icons/react/ssr";
+import { EyeIcon, EyeSlashIcon, PlusIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
 import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceInput } from "../../dates/recurrence";
@@ -56,6 +56,9 @@ interface BoardColumnProps {
 	onSetBoardView: (id: string, isBoard: boolean) => void;
 	onDuplicate: (id: string) => void;
 	onDelete: (id: string) => void;
+	/** Toggles this column's status hidden flag. Omit (or `null` `column.status`
+	 * for the unassigned column, which is never hideable) to hide the toggle. */
+	onToggleHidden?: (statusId: string, hidden: boolean) => void;
 }
 
 export function BoardColumn({
@@ -82,15 +85,20 @@ export function BoardColumn({
 	onSetBoardView,
 	onDuplicate,
 	onDelete,
+	onToggleHidden,
 }: BoardColumnProps) {
 	const labels = useOutlinerLabels();
 	const { columnRef, isDraggedOver } = useBoardColumnDropTarget({
 		columnStatusId: column.status?.id ?? null,
 		onColumnDrop,
 	});
+	const status = column.status;
+	const hidden = status?.hidden ?? false;
 
 	return (
-		<div className="flex w-72 shrink-0 flex-col">
+		<div
+			className={`flex w-72 shrink-0 flex-col ${hidden ? "opacity-50" : ""}`}
+		>
 			<div className="mb-2 flex items-center gap-2 px-1">
 				{column.status && (
 					<span
@@ -103,6 +111,20 @@ export function BoardColumn({
 				<span className="text-xs text-muted tabular-nums">
 					{column.cards.length}
 				</span>
+				{status && onToggleHidden && (
+					<button
+						type="button"
+						aria-label={hidden ? labels.showColumn : labels.hideColumn}
+						onClick={() => onToggleHidden(status.id, !hidden)}
+						className="ml-auto rounded-md p-1 text-muted outline-none hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-accent/50 dark:hover:bg-surface/10 dark:hover:text-surface"
+					>
+						{hidden ? (
+							<EyeSlashIcon size={14} weight="bold" />
+						) : (
+							<EyeIcon size={14} weight="bold" />
+						)}
+					</button>
+				)}
 			</div>
 			<div
 				ref={columnRef}

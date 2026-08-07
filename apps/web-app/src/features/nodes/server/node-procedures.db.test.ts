@@ -738,49 +738,124 @@ describe("setNodePriority", () => {
 
 describe("createStatus / listStatuses / updateStatus / setNodeStatus / deleteStatus", () => {
 	it("creates a status, rejects duplicate names, and lists it in creation order", async () => {
-		const first = await call(createStatus, { name: "To do" }, { context });
-		const second = await call(createStatus, { name: "Done" }, { context });
+		const board = await call(createNode, { parentId: null }, { context });
+		const first = await call(
+			createStatus,
+			{ boardId: board.id, name: "To do" },
+			{ context },
+		);
+		const second = await call(
+			createStatus,
+			{ boardId: board.id, name: "Done" },
+			{ context },
+		);
 
-		expect(await call(listStatuses, undefined, { context })).toEqual([
-			{ id: first.id, name: "To do", color: first.color, count: 0 },
-			{ id: second.id, name: "Done", color: second.color, count: 0 },
+		expect(
+			await call(listStatuses, { boardId: board.id }, { context }),
+		).toEqual([
+			{
+				id: first.id,
+				name: "To do",
+				color: first.color,
+				hidden: false,
+				count: 0,
+			},
+			{
+				id: second.id,
+				name: "Done",
+				color: second.color,
+				hidden: false,
+				count: 0,
+			},
 		]);
 		await expect(
-			call(createStatus, { name: "TO DO" }, { context }),
+			call(createStatus, { boardId: board.id, name: "TO DO" }, { context }),
 		).rejects.toMatchObject({ code: "CONFLICT" });
 	});
 
+	it("allows the same status name on different boards", async () => {
+		const boardA = await call(createNode, { parentId: null }, { context });
+		const boardB = await call(createNode, { parentId: null }, { context });
+
+		await call(
+			createStatus,
+			{ boardId: boardA.id, name: "To do" },
+			{ context },
+		);
+		await expect(
+			call(createStatus, { boardId: boardB.id, name: "To do" }, { context }),
+		).resolves.toMatchObject({ name: "To do" });
+	});
+
 	it("sets a node's status and surfaces it denormalized on the node", async () => {
-		const status = await call(createStatus, { name: "Blocked" }, { context });
+		const board = await call(createNode, { parentId: null }, { context });
+		const status = await call(
+			createStatus,
+			{ boardId: board.id, name: "Blocked" },
+			{ context },
+		);
 		const node = await call(createNode, { parentId: null }, { context });
 
 		await call(
 			setNodeStatus,
-			{ id: node.id, statusId: status.id },
+			{ id: node.id, boardId: board.id, statusId: status.id },
 			{ context },
 		);
 		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
 			status: { id: status.id, name: "Blocked" },
 		});
 
-		await call(setNodeStatus, { id: node.id, statusId: null }, { context });
+		await call(
+			setNodeStatus,
+			{ id: node.id, boardId: board.id, statusId: null },
+			{ context },
+		);
 		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
 			status: null,
 		});
 	});
 
+	it("rejects a status id that belongs to another board", async () => {
+		const boardA = await call(createNode, { parentId: null }, { context });
+		const boardB = await call(createNode, { parentId: null }, { context });
+		const foreign = await call(
+			createStatus,
+			{ boardId: boardB.id, name: "Someone else's" },
+			{ context },
+		);
+		const node = await call(createNode, { parentId: null }, { context });
+
+		await expect(
+			call(
+				setNodeStatus,
+				{ id: node.id, boardId: boardA.id, statusId: foreign.id },
+				{ context },
+			),
+		).rejects.toMatchObject({ code: "STATUS_NOT_FOUND" });
+	});
+
 	it("rejects a status id that belongs to another user", async () => {
 		const { user: otherUser, context: otherContext } = await createTestUser();
 		try {
-			const foreign = await call(
-				createStatus,
-				{ name: "Someone else's" },
+			const foreignBoard = await call(
+				createNode,
+				{ parentId: null },
 				{ context: otherContext },
 			);
+			const foreign = await call(
+				createStatus,
+				{ boardId: foreignBoard.id, name: "Someone else's" },
+				{ context: otherContext },
+			);
+			const board = await call(createNode, { parentId: null }, { context });
 			const node = await call(createNode, { parentId: null }, { context });
 
 			await expect(
-				call(setNodeStatus, { id: node.id, statusId: foreign.id }, { context }),
+				call(
+					setNodeStatus,
+					{ id: node.id, boardId: board.id, statusId: foreign.id },
+					{ context },
+				),
 			).rejects.toMatchObject({ code: "STATUS_NOT_FOUND" });
 		} finally {
 			await deleteTestUser(otherUser.id);
@@ -788,71 +863,118 @@ describe("createStatus / listStatuses / updateStatus / setNodeStatus / deleteSta
 	});
 
 	it("clears the status from nodes it was on instead of deleting them", async () => {
-		const status = await call(createStatus, { name: "In review" }, { context });
+		const board = await call(createNode, { parentId: null }, { context });
+		const status = await call(
+			createStatus,
+			{ boardId: board.id, name: "In review" },
+			{ context },
+		);
 		const node = await call(createNode, { parentId: null }, { context });
 		await call(
 			setNodeStatus,
-			{ id: node.id, statusId: status.id },
+			{ id: node.id, boardId: board.id, statusId: status.id },
 			{ context },
 		);
 
-		await call(deleteStatus, { id: status.id }, { context });
+		await call(deleteStatus, { id: status.id, boardId: board.id }, { context });
 
 		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
 			status: null,
 		});
 		expect(
-			(await call(listStatuses, undefined, { context })).map(({ id }) => id),
+			(await call(listStatuses, { boardId: board.id }, { context })).map(
+				({ id }) => id,
+			),
 		).not.toContain(status.id);
 	});
 
 	it("counts the nodes each status is on", async () => {
-		const status = await call(createStatus, { name: "Counted" }, { context });
+		const board = await call(createNode, { parentId: null }, { context });
+		const status = await call(
+			createStatus,
+			{ boardId: board.id, name: "Counted" },
+			{ context },
+		);
 		const node = await call(createNode, { parentId: null }, { context });
 		await call(
 			setNodeStatus,
-			{ id: node.id, statusId: status.id },
+			{ id: node.id, boardId: board.id, statusId: status.id },
 			{ context },
 		);
 
 		expect(
-			(await call(listStatuses, undefined, { context })).find(
+			(await call(listStatuses, { boardId: board.id }, { context })).find(
 				({ id }) => id === status.id,
 			),
 		).toMatchObject({ count: 1 });
 	});
 
-	it("renames and recolors a status, rejecting a name another status has", async () => {
-		const status = await call(createStatus, { name: "Draft" }, { context });
-		const other = await call(createStatus, { name: "Shipped" }, { context });
+	it("renames, recolors, and hides a status, rejecting a name another status on the same board has", async () => {
+		const board = await call(createNode, { parentId: null }, { context });
+		const status = await call(
+			createStatus,
+			{ boardId: board.id, name: "Draft" },
+			{ context },
+		);
+		const other = await call(
+			createStatus,
+			{ boardId: board.id, name: "Shipped" },
+			{ context },
+		);
 
 		expect(
 			await call(
 				updateStatus,
-				{ id: status.id, name: "Drafting", color: "violet" },
+				{ id: status.id, boardId: board.id, name: "Drafting", color: "violet" },
 				{ context },
 			),
 		).toMatchObject({ id: status.id, name: "Drafting", color: "violet" });
 
 		await expect(
-			call(updateStatus, { id: status.id, name: "SHIPPED" }, { context }),
+			call(
+				updateStatus,
+				{ id: status.id, boardId: board.id, name: "SHIPPED" },
+				{ context },
+			),
 		).rejects.toMatchObject({ code: "CONFLICT" });
 		await expect(
-			call(updateStatus, { id: other.id, name: "Shipped" }, { context }),
+			call(
+				updateStatus,
+				{ id: other.id, boardId: board.id, name: "Shipped" },
+				{ context },
+			),
 		).resolves.toMatchObject({ name: "Shipped" });
+
+		expect(
+			await call(
+				updateStatus,
+				{ id: status.id, boardId: board.id, hidden: true },
+				{ context },
+			),
+		).toMatchObject({ id: status.id, hidden: true });
 	});
 
 	it("rejects updating a status that belongs to another user", async () => {
 		const { user: otherUser, context: otherContext } = await createTestUser();
 		try {
-			const foreign = await call(
-				createStatus,
-				{ name: "Theirs" },
+			const foreignBoard = await call(
+				createNode,
+				{ parentId: null },
 				{ context: otherContext },
 			);
+			const foreign = await call(
+				createStatus,
+				{ boardId: foreignBoard.id, name: "Theirs" },
+				{ context: otherContext },
+			);
+			const board = await call(createNode, { parentId: null }, { context });
 
 			await expect(
-				call(updateStatus, { id: foreign.id, name: "Mine" }, { context }),
+				call(
+					updateStatus,
+					{ id: foreign.id, boardId: board.id, name: "Mine" },
+					{ context },
+				),
 			).rejects.toMatchObject({ code: "NOT_FOUND" });
 		} finally {
 			await deleteTestUser(otherUser.id);
@@ -860,8 +982,13 @@ describe("createStatus / listStatuses / updateStatus / setNodeStatus / deleteSta
 	});
 
 	it("rejects deleting an unknown status with NOT_FOUND", async () => {
+		const board = await call(createNode, { parentId: null }, { context });
 		await expect(
-			call(deleteStatus, { id: "does-not-exist" }, { context }),
+			call(
+				deleteStatus,
+				{ id: "does-not-exist", boardId: board.id },
+				{ context },
+			),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 });

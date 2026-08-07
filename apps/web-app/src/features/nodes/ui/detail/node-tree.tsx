@@ -1,3 +1,7 @@
+import {
+	defaultOutlinerFeatures,
+	statusFeature,
+} from "@cascade/outliner/features";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import {
@@ -11,7 +15,6 @@ import {
 	withPendingTasksIncomplete,
 } from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
-import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
 import {
 	useDeleteTag,
 	useExistingTags,
@@ -20,6 +23,13 @@ import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
 import { renderEmbeddedBoard } from "#/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "#/features/nodes/ui/node-link";
 import { useSettings } from "#/features/settings/client/settings-context";
+
+// Status is per-board (see per-board statuses): a plain tree that isn't a
+// board's own direct-children view has no board to draw status options
+// from, so it doesn't offer status assignment or filtering at all.
+const featuresWithoutStatus = defaultOutlinerFeatures.filter(
+	(feature) => feature !== statusFeature,
+);
 
 export function NodeTree({
 	nodeId,
@@ -43,13 +53,13 @@ export function NodeTree({
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
-	const existingStatuses = useExistingStatuses();
 
 	return (
 		<VirtualTree
 			tree={tree}
 			className="h-full"
 			indentSize={settings.indentSize}
+			features={featuresWithoutStatus}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
@@ -59,7 +69,6 @@ export function NodeTree({
 					<FiltersBar
 						filters={filters}
 						existingTags={existingTags}
-						existingStatuses={existingStatuses}
 						onFiltersChange={setFilters}
 						completedFilterMode={
 							settings.hideCompletedByDefault ? "show" : "hide"
@@ -75,7 +84,6 @@ export function NodeTree({
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
-			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
 			onTagClick={(tag) =>
 				setFilters({

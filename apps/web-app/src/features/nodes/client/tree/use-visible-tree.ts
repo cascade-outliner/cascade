@@ -38,6 +38,10 @@ export { visibleTreeOptions } from "./visible-tree-query";
 export function useVisibleTree(
 	rootId: string | null,
 	includeCollapsedDescendants = false,
+	/** The board this tree is a board's direct-children view of, if any (see
+	 * per-board statuses) — pass the board node's own id. Omit for the root
+	 * outline or a non-board node's tree, where status isn't offered. */
+	boardId?: string,
 ): VisibleTree {
 	const options = visibleTreeOptions();
 	const { data } = useSuspenseQuery(options);
@@ -70,7 +74,7 @@ export function useVisibleTree(
 	const setTaskCompleted = useSetTaskCompletedMutation(options.queryKey);
 	const setTags = useSetTagsMutation(options.queryKey);
 	const setPriority = useSetPriorityMutation(options.queryKey);
-	const setStatus = useSetStatusMutation(options.queryKey);
+	const setStatus = useSetStatusMutation(options.queryKey, boardId);
 	const setBoardView = useSetBoardViewMutation(options.queryKey);
 	const { add, addAfter } = useCreateMutation(options.queryKey, rootId, rows);
 

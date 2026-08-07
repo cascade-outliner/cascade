@@ -5,7 +5,13 @@ import {
 	toStatusColor,
 } from "@cascade/outliner/node-statuses";
 import { Button } from "@cascade/ui/button";
-import { PencilSimpleIcon, TrashIcon, XIcon } from "@phosphor-icons/react/ssr";
+import {
+	EyeIcon,
+	EyeSlashIcon,
+	PencilSimpleIcon,
+	TrashIcon,
+	XIcon,
+} from "@phosphor-icons/react/ssr";
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import { iconButton } from "@/features/user-menu/ui/user-menu.styles";
@@ -21,6 +27,7 @@ interface StatusRowProps {
 	onCancelEdit: () => void;
 	onSave: (changes: { name?: string; color?: StatusColor }) => void;
 	onDelete: () => void;
+	onToggleHidden: () => void;
 }
 
 export function StatusRow({
@@ -32,6 +39,7 @@ export function StatusRow({
 	onCancelEdit,
 	onSave,
 	onDelete,
+	onToggleHidden,
 }: StatusRowProps) {
 	const [name, setName] = useState(status.name);
 	const [color, setColor] = useState<StatusColor>(toStatusColor(status.color));
@@ -115,7 +123,11 @@ export function StatusRow({
 	}
 
 	return (
-		<li className="flex min-h-16 items-center gap-3 border-b border-ink/10 px-5 py-3 last:border-b-0 dark:border-surface/15">
+		<li
+			className={`flex min-h-16 items-center gap-3 border-b border-ink/10 px-5 py-3 last:border-b-0 dark:border-surface/15 ${
+				status.hidden ? "opacity-50" : ""
+			}`}
+		>
 			<span
 				aria-hidden="true"
 				className={colorSwatch({ hue: toStatusColor(status.color) })}
@@ -123,9 +135,27 @@ export function StatusRow({
 			<div className="min-w-0 flex-1">
 				<div className="truncate text-sm font-medium">{status.name}</div>
 				<div className="text-sm text-ink/55 dark:text-surface/55">
-					{m.settings_statuses_usage_count({ count: status.count })}
+					{status.hidden
+						? m.settings_statuses_hidden_note()
+						: m.settings_statuses_usage_count({ count: status.count })}
 				</div>
 			</div>
+			<button
+				type="button"
+				aria-label={
+					status.hidden
+						? m.settings_statuses_unhide_label({ name: status.name })
+						: m.settings_statuses_hide_label({ name: status.name })
+				}
+				className={iconButton()}
+				onClick={onToggleHidden}
+			>
+				{status.hidden ? (
+					<EyeSlashIcon size={17} weight="bold" />
+				) : (
+					<EyeIcon size={17} weight="bold" />
+				)}
+			</button>
 			<button
 				type="button"
 				aria-label={m.settings_statuses_edit_label({ name: status.name })}

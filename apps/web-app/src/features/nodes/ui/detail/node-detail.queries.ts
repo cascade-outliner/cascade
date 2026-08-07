@@ -78,7 +78,6 @@ export async function loadNodeDetail(
 	nodeSlug: string,
 ) {
 	queryClient.prefetchQuery(existingTagsOptions());
-	queryClient.prefetchQuery(existingStatusesOptions());
 
 	const tree = queryClient.getQueryData(visibleTreeOptions().queryKey);
 	const nodeId = tree ? findNodeIdInCache(tree.rows, nodeSlug) : null;
@@ -86,12 +85,16 @@ export async function loadNodeDetail(
 	if (tree && nodeId) {
 		const row = tree.rows.find((r) => r.id === nodeId);
 		if (row) {
+			const parentRow = row.parentId
+				? tree.rows.find((r) => r.id === row.parentId)
+				: undefined;
 			const node: NodeDetailData = {
 				...row,
 				recurrence: row.recurrence ?? null,
 				priority: row.priority ?? null,
 				status: row.status ?? null,
 				isBoard: row.isBoard ?? false,
+				parentIsBoard: parentRow?.isBoard ?? false,
 				hasChildren: tree.rows.some((r) => r.parentId === nodeId),
 			};
 			queryClient.setQueryData(
@@ -124,8 +127,15 @@ export async function loadNodeDetail(
 	return resolved.id;
 }
 
-/** The optimistic mutations available from the node detail header (task toggle, due date, tags). */
-export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
+/** The optimistic mutations available from the node detail header (task
+ * toggle, due date, tags). `boardId` is this node's parent when it's a
+ * board, or `undefined` — status is per-board, so `setStatus` is only ever
+ * expected to be called (from `NodeStatusControl`) when it's set. */
+export function useNodeDetailMutations(
+	nodeId: string,
+	boardId: string | undefined,
+	queryKey: QueryKey,
+) {
 	const queryClient = useQueryClient();
 
 	const toggleTaskMutation = useOptimisticNodeMutation<
@@ -255,12 +265,17 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 		NodeDetailData
 	>({
 		queryKey,
-		mutationFn: (statusId) => client.nodes.setStatus({ id: nodeId, statusId }),
+		mutationFn: (statusId) =>
+			client.nodes.setStatus({
+				id: nodeId,
+				boardId: boardId ?? "",
+				statusId,
+			}),
 		patch: (old, statusId) => {
 			if (!old) return old;
 			const statuses =
 				queryClient.getQueryData<StatusSummary[]>(
-					existingStatusesOptions().queryKey,
+					existingStatusesOptions(boardId ?? "").queryKey,
 				) ?? [];
 			return {
 				...old,
@@ -309,7 +324,10 @@ export function useNodeDetailMutations(nodeId: string, queryKey: QueryKey) {
 		setTags: (tags: string[]) => setTagsMutation.mutate(tags),
 		setPriority: (priority: PriorityName | null) =>
 			setPriorityMutation.mutate(priority),
-		setStatus: (statusId: string | null) => setStatusMutation.mutate(statusId),
+		setStatus: (statusId: string | null) => {
+			if (!boardId) return;
+			setStatusMutation.mutate(statusId);
+		},
 		setIcon: (icon: string | null) => setIconMutation.mutate(icon),
 	};
 }

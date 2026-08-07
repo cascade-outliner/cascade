@@ -1,3 +1,7 @@
+import {
+	defaultOutlinerFeatures,
+	statusFeature,
+} from "@cascade/outliner/features";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import {
@@ -15,10 +19,6 @@ import {
 } from "@/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "@/features/nodes/client/filters/use-node-filters";
 import {
-	existingStatusesOptions,
-	useExistingStatuses,
-} from "@/features/nodes/client/statuses/use-existing-statuses";
-import {
 	existingTagsOptions,
 	useDeleteTag,
 	useExistingTags,
@@ -31,11 +31,17 @@ import { renderEmbeddedBoard } from "@/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "@/features/nodes/ui/node-link";
 import { useSettings } from "@/features/settings/client/settings-context";
 
+// Status is per-board (see per-board statuses): the root outline isn't any
+// single board's direct-children view, so it doesn't offer status
+// assignment or filtering at all.
+const featuresWithoutStatus = defaultOutlinerFeatures.filter(
+	(feature) => feature !== statusFeature,
+);
+
 export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
 		queryClient.prefetchQuery(visibleTreeOptions());
 		queryClient.prefetchQuery(existingTagsOptions());
-		queryClient.prefetchQuery(existingStatusesOptions());
 	},
 	errorComponent: GenericErrorComponent,
 	component: () => (
@@ -61,13 +67,13 @@ function RootTree() {
 	);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
-	const existingStatuses = useExistingStatuses();
 
 	return (
 		<VirtualTree
 			tree={tree}
 			className="h-full"
 			indentSize={settings.indentSize}
+			features={featuresWithoutStatus}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
@@ -77,7 +83,6 @@ function RootTree() {
 				<FiltersBar
 					filters={filters}
 					existingTags={existingTags}
-					existingStatuses={existingStatuses}
 					onFiltersChange={setFilters}
 					completedFilterMode={
 						settings.hideCompletedByDefault ? "show" : "hide"
@@ -91,7 +96,6 @@ function RootTree() {
 			newNodeDueDate={dueDateRange ? dueDateRange.start : undefined}
 			newNodeTags={filters.tags.length > 0 ? filters.tags : undefined}
 			existingTags={existingTags}
-			existingStatuses={existingStatuses}
 			onDeleteTag={deleteTag}
 			onTagClick={(tag) =>
 				setFilters({

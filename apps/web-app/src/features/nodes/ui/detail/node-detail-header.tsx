@@ -109,11 +109,13 @@ export function NodeDetailHeader({
 						priority={node.priority}
 						onChange={onPriorityChange}
 					/>
-					<NodeStatusControl
-						status={node.status}
-						existingStatuses={existingStatuses}
-						onSelect={onStatusChange}
-					/>
+					{node.parentIsBoard && (
+						<NodeStatusControl
+							status={node.status}
+							existingStatuses={existingStatuses}
+							onSelect={onStatusChange}
+						/>
+					)}
 					<NodeTagsControl
 						tags={node.tags}
 						existingTags={existingTags}

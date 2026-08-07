@@ -19,8 +19,12 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 	const { data: node } = useSuspenseQuery(options);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
-	const existingStatuses = useExistingStatuses();
-	const mutations = useNodeDetailMutations(nodeId, options.queryKey);
+	// Status is per-board (see per-board statuses): this node's own header
+	// only offers status assignment when its parent is a board — a plain
+	// node's detail page has no board to draw options from.
+	const boardId = node.parentIsBoard ? (node.parentId ?? undefined) : undefined;
+	const existingStatuses = useExistingStatuses(boardId);
+	const mutations = useNodeDetailMutations(nodeId, boardId, options.queryKey);
 
 	// node.dueDate is a `YYYY-MM-DD` calendar date, not a Date; parse it here
 	// so NodeDueDatePill always gets a real Date | null (see virtual-tree-row.tsx).

@@ -220,8 +220,7 @@
 	"settings_tags_rename_failed": "Failed to rename tag",
 	"settings_tags_delete_success": "Tag deleted",
 	"settings_tags_delete_failed": "Failed to delete tag",
-	"settings_statuses_tab": "Statuses",
-	"settings_statuses_description": "Manage the statuses available throughout your outline.",
+	"settings_statuses_description": "Manage this board's status columns.",
 	"settings_statuses_section": "Your statuses",
 	"settings_statuses_section_description": "Renaming or recoloring a status updates every node that uses it.",
 	"settings_statuses_create_section": "Create status",
@@ -234,7 +233,7 @@
 	"settings_statuses_loading": "Loading statuses…",
 	"settings_statuses_load_failed": "Statuses couldn't be loaded.",
 	"settings_statuses_empty": "No statuses yet",
-	"settings_statuses_empty_description": "Statuses you create here will appear in every node's status picker.",
+	"settings_statuses_empty_description": "Statuses you create here will appear in this board's status picker.",
 	"settings_statuses_name_label": "Status name",
 	"settings_statuses_name_exists": "A status with this name already exists.",
 	"settings_statuses_color_label": "Color",
@@ -243,6 +242,9 @@
 	"settings_statuses_saving": "Saving…",
 	"settings_statuses_edit_label": "Edit {name}",
 	"settings_statuses_delete_label": "Delete {name}",
+	"settings_statuses_hide_label": "Hide {name}",
+	"settings_statuses_unhide_label": "Show {name}",
+	"settings_statuses_hidden_note": "Hidden — its column is dimmed on the board and it won't appear as a pick option for new cards.",
 	"settings_statuses_usage_count": [
 		{
 			"declarations": [
@@ -544,7 +546,7 @@
 	"outliner_set_status": "Set status",
 	"outliner_change_status": "Change status",
 	"outliner_change_status_aria": "Change status",
-	"outliner_status_empty": "No statuses yet — create one in Settings → Statuses.",
+	"outliner_status_empty": "No statuses yet — manage this board's columns to add one.",
 	"filters_bar_priority_group": "Priority",
 	"filters_bar_remove_priority": "Remove priority filter",
 	"filters_bar_status_group": "Status",
@@ -553,5 +555,10 @@
 	"outliner_convert_option_tree": "Tree",
 	"outliner_board_unassigned_column": "No status",
 	"outliner_board_empty_column": "No nodes",
-	"outliner_board_add_card": "Add node"
+	"outliner_board_add_card": "Add node",
+	"outliner_hide_column": "Hide column",
+	"outliner_show_column": "Show column",
+	"board_manage_columns": "Manage columns",
+	"board_settings_title": "Board columns",
+	"board_settings_close": "Close board columns"
 }

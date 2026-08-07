@@ -7,7 +7,7 @@ import type { BlockType } from "../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../editor/lexical/model/lexical-node.types";
 import type { OutlinerFeature } from "../features/model/outliner-feature.types";
 import type { PriorityName } from "../nodes/model/node-priority";
-import type { StatusSummary } from "../nodes/model/node-statuses";
+import type { StatusOption } from "../nodes/model/node-statuses";
 import type { TagSummary } from "../nodes/model/node-tags";
 import type { NodeTypeName, VisibleNodeRow } from "../nodes/model/node-types";
 import { BoardColumn } from "./components/board-column";
@@ -18,9 +18,17 @@ import type {
 } from "./model/board.types";
 import { resolveCardDrop, resolveColumnDrop } from "./resolve-board-drop";
 
+/**
+ * Groups cards into columns, one per status (visible or hidden) plus an
+ * always-first "unassigned" column. A hidden status still gets its own
+ * column — `BoardColumn` renders it dimmed rather than dropping it — so
+ * cards already carrying that status stay visible in place; only the "set
+ * status" picker excludes hidden statuses as a pick target for new
+ * assignments (see `BoardView`'s `pickableStatuses`).
+ */
 export function groupRowsIntoColumns(
 	rows: VisibleNodeRow[],
-	existingStatuses: StatusSummary[],
+	existingStatuses: StatusOption[],
 ): BoardColumnData[] {
 	const byStatus = new Map<string | null, VisibleNodeRow[]>();
 	for (const row of rows) {
@@ -47,9 +55,10 @@ export interface BoardViewProps {
 	rows: VisibleNodeRow[];
 	/** The subtree root the cards are children of, used as `MoveTarget.parentId`. */
 	rootId: string | null;
-	/** All of this user's statuses, in display order, one column each — plus
-	 * an always-first "unassigned" column for cards without a status. */
-	existingStatuses: StatusSummary[];
+	/** All of this board's statuses (visible and hidden), in display order.
+	 * Each gets its own column (a hidden one renders dimmed), plus an
+	 * always-first "unassigned" column for cards without a status. */
+	existingStatuses: StatusOption[];
 	/** All of this user's tags with usage counts, for a card's tag editor. */
 	existingTags: TagSummary[];
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
@@ -92,6 +101,9 @@ export interface BoardViewProps {
 	onSetBoardView: (id: string, isBoard: boolean) => void;
 	onDuplicate: (id: string) => void;
 	onDelete: (id: string) => void;
+	/** Toggles a status's hidden flag from its own column header. Omit to
+	 * hide the toggle affordance (e.g. read-only contexts). */
+	onToggleColumnHidden?: (statusId: string, hidden: boolean) => void;
 	header?: ReactNode;
 	className?: string;
 }
@@ -124,12 +136,20 @@ export function BoardView({
 	onSetBoardView,
 	onDuplicate,
 	onDelete,
+	onToggleColumnHidden,
 	header,
 	className,
 }: BoardViewProps) {
 	const columns = useMemo(
 		() => groupRowsIntoColumns(rows, existingStatuses),
 		[rows, existingStatuses],
+	);
+	// Hidden statuses are never offered as a pick target — only as a
+	// possible existing state a card already carries (handled by folding
+	// into the unassigned column above).
+	const pickableStatuses = useMemo(
+		() => existingStatuses.filter((status) => !status.hidden),
+		[existingStatuses],
 	);
 
 	function handleCardDrop(
@@ -162,7 +182,7 @@ export function BoardView({
 						renderNodeLink={renderNodeLink}
 						features={features}
 						existingTags={existingTags}
-						existingStatuses={existingStatuses}
+						existingStatuses={pickableStatuses}
 						onToggleTask={onToggleTask}
 						onSaveContent={onSaveContent}
 						onSetDueDate={onSetDueDate}
@@ -181,6 +201,7 @@ export function BoardView({
 						onSetBoardView={onSetBoardView}
 						onDuplicate={onDuplicate}
 						onDelete={onDelete}
+						onToggleHidden={onToggleColumnHidden}
 					/>
 				))}
 			</div>

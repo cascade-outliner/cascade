@@ -12,7 +12,7 @@ import { CreateStatusForm } from "./create-status-form";
 import { DeleteStatusDialog } from "./delete-status-dialog";
 import { StatusRow } from "./status-row";
 
-export function StatusSettingsPanel() {
+export function StatusSettingsPanel({ boardId }: { boardId: string }) {
 	const {
 		statusesQuery,
 		createStatus,
@@ -21,7 +21,7 @@ export function StatusSettingsPanel() {
 		updatingStatus,
 		deleteStatus,
 		deletingStatus,
-	} = useStatusManagement();
+	} = useStatusManagement(boardId);
 	const [editingStatus, setEditingStatus] = useState<string>();
 	const [statusToDelete, setStatusToDelete] = useState<StatusWithUsage>();
 
@@ -89,6 +89,9 @@ export function StatusSettingsPanel() {
 									)
 								}
 								onDelete={() => setStatusToDelete(status)}
+								onToggleHidden={() =>
+									updateStatus(status.id, { hidden: !status.hidden }, () => {})
+								}
 							/>
 						))}
 					</ul>
