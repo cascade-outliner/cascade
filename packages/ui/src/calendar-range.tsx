@@ -1,5 +1,5 @@
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react/ssr";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { cva } from "./cva.config";
 import { useUiLabels } from "./labels-context";
 
@@ -79,9 +79,24 @@ const monthFormatter = new Intl.DateTimeFormat(undefined, {
 const weekdayFormatter = new Intl.DateTimeFormat(undefined, {
 	weekday: "short",
 });
+const weekdayFullFormatter = new Intl.DateTimeFormat(undefined, {
+	weekday: "long",
+});
+const dayFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: "long" });
 const WEEKDAY_LABELS = Array.from({ length: 7 }, (_, i) =>
 	weekdayFormatter.format(new Date(1970, 0, 4 + i)),
 );
+const WEEKDAY_FULL_LABELS = Array.from({ length: 7 }, (_, i) =>
+	weekdayFullFormatter.format(new Date(1970, 0, 4 + i)),
+);
+
+function chunkIntoWeeks(cells: CalendarCell[]): CalendarCell[][] {
+	const weeks: CalendarCell[][] = [];
+	for (let i = 0; i < cells.length; i += 7) {
+		weeks.push(cells.slice(i, i + 7));
+	}
+	return weeks;
+}
 
 const navButton = cva({
 	base: [
@@ -93,7 +108,7 @@ const navButton = cva({
 
 const day = cva({
 	base: [
-		"flex h-7 items-center justify-center rounded-md text-[12.5px] tabular-nums outline-none transition-colors",
+		"flex h-7 w-full items-center justify-center rounded-md text-[12.5px] tabular-nums outline-none transition-colors",
 		"text-ink hover:bg-surface/70 dark:text-surface dark:hover:bg-surface/20",
 	],
 	variants: {
@@ -146,12 +161,14 @@ export function CalendarRange({
 	onClear,
 }: CalendarRangeProps) {
 	const labels = useUiLabels();
+	const monthHeadingId = useId();
 	const [cursor, setCursor] = useState(() =>
 		startOfDay(value?.start ?? singleValue ?? new Date()),
 	);
 	const [pendingStart, setPendingStart] = useState<Date | null>(null);
 	const today = startOfDay(new Date());
 	const cells = getMonthGrid(cursor);
+	const weeks = chunkIntoWeeks(cells);
 
 	const rangeStart = pendingStart ?? value?.start ?? null;
 	const rangeEnd = pendingStart ? null : (value?.end ?? null);
@@ -216,7 +233,10 @@ export function CalendarRange({
 				>
 					<CaretLeftIcon size={13} weight="bold" />
 				</button>
-				<span className="flex-1 text-center text-sm font-semibold">
+				<span
+					id={monthHeadingId}
+					className="flex-1 text-center text-sm font-semibold"
+				>
 					{monthFormatter.format(cursor)}
 				</span>
 				<button
@@ -231,40 +251,66 @@ export function CalendarRange({
 				</button>
 			</div>
 			{pendingStart && (
-				<p className="mb-2 text-center text-[11px] text-muted dark:text-surface/60">
+				<p
+					aria-live="polite"
+					className="mb-2 text-center text-[11px] text-muted dark:text-surface/60"
+				>
 					{labels.calendarRangeSelectEnd}
 				</p>
 			)}
-			<div className="grid grid-cols-7 gap-0.5">
-				{WEEKDAY_LABELS.map((label) => (
-					<div
-						key={label}
-						className="pb-1 text-center text-[10px] font-semibold text-muted dark:text-surface/70"
-					>
-						{label}
-					</div>
-				))}
-				{cells.map((cell) => {
-					const d = startOfDay(cell.date);
-					const selected = isRangeEndpoint(d) || isSingleSelected(d);
-					const inRange = isInRange(d);
-					return (
-						<button
-							type="button"
-							key={cell.date.toISOString()}
-							className={day({
-								muted: !cell.inMonth,
-								today: sameDay(d, today),
-								selected,
-								inRange,
-							})}
-							onClick={() => handleDayClick(cell.date)}
+			<table
+				aria-labelledby={monthHeadingId}
+				className="w-full table-fixed border-separate border-spacing-0.5"
+			>
+				<thead>
+					<tr>
+						{WEEKDAY_LABELS.map((label, i) => (
+							<th
+								key={label}
+								scope="col"
+								aria-label={WEEKDAY_FULL_LABELS[i]}
+								className="pb-1 text-center text-[10px] font-semibold text-muted dark:text-surface/70"
+							>
+								{label}
+							</th>
+						))}
+					</tr>
+				</thead>
+				<tbody>
+					{weeks.map((week, weekIndex) => (
+						<tr
+							// biome-ignore lint/suspicious/noArrayIndexKey: weeks are a stable, order-only partition of `cells`
+							key={weekIndex}
 						>
-							{cell.date.getDate()}
-						</button>
-					);
-				})}
-			</div>
+							{week.map((cell) => {
+								const d = startOfDay(cell.date);
+								const selected = isRangeEndpoint(d) || isSingleSelected(d);
+								const inRange = isInRange(d);
+								const isToday = sameDay(d, today);
+								return (
+									<td key={cell.date.toISOString()}>
+										<button
+											type="button"
+											aria-label={dayFormatter.format(cell.date)}
+											aria-pressed={selected}
+											aria-current={isToday ? "date" : undefined}
+											className={day({
+												muted: !cell.inMonth,
+												today: isToday,
+												selected,
+												inRange,
+											})}
+											onClick={() => handleDayClick(cell.date)}
+										>
+											{cell.date.getDate()}
+										</button>
+									</td>
+								);
+							})}
+						</tr>
+					))}
+				</tbody>
+			</table>
 			<div className="mt-3 flex flex-wrap gap-1.5 border-t border-ink/10 pt-3 dark:border-surface/10">
 				{onSelectSingle && !pendingStart && (
 					<>

@@ -26,6 +26,8 @@ function daysFromNow(days: number): Date {
 	return date;
 }
 
+const dayFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: "long" });
+
 test.describe("filters", () => {
 	// These tests mutate the shared e2e account's `hideCompletedByDefault`
 	// setting and tag list, so they must not run concurrently with each other.
@@ -217,13 +219,13 @@ test.describe("filters", () => {
 			// Range: click "Today" (the quick-pick shortcut, arming range-select
 			// mode) then click a day-grid cell a week later to finalize the range —
 			// the quick-pick row itself disappears once a start date is armed.
-			const rangeEndDay = String(daysFromNow(7).getDate());
+			const rangeEndLabel = dayFormatter.format(daysFromNow(7));
 			await page.getByRole("button", { name: "Filter", exact: true }).click();
 			await page.getByRole("menuitem", { name: "Due on date" }).click();
 			const dueOnDateMenu = page.getByRole("menu", { name: "Due on date" });
 			await dueOnDateMenu.getByRole("button", { name: "Today" }).click();
 			await dueOnDateMenu
-				.getByRole("button", { name: rangeEndDay, exact: true })
+				.getByRole("button", { name: rangeEndLabel, exact: true })
 				.click();
 
 			await expect(page).toHaveURL(/due_start=.*due_end=/);
