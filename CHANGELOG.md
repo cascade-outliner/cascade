@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-07
+- [fix] A tree row that fails to render (e.g. a node with malformed content) no longer crashes the whole tree to the generic error screen. It's now isolated to that one row, which shows a message and a button to delete the offending node so the rest of the tree stays usable. [#659](https://github.com/cascade-outliner/cascade/issues/659)
+
 ## 2026-08-06
 - [fix] Real-time due-date notifications now fire for any node with a due date and time set, not just nodes converted to the Task type — the due-date picker itself was never restricted to tasks, but the notification scan incorrectly only looked for `type = 'task'` rows, so a due date/time on a plain node silently never notified. [#599](https://github.com/cascade-outliner/cascade/issues/599)
 - [fix] The due-date notifications toggle in Settings → General now tells you clearly when your browser doesn't support notifications outside the app (e.g. Safari on iOS outside an installed home-screen app), instead of the toggle silently doing nothing beyond in-app toasts. The toggle's description and the toast shown after granting/blocking permission also now make clear that notifications (in-app or OS) only fire while Cascade is open in a tab — they can't reach you while the tab is closed or your device is locked. [#599](https://github.com/cascade-outliner/cascade/issues/599)

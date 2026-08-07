@@ -340,6 +340,8 @@
 	"outliner_delete": "Verwijderen",
 	"outliner_empty_tree": "Deze boomstructuur is leeg. Voeg een node toe om te beginnen.",
 	"outliner_empty_filter_results": "Geen nodes voldoen aan de huidige filters.",
+	"outliner_row_error_message": "Deze node kon niet worden weergegeven.",
+	"outliner_row_error_delete_action": "Node verwijderen",
 	"outliner_add_node": "Node toevoegen",
 	"outliner_type_text": "Alinea",
 	"outliner_type_task": "Taak",

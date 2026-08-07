@@ -12,6 +12,7 @@ import {
 	clearExpansionReveal,
 	getExpansionReveal,
 } from "../motion/expansion-reveal";
+import { RowErrorBoundary } from "./row-error-boundary";
 import { VirtualTreeRow } from "./virtual-tree-row";
 
 type Interactions = ReturnType<typeof useTreeInteractions>;
@@ -123,64 +124,76 @@ export function VirtualTreeView({
 							const row = tree.rows[virtualItem.index];
 							if (!row) return null;
 							return (
-								<VirtualTreeRow
+								<RowErrorBoundary
 									key={virtualItem.key}
 									row={row}
-									rows={tree.rows}
 									start={virtualItem.start}
 									index={virtualItem.index}
 									indentSize={indentSize ?? 16}
-									renderNodeLink={renderNodeLink}
 									measureElement={virtualizer.measureElement}
-									existingTags={existingTags}
-									onDeleteTag={onDeleteTag}
-									onTagClick={onTagClick}
-									features={features}
-									isHidden={hiddenRowIds?.has(row.id) ?? false}
-									isCompletionExiting={
-										completionExitRowIds?.has(row.id) ?? false
-									}
-									isContext={contextRowIds?.has(row.id) ?? false}
-									hasVisibleChildren={
-										!(noVisibleChildrenRowIds?.has(row.id) ?? false)
-									}
-									revealOnMount={expansionRevealRowIds.has(row.id)}
-									editing={editingNodeId === row.id}
-									focusPoint={editingNodeId === row.id ? focusPoint : null}
-									onStartEdit={(point) => onStartEdit(row.id, point)}
-									onExitEdit={() => onExitEdit(row.id)}
-									onToggle={(expanded) => tree.toggle(row.id, expanded)}
-									onConvert={(type) => onConvert(row.id, type)}
-									onTurnInto={(blockType) =>
-										tree.updateContent(
-											row.id,
-											setBlockType(row.content, blockType),
-										)
-									}
-									onToggleTask={(completed) => onToggleTask(row.id, completed)}
-									onSetDueDate={(date, time) =>
-										tree.setDueDate(row.id, date, time)
-									}
-									onSetRecurrence={(recurrence) =>
-										tree.setRecurrence(row.id, recurrence)
-									}
-									onSetTags={(tags) => tree.setTags(row.id, tags)}
-									onSetIcon={(icon) => tree.setIcon(row.id, icon)}
-									onDuplicate={() => tree.duplicate(row.id)}
+									labels={labels}
 									onDelete={() => tree.remove(row.id)}
-									onSaveContent={(content) =>
-										tree.updateContent(row.id, content)
-									}
-									onCreateBelow={() => onCreateBelow(row.id)}
-									onDeleteEmpty={() => onDeleteEmpty(row.id)}
-									onIndent={() => onIndent(row.id)}
-									onOutdent={() => onOutdent(row.id)}
-									onMoveUp={() => onMoveUp(row.id)}
-									onMoveDown={() => onMoveDown(row.id)}
-									onFocusNext={() => onFocusNeighbor(row.id, 1)}
-									onFocusPrevious={() => onFocusNeighbor(row.id, -1)}
-									onMoveDrop={onMoveDrop}
-								/>
+								>
+									<VirtualTreeRow
+										row={row}
+										rows={tree.rows}
+										start={virtualItem.start}
+										index={virtualItem.index}
+										indentSize={indentSize ?? 16}
+										renderNodeLink={renderNodeLink}
+										measureElement={virtualizer.measureElement}
+										existingTags={existingTags}
+										onDeleteTag={onDeleteTag}
+										onTagClick={onTagClick}
+										features={features}
+										isHidden={hiddenRowIds?.has(row.id) ?? false}
+										isCompletionExiting={
+											completionExitRowIds?.has(row.id) ?? false
+										}
+										isContext={contextRowIds?.has(row.id) ?? false}
+										hasVisibleChildren={
+											!(noVisibleChildrenRowIds?.has(row.id) ?? false)
+										}
+										revealOnMount={expansionRevealRowIds.has(row.id)}
+										editing={editingNodeId === row.id}
+										focusPoint={editingNodeId === row.id ? focusPoint : null}
+										onStartEdit={(point) => onStartEdit(row.id, point)}
+										onExitEdit={() => onExitEdit(row.id)}
+										onToggle={(expanded) => tree.toggle(row.id, expanded)}
+										onConvert={(type) => onConvert(row.id, type)}
+										onTurnInto={(blockType) =>
+											tree.updateContent(
+												row.id,
+												setBlockType(row.content, blockType),
+											)
+										}
+										onToggleTask={(completed) =>
+											onToggleTask(row.id, completed)
+										}
+										onSetDueDate={(date, time) =>
+											tree.setDueDate(row.id, date, time)
+										}
+										onSetRecurrence={(recurrence) =>
+											tree.setRecurrence(row.id, recurrence)
+										}
+										onSetTags={(tags) => tree.setTags(row.id, tags)}
+										onSetIcon={(icon) => tree.setIcon(row.id, icon)}
+										onDuplicate={() => tree.duplicate(row.id)}
+										onDelete={() => tree.remove(row.id)}
+										onSaveContent={(content) =>
+											tree.updateContent(row.id, content)
+										}
+										onCreateBelow={() => onCreateBelow(row.id)}
+										onDeleteEmpty={() => onDeleteEmpty(row.id)}
+										onIndent={() => onIndent(row.id)}
+										onOutdent={() => onOutdent(row.id)}
+										onMoveUp={() => onMoveUp(row.id)}
+										onMoveDown={() => onMoveDown(row.id)}
+										onFocusNext={() => onFocusNeighbor(row.id, 1)}
+										onFocusPrevious={() => onFocusNeighbor(row.id, -1)}
+										onMoveDrop={onMoveDrop}
+									/>
+								</RowErrorBoundary>
 							);
 						})}
 					</div>
