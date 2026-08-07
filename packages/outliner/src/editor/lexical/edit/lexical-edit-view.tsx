@@ -9,6 +9,7 @@ import { HeadingNode } from "@lexical/rich-text";
 import type { FocusPoint } from "../../model/focus-point";
 import { HEADING_CLASSES } from "../model/heading-styles";
 import type { LexicalElementNode } from "../model/lexical-node.types";
+import { TableGridNode } from "../table/table-node";
 import { EditableContent } from "./editable-content";
 import { MARKDOWN_SHORTCUT_TRANSFORMERS } from "./markdown-shortcuts";
 
@@ -55,7 +56,7 @@ export function LexicalEditView({
 		<LexicalComposer
 			initialConfig={{
 				namespace: `node-editor-${id}`,
-				nodes: [LinkNode, AutoLinkNode, HeadingNode],
+				nodes: [LinkNode, AutoLinkNode, HeadingNode, TableGridNode],
 				theme: {
 					heading: HEADING_CLASSES,
 					link: "text-danger underline decoration-danger/40 underline-offset-2 dark:text-accent dark:decoration-accent/40",

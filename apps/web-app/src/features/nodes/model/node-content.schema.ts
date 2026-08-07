@@ -1,4 +1,9 @@
 import { MAX_URL_LENGTH } from "@cascade/outliner/lexical/link-url";
+import {
+	MAX_TABLE_CELL_LENGTH,
+	MAX_TABLE_COLUMNS,
+	MAX_TABLE_ROWS,
+} from "@cascade/outliner/lexical/table-data";
 import { z } from "zod";
 
 // Lexical content is ~3-4 levels deep in practice; these caps are generous
@@ -28,6 +33,9 @@ export interface LexicalSchemaNode {
 	isUnlinked?: boolean;
 	// @lexical/rich-text's HeadingNode.
 	tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+	// The outliner's `TableGridNode` (see #453) — cell text only, no nested
+	// rich content, so it's a plain grid rather than `children`.
+	rows?: string[][];
 	children?: LexicalSchemaNode[];
 }
 
@@ -55,6 +63,12 @@ function lexicalNodeSchema(depth: number): z.ZodType<LexicalSchemaNode> {
 			title: z.string().max(512).nullable().optional(),
 			isUnlinked: z.boolean().optional(),
 			tag: z.enum(["h1", "h2", "h3", "h4", "h5", "h6"]).optional(),
+			rows: z
+				.array(
+					z.array(z.string().max(MAX_TABLE_CELL_LENGTH)).max(MAX_TABLE_COLUMNS),
+				)
+				.max(MAX_TABLE_ROWS)
+				.optional(),
 			children:
 				depth >= MAX_LEXICAL_DEPTH
 					? z.array(z.never()).max(0).optional()

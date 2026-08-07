@@ -13,6 +13,10 @@ function heading(tag: string, children: unknown[]) {
 	return { type: "heading", tag, children };
 }
 
+function table(rows: string[][]) {
+	return { type: "table", rows };
+}
+
 function root(children: unknown[]) {
 	return { root: { type: "root", children } };
 }
@@ -33,6 +37,10 @@ describe("getBlockType", () => {
 		expect(getBlockType(undefined)).toBe("paragraph");
 		expect(getBlockType({})).toBe("paragraph");
 		expect(getBlockType(root([]))).toBe("paragraph");
+	});
+
+	it("returns table for table content", () => {
+		expect(getBlockType(root([table([["a", "b"]])]))).toBe("table");
 	});
 });
 
@@ -74,6 +82,32 @@ describe("setBlockType", () => {
 			type: "heading",
 			tag: "h1",
 			children: [],
+		});
+	});
+
+	it("converts a paragraph into an empty table", () => {
+		const content = root([paragraph([textNode("hello")])]);
+		const result = setBlockType(content, "table");
+		expect(result.root.children?.[0]).toMatchObject({
+			type: "table",
+			rows: [
+				["", ""],
+				["", ""],
+			],
+		});
+	});
+
+	it("flattens a table's cells into a paragraph's text", () => {
+		const content = root([
+			table([
+				["Name", "Age"],
+				["Ada", "36"],
+			]),
+		]);
+		const result = setBlockType(content, "paragraph");
+		expect(result.root.children?.[0]).toMatchObject({
+			type: "paragraph",
+			children: [{ type: "text", text: "Name Age Ada 36" }],
 		});
 	});
 });

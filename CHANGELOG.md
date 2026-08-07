@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-08-07
+- [feat] Node content can now include tables: convert a node into a table from its "Convert into" menu, then add/remove rows and columns from the grid itself. Tables render in both the editable view and read-only contexts (breadcrumbs, node-link previews), and their cell text is included in plain-text extraction. [#453](https://github.com/cascade-outliner/cascade/issues/453)
 - [feat] Boards now have their own independent set of status columns instead of sharing one global list — creating, renaming, recoloring, hiding, or deleting a status on one board no longer affects any other board. A hidden status's column stays visible on the board (dimmed) so its cards are never displaced, but it drops out of the "set status" picker for new assignments; unhiding restores it to full opacity. Toggle a column's visibility right from its header, or manage a board's statuses from its "Manage columns" button (moved out of account-wide Settings). [#667](https://github.com/cascade-outliner/cascade/issues/667)
 - [fix] A tree row that fails to render (e.g. a node with malformed content) no longer crashes the whole tree to the generic error screen. It's now isolated to that one row, which shows a message and a button to delete the offending node so the rest of the tree stays usable. [#659](https://github.com/cascade-outliner/cascade/issues/659)
 - [feat] Any node can now be converted into a Board. [#455](https://github.com/cascade-outliner/cascade/issues/455)

@@ -2,6 +2,7 @@ import type {
 	LexicalElementNode,
 	LexicalTextNode,
 } from "../model/lexical-node.types";
+import { createEmptyTableRows, tableToPlainText } from "../table/table-data";
 
 type LexicalNode = LexicalElementNode | LexicalTextNode;
 
@@ -48,6 +49,11 @@ export function lexicalToPlainText<T>(content: T, limit = 200): string {
 			out += `${node.text} `;
 			return;
 		}
+		if (node.type === "table") {
+			const table = node as LexicalElementNode;
+			if (table.rows) out += `${tableToPlainText(table.rows)} `;
+			return;
+		}
 		for (const child of node.children ?? []) {
 			if (out.length >= limit) return;
 			walk(child, depth + 1);
@@ -58,7 +64,15 @@ export function lexicalToPlainText<T>(content: T, limit = 200): string {
 }
 
 /** The Lexical block type a node's content can be "turned into" (see `node-actions.tsx`'s "Turn into" menu). */
-export type BlockType = "paragraph" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+export type BlockType =
+	| "paragraph"
+	| "h1"
+	| "h2"
+	| "h3"
+	| "h4"
+	| "h5"
+	| "h6"
+	| "table";
 
 export const blockTypes: BlockType[] = [
 	"paragraph",
@@ -68,7 +82,10 @@ export const blockTypes: BlockType[] = [
 	"h4",
 	"h5",
 	"h6",
+	"table",
 ];
+
+const headingTags: BlockType[] = ["h1", "h2", "h3", "h4", "h5", "h6"];
 
 /**
  * The block type of a node's content, read from its first top-level child
@@ -79,16 +96,18 @@ export function getBlockType<T>(content: T): BlockType {
 	const lexical = toLexicalContent(content);
 	const first = lexical?.root.children?.[0];
 	if (!first || isLexicalTextNode(first)) return "paragraph";
-	if (first.type === "heading" && first.tag && blockTypes.includes(first.tag))
+	if (first.type === "table") return "table";
+	if (first.type === "heading" && first.tag && headingTags.includes(first.tag))
 		return first.tag;
 	return "paragraph";
 }
 
 /**
- * Converts every top-level paragraph/heading child of a node's content to
- * `blockType`, preserving their children (text, links, …) untouched. Pure
- * JSON transform — no live editor instance required, since `updateContent`
- * already accepts client-built content without one.
+ * Converts every top-level paragraph/heading/table child of a node's
+ * content to `blockType`, preserving text children (text, links, …)
+ * untouched across paragraph/heading transitions. Pure JSON transform — no
+ * live editor instance required, since `updateContent` already accepts
+ * client-built content without one.
  */
 export function setBlockType<T>(
 	content: T,
@@ -107,7 +126,9 @@ export function setBlockType<T>(
 		root: {
 			...lexical.root,
 			children: lexical.root.children?.map((child) =>
-				child.type === "paragraph" || child.type === "heading"
+				child.type === "paragraph" ||
+				child.type === "heading" ||
+				child.type === "table"
 					? toBlock(child as LexicalElementNode, blockType)
 					: child,
 			),
@@ -119,8 +140,23 @@ function toBlock(
 	node: LexicalElementNode,
 	blockType: BlockType,
 ): LexicalElementNode {
+	if (blockType === "table") {
+		return { type: "table", rows: createEmptyTableRows() };
+	}
+	// Converting away from a table flattens its cells into plain text,
+	// since a paragraph/heading can only hold inline text children; other
+	// fields (format, indent, …) have no table equivalent to preserve.
+	if (node.type === "table") {
+		const text: LexicalTextNode = {
+			type: "text",
+			text: tableToPlainText(node.rows ?? []),
+		};
+		return blockType === "paragraph"
+			? { type: "paragraph", children: [text] }
+			: { type: "heading", tag: blockType, children: [text] };
+	}
 	if (blockType === "paragraph") {
-		const { tag: _tag, ...rest } = node;
+		const { tag: _tag, rows: _rows, ...rest } = node;
 		return { ...rest, type: "paragraph" };
 	}
 	return { ...node, type: "heading", tag: blockType };

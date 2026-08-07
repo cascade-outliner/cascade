@@ -13,6 +13,7 @@ import {
 	CopyIcon,
 	KanbanIcon,
 	ParagraphIcon,
+	TableIcon,
 	TextHFiveIcon,
 	TextHFourIcon,
 	TextHOneIcon,
@@ -48,6 +49,7 @@ const BLOCK_OPTIONS: BlockType[] = [
 const CONVERT_ICONS: Record<ConvertOption, ReactNode> = {
 	paragraph: <ParagraphIcon size={14} weight="bold" />,
 	task: <CheckSquareIcon size={14} weight="bold" />,
+	table: <TableIcon size={14} weight="bold" />,
 	h1: <TextHOneIcon size={14} weight="bold" />,
 	h2: <TextHTwoIcon size={14} weight="bold" />,
 	h3: <TextHThreeIcon size={14} weight="bold" />,
@@ -115,6 +117,7 @@ export function NodeActions({
 	function optionLabel(option: ConvertOption): string {
 		if (option === "task") return labels.nodeTypeLabels.task;
 		if (option === "paragraph") return labels.nodeTypeLabels.text;
+		if (option === "table") return labels.tableLabel;
 		return labels.headingLabels[option];
 	}
 
@@ -186,6 +189,13 @@ export function NodeActions({
 							onClick={() => selectOption("task")}
 						>
 							{optionLabel("task")}
+						</ContextMenuItem>
+						<ContextMenuItem
+							icon={CONVERT_ICONS.table}
+							disabled={currentOption === "table"}
+							onClick={() => selectOption("table")}
+						>
+							{optionLabel("table")}
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>

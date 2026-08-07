@@ -9,6 +9,7 @@ import type {
 	LexicalElementNode,
 	LexicalTextNode,
 } from "../model/lexical-node.types";
+import { TableGridRead } from "../table/components/table-grid-read";
 import {
 	NodeLinkView,
 	type OnDeleteLink,
@@ -67,6 +68,11 @@ export function renderNode(
 					{node.children?.length ? renderChildren(node.children) : " "}
 				</Tag>
 			);
+		}
+
+		case "table": {
+			const table = node as LexicalElementNode;
+			return <TableGridRead key={key} rows={table.rows ?? []} />;
 		}
 
 		case "link":

@@ -71,7 +71,13 @@ export interface OutlinerLabels {
 	linkSave: string;
 	linkDelete: string;
 	nodeTypeLabels: Record<NodeTypeName, string>;
-	headingLabels: Record<Exclude<BlockType, "paragraph">, string>;
+	headingLabels: Record<Exclude<BlockType, "paragraph" | "table">, string>;
+	tableLabel: string;
+	tableAddRow: string;
+	tableRemoveRow: string;
+	tableAddColumn: string;
+	tableRemoveColumn: string;
+	tableCellAria: (params: { row: number; column: number }) => string;
 	filtersTrigger: string;
 	filtersDueDateGroup: string;
 	filtersDueToday: string;

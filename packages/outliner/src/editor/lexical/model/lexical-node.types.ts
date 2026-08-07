@@ -9,5 +9,7 @@ export interface LexicalTextNode {
 export interface LexicalElementNode {
 	type: string;
 	tag?: HeadingTag;
+	/** Cell text, present only on `type: "table"` nodes (see `editor/lexical/table`). */
+	rows?: string[][];
 	children?: (LexicalTextNode | LexicalElementNode)[];
 }

@@ -120,6 +120,13 @@ function createOutlinerLabels(): OutlinerLabels {
 			h5: m.outliner_block_type_h5(),
 			h6: m.outliner_block_type_h6(),
 		},
+		tableLabel: m.outliner_type_table(),
+		tableAddRow: m.outliner_table_add_row(),
+		tableRemoveRow: m.outliner_table_remove_row(),
+		tableAddColumn: m.outliner_table_add_column(),
+		tableRemoveColumn: m.outliner_table_remove_column(),
+		tableCellAria: ({ row, column }) =>
+			m.outliner_table_cell_aria({ row, column }),
 		filtersTrigger: m.filters_bar_trigger(),
 		filtersDueDateGroup: m.filters_bar_due_date_group(),
 		filtersDueToday: m.filters_bar_due_today(),
