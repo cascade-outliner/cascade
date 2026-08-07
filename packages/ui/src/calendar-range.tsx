@@ -1,5 +1,3 @@
-// biome-ignore-all lint/a11y/useSemanticElements: the day grid uses the WAI-ARIA APG "grid" pattern (role="grid"/"row"/"columnheader"/"gridcell") rather than <table>, since cells are interactive controls, not tabular data.
-// biome-ignore-all lint/a11y/useFocusableInteractive: per the grid pattern, only the individual day buttons (already natively focusable) are part of the tab sequence — row/columnheader wrappers are structural only.
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react/ssr";
 import { useId, useState } from "react";
 import { cva } from "./cva.config";
