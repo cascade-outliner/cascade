@@ -108,7 +108,7 @@ const navButton = cva({
 
 const day = cva({
 	base: [
-		"flex h-7 items-center justify-center rounded-md text-[12.5px] tabular-nums outline-none transition-colors",
+		"flex h-7 w-full items-center justify-center rounded-md text-[12.5px] tabular-nums outline-none transition-colors",
 		"text-ink hover:bg-surface/70 dark:text-surface dark:hover:bg-surface/20",
 	],
 	variants: {
@@ -258,58 +258,59 @@ export function CalendarRange({
 					{labels.calendarRangeSelectEnd}
 				</p>
 			)}
-			<div
-				role="grid"
+			<table
 				aria-labelledby={monthHeadingId}
-				className="grid grid-cols-7 gap-0.5"
+				className="w-full table-fixed border-separate border-spacing-0.5"
 			>
-				<div role="row" className="contents">
-					{WEEKDAY_LABELS.map((label, i) => (
-						<div
-							key={label}
-							role="columnheader"
-							aria-label={WEEKDAY_FULL_LABELS[i]}
-							className="pb-1 text-center text-[10px] font-semibold text-muted dark:text-surface/70"
+				<thead>
+					<tr>
+						{WEEKDAY_LABELS.map((label, i) => (
+							<th
+								key={label}
+								scope="col"
+								aria-label={WEEKDAY_FULL_LABELS[i]}
+								className="pb-1 text-center text-[10px] font-semibold text-muted dark:text-surface/70"
+							>
+								{label}
+							</th>
+						))}
+					</tr>
+				</thead>
+				<tbody>
+					{weeks.map((week, weekIndex) => (
+						<tr
+							// biome-ignore lint/suspicious/noArrayIndexKey: weeks are a stable, order-only partition of `cells`
+							key={weekIndex}
 						>
-							{label}
-						</div>
+							{week.map((cell) => {
+								const d = startOfDay(cell.date);
+								const selected = isRangeEndpoint(d) || isSingleSelected(d);
+								const inRange = isInRange(d);
+								const isToday = sameDay(d, today);
+								return (
+									<td key={cell.date.toISOString()}>
+										<button
+											type="button"
+											aria-label={dayFormatter.format(cell.date)}
+											aria-pressed={selected}
+											aria-current={isToday ? "date" : undefined}
+											className={day({
+												muted: !cell.inMonth,
+												today: isToday,
+												selected,
+												inRange,
+											})}
+											onClick={() => handleDayClick(cell.date)}
+										>
+											{cell.date.getDate()}
+										</button>
+									</td>
+								);
+							})}
+						</tr>
 					))}
-				</div>
-				{weeks.map((week, weekIndex) => (
-					<div
-						role="row"
-						className="contents"
-						// biome-ignore lint/suspicious/noArrayIndexKey: weeks are a stable, order-only partition of `cells`
-						key={weekIndex}
-					>
-						{week.map((cell) => {
-							const d = startOfDay(cell.date);
-							const selected = isRangeEndpoint(d) || isSingleSelected(d);
-							const inRange = isInRange(d);
-							const isToday = sameDay(d, today);
-							return (
-								<button
-									type="button"
-									role="gridcell"
-									key={cell.date.toISOString()}
-									aria-label={dayFormatter.format(cell.date)}
-									aria-selected={selected}
-									aria-current={isToday ? "date" : undefined}
-									className={day({
-										muted: !cell.inMonth,
-										today: isToday,
-										selected,
-										inRange,
-									})}
-									onClick={() => handleDayClick(cell.date)}
-								>
-									{cell.date.getDate()}
-								</button>
-							);
-						})}
-					</div>
-				))}
-			</div>
+				</tbody>
+			</table>
 			<div className="mt-3 flex flex-wrap gap-1.5 border-t border-ink/10 pt-3 dark:border-surface/10">
 				{onSelectSingle && !pendingStart && (
 					<>
