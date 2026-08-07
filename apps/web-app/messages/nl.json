@@ -220,8 +220,7 @@
 	"settings_tags_rename_failed": "Label hernoemen mislukt",
 	"settings_tags_delete_success": "Label verwijderd",
 	"settings_tags_delete_failed": "Label verwijderen mislukt",
-	"settings_statuses_tab": "Statussen",
-	"settings_statuses_description": "Beheer de statussen die in je boomstructuur beschikbaar zijn.",
+	"settings_statuses_description": "Beheer de statuskolommen van dit bord.",
 	"settings_statuses_section": "Jouw statussen",
 	"settings_statuses_section_description": "Als je een status hernoemt of van kleur verandert, worden alle nodes bijgewerkt die hem gebruiken.",
 	"settings_statuses_create_section": "Status aanmaken",
@@ -234,7 +233,7 @@
 	"settings_statuses_loading": "Statussen laden…",
 	"settings_statuses_load_failed": "Statussen konden niet worden geladen.",
 	"settings_statuses_empty": "Nog geen statussen",
-	"settings_statuses_empty_description": "Statussen die je hier aanmaakt, verschijnen in de statuskiezer van elke node.",
+	"settings_statuses_empty_description": "Statussen die je hier aanmaakt, verschijnen in de statuskiezer van dit bord.",
 	"settings_statuses_name_label": "Statusnaam",
 	"settings_statuses_name_exists": "Er bestaat al een status met deze naam.",
 	"settings_statuses_color_label": "Kleur",
@@ -243,6 +242,9 @@
 	"settings_statuses_saving": "Opslaan…",
 	"settings_statuses_edit_label": "{name} bewerken",
 	"settings_statuses_delete_label": "{name} verwijderen",
+	"settings_statuses_hide_label": "{name} verbergen",
+	"settings_statuses_unhide_label": "{name} tonen",
+	"settings_statuses_hidden_note": "Verborgen — nodes behouden deze status, maar hij verschijnt niet als kolom.",
 	"settings_statuses_usage_count": [
 		{
 			"declarations": [
@@ -544,7 +546,7 @@
 	"outliner_set_status": "Status instellen",
 	"outliner_change_status": "Status wijzigen",
 	"outliner_change_status_aria": "Status wijzigen",
-	"outliner_status_empty": "Nog geen statussen — maak er een aan in Instellingen → Statussen.",
+	"outliner_status_empty": "Nog geen statussen — beheer de kolommen van dit bord om er een toe te voegen.",
 	"filters_bar_priority_group": "Prioriteit",
 	"filters_bar_remove_priority": "Prioriteitsfilter verwijderen",
 	"filters_bar_status_group": "Status",
@@ -553,5 +555,8 @@
 	"outliner_convert_option_tree": "Boom",
 	"outliner_board_unassigned_column": "Geen status",
 	"outliner_board_empty_column": "Geen nodes",
-	"outliner_board_add_card": "Node toevoegen"
+	"outliner_board_add_card": "Node toevoegen",
+	"board_manage_columns": "Kolommen beheren",
+	"board_settings_title": "Bordkolommen",
+	"board_settings_close": "Bordkolommen sluiten"
 }

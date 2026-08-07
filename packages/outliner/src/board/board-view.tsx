@@ -7,7 +7,7 @@ import type { BlockType } from "../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../editor/lexical/model/lexical-node.types";
 import type { OutlinerFeature } from "../features/model/outliner-feature.types";
 import type { PriorityName } from "../nodes/model/node-priority";
-import type { StatusSummary } from "../nodes/model/node-statuses";
+import type { StatusOption } from "../nodes/model/node-statuses";
 import type { TagSummary } from "../nodes/model/node-tags";
 import type { NodeTypeName, VisibleNodeRow } from "../nodes/model/node-types";
 import { BoardColumn } from "./components/board-column";
@@ -18,9 +18,19 @@ import type {
 } from "./model/board.types";
 import { resolveCardDrop, resolveColumnDrop } from "./resolve-board-drop";
 
+/**
+ * Groups cards into columns, one per non-hidden status plus an always-first
+ * "unassigned" column. `existingStatuses` must include hidden statuses too
+ * (not just visible ones): a card whose status is hidden keeps that status
+ * (nothing clears it), but its column no longer renders, so the card folds
+ * into the unassigned column instead of disappearing. Unhiding the status
+ * later makes it — and every card still pointing at it — reappear as its
+ * own column again, since grouping is recomputed fresh from `rows` on every
+ * render rather than stored anywhere.
+ */
 export function groupRowsIntoColumns(
 	rows: VisibleNodeRow[],
-	existingStatuses: StatusSummary[],
+	existingStatuses: StatusOption[],
 ): BoardColumnData[] {
 	const byStatus = new Map<string | null, VisibleNodeRow[]>();
 	for (const row of rows) {
@@ -29,11 +39,17 @@ export function groupRowsIntoColumns(
 		if (list) list.push(row);
 		else byStatus.set(key, [row]);
 	}
+	const visibleStatuses = existingStatuses.filter((status) => !status.hidden);
+	const visibleIds = new Set(visibleStatuses.map((status) => status.id));
+	const unassignedCards = [...(byStatus.get(null) ?? [])];
+	for (const [key, cards] of byStatus) {
+		if (key !== null && !visibleIds.has(key)) unassignedCards.push(...cards);
+	}
 	const unassigned: BoardColumnData = {
 		status: null,
-		cards: byStatus.get(null) ?? [],
+		cards: unassignedCards,
 	};
-	const statusColumns: BoardColumnData[] = existingStatuses.map((status) => ({
+	const statusColumns: BoardColumnData[] = visibleStatuses.map((status) => ({
 		status,
 		cards: byStatus.get(status.id) ?? [],
 	}));
@@ -47,9 +63,11 @@ export interface BoardViewProps {
 	rows: VisibleNodeRow[];
 	/** The subtree root the cards are children of, used as `MoveTarget.parentId`. */
 	rootId: string | null;
-	/** All of this user's statuses, in display order, one column each — plus
-	 * an always-first "unassigned" column for cards without a status. */
-	existingStatuses: StatusSummary[];
+	/** All of this board's statuses (visible and hidden), in display order.
+	 * Non-hidden ones each get their own column, plus an always-first
+	 * "unassigned" column for cards without a status or whose status is
+	 * hidden. */
+	existingStatuses: StatusOption[];
 	/** All of this user's tags with usage counts, for a card's tag editor. */
 	existingTags: TagSummary[];
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
@@ -131,6 +149,13 @@ export function BoardView({
 		() => groupRowsIntoColumns(rows, existingStatuses),
 		[rows, existingStatuses],
 	);
+	// Hidden statuses are never offered as a pick target — only as a
+	// possible existing state a card already carries (handled by folding
+	// into the unassigned column above).
+	const pickableStatuses = useMemo(
+		() => existingStatuses.filter((status) => !status.hidden),
+		[existingStatuses],
+	);
 
 	function handleCardDrop(
 		draggedId: string,
@@ -162,7 +187,7 @@ export function BoardView({
 						renderNodeLink={renderNodeLink}
 						features={features}
 						existingTags={existingTags}
-						existingStatuses={existingStatuses}
+						existingStatuses={pickableStatuses}
 						onToggleTask={onToggleTask}
 						onSaveContent={onSaveContent}
 						onSetDueDate={onSetDueDate}

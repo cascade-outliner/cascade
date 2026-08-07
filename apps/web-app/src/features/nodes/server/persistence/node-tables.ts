@@ -29,6 +29,13 @@ const collatedText = customType<{ data: string }>({
  * A user's custom statuses (#576): user-defined, single-select per node,
  * beyond the binary task completion. Mirrors `tags`, except a node points at
  * one status by FK rather than through a join table.
+ *
+ * Statuses are scoped per board (`boardId`, added alongside board custom
+ * options): each board node owns its own independent set of status rows, so
+ * creating/hiding/deleting a status on one board never affects another.
+ * `boardId` stays nullable at the DB level only for rows created before this
+ * scoping existed — those are inert (nothing queries with `boardId: null`
+ * going forward); the API layer requires `boardId` on every new status.
  */
 export const statuses = pgTable(
 	"statuses",
@@ -37,16 +44,33 @@ export const statuses = pgTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
+		/** The board (a node with `isBoard: true`) this status belongs to. */
+		boardId: text("board_id").references((): AnyPgColumn => nodes.id, {
+			onDelete: "cascade",
+		}),
 		name: text("name").notNull(),
 		/** A palette key from `@cascade/outliner/node-statuses`' STATUS_COLORS. */
 		color: text("color").notNull().default("sky"),
-		/** Display order within the user's status list; creation order by default. */
+		/** Display order within the board's status list; creation order by default. */
 		sortOrder: integer("sort_order").notNull().default(0),
+		/**
+		 * Hidden statuses don't render as a board column or appear in the "set
+		 * status" picker, but nodes already assigned to one keep it — cards
+		 * fold into the unassigned column until the status is unhidden.
+		 */
+		hidden: boolean("hidden").notNull().default(false),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),
 	},
-	(t) => [uniqueIndex("statuses_user_id_name_idx").on(t.userId, t.name)],
+	(t) => [
+		uniqueIndex("statuses_user_id_board_id_name_idx").on(
+			t.userId,
+			t.boardId,
+			t.name,
+		),
+		index("statuses_board_id_idx").on(t.boardId),
+	],
 );
 
 export const nodes = pgTable(

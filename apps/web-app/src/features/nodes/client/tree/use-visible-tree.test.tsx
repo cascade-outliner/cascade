@@ -211,6 +211,7 @@ describe("useVisibleTree.add/addAfter", () => {
 		tags: [],
 		icon: null,
 		isBoard: false,
+		parentIsBoard: false,
 		hasChildren: false,
 	};
 

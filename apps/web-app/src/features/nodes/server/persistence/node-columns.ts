@@ -16,6 +16,14 @@ export const nodeStatus = sql<StatusSummary | null>`(
 	FROM statuses s WHERE s.id = nodes.status_id
 )`;
 
+/** Whether this node's parent is a board — statuses are per-board, so a
+ * node's own status control (on its detail page) only makes sense when its
+ * parent is one; `false` for a root node (no parent). */
+export const parentIsBoard = sql<boolean>`COALESCE(
+	(SELECT p.is_board FROM nodes p WHERE p.id = nodes.parent_id),
+	false
+)`;
+
 export const nodeColumns = (userId: string) => ({
 	id: nodes.id,
 	parentId: nodes.parentId,
@@ -33,4 +41,5 @@ export const nodeColumns = (userId: string) => ({
 	tags: nodeTagNames(sql`nodes.id`),
 	hasChildren: hasChildren(userId),
 	isBoard: nodes.isBoard,
+	parentIsBoard,
 });

@@ -28,6 +28,7 @@ export const createStatus = authed
 				.where(
 					and(
 						eq(statuses.userId, userId),
+						eq(statuses.boardId, input.boardId),
 						sql`lower(${statuses.name}) = lower(${input.name})`,
 					),
 				)
@@ -37,12 +38,15 @@ export const createStatus = authed
 			const [totals] = await transaction
 				.select({ total: count(), highest: max(statuses.sortOrder) })
 				.from(statuses)
-				.where(eq(statuses.userId, userId));
+				.where(
+					and(eq(statuses.userId, userId), eq(statuses.boardId, input.boardId)),
+				);
 
 			const [created] = await transaction
 				.insert(statuses)
 				.values({
 					userId,
+					boardId: input.boardId,
 					name: input.name,
 					color: input.color ?? nextStatusColor(totals?.total ?? 0),
 					sortOrder: (totals?.highest ?? -1) + 1,

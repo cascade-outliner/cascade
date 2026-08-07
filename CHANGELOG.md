@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2026-08-07
+- [feat] Boards now have their own independent set of status columns instead of sharing one global list — creating, renaming, recoloring, hiding, or deleting a status on one board no longer affects any other board. A hidden status's column disappears from the board (and from the "set status" picker), but cards already carrying it keep their status and reappear in their column the moment it's unhidden. Status management moved from Settings to a "Manage columns" button on each board. [#667](https://github.com/cascade-outliner/cascade/issues/667)
 - [fix] A tree row that fails to render (e.g. a node with malformed content) no longer crashes the whole tree to the generic error screen. It's now isolated to that one row, which shows a message and a button to delete the offending node so the rest of the tree stays usable. [#659](https://github.com/cascade-outliner/cascade/issues/659)
 - [feat] Any node can now be converted into a Board. [#455](https://github.com/cascade-outliner/cascade/issues/455)
 - [feat] Nodes can now carry a priority (Urgent / High / Medium / Low) and a custom status, alongside the existing task completion and tags. [#576](https://github.com/cascade-outliner/cascade/issues/576)

@@ -8,8 +8,9 @@ import {
 	defaultTypedMetadata,
 	type NodeTypeName,
 } from "@cascade/outliner/node-types";
+import { CircleDashedIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
 	useDelayedCompletionHide,
 	withPendingTasksIncomplete,
@@ -22,7 +23,9 @@ import {
 } from "#/features/nodes/client/tags/use-existing-tags";
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
 import { NodeLink } from "#/features/nodes/ui/node-link";
+import { BoardSettingsDialog } from "#/features/nodes/ui/status-settings";
 import { useSettings } from "#/features/settings/client/settings-context";
+import { m } from "#/paraglide/messages.js";
 
 export function NodeBoard({
 	nodeId,
@@ -45,7 +48,7 @@ export function NodeBoard({
 	// filters (see #455 follow-up).
 	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
-	const tree = useVisibleTree(nodeId, includeCollapsedDescendants);
+	const tree = useVisibleTree(nodeId, includeCollapsedDescendants, nodeId);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,
@@ -54,9 +57,10 @@ export function NodeBoard({
 		withPendingTasksIncomplete(tree.rows, completionHide.pendingIds),
 		filters,
 	);
-	const existingStatuses = useExistingStatuses();
+	const existingStatuses = useExistingStatuses(nodeId);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
+	const [manageColumnsOpen, setManageColumnsOpen] = useState(false);
 	const directChildren = useMemo(
 		() =>
 			tree.rows.filter(
@@ -90,6 +94,26 @@ export function NodeBoard({
 			rootId={nodeId}
 			existingStatuses={existingStatuses}
 			existingTags={existingTags}
+			header={
+				<>
+					{header}
+					<div className="mb-4 flex justify-end">
+						<button
+							type="button"
+							onClick={() => setManageColumnsOpen(true)}
+							className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-muted outline-none hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-accent/50 dark:hover:bg-surface/10 dark:hover:text-surface"
+						>
+							<CircleDashedIcon size={14} weight="bold" />
+							{m.board_manage_columns()}
+						</button>
+					</div>
+					<BoardSettingsDialog
+						boardId={nodeId}
+						open={manageColumnsOpen}
+						onOpenChange={setManageColumnsOpen}
+					/>
+				</>
+			}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
@@ -124,7 +148,6 @@ export function NodeBoard({
 			onSetBoardView={(id, isBoard) => tree.setBoardView(id, isBoard)}
 			onDuplicate={(id) => tree.duplicate(id)}
 			onDelete={(id) => tree.remove(id)}
-			header={header}
 			className={className}
 		/>
 	);

@@ -1,5 +1,4 @@
 import {
-	CircleDashedIcon,
 	CrownIcon,
 	GearIcon,
 	LinkIcon,
@@ -16,7 +15,6 @@ export interface SettingsTab {
 		| "general"
 		| "appearance"
 		| "tags"
-		| "statuses"
 		| "user"
 		| "security"
 		| "premium"
@@ -47,11 +45,6 @@ export const tabGroups: { label: () => string; tabs: SettingsTab[] }[] = [
 				value: "tags",
 				label: () => m.settings_tags_tab(),
 				icon: TagIcon,
-			},
-			{
-				value: "statuses",
-				label: () => m.settings_statuses_tab(),
-				icon: CircleDashedIcon,
 			},
 		],
 	},

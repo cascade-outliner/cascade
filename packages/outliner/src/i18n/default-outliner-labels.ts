@@ -62,7 +62,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	setStatus: "Set status",
 	changeStatus: "Change status",
 	changeStatusAria: "Change status",
-	statusEmpty: "No statuses yet — create one in Settings → Statuses.",
+	statusEmpty: "No statuses yet — manage this board's columns to add one.",
 	addTag: "Add tag",
 	manageTags: "Manage tags",
 	tagsInputPlaceholder: "Add tag…",
