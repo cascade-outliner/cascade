@@ -1,6 +1,7 @@
 import { CascadeLoader } from "@cascade/ui/cascade-loader";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppHeader } from "@/app/app-header";
+import { HeaderBreadcrumbSlotProvider } from "@/app/header-breadcrumb-slot";
 import { getSession } from "@/features/auth/server/get-session";
 import { DueDateNotificationsProvider } from "@/features/nodes/client/notifications/due-date-notifications-provider";
 import { OnboardingTour } from "@/features/onboarding/ui/onboarding-tour";
@@ -45,8 +46,10 @@ function AuthedLayout() {
 	return (
 		<SettingsProvider>
 			<DueDateNotificationsProvider />
-			<AppHeader />
-			<Outlet />
+			<HeaderBreadcrumbSlotProvider>
+				<AppHeader />
+				<Outlet />
+			</HeaderBreadcrumbSlotProvider>
 			<OnboardingTour />
 		</SettingsProvider>
 	);
