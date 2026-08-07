@@ -1,5 +1,11 @@
 import type { BoardDropResult } from "@cascade/outliner/board-types";
 import { BoardView } from "@cascade/outliner/board-view";
+import type { BlockType } from "@cascade/outliner/lexical-content";
+import { setBlockType } from "@cascade/outliner/lexical-content";
+import {
+	defaultTypedMetadata,
+	type NodeTypeName,
+} from "@cascade/outliner/node-types";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
@@ -38,6 +44,12 @@ export function NodeBoard({
 		if (id && columnStatusId !== null) tree.setStatus(id, columnStatusId);
 	}
 
+	function handleTurnInto(id: string, blockType: BlockType) {
+		const row = tree.rows.find((candidate) => candidate.id === id);
+		if (!row) return undefined;
+		return tree.updateContent(id, setBlockType(row.content, blockType));
+	}
+
 	return (
 		<BoardView
 			rows={directChildren}
@@ -53,6 +65,13 @@ export function NodeBoard({
 			onSaveContent={(id, content) => tree.updateContent(id, content)}
 			onDrop={handleDrop}
 			onAddCard={handleAddCard}
+			onConvert={(id, type: NodeTypeName) =>
+				tree.setType(id, defaultTypedMetadata(type))
+			}
+			onTurnInto={handleTurnInto}
+			onSetBoardView={(id, isBoard) => tree.setBoardView(id, isBoard)}
+			onDuplicate={(id) => tree.duplicate(id)}
+			onDelete={(id) => tree.remove(id)}
 			header={header}
 			className={className}
 		/>

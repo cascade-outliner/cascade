@@ -1,10 +1,14 @@
 import { PlusIcon } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
+import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
 import { statusDot } from "../../features/status/components/status-pill.styles";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 import { toStatusColor } from "../../nodes/model/node-statuses";
-import type { VisibleNodeRow } from "../../nodes/model/node-types";
+import type {
+	NodeTypeName,
+	VisibleNodeRow,
+} from "../../nodes/model/node-types";
 import type { BoardCardEdge } from "../drag-and-drop/use-board-card-drag-and-drop";
 import { useBoardColumnDropTarget } from "../drag-and-drop/use-board-column-drop-target";
 import type { BoardColumn as BoardColumnData } from "../model/board.types";
@@ -23,6 +27,14 @@ interface BoardColumnProps {
 	) => void;
 	onColumnDrop: (draggedId: string, columnStatusId: string | null) => void;
 	onAddCard?: (columnStatusId: string | null) => void;
+	onConvert: (id: string, type: NodeTypeName) => undefined | Promise<boolean>;
+	onTurnInto: (
+		id: string,
+		blockType: BlockType,
+	) => undefined | Promise<boolean>;
+	onSetBoardView: (id: string, isBoard: boolean) => void;
+	onDuplicate: (id: string) => void;
+	onDelete: (id: string) => void;
 }
 
 export function BoardColumn({
@@ -33,6 +45,11 @@ export function BoardColumn({
 	onCardDrop,
 	onColumnDrop,
 	onAddCard,
+	onConvert,
+	onTurnInto,
+	onSetBoardView,
+	onDuplicate,
+	onDelete,
 }: BoardColumnProps) {
 	const labels = useOutlinerLabels();
 	const { columnRef, isDraggedOver } = useBoardColumnDropTarget({
@@ -75,6 +92,11 @@ export function BoardColumn({
 							onToggleTask={onToggleTask}
 							onSaveContent={onSaveContent}
 							onCardDrop={onCardDrop}
+							onConvert={onConvert}
+							onTurnInto={onTurnInto}
+							onSetBoardView={onSetBoardView}
+							onDuplicate={onDuplicate}
+							onDelete={onDelete}
 						/>
 					))
 				)}

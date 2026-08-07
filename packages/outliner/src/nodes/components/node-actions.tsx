@@ -23,6 +23,7 @@ import {
 	TreeStructureIcon,
 } from "@phosphor-icons/react/ssr";
 import { Fragment, type ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 import type { NodeTypeName } from "../model/node-types";
@@ -86,6 +87,10 @@ interface NodeActionsProps {
 	 * order before the core "Convert into"/"Delete" entries. */
 	menuItems: { id: string; node: ReactNode }[];
 	viewTransitionName?: string;
+	/** Overrides the trigger's default row-flex layout — e.g. `"contents"`
+	 * for a board card, whose own layout is a column, not a row (see #455
+	 * follow-up). */
+	className?: string;
 	children: ReactNode;
 }
 
@@ -101,6 +106,7 @@ export function NodeActions({
 	onDelete,
 	menuItems,
 	viewTransitionName,
+	className,
 	children,
 }: NodeActionsProps) {
 	const labels = useOutlinerLabels();
@@ -126,7 +132,7 @@ export function NodeActions({
 		<ContextMenu>
 			<ContextMenuTrigger
 				style={{ viewTransitionName }}
-				className="flex items-center gap-2 min-w-0 flex-1"
+				className={twMerge("flex items-center gap-2 min-w-0 flex-1", className)}
 				onTouchStart={(e) => e.stopPropagation()}
 				onContextMenu={(e) => e.stopPropagation()}
 			>

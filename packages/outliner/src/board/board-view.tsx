@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { twMerge } from "tailwind-merge";
+import type { BlockType } from "../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../editor/lexical/model/lexical-node.types";
 import type { StatusSummary } from "../nodes/model/node-statuses";
-import type { VisibleNodeRow } from "../nodes/model/node-types";
+import type { NodeTypeName, VisibleNodeRow } from "../nodes/model/node-types";
 import { BoardColumn } from "./components/board-column";
 import type { BoardCardEdge } from "./drag-and-drop/use-board-card-drag-and-drop";
 import type {
@@ -55,6 +56,16 @@ export interface BoardViewProps {
 	 * status the new card should be created with (`null` for the
 	 * unassigned column). Omit to hide the control entirely. */
 	onAddCard?: (columnStatusId: string | null) => void;
+	/** A card's "Convert into"/duplicate/delete context menu — the same one
+	 * a tree row has (see #455 follow-up). */
+	onConvert: (id: string, type: NodeTypeName) => undefined | Promise<boolean>;
+	onTurnInto: (
+		id: string,
+		blockType: BlockType,
+	) => undefined | Promise<boolean>;
+	onSetBoardView: (id: string, isBoard: boolean) => void;
+	onDuplicate: (id: string) => void;
+	onDelete: (id: string) => void;
 	header?: ReactNode;
 	className?: string;
 }
@@ -72,6 +83,11 @@ export function BoardView({
 	onSaveContent,
 	onDrop,
 	onAddCard,
+	onConvert,
+	onTurnInto,
+	onSetBoardView,
+	onDuplicate,
+	onDelete,
 	header,
 	className,
 }: BoardViewProps) {
@@ -113,6 +129,11 @@ export function BoardView({
 						onCardDrop={handleCardDrop}
 						onColumnDrop={handleColumnDrop}
 						onAddCard={onAddCard}
+						onConvert={onConvert}
+						onTurnInto={onTurnInto}
+						onSetBoardView={onSetBoardView}
+						onDuplicate={onDuplicate}
+						onDelete={onDelete}
 					/>
 				))}
 			</div>

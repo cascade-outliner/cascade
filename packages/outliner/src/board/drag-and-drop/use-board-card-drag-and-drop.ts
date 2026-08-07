@@ -39,6 +39,12 @@ export function useBoardCardDragAndDrop({
 	onCardDrop,
 }: UseBoardCardDragAndDropOptions) {
 	const cardRef = useRef<HTMLDivElement>(null);
+	// A dedicated drag handle (see #455 follow-up), not the whole card, is
+	// draggable — mirroring the tree row's own handle/row split — so the
+	// rest of the card stays available for tapping to edit and for the
+	// row's own context menu on touch devices instead of both fighting the
+	// card's native drag.
+	const handleRef = useRef<HTMLButtonElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 	const [closestEdge, setClosestEdge] = useState<BoardCardEdge | null>(null);
 	const latest = useRef({ cardId, columnStatusId, editing, onCardDrop });
@@ -49,11 +55,12 @@ export function useBoardCardDragAndDrop({
 
 	useEffect(() => {
 		const element = cardRef.current;
-		if (!element) return;
+		const handle = handleRef.current;
+		if (!element || !handle) return;
 
 		const cleanup = combine(
 			draggable({
-				element,
+				element: handle,
 				canDrag: () => !latest.current.editing,
 				getInitialData: (): DragData => ({ nodeId: latest.current.cardId }),
 				onGenerateDragPreview: ({ nativeSetDragImage }) => {
@@ -106,5 +113,5 @@ export function useBoardCardDragAndDrop({
 		return cleanup;
 	}, []);
 
-	return { cardRef, isDragging, closestEdge };
+	return { cardRef, handleRef, isDragging, closestEdge };
 }
