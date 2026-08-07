@@ -16,7 +16,10 @@ import {
 	withPendingTasksIncomplete,
 } from "#/features/nodes/client/filters/use-delayed-completion-hide";
 import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
-import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
+import {
+	useExistingStatuses,
+	useStatusManagement,
+} from "#/features/nodes/client/statuses/use-existing-statuses";
 import {
 	useDeleteTag,
 	useExistingTags,
@@ -58,6 +61,7 @@ export function NodeBoard({
 		filters,
 	);
 	const existingStatuses = useExistingStatuses(nodeId);
+	const { updateStatus } = useStatusManagement(nodeId);
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 	const [manageColumnsOpen, setManageColumnsOpen] = useState(false);
@@ -148,6 +152,9 @@ export function NodeBoard({
 			onSetBoardView={(id, isBoard) => tree.setBoardView(id, isBoard)}
 			onDuplicate={(id) => tree.duplicate(id)}
 			onDelete={(id) => tree.remove(id)}
+			onToggleColumnHidden={(statusId, hidden) =>
+				updateStatus(statusId, { hidden }, () => {})
+			}
 			className={className}
 		/>
 	);

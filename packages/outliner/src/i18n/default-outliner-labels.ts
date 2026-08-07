@@ -119,4 +119,6 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	boardUnassignedColumn: "No status",
 	boardEmptyColumn: "No nodes",
 	boardAddCard: "Add node",
+	hideColumn: "Hide column",
+	showColumn: "Show column",
 };

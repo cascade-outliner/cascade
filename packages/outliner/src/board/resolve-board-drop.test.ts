@@ -49,7 +49,7 @@ describe("resolveColumnDrop", () => {
 	it("appends after the column's last card", () => {
 		const columns: BoardColumn[] = [
 			{
-				status: { id: "s-done", name: "Done", color: "emerald" },
+				status: { id: "s-done", name: "Done", color: "emerald", hidden: false },
 				cards: [card("a"), card("b")],
 			},
 		];
@@ -64,7 +64,10 @@ describe("resolveColumnDrop", () => {
 
 	it("appends as the first child when the column is empty", () => {
 		const columns: BoardColumn[] = [
-			{ status: { id: "s-done", name: "Done", color: "emerald" }, cards: [] },
+			{
+				status: { id: "s-done", name: "Done", color: "emerald", hidden: false },
+				cards: [],
+			},
 		];
 
 		const result = resolveColumnDrop("dragged", "s-done", columns, "root");
@@ -78,7 +81,7 @@ describe("resolveColumnDrop", () => {
 	it("excludes the dragged card itself from the column's other cards", () => {
 		const columns: BoardColumn[] = [
 			{
-				status: { id: "s-done", name: "Done", color: "emerald" },
+				status: { id: "s-done", name: "Done", color: "emerald", hidden: false },
 				cards: [card("dragged")],
 			},
 		];
@@ -94,7 +97,10 @@ describe("resolveColumnDrop", () => {
 	it("falls back to the unassigned column when statusId is null", () => {
 		const columns: BoardColumn[] = [
 			{ status: null, cards: [card("a")] },
-			{ status: { id: "s-done", name: "Done", color: "emerald" }, cards: [] },
+			{
+				status: { id: "s-done", name: "Done", color: "emerald", hidden: false },
+				cards: [],
+			},
 		];
 
 		const result = resolveColumnDrop("dragged", null, columns, "root");

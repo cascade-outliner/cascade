@@ -19,14 +19,12 @@ import type {
 import { resolveCardDrop, resolveColumnDrop } from "./resolve-board-drop";
 
 /**
- * Groups cards into columns, one per non-hidden status plus an always-first
- * "unassigned" column. `existingStatuses` must include hidden statuses too
- * (not just visible ones): a card whose status is hidden keeps that status
- * (nothing clears it), but its column no longer renders, so the card folds
- * into the unassigned column instead of disappearing. Unhiding the status
- * later makes it — and every card still pointing at it — reappear as its
- * own column again, since grouping is recomputed fresh from `rows` on every
- * render rather than stored anywhere.
+ * Groups cards into columns, one per status (visible or hidden) plus an
+ * always-first "unassigned" column. A hidden status still gets its own
+ * column — `BoardColumn` renders it dimmed rather than dropping it — so
+ * cards already carrying that status stay visible in place; only the "set
+ * status" picker excludes hidden statuses as a pick target for new
+ * assignments (see `BoardView`'s `pickableStatuses`).
  */
 export function groupRowsIntoColumns(
 	rows: VisibleNodeRow[],
@@ -39,17 +37,11 @@ export function groupRowsIntoColumns(
 		if (list) list.push(row);
 		else byStatus.set(key, [row]);
 	}
-	const visibleStatuses = existingStatuses.filter((status) => !status.hidden);
-	const visibleIds = new Set(visibleStatuses.map((status) => status.id));
-	const unassignedCards = [...(byStatus.get(null) ?? [])];
-	for (const [key, cards] of byStatus) {
-		if (key !== null && !visibleIds.has(key)) unassignedCards.push(...cards);
-	}
 	const unassigned: BoardColumnData = {
 		status: null,
-		cards: unassignedCards,
+		cards: byStatus.get(null) ?? [],
 	};
-	const statusColumns: BoardColumnData[] = visibleStatuses.map((status) => ({
+	const statusColumns: BoardColumnData[] = existingStatuses.map((status) => ({
 		status,
 		cards: byStatus.get(status.id) ?? [],
 	}));
@@ -64,9 +56,8 @@ export interface BoardViewProps {
 	/** The subtree root the cards are children of, used as `MoveTarget.parentId`. */
 	rootId: string | null;
 	/** All of this board's statuses (visible and hidden), in display order.
-	 * Non-hidden ones each get their own column, plus an always-first
-	 * "unassigned" column for cards without a status or whose status is
-	 * hidden. */
+	 * Each gets its own column (a hidden one renders dimmed), plus an
+	 * always-first "unassigned" column for cards without a status. */
 	existingStatuses: StatusOption[];
 	/** All of this user's tags with usage counts, for a card's tag editor. */
 	existingTags: TagSummary[];
@@ -110,6 +101,9 @@ export interface BoardViewProps {
 	onSetBoardView: (id: string, isBoard: boolean) => void;
 	onDuplicate: (id: string) => void;
 	onDelete: (id: string) => void;
+	/** Toggles a status's hidden flag from its own column header. Omit to
+	 * hide the toggle affordance (e.g. read-only contexts). */
+	onToggleColumnHidden?: (statusId: string, hidden: boolean) => void;
 	header?: ReactNode;
 	className?: string;
 }
@@ -142,6 +136,7 @@ export function BoardView({
 	onSetBoardView,
 	onDuplicate,
 	onDelete,
+	onToggleColumnHidden,
 	header,
 	className,
 }: BoardViewProps) {
@@ -206,6 +201,7 @@ export function BoardView({
 						onSetBoardView={onSetBoardView}
 						onDuplicate={onDuplicate}
 						onDelete={onDelete}
+						onToggleHidden={onToggleColumnHidden}
 					/>
 				))}
 			</div>

@@ -100,4 +100,6 @@ export interface OutlinerLabels {
 	boardUnassignedColumn: string;
 	boardEmptyColumn: string;
 	boardAddCard: string;
+	hideColumn: string;
+	showColumn: string;
 }

@@ -91,15 +91,19 @@ describe("groupRowsIntoColumns", () => {
 		expect(columns.find((c) => c.status?.id === "s-done")?.cards).toEqual([]);
 	});
 
-	it("folds a hidden status's cards into the unassigned column instead of a column of its own", () => {
+	it("still gives a hidden status its own column, carrying its hidden flag, rather than folding it away", () => {
 		const hiddenStatus: StatusOption = { ...done, hidden: true };
 		const rows = [row("a", todo), row("b", hiddenStatus), row("c", null)];
 
 		const columns = groupRowsIntoColumns(rows, [todo, hiddenStatus]);
 
-		expect(columns.map((c) => c.status?.id ?? null)).toEqual([null, "s-todo"]);
-		expect(
-			columns.find((c) => c.status === null)?.cards.map((r) => r.id),
-		).toEqual(["c", "b"]);
+		expect(columns.map((c) => c.status?.id ?? null)).toEqual([
+			null,
+			"s-todo",
+			"s-done",
+		]);
+		const hiddenColumn = columns.find((c) => c.status?.id === "s-done");
+		expect(hiddenColumn?.status?.hidden).toBe(true);
+		expect(hiddenColumn?.cards.map((r) => r.id)).toEqual(["b"]);
 	});
 });

@@ -37,7 +37,7 @@ export function BoardSettingsDialog({
 							<XIcon size={18} weight="bold" />
 						</Dialog.Close>
 					</header>
-					<div className="min-h-0 flex-1 overflow-auto">
+					<div className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
 						<StatusSettingsPanel boardId={boardId} />
 					</div>
 				</Dialog.Popup>

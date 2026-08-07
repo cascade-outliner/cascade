@@ -244,7 +244,7 @@
 	"settings_statuses_delete_label": "{name} verwijderen",
 	"settings_statuses_hide_label": "{name} verbergen",
 	"settings_statuses_unhide_label": "{name} tonen",
-	"settings_statuses_hidden_note": "Verborgen — nodes behouden deze status, maar hij verschijnt niet als kolom.",
+	"settings_statuses_hidden_note": "Verborgen — de kolom is gedimd op het bord en verschijnt niet als keuzeoptie voor nieuwe kaarten.",
 	"settings_statuses_usage_count": [
 		{
 			"declarations": [
@@ -556,6 +556,8 @@
 	"outliner_board_unassigned_column": "Geen status",
 	"outliner_board_empty_column": "Geen nodes",
 	"outliner_board_add_card": "Node toevoegen",
+	"outliner_hide_column": "Kolom verbergen",
+	"outliner_show_column": "Kolom tonen",
 	"board_manage_columns": "Kolommen beheren",
 	"board_settings_title": "Bordkolommen",
 	"board_settings_close": "Bordkolommen sluiten"

@@ -244,7 +244,7 @@
 	"settings_statuses_delete_label": "Delete {name}",
 	"settings_statuses_hide_label": "Hide {name}",
 	"settings_statuses_unhide_label": "Show {name}",
-	"settings_statuses_hidden_note": "Hidden — cards keep this status, but it won't show as a column.",
+	"settings_statuses_hidden_note": "Hidden — its column is dimmed on the board and it won't appear as a pick option for new cards.",
 	"settings_statuses_usage_count": [
 		{
 			"declarations": [
@@ -556,6 +556,8 @@
 	"outliner_board_unassigned_column": "No status",
 	"outliner_board_empty_column": "No nodes",
 	"outliner_board_add_card": "Add node",
+	"outliner_hide_column": "Hide column",
+	"outliner_show_column": "Show column",
 	"board_manage_columns": "Manage columns",
 	"board_settings_title": "Board columns",
 	"board_settings_close": "Close board columns"

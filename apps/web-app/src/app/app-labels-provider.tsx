@@ -148,6 +148,8 @@ function createOutlinerLabels(): OutlinerLabels {
 		boardUnassignedColumn: m.outliner_board_unassigned_column(),
 		boardEmptyColumn: m.outliner_board_empty_column(),
 		boardAddCard: m.outliner_board_add_card(),
+		hideColumn: m.outliner_hide_column(),
+		showColumn: m.outliner_show_column(),
 	};
 }
 
