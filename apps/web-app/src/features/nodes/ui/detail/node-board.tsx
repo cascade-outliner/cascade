@@ -1,16 +1,24 @@
 import type { BoardDropResult } from "@cascade/outliner/board-types";
 import { BoardView } from "@cascade/outliner/board-view";
+import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import type { BlockType } from "@cascade/outliner/lexical-content";
 import { setBlockType } from "@cascade/outliner/lexical-content";
+import { hasActiveDueDateFilter } from "@cascade/outliner/node-filters";
 import {
 	defaultTypedMetadata,
 	type NodeTypeName,
 } from "@cascade/outliner/node-types";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
+import {
+	useDelayedCompletionHide,
+	withPendingTasksIncomplete,
+} from "#/features/nodes/client/filters/use-delayed-completion-hide";
+import { useNodeFilters } from "#/features/nodes/client/filters/use-node-filters";
 import { useExistingStatuses } from "#/features/nodes/client/statuses/use-existing-statuses";
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
 import { NodeLink } from "#/features/nodes/ui/node-link";
+import { useSettings } from "#/features/settings/client/settings-context";
 
 export function NodeBoard({
 	nodeId,
@@ -24,11 +32,31 @@ export function NodeBoard({
 	 * `h-dvh` would blow the row out to full screen height. */
 	className?: string;
 }) {
-	const tree = useVisibleTree(nodeId);
+	const { settings } = useSettings();
+	// Reads the same URL-synced filter state the outline's own FiltersBar
+	// writes to (see `useNodeFilters`) — so a board embedded inline in an
+	// already-filtered outline (or a board's own detail page, reached with
+	// filters still in the URL) hides/shows its cards the same way the tree
+	// would, instead of always showing every card regardless of active
+	// filters (see #455 follow-up).
+	const [filters] = useNodeFilters(settings.hideCompletedByDefault);
+	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
+	const tree = useVisibleTree(nodeId, includeCollapsedDescendants);
+	const completionHide = useDelayedCompletionHide(
+		tree.rows,
+		filters.hideCompleted,
+	);
+	const visibility = getRowVisibility(
+		withPendingTasksIncomplete(tree.rows, completionHide.pendingIds),
+		filters,
+	);
 	const existingStatuses = useExistingStatuses();
 	const directChildren = useMemo(
-		() => tree.rows.filter((row) => row.depth === 0),
-		[tree.rows],
+		() =>
+			tree.rows.filter(
+				(row) => row.depth === 0 && !visibility.hiddenIds.has(row.id),
+			),
+		[tree.rows, visibility.hiddenIds],
 	);
 
 	function handleDrop(draggedId: string, result: BoardDropResult) {
