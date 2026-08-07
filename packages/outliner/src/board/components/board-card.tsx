@@ -88,61 +88,69 @@ export function BoardCard({
 			{closestEdge === "bottom" && (
 				<span className="absolute inset-x-2 -bottom-1 h-0.5 rounded-full bg-danger" />
 			)}
-			<NodeActions
-				nodeType={row.type}
-				blockType={blockType}
-				isBoard={row.isBoard ?? false}
-				onConvert={(type) => onConvert(row.id, type)}
-				onTurnInto={(nextBlockType) => onTurnInto(row.id, nextBlockType)}
-				onSetBoardView={(isBoard) => onSetBoardView(row.id, isBoard)}
-				onConversionSuccess={() => {}}
-				onDuplicate={() => onDuplicate(row.id)}
-				onDelete={() => onDelete(row.id)}
-				menuItems={[]}
-				className="contents"
-			>
-				<div className="flex items-start gap-2">
-					{isTask && (
-						<NodeCheckbox
-							metadata={row.metadata}
-							onToggle={(nextCompleted) => onToggleTask(row.id, nextCompleted)}
-						/>
-					)}
-					<div className="min-w-0 flex-1 text-sm">
-						<NodeEditor
-							id={row.id}
-							content={row.content}
-							editing={editing}
-							completed={completed}
-							focusPoint={focusPoint}
-							onStartEdit={(point) => {
-								setFocusPoint(point ?? null);
-								setEditing(true);
-							}}
-							onExit={() => {
-								setEditing(false);
-								setFocusPoint(null);
-							}}
-							onSave={(content) => onSaveContent(row.id, content)}
-						/>
-					</div>
-					{renderNodeLink(row)}
-					<NodeDragHandle ref={handleRef} />
-				</div>
-				{(row.priority || row.tags.length > 0) && (
-					<div className="flex flex-wrap items-center gap-1">
-						{row.priority && (
-							<span className={priorityPill({ level: row.priority })}>
-								<FlagIcon size={11} weight="bold" className="shrink-0" />
-								<span className="truncate">
-									{labels.priorityLabels[row.priority]}
-								</span>
-							</span>
+			<div className="flex items-start gap-2">
+				<NodeActions
+					nodeType={row.type}
+					blockType={blockType}
+					isBoard={row.isBoard ?? false}
+					onConvert={(type) => onConvert(row.id, type)}
+					onTurnInto={(nextBlockType) => onTurnInto(row.id, nextBlockType)}
+					onSetBoardView={(isBoard) => onSetBoardView(row.id, isBoard)}
+					onConversionSuccess={() => {}}
+					onDuplicate={() => onDuplicate(row.id)}
+					onDelete={() => onDelete(row.id)}
+					menuItems={[]}
+					className="flex min-w-0 flex-1 flex-col items-stretch gap-2"
+				>
+					<div className="flex items-start gap-2">
+						{isTask && (
+							<NodeCheckbox
+								metadata={row.metadata}
+								onToggle={(nextCompleted) =>
+									onToggleTask(row.id, nextCompleted)
+								}
+							/>
 						)}
-						{row.tags.length > 0 && <NodeTagPills tags={row.tags} />}
+						<div className="min-w-0 flex-1 text-sm">
+							<NodeEditor
+								id={row.id}
+								content={row.content}
+								editing={editing}
+								completed={completed}
+								focusPoint={focusPoint}
+								onStartEdit={(point) => {
+									setFocusPoint(point ?? null);
+									setEditing(true);
+								}}
+								onExit={() => {
+									setEditing(false);
+									setFocusPoint(null);
+								}}
+								onSave={(content) => onSaveContent(row.id, content)}
+							/>
+						</div>
+						{renderNodeLink(row)}
 					</div>
-				)}
-			</NodeActions>
+					{(row.priority || row.tags.length > 0) && (
+						<div className="flex flex-wrap items-center gap-1">
+							{row.priority && (
+								<span className={priorityPill({ level: row.priority })}>
+									<FlagIcon size={11} weight="bold" className="shrink-0" />
+									<span className="truncate">
+										{labels.priorityLabels[row.priority]}
+									</span>
+								</span>
+							)}
+							{row.tags.length > 0 && <NodeTagPills tags={row.tags} />}
+						</div>
+					)}
+				</NodeActions>
+				{/* Outside NodeActions (see #455 follow-up): the handle is the
+				only draggable part of the card, and — unlike the rest of the
+				card — a long-press/right-click on it must not also open the
+				context menu that wraps everything else. */}
+				<NodeDragHandle ref={handleRef} />
+			</div>
 		</div>
 	);
 }
