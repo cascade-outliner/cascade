@@ -1,6 +1,7 @@
+import type { NodeCapabilityId } from "@cascade/outliner/node-capabilities";
 import { resolveThemeId } from "@cascade/theme/themes";
 import { toast } from "@cascade/ui/toast";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, use, useEffect, useMemo, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import {
 	type Settings,
@@ -19,6 +20,7 @@ export {
 
 const SettingsContext = createContext<{
 	settings: Settings;
+	confirmedSettings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
 	saveSettings: () => void;
 } | null>(null);
@@ -57,10 +59,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	const remoteSettings: SettingsPatch = remoteResult?.success
 		? remoteResult.data
 		: {};
-
-	const settings: Settings = {
+	const confirmedSettings: Settings = {
 		...defaultSettings(),
 		...remoteSettings,
+	};
+
+	const settings: Settings = {
+		...confirmedSettings,
 		...unsaved,
 	};
 	const resolvedTheme = resolveThemeId(
@@ -82,7 +87,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<SettingsContext value={{ settings, setSetting, saveSettings }}>
+		<SettingsContext
+			value={{ settings, confirmedSettings, setSetting, saveSettings }}
+		>
 			{children}
 		</SettingsContext>
 	);
@@ -92,4 +99,12 @@ export function useSettings() {
 	const ctx = use(SettingsContext);
 	if (!ctx) throw new Error("useSettings must be used within SettingsProvider");
 	return ctx;
+}
+
+export function useNodeCapabilities(): ReadonlySet<NodeCapabilityId> {
+	const { confirmedSettings } = useSettings();
+	return useMemo(
+		() => new Set(confirmedSettings.enabledNodeCapabilities),
+		[confirmedSettings.enabledNodeCapabilities],
+	);
 }

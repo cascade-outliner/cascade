@@ -1,15 +1,13 @@
-import {
-	defaultOutlinerFeatures,
-	statusFeature,
-} from "@cascade/outliner/features";
+import { enabledOutlinerFeatures } from "@cascade/outliner/features";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import {
 	activeDueDateRange,
+	filtersForCapabilities,
 	hasActiveDueDateFilter,
 } from "@cascade/outliner/node-filters";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
-import type { ReactNode } from "react";
+import { type ReactNode, useMemo } from "react";
 import {
 	useDelayedCompletionHide,
 	withPendingTasksIncomplete,
@@ -22,14 +20,10 @@ import {
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
 import { renderEmbeddedBoard } from "#/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "#/features/nodes/ui/node-link";
-import { useSettings } from "#/features/settings/client/settings-context";
-
-// Status is per-board (see per-board statuses): a plain tree that isn't a
-// board's own direct-children view has no board to draw status options
-// from, so it doesn't offer status assignment or filtering at all.
-const featuresWithoutStatus = defaultOutlinerFeatures.filter(
-	(feature) => feature !== statusFeature,
-);
+import {
+	useNodeCapabilities,
+	useSettings,
+} from "#/features/settings/client/settings-context";
 
 export function NodeTree({
 	nodeId,
@@ -39,10 +33,31 @@ export function NodeTree({
 	header: ReactNode;
 }) {
 	const { settings } = useSettings();
-	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
+	const capabilities = useNodeCapabilities();
+	const features = useMemo(
+		() =>
+			enabledOutlinerFeatures(capabilities).filter(
+				(feature) => feature.id !== "status",
+			),
+		[capabilities],
+	);
+	const filterCapabilities = useMemo(() => {
+		const next = new Set(capabilities);
+		next.delete("status");
+		return next;
+	}, [capabilities]);
+	const [rawFilters, setFilters] = useNodeFilters(
+		settings.hideCompletedByDefault,
+	);
+	const filters = filtersForCapabilities(rawFilters, filterCapabilities);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
-	const tree = useVisibleTree(nodeId, includeCollapsedDescendants);
+	const tree = useVisibleTree(
+		nodeId,
+		includeCollapsedDescendants,
+		undefined,
+		capabilities.has("board"),
+	);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,
@@ -59,7 +74,8 @@ export function NodeTree({
 			tree={tree}
 			className="h-full"
 			indentSize={settings.indentSize}
-			features={featuresWithoutStatus}
+			features={features}
+			capabilities={filterCapabilities}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
@@ -73,6 +89,7 @@ export function NodeTree({
 						completedFilterMode={
 							settings.hideCompletedByDefault ? "show" : "hide"
 						}
+						capabilities={capabilities}
 					/>
 					{header}
 				</>

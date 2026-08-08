@@ -12,6 +12,10 @@ import {
 	XIcon,
 } from "@phosphor-icons/react/ssr";
 import type { ReactNode } from "react";
+import {
+	allNodeCapabilities,
+	type NodeCapabilityId,
+} from "../../features/model/node-capabilities";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 import type { StatusSummary } from "../../nodes/model/node-statuses";
 import {
@@ -27,6 +31,7 @@ interface ActiveFilterChipsProps {
 	existingStatuses?: StatusSummary[];
 	onFiltersChange: (filters: NodeFilters) => void;
 	completedFilterMode?: "hide" | "show";
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 }
 
 export function ActiveFilterChips({
@@ -34,6 +39,7 @@ export function ActiveFilterChips({
 	existingStatuses = [],
 	onFiltersChange,
 	completedFilterMode = "hide",
+	capabilities = allNodeCapabilities,
 }: ActiveFilterChipsProps) {
 	const labels = useOutlinerLabels();
 	const relativeFilters = getRelativeFilterOptions(labels);
@@ -44,22 +50,23 @@ export function ActiveFilterChips({
 
 	return (
 		<AnimatePresence initial={false}>
-			{relativeFilters.map(
-				(filter) =>
-					filters[filter.key] && (
-						<FilterChip
-							key={`relative:${filter.key}`}
-							icon={<CalendarIcon size={11} weight="bold" />}
-							label={filter.label}
-							removeLabel={filter.removeLabel}
-							onRemove={() =>
-								onFiltersChange({ ...filters, [filter.key]: false })
-							}
-						/>
-					),
-			)}
+			{capabilities.has("due-date") &&
+				relativeFilters.map(
+					(filter) =>
+						filters[filter.key] && (
+							<FilterChip
+								key={`relative:${filter.key}`}
+								icon={<CalendarIcon size={11} weight="bold" />}
+								label={filter.label}
+								removeLabel={filter.removeLabel}
+								onRemove={() =>
+									onFiltersChange({ ...filters, [filter.key]: false })
+								}
+							/>
+						),
+				)}
 
-			{filters.dueOnDate && (
+			{capabilities.has("due-date") && filters.dueOnDate && (
 				<FilterChip
 					key="date:due-on"
 					icon={<CalendarIcon size={11} weight="bold" />}
@@ -73,7 +80,7 @@ export function ActiveFilterChips({
 				/>
 			)}
 
-			{filters.dueDateRange && (
+			{capabilities.has("due-date") && filters.dueDateRange && (
 				<FilterChip
 					key="date:range"
 					icon={<CalendarIcon size={11} weight="bold" />}
@@ -91,58 +98,61 @@ export function ActiveFilterChips({
 				/>
 			)}
 
-			{filters.priorities.map((priority) => (
-				<FilterChip
-					key={`priority:${priority}`}
-					icon={<FlagIcon size={11} weight="bold" />}
-					label={labels.priorityLabels[priority]}
-					removeLabel={`${labels.filtersRemovePriority}: ${labels.priorityLabels[priority]}`}
-					onRemove={() =>
-						onFiltersChange({
-							...filters,
-							priorities: filters.priorities.filter(
-								(name) => name !== priority,
-							),
-						})
-					}
-				/>
-			))}
-
-			{filters.statusIds.map((statusId) => {
-				const status = existingStatuses.find(({ id }) => id === statusId);
-				if (!status) return null;
-				return (
+			{capabilities.has("priority") &&
+				filters.priorities.map((priority) => (
 					<FilterChip
-						key={`status:${statusId}`}
-						icon={<CircleDashedIcon size={11} weight="bold" />}
-						label={status.name}
-						removeLabel={`${labels.filtersRemoveStatus}: ${status.name}`}
+						key={`priority:${priority}`}
+						icon={<FlagIcon size={11} weight="bold" />}
+						label={labels.priorityLabels[priority]}
+						removeLabel={`${labels.filtersRemovePriority}: ${labels.priorityLabels[priority]}`}
 						onRemove={() =>
 							onFiltersChange({
 								...filters,
-								statusIds: filters.statusIds.filter((id) => id !== statusId),
+								priorities: filters.priorities.filter(
+									(name) => name !== priority,
+								),
 							})
 						}
 					/>
-				);
-			})}
+				))}
 
-			{filters.tags.map((tag) => (
-				<FilterChip
-					key={`tag:${tag}`}
-					icon={<TagIcon size={11} weight="bold" />}
-					label={tag}
-					removeLabel={`${labels.filtersRemoveTag}: ${tag}`}
-					onRemove={() =>
-						onFiltersChange({
-							...filters,
-							tags: filters.tags.filter((name) => name !== tag),
-						})
-					}
-				/>
-			))}
+			{capabilities.has("status") &&
+				filters.statusIds.map((statusId) => {
+					const status = existingStatuses.find(({ id }) => id === statusId);
+					if (!status) return null;
+					return (
+						<FilterChip
+							key={`status:${statusId}`}
+							icon={<CircleDashedIcon size={11} weight="bold" />}
+							label={status.name}
+							removeLabel={`${labels.filtersRemoveStatus}: ${status.name}`}
+							onRemove={() =>
+								onFiltersChange({
+									...filters,
+									statusIds: filters.statusIds.filter((id) => id !== statusId),
+								})
+							}
+						/>
+					);
+				})}
 
-			{completedFilterActive && (
+			{capabilities.has("tags") &&
+				filters.tags.map((tag) => (
+					<FilterChip
+						key={`tag:${tag}`}
+						icon={<TagIcon size={11} weight="bold" />}
+						label={tag}
+						removeLabel={`${labels.filtersRemoveTag}: ${tag}`}
+						onRemove={() =>
+							onFiltersChange({
+								...filters,
+								tags: filters.tags.filter((name) => name !== tag),
+							})
+						}
+					/>
+				))}
+
+			{capabilities.has("task") && completedFilterActive && (
 				<FilterChip
 					key="completion"
 					icon={<CheckSquareIcon size={11} weight="bold" />}

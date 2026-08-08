@@ -1,3 +1,4 @@
+import type { NodeCapabilityId } from "@cascade/outliner/node-capabilities";
 import type { RegisterableHotkey } from "@tanstack/react-hotkeys";
 import { m } from "#/paraglide/messages.js";
 
@@ -5,6 +6,7 @@ export interface ShortcutEntry {
 	/** Equivalent key combos that trigger the same action. */
 	hotkeys: RegisterableHotkey[];
 	description: () => string;
+	capability?: NodeCapabilityId;
 }
 
 export interface ShortcutGroup {
@@ -27,6 +29,7 @@ export const keyboardShortcutGroups: ShortcutGroup[] = [
 			{
 				hotkeys: ["Mod+K"],
 				description: () => m.keyboard_shortcuts_quick_open(),
+				capability: "search",
 			},
 			{ hotkeys: ["Mod+Z"], description: () => m.keyboard_shortcuts_undo() },
 			{

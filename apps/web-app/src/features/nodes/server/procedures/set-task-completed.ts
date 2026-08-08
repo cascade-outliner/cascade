@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { dueDateSchema } from "@/features/nodes/model/due-date.schema";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -23,6 +24,7 @@ export const setTaskCompleted = authed
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "task");
 		const userId = context.user.id;
 		return db.transaction(async (transaction) => {
 			const [before] = await transaction

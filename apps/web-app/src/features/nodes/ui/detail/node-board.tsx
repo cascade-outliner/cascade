@@ -1,9 +1,13 @@
 import type { BoardDropResult } from "@cascade/outliner/board-types";
 import { BoardView } from "@cascade/outliner/board-view";
+import { enabledOutlinerFeatures } from "@cascade/outliner/features";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import type { BlockType } from "@cascade/outliner/lexical-content";
 import { setBlockType } from "@cascade/outliner/lexical-content";
-import { hasActiveDueDateFilter } from "@cascade/outliner/node-filters";
+import {
+	filtersForCapabilities,
+	hasActiveDueDateFilter,
+} from "@cascade/outliner/node-filters";
 import {
 	defaultTypedMetadata,
 	type NodeTypeName,
@@ -27,7 +31,10 @@ import {
 import { useVisibleTree } from "#/features/nodes/client/tree/use-visible-tree";
 import { NodeLink } from "#/features/nodes/ui/node-link";
 import { BoardSettingsDialog } from "#/features/nodes/ui/status-settings";
-import { useSettings } from "#/features/settings/client/settings-context";
+import {
+	useNodeCapabilities,
+	useSettings,
+} from "#/features/settings/client/settings-context";
 import { m } from "#/paraglide/messages.js";
 
 export function NodeBoard({
@@ -43,13 +50,21 @@ export function NodeBoard({
 	className?: string;
 }) {
 	const { settings } = useSettings();
+	const capabilities = useNodeCapabilities();
+	const features = useMemo(
+		() => enabledOutlinerFeatures(capabilities),
+		[capabilities],
+	);
 	// Reads the same URL-synced filter state the outline's own FiltersBar
 	// writes to (see `useNodeFilters`) — so a board embedded inline in an
 	// already-filtered outline (or a board's own detail page, reached with
 	// filters still in the URL) hides/shows its cards the same way the tree
 	// would, instead of always showing every card regardless of active
 	// filters (see #455 follow-up).
-	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
+	const [rawFilters, setFilters] = useNodeFilters(
+		settings.hideCompletedByDefault,
+	);
+	const filters = filtersForCapabilities(rawFilters, capabilities);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const tree = useVisibleTree(nodeId, includeCollapsedDescendants, nodeId);
 	const completionHide = useDelayedCompletionHide(
@@ -67,15 +82,21 @@ export function NodeBoard({
 	const [manageColumnsOpen, setManageColumnsOpen] = useState(false);
 	const directChildren = useMemo(
 		() =>
-			tree.rows.filter(
-				(row) => row.depth === 0 && !visibility.hiddenIds.has(row.id),
-			),
-		[tree.rows, visibility.hiddenIds],
+			tree.rows
+				.filter((row) => row.depth === 0 && !visibility.hiddenIds.has(row.id))
+				.map((row) =>
+					capabilities.has("status") ? row : { ...row, status: null },
+				),
+		[tree.rows, visibility.hiddenIds, capabilities],
 	);
 
 	function handleDrop(draggedId: string, result: BoardDropResult) {
 		const draggedRow = tree.rows.find((row) => row.id === draggedId);
-		if (draggedRow && (draggedRow.status?.id ?? null) !== result.statusId) {
+		if (
+			capabilities.has("status") &&
+			draggedRow &&
+			(draggedRow.status?.id ?? null) !== result.statusId
+		) {
 			tree.setStatus(draggedId, result.statusId);
 		}
 		tree.move(draggedId, result.target);
@@ -83,7 +104,9 @@ export function NodeBoard({
 
 	async function handleAddCard(columnStatusId: string | null) {
 		const id = await tree.add();
-		if (id && columnStatusId !== null) tree.setStatus(id, columnStatusId);
+		if (id && capabilities.has("status") && columnStatusId !== null) {
+			tree.setStatus(id, columnStatusId);
+		}
 	}
 
 	function handleTurnInto(id: string, blockType: BlockType) {
@@ -96,26 +119,32 @@ export function NodeBoard({
 		<BoardView
 			rows={directChildren}
 			rootId={nodeId}
-			existingStatuses={existingStatuses}
+			existingStatuses={capabilities.has("status") ? existingStatuses : []}
 			existingTags={existingTags}
+			features={features}
+			capabilities={capabilities}
 			header={
 				<>
 					{header}
-					<div className="mb-4 flex justify-end">
-						<button
-							type="button"
-							onClick={() => setManageColumnsOpen(true)}
-							className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-muted outline-none hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-accent/50 dark:hover:bg-surface/10 dark:hover:text-surface"
-						>
-							<CircleDashedIcon size={14} weight="bold" />
-							{m.board_manage_columns()}
-						</button>
-					</div>
-					<BoardSettingsDialog
-						boardId={nodeId}
-						open={manageColumnsOpen}
-						onOpenChange={setManageColumnsOpen}
-					/>
+					{capabilities.has("status") && (
+						<div className="mb-4 flex justify-end">
+							<button
+								type="button"
+								onClick={() => setManageColumnsOpen(true)}
+								className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-muted outline-none hover:bg-ink/5 hover:text-ink focus-visible:ring-2 focus-visible:ring-accent/50 dark:hover:bg-surface/10 dark:hover:text-surface"
+							>
+								<CircleDashedIcon size={14} weight="bold" />
+								{m.board_manage_columns()}
+							</button>
+						</div>
+					)}
+					{capabilities.has("status") && (
+						<BoardSettingsDialog
+							boardId={nodeId}
+							open={manageColumnsOpen}
+							onOpenChange={setManageColumnsOpen}
+						/>
+					)}
 				</>
 			}
 			renderNodeLink={(node) => (

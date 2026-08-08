@@ -1,3 +1,8 @@
+import {
+	type NodeCapabilityId,
+	nodeCapabilityIds,
+	resolveNodeCapabilities,
+} from "@cascade/outliner/node-capabilities";
 import { type FontSizeId, fontSizeIds } from "@cascade/theme/font-sizes";
 import { type FontId, fontIds } from "@cascade/theme/fonts";
 import {
@@ -63,6 +68,7 @@ export interface Settings {
 	font: FontId;
 	fontSize: FontSizeId;
 	indentSize: number;
+	enabledNodeCapabilities: NodeCapabilityId[];
 	hideCompletedByDefault: boolean;
 	/** Opts in to real-time due-date notifications (browser + in-app toast); see #599. */
 	dueDateNotificationsEnabled: boolean;
@@ -82,6 +88,9 @@ export const settingsPatchSchema = z
 		font: z.enum(fontIds),
 		fontSize: z.enum(fontSizeIds),
 		indentSize: z.number().int().min(MIN_INDENT_SIZE).max(MAX_INDENT_SIZE),
+		enabledNodeCapabilities: z
+			.array(z.enum(nodeCapabilityIds))
+			.transform(resolveNodeCapabilities),
 		hideCompletedByDefault: z.boolean(),
 		dueDateNotificationsEnabled: z.boolean(),
 		preAlphaBannerDismissed: z.boolean(),

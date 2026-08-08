@@ -1,4 +1,5 @@
 import { startOfDay, startOfWeek } from "../../dates/due-date-bucket";
+import type { NodeCapabilityId } from "../../features/model/node-capabilities";
 import type { PriorityName } from "../../nodes/model/node-priority";
 
 export interface DueDateRange {
@@ -72,4 +73,21 @@ export function hasActiveFilters(filters: NodeFilters): boolean {
 		hasActiveDueDateFilter(filters) ||
 		filters.hideCompleted
 	);
+}
+
+export function filtersForCapabilities(
+	filters: NodeFilters,
+	capabilities: ReadonlySet<NodeCapabilityId>,
+): NodeFilters {
+	return {
+		...filters,
+		tags: capabilities.has("tags") ? filters.tags : [],
+		priorities: capabilities.has("priority") ? filters.priorities : [],
+		statusIds: capabilities.has("status") ? filters.statusIds : [],
+		dueToday: capabilities.has("due-date") && filters.dueToday,
+		dueThisWeek: capabilities.has("due-date") && filters.dueThisWeek,
+		dueOnDate: capabilities.has("due-date") ? filters.dueOnDate : null,
+		dueDateRange: capabilities.has("due-date") ? filters.dueDateRange : null,
+		hideCompleted: capabilities.has("task") && filters.hideCompleted,
+	};
 }

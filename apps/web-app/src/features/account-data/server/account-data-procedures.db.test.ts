@@ -1,3 +1,4 @@
+import { allNodeCapabilities } from "@cascade/outliner/node-capabilities";
 import { call } from "@orpc/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { exportAccountData } from "@/features/account-data/server/account-data-procedures";
@@ -48,7 +49,14 @@ describe("exportAccountData", () => {
 
 	it("includes this user's nodes, tags, due dates, settings, and premium status", async () => {
 		await call(requestPremiumSeat, undefined, { context });
-		await call(updateSettings, { indentSize: 32 }, { context });
+		await call(
+			updateSettings,
+			{
+				indentSize: 32,
+				enabledNodeCapabilities: [...allNodeCapabilities],
+			},
+			{ context },
+		);
 		const node = await call(
 			createNode,
 			{
@@ -67,7 +75,10 @@ describe("exportAccountData", () => {
 		expect(result.nodeTags).toEqual([
 			{ nodeId: node.id, tagId: result.tags[0].id },
 		]);
-		expect(result.settings).toEqual({ indentSize: 32 });
+		expect(result.settings).toEqual({
+			indentSize: 32,
+			enabledNodeCapabilities: [...allNodeCapabilities],
+		});
 		expect(result.premium.isPremium).toBe(true);
 		expect(result.premium.grantedAt).not.toBeNull();
 		// Premium node mutations are recorded in tree history.
@@ -79,6 +90,13 @@ describe("exportAccountData", () => {
 	});
 
 	it("never includes another user's data", async () => {
+		await call(
+			updateSettings,
+			{ enabledNodeCapabilities: [...allNodeCapabilities] },
+			{
+				context: foreignContext,
+			},
+		);
 		await call(
 			createNode,
 			{ parentId: null, tags: ["foreign"] },

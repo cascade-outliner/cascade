@@ -25,6 +25,11 @@ import {
 import { Fragment, type ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
+import {
+	allNodeCapabilities,
+	blockTypeCapability,
+	type NodeCapabilityId,
+} from "../../features/model/node-capabilities";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 import type { NodeTypeName } from "../model/node-types";
 
@@ -86,6 +91,7 @@ interface NodeActionsProps {
 	/** Feature-contributed menu entries (due date, tags, …), rendered in
 	 * order before the core "Convert into"/"Delete" entries. */
 	menuItems: { id: string; node: ReactNode }[];
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 	viewTransitionName?: string;
 	/** Overrides the trigger's default row-flex layout — e.g. `"contents"`
 	 * for a board card, whose own layout is a column, not a row (see #455
@@ -105,12 +111,23 @@ export function NodeActions({
 	onDuplicate,
 	onDelete,
 	menuItems,
+	capabilities = allNodeCapabilities,
 	viewTransitionName,
 	className,
 	children,
 }: NodeActionsProps) {
 	const labels = useOutlinerLabels();
 	const currentOption: ConvertOption = nodeType === "task" ? "task" : blockType;
+	const blockOptions = BLOCK_OPTIONS.filter((option) =>
+		capabilities.has(blockTypeCapability(option)),
+	);
+	const canConvertTask = capabilities.has("task");
+	const canConvertBoard = capabilities.has("board");
+	const hasAlternativeBlockOption = blockOptions.some(
+		(option) => option !== currentOption,
+	);
+	const hasConversionOptions =
+		canConvertBoard || canConvertTask || hasAlternativeBlockOption;
 
 	function optionLabel(option: ConvertOption): string {
 		if (option === "task") return labels.nodeTypeLabels.task;
@@ -145,57 +162,72 @@ export function NodeActions({
 						<ContextMenuSeparator />
 					</Fragment>
 				))}
-				<ContextMenuSub>
-					<ContextMenuSubTrigger icon={CONVERT_ICONS[currentOption]}>
-						{labels.convertInto}
-					</ContextMenuSubTrigger>
-					<ContextMenuSubContent>
-						{/* A separate axis from the content-type options below
+				{hasConversionOptions && (
+					<ContextMenuSub>
+						<ContextMenuSubTrigger icon={CONVERT_ICONS[currentOption]}>
+							{labels.convertInto}
+						</ContextMenuSubTrigger>
+						<ContextMenuSubContent>
+							{/* A separate axis from the content-type options below
 						(#455 follow-up): a tree or a board can each still hold a
 						paragraph, heading, or task, so this stays its own group,
 						first since it's the broader choice. */}
-						<ContextMenuItem
-							icon={<TreeStructureIcon size={14} weight="bold" />}
-							disabled={!isBoard}
-							onClick={() => selectBoardView(false)}
-						>
-							{labels.convertOptionTree}
-						</ContextMenuItem>
-						<ContextMenuItem
-							icon={<KanbanIcon size={14} weight="bold" />}
-							disabled={isBoard}
-							onClick={() => selectBoardView(true)}
-						>
-							{labels.convertOptionBoard}
-						</ContextMenuItem>
-						<ContextMenuSeparator />
-						{BLOCK_OPTIONS.map((option) => (
-							<ContextMenuItem
-								key={option}
-								icon={CONVERT_ICONS[option]}
-								disabled={option === currentOption}
-								onClick={() => selectOption(option)}
-							>
-								{optionLabel(option)}
-							</ContextMenuItem>
-						))}
-						<ContextMenuSeparator />
-						<ContextMenuItem
-							icon={CONVERT_ICONS.task}
-							disabled={currentOption === "task"}
-							onClick={() => selectOption("task")}
-						>
-							{optionLabel("task")}
-						</ContextMenuItem>
-					</ContextMenuSubContent>
-				</ContextMenuSub>
-				<ContextMenuItem
-					icon={<CopyIcon size={14} weight="bold" />}
-					onClick={onDuplicate}
-				>
-					{labels.duplicate}
-				</ContextMenuItem>
-				<ContextMenuSeparator />
+							{canConvertBoard && (
+								<ContextMenuItem
+									icon={<TreeStructureIcon size={14} weight="bold" />}
+									disabled={!isBoard}
+									onClick={() => selectBoardView(false)}
+								>
+									{labels.convertOptionTree}
+								</ContextMenuItem>
+							)}
+							{canConvertBoard && (
+								<ContextMenuItem
+									icon={<KanbanIcon size={14} weight="bold" />}
+									disabled={isBoard}
+									onClick={() => selectBoardView(true)}
+								>
+									{labels.convertOptionBoard}
+								</ContextMenuItem>
+							)}
+							{canConvertBoard &&
+								(blockOptions.length > 0 || canConvertTask) && (
+									<ContextMenuSeparator />
+								)}
+							{blockOptions.map((option) => (
+								<ContextMenuItem
+									key={option}
+									icon={CONVERT_ICONS[option]}
+									disabled={option === currentOption}
+									onClick={() => selectOption(option)}
+								>
+									{optionLabel(option)}
+								</ContextMenuItem>
+							))}
+							{blockOptions.length > 0 && canConvertTask && (
+								<ContextMenuSeparator />
+							)}
+							{canConvertTask && (
+								<ContextMenuItem
+									icon={CONVERT_ICONS.task}
+									disabled={currentOption === "task"}
+									onClick={() => selectOption("task")}
+								>
+									{optionLabel("task")}
+								</ContextMenuItem>
+							)}
+						</ContextMenuSubContent>
+					</ContextMenuSub>
+				)}
+				{capabilities.has("duplicate") && (
+					<ContextMenuItem
+						icon={<CopyIcon size={14} weight="bold" />}
+						onClick={onDuplicate}
+					>
+						{labels.duplicate}
+					</ContextMenuItem>
+				)}
+				{capabilities.has("duplicate") && <ContextMenuSeparator />}
 				<ContextMenuItem
 					variant="destructive"
 					icon={<TrashIcon size={14} weight="bold" />}

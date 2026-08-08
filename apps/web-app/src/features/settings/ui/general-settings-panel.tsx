@@ -53,46 +53,51 @@ export function GeneralSettingsPanel({
 		parseAsStringLiteral(["hidden", "visible"]),
 	);
 	const notificationsUnsupported = useNotificationsUnsupported();
+	const capabilities = new Set(settings.enabledNodeCapabilities);
 
 	return (
 		<>
 			<SettingsPageDescription>
 				{m.settings_general_description()}
 			</SettingsPageDescription>
-			<SettingsSection title={m.settings_tasks_section()}>
-				<SettingsRow
-					title={m.settings_hide_completed_default()}
-					description={m.settings_hide_completed_default_description()}
-				>
-					<Checkbox
-						aria-label={m.settings_hide_completed_default()}
-						checked={settings.hideCompletedByDefault}
-						onCheckedChange={(checked) => {
-							setSetting("hideCompletedByDefault", checked);
-							void setCompletedOverride(null);
-						}}
-					/>
-				</SettingsRow>
-			</SettingsSection>
-			<SettingsSection title={m.settings_notifications_section()}>
-				<SettingsRow
-					title={m.settings_due_date_notifications()}
-					description={
-						notificationsUnsupported
-							? m.settings_due_date_notifications_description_unsupported()
-							: m.settings_due_date_notifications_description()
-					}
-				>
-					<Checkbox
-						aria-label={m.settings_due_date_notifications()}
-						checked={settings.dueDateNotificationsEnabled}
-						onCheckedChange={(checked) => {
-							setSetting("dueDateNotificationsEnabled", checked);
-							if (checked) void enableDueDateNotifications();
-						}}
-					/>
-				</SettingsRow>
-			</SettingsSection>
+			{capabilities.has("task") && (
+				<SettingsSection title={m.settings_tasks_section()}>
+					<SettingsRow
+						title={m.settings_hide_completed_default()}
+						description={m.settings_hide_completed_default_description()}
+					>
+						<Checkbox
+							aria-label={m.settings_hide_completed_default()}
+							checked={settings.hideCompletedByDefault}
+							onCheckedChange={(checked) => {
+								setSetting("hideCompletedByDefault", checked);
+								void setCompletedOverride(null);
+							}}
+						/>
+					</SettingsRow>
+				</SettingsSection>
+			)}
+			{capabilities.has("due-date") && (
+				<SettingsSection title={m.settings_notifications_section()}>
+					<SettingsRow
+						title={m.settings_due_date_notifications()}
+						description={
+							notificationsUnsupported
+								? m.settings_due_date_notifications_description_unsupported()
+								: m.settings_due_date_notifications_description()
+						}
+					>
+						<Checkbox
+							aria-label={m.settings_due_date_notifications()}
+							checked={settings.dueDateNotificationsEnabled}
+							onCheckedChange={(checked) => {
+								setSetting("dueDateNotificationsEnabled", checked);
+								if (checked) void enableDueDateNotifications();
+							}}
+						/>
+					</SettingsRow>
+				</SettingsSection>
+			)}
 			<SettingsSection title={m.settings_replay_tour_title()}>
 				<SettingsRow title={m.settings_replay_tour_description()}>
 					<Button

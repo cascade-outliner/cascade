@@ -2,6 +2,7 @@ import { typedMetadataSchema } from "@cascade/outliner/node-types";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -15,6 +16,9 @@ export const setNodeType = authed
 	})
 	.input(z.object({ id: z.string() }).and(typedMetadataSchema))
 	.handler(async ({ input, context, errors }) => {
+		if (input.type === "task") {
+			await assertNodeCapabilityEnabled(context.user.id, "task");
+		}
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [before] = await transaction

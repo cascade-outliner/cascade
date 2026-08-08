@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { prioritySchema } from "@/features/nodes/model/priority.schema";
 import { nodes } from "@/features/nodes/server/persistence/node-tables";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -20,6 +21,7 @@ export const setNodePriority = authed
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "priority");
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [before] = await transaction

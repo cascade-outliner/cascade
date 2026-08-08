@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { createHistoryRecorder } from "@/features/tree-history/server/history-persistence";
 import { authed } from "@/orpc/context";
 import { nodeTags, tags } from "../persistence/node-tables";
@@ -12,6 +13,7 @@ export const deleteTag = authed
 	})
 	.input(z.object({ name: z.string() }))
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "tags");
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [tag] = await transaction

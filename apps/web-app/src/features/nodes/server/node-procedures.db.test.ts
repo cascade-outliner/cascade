@@ -1,5 +1,6 @@
+import { allNodeCapabilities } from "@cascade/outliner/node-capabilities";
 import { call } from "@orpc/server";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import {
@@ -31,6 +32,7 @@ import {
 	visibleTree,
 } from "@/features/nodes/server/procedures";
 import { requestPremiumSeat } from "@/features/premium/server/premium-procedures";
+import { userSettings } from "@/features/settings/server/settings-table";
 import type { ORPCContext } from "@/orpc/context";
 import {
 	createTestUser,
@@ -51,6 +53,15 @@ const content = (text: string) => ({
 		],
 	},
 });
+
+async function createEnabledTestUser() {
+	const testUser = await createTestUser();
+	await db.insert(userSettings).values({
+		userId: testUser.user.id,
+		settings: { enabledNodeCapabilities: [...allNodeCapabilities] },
+	});
+	return testUser;
+}
 
 describe("recurring tasks", () => {
 	it("advances an overdue task once to the first future occurrence", async () => {
@@ -144,7 +155,7 @@ describe("large subtree deletion", () => {
 });
 
 beforeEach(async () => {
-	const testUser = await createTestUser();
+	const testUser = await createEnabledTestUser();
 	userId = testUser.user.id;
 	context = testUser.context;
 });
@@ -154,6 +165,28 @@ afterEach(async () => {
 });
 
 describe("createNode", () => {
+	it("allows an explicitly empty due date when due dates are disabled", async () => {
+		await db
+			.update(userSettings)
+			.set({
+				settings: {
+					enabledNodeCapabilities: ["paragraph", "task", "duplicate"],
+				},
+			})
+			.where(eq(userSettings.userId, userId));
+
+		await expect(
+			call(
+				createNode,
+				{ parentId: null, dueDate: null, tags: [] },
+				{ context },
+			),
+		).resolves.toMatchObject({ dueDate: null });
+		await expect(
+			call(createNode, { parentId: null, dueDate: "2026-08-09" }, { context }),
+		).rejects.toMatchObject({ code: "FORBIDDEN" });
+	});
+
 	it("appends new root nodes in creation order with strictly increasing order keys", async () => {
 		const a = await call(createNode, { parentId: null }, { context });
 		const b = await call(createNode, { parentId: null }, { context });
@@ -221,7 +254,8 @@ describe("createNode", () => {
 	});
 
 	it("rejects attaching a node under another user's parentId", async () => {
-		const { user: otherUser, context: otherContext } = await createTestUser();
+		const { user: otherUser, context: otherContext } =
+			await createEnabledTestUser();
 		try {
 			const otherRoot = await call(
 				createNode,
@@ -269,6 +303,21 @@ describe("resolveNodeSlug", () => {
 });
 
 describe("quickOpen", () => {
+	it("rejects searches when the capability is disabled", async () => {
+		await db
+			.update(userSettings)
+			.set({
+				settings: {
+					enabledNodeCapabilities: ["paragraph", "task", "duplicate"],
+				},
+			})
+			.where(eq(userSettings.userId, userId));
+
+		await expect(
+			call(quickOpen, { query: "node" }, { context }),
+		).rejects.toMatchObject({ code: "FORBIDDEN" });
+	});
+
 	it("searches the full tree in DFS order with normalized matches and compact ancestors", async () => {
 		const root = await call(createNode, { parentId: null }, { context });
 		const child = await call(createNode, { parentId: root.id }, { context });
@@ -443,7 +492,7 @@ describe("visibleTree", () => {
 	});
 
 	it("never aggregates another user's tags into this user's rows", async () => {
-		const other = await createTestUser();
+		const other = await createEnabledTestUser();
 		try {
 			const node = await call(createNode, { parentId: null }, { context });
 			await call(setNodeTags, { id: node.id, tags: ["mine"] }, { context });
@@ -559,7 +608,8 @@ describe("duplicateNode / restoreNode", () => {
 	});
 
 	it("rejects a descendant parentId that points outside the restored subtree", async () => {
-		const { user: otherUser, context: otherContext } = await createTestUser();
+		const { user: otherUser, context: otherContext } =
+			await createEnabledTestUser();
 		try {
 			const otherRoot = await call(
 				createNode,
@@ -702,6 +752,34 @@ describe("setNodeIcon", () => {
 			call(setNodeIcon, { id: node.id, icon: "not an emoji" }, { context }),
 		).rejects.toBeDefined();
 	});
+
+	it("preserves data while disabled and permits edits after re-enabling", async () => {
+		const node = await call(createNode, { parentId: null }, { context });
+		await call(setNodeIcon, { id: node.id, icon: "📌" }, { context });
+		await db
+			.update(userSettings)
+			.set({
+				settings: {
+					enabledNodeCapabilities: ["paragraph", "task", "duplicate"],
+				},
+			})
+			.where(eq(userSettings.userId, userId));
+
+		await expect(
+			call(setNodeIcon, { id: node.id, icon: null }, { context }),
+		).rejects.toMatchObject({ code: "FORBIDDEN" });
+		expect(await call(getNode, { id: node.id }, { context })).toMatchObject({
+			icon: "📌",
+		});
+
+		await db
+			.update(userSettings)
+			.set({ settings: { enabledNodeCapabilities: [...allNodeCapabilities] } })
+			.where(eq(userSettings.userId, userId));
+		await expect(
+			call(setNodeIcon, { id: node.id, icon: null }, { context }),
+		).resolves.toBeUndefined();
+	});
 });
 
 describe("setNodePriority", () => {
@@ -835,7 +913,8 @@ describe("createStatus / listStatuses / updateStatus / setNodeStatus / deleteSta
 	});
 
 	it("rejects a status id that belongs to another user", async () => {
-		const { user: otherUser, context: otherContext } = await createTestUser();
+		const { user: otherUser, context: otherContext } =
+			await createEnabledTestUser();
 		try {
 			const foreignBoard = await call(
 				createNode,
@@ -955,7 +1034,8 @@ describe("createStatus / listStatuses / updateStatus / setNodeStatus / deleteSta
 	});
 
 	it("rejects updating a status that belongs to another user", async () => {
-		const { user: otherUser, context: otherContext } = await createTestUser();
+		const { user: otherUser, context: otherContext } =
+			await createEnabledTestUser();
 		try {
 			const foreignBoard = await call(
 				createNode,

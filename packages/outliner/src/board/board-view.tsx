@@ -5,6 +5,7 @@ import type { CalendarTimeString } from "../dates/calendar-time";
 import type { RecurrenceInput } from "../dates/recurrence";
 import type { BlockType } from "../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../editor/lexical/model/lexical-node.types";
+import type { NodeCapabilityId } from "../features/model/node-capabilities";
 import type { OutlinerFeature } from "../features/model/outliner-feature.types";
 import type { PriorityName } from "../nodes/model/node-priority";
 import type { StatusOption } from "../nodes/model/node-statuses";
@@ -66,6 +67,7 @@ export interface BoardViewProps {
 	 * priority, status, tags by default (see `defaultOutlinerFeatures`),
 	 * same as a tree row. */
 	features?: OutlinerFeature[];
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 	onToggleTask: (id: string, completed: boolean) => void;
 	onSaveContent: (id: string, content: { root: LexicalElementNode }) => void;
 	onSetDueDate: (
@@ -119,6 +121,7 @@ export function BoardView({
 	existingTags,
 	renderNodeLink,
 	features,
+	capabilities,
 	onToggleTask,
 	onSaveContent,
 	onSetDueDate,
@@ -181,6 +184,7 @@ export function BoardView({
 						column={column}
 						renderNodeLink={renderNodeLink}
 						features={features}
+						capabilities={capabilities}
 						existingTags={existingTags}
 						existingStatuses={pickableStatuses}
 						onToggleTask={onToggleTask}

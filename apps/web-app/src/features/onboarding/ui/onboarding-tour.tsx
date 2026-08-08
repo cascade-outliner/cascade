@@ -14,6 +14,8 @@ export function OnboardingTour() {
 	setSettingRef.current = setSetting;
 	const sampleNodeIdsRef = useRef(settings.onboardingSampleNodeIds);
 	sampleNodeIdsRef.current = settings.onboardingSampleNodeIds;
+	const capabilitiesRef = useRef(new Set(settings.enabledNodeCapabilities));
+	capabilitiesRef.current = new Set(settings.enabledNodeCapabilities);
 
 	useEffect(() => {
 		if (pendingSaveRef.current) {
@@ -39,7 +41,7 @@ export function OnboardingTour() {
 			nextBtnText: m.onboarding_tour_next(),
 			prevBtnText: m.onboarding_tour_previous(),
 			doneBtnText: m.onboarding_tour_done(),
-			steps: onboardingSteps(sampleNodeIdsRef.current),
+			steps: onboardingSteps(sampleNodeIdsRef.current, capabilitiesRef.current),
 			onNextClick: () => {
 				if (tour.isLastStep()) tour.destroy();
 				else tour.moveNext();

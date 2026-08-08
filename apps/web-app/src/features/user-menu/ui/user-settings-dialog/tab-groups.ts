@@ -4,6 +4,7 @@ import {
 	LinkIcon,
 	PaletteIcon,
 	ShieldCheckIcon,
+	SlidersHorizontalIcon,
 	TagIcon,
 	UserCircleIcon,
 } from "@phosphor-icons/react/ssr";
@@ -14,6 +15,7 @@ export interface SettingsTab {
 	value:
 		| "general"
 		| "appearance"
+		| "features"
 		| "tags"
 		| "user"
 		| "security"
@@ -35,6 +37,11 @@ export const tabGroups: { label: () => string; tabs: SettingsTab[] }[] = [
 				value: "general",
 				label: () => m.user_menu_general_tab(),
 				icon: GearIcon,
+			},
+			{
+				value: "features",
+				label: () => m.settings_features_tab(),
+				icon: SlidersHorizontalIcon,
 			},
 			{
 				value: "appearance",
@@ -79,3 +86,10 @@ export const tabGroups: { label: () => string; tabs: SettingsTab[] }[] = [
 		],
 	},
 ] as const;
+
+export function visibleTabGroups(tagsEnabled: boolean) {
+	return tabGroups.map((group) => ({
+		...group,
+		tabs: group.tabs.filter((tab) => tagsEnabled || tab.value !== "tags"),
+	}));
+}

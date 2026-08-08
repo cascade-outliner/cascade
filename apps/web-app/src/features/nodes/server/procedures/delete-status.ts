@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { deleteStatusInputSchema } from "@/features/nodes/model/status.schema";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { authed } from "@/orpc/context";
 import { statuses } from "../persistence/node-tables";
 
@@ -12,6 +13,7 @@ export const deleteStatus = authed
 	})
 	.input(deleteStatusInputSchema)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "status");
 		const deleted = await db
 			.delete(statuses)
 			.where(

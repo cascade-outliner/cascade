@@ -1,3 +1,4 @@
+import { allNodeCapabilities } from "../../features/model/node-capabilities";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
 import type { FiltersBarProps } from "../model/filters-bar.types";
 import { hasActiveFilters, noFilters } from "../model/node-filters";
@@ -12,6 +13,7 @@ export function FiltersBar({
 	existingStatuses = [],
 	onFiltersChange,
 	completedFilterMode = "hide",
+	capabilities = allNodeCapabilities,
 }: FiltersBarProps) {
 	const labels = useOutlinerLabels();
 	const hasActiveViewFilters = hasActiveFilters({
@@ -31,12 +33,14 @@ export function FiltersBar({
 					existingStatuses={existingStatuses}
 					onFiltersChange={onFiltersChange}
 					completedFilterMode={completedFilterMode}
+					capabilities={capabilities}
 				/>
 				<ActiveFilterChips
 					filters={filters}
 					existingStatuses={existingStatuses}
 					onFiltersChange={onFiltersChange}
 					completedFilterMode={completedFilterMode}
+					capabilities={capabilities}
 				/>
 			</div>
 

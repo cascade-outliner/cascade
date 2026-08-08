@@ -5,6 +5,7 @@ import {
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -27,6 +28,7 @@ export const setNodeRecurrence = authed
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "recurrence");
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [before] = await transaction

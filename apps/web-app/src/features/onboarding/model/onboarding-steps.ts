@@ -1,3 +1,4 @@
+import type { NodeCapabilityId } from "@cascade/outliner/node-capabilities";
 import type { DriveStep } from "driver.js";
 import { m } from "#/paraglide/messages.js";
 import type { OnboardingSampleNodeIds } from "@/features/settings/model/settings.schema";
@@ -35,6 +36,7 @@ function nodeSelector(id: string): string {
  */
 export function onboardingSteps(
 	sampleNodeIds: OnboardingSampleNodeIds,
+	capabilities?: ReadonlySet<NodeCapabilityId>,
 ): DriveStep[] {
 	const steps: DriveStep[] = [
 		{
@@ -85,7 +87,7 @@ export function onboardingSteps(
 			},
 		});
 	}
-	if (sampleNodeIds.tagged) {
+	if (sampleNodeIds.tagged && (capabilities?.has("tags") ?? true)) {
 		steps.push({
 			element: nodeSelector(sampleNodeIds.tagged),
 			popover: {
@@ -105,14 +107,18 @@ export function onboardingSteps(
 				side: "bottom",
 			},
 		},
-		{
-			element: `[data-onboarding="${onboardingAnchors.quickOpen}"]`,
-			popover: {
-				title: m.onboarding_tour_quick_open_title(),
-				description: m.onboarding_tour_quick_open_description(),
-				side: "bottom",
-			},
-		},
+		...((capabilities?.has("search") ?? true)
+			? [
+					{
+						element: `[data-onboarding="${onboardingAnchors.quickOpen}"]`,
+						popover: {
+							title: m.onboarding_tour_quick_open_title(),
+							description: m.onboarding_tour_quick_open_description(),
+							side: "bottom",
+						},
+					} satisfies DriveStep,
+				]
+			: []),
 		{
 			element: `[data-onboarding="${onboardingAnchors.userMenu}"]`,
 			popover: {

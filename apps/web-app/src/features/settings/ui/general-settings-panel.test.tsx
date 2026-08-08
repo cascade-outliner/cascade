@@ -24,7 +24,10 @@ function renderPanel() {
 	const setSetting = vi.fn();
 	render(
 		<GeneralSettingsPanel
-			settings={defaultSettings()}
+			settings={{
+				...defaultSettings(),
+				enabledNodeCapabilities: ["paragraph", "task", "due-date", "duplicate"],
+			}}
 			setSetting={setSetting}
 			onReplayTour={vi.fn()}
 			isReplayingTour={false}

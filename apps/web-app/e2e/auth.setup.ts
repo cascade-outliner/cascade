@@ -1,3 +1,4 @@
+import { allNodeCapabilities } from "@cascade/outliner/node-capabilities";
 import { test } from "@playwright/test";
 import { ensureTestUser, signInTestUser } from "./support/auth";
 import { authFile } from "./support/env";
@@ -17,7 +18,10 @@ test("authenticate as the e2e test user", async ({ page }) => {
 	// New accounts get a first-run onboarding tour overlay that intercepts
 	// pointer events across the app until dismissed. Marking it completed
 	// once here (idempotent) keeps specs from having to dismiss it themselves.
-	await orpcClient.settings.update({ onboardingCompleted: true });
+	await orpcClient.settings.update({
+		onboardingCompleted: true,
+		enabledNodeCapabilities: [...allNodeCapabilities],
+	});
 
 	await page.context().storageState({ path: authFile });
 });
