@@ -1,8 +1,8 @@
 /**
- * Node color coding (#656). A small fixed palette of named colors that can be
- * assigned to any node, displayed as a left-border tint in the tree view for
- * at-a-glance visual categorization. Fixed vocabulary rather than free input,
- * to stay visually consistent with the rest of the design system.
+ * Node color coding (#656). Nodes can be assigned either a named palette
+ * color or any custom hex color (#rrggbb / #rgb). Both are stored as plain
+ * strings in the `color` column and rendered as a left-border tint in the
+ * tree view.
  */
 
 export const NODE_COLOR_NAMES = [
@@ -22,7 +22,19 @@ export function isNodeColorName(value: unknown): value is NodeColorName {
 	return (NODE_COLOR_NAMES as readonly unknown[]).includes(value);
 }
 
-/** Tailwind border-color class for each named color, used in the tree row. */
+/** CSS hex color string: #rgb, #rrggbb (case-insensitive). */
+const HEX_COLOR_RE = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+export function isHexColor(value: unknown): value is string {
+	return typeof value === "string" && HEX_COLOR_RE.test(value);
+}
+
+/** Returns true for any value the color field accepts (palette name or hex). */
+export function isValidNodeColor(value: unknown): value is string {
+	return isNodeColorName(value) || isHexColor(value);
+}
+
+/** Tailwind border-color class for each named palette color. */
 export const NODE_COLOR_BORDER: Record<NodeColorName, string> = {
 	red: "border-red-400",
 	orange: "border-orange-400",
@@ -34,14 +46,18 @@ export const NODE_COLOR_BORDER: Record<NodeColorName, string> = {
 	gray: "border-gray-400",
 };
 
-/** Tailwind background-color class (subtle tint) for each named color. */
-export const NODE_COLOR_BG: Record<NodeColorName, string> = {
-	red: "bg-red-50/60",
-	orange: "bg-orange-50/60",
-	yellow: "bg-yellow-50/60",
-	green: "bg-green-50/60",
-	blue: "bg-blue-50/60",
-	purple: "bg-purple-50/60",
-	pink: "bg-pink-50/60",
-	gray: "bg-gray-50/60",
+/**
+ * Canonical hex value for each named palette color, used to pre-fill the
+ * native color-picker (`<input type="color">`) when the user switches from a
+ * preset to a custom color.
+ */
+export const NODE_COLOR_HEX: Record<NodeColorName, string> = {
+	red: "#f87171",
+	orange: "#fb923c",
+	yellow: "#facc15",
+	green: "#22c55e",
+	blue: "#60a5fa",
+	purple: "#c084fc",
+	pink: "#f472b6",
+	gray: "#9ca3af",
 };

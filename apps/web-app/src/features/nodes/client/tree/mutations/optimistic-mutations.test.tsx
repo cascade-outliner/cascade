@@ -78,6 +78,7 @@ function row(
 		recurrence: null,
 		tags: [],
 		icon: null,
+		color: null,
 		...overrides,
 	};
 }
@@ -348,6 +349,7 @@ describe("optimistic node mutations", () => {
 			status: null,
 			tags: [],
 			icon: null,
+			color: null,
 			isBoard: false,
 			parentIsBoard: false,
 			hasChildren: false,

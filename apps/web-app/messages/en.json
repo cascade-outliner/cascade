@@ -612,5 +612,6 @@
 	"outliner_color_purple": "Purple",
 	"outliner_color_pink": "Pink",
 	"outliner_color_gray": "Gray",
-	"tree_history_action_color": "Changed color"
+	"tree_history_action_color": "Changed color",
+	"outliner_color_custom": "Custom…"
 }

@@ -31,13 +31,14 @@ export function useSetColorMutation(queryKey: QueryKey) {
 
 	return (id: string, color: string | null) => {
 		const rows = queryClient.getQueryData<VisibleTreeData>(queryKey)?.rows;
-		const previousColor = rows?.find((row) => row.id === id)?.color ?? null;
+		const foundRow = rows?.find((row) => row.id === id);
+		const previousColor = foundRow?.color ?? null;
 
 		rawSetColor(id, color);
 
-		if (previousColor !== undefined) {
+		if (foundRow !== undefined) {
 			undoStore.push({
-				undo: () => rawSetColor(id, previousColor ?? null),
+				undo: () => rawSetColor(id, previousColor),
 				redo: () => rawSetColor(id, color),
 			});
 		}

@@ -46,6 +46,7 @@ const root: FlatNodeRow = {
 	dueDate: null,
 	dueTime: null,
 	icon: null,
+	color: null,
 	tags: [],
 };
 
@@ -61,6 +62,7 @@ function child(id: string, order: string): FlatNodeRow {
 		dueDate: null,
 		dueTime: null,
 		icon: null,
+		color: null,
 		tags: [],
 	};
 }

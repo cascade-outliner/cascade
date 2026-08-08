@@ -30,6 +30,7 @@ function row(
 		dueDate: dueDate ? formatCalendarDate(dueDate) : null,
 		dueTime: null,
 		icon: null,
+		color: null,
 		tags: [],
 		depth,
 		path: [id],

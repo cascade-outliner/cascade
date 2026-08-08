@@ -88,6 +88,7 @@ function createOutlinerLabels(): OutlinerLabels {
 		setColor: m.outliner_set_color(),
 		changeColor: m.outliner_change_color(),
 		colorNone: m.outliner_color_none(),
+		colorCustom: m.outliner_color_custom(),
 		colorLabels: {
 			red: m.outliner_color_red(),
 			orange: m.outliner_color_orange(),

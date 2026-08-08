@@ -1,7 +1,8 @@
 # Changelog
 
 ## 2026-08-08
-- [feat] Settings now has a Features page where capabilities can be enabled on demand, including search, icons, tasks, due dates, recurrence, priority, tags, boards, statuses, every “Convert into” target, and duplicate. Disabled features preserve existing data while hiding their controls and blocking edits; the default preset keeps paragraphs, tasks, and duplicate enabled.
+- [feat] Nodes can now be assigned a color label — choose from a small preset palette or pick any custom color via the system color picker. The chosen color appears as a left-border tint on the row in the tree view for at-a-glance visual categorization. Color is accessible under the "Set color" context-menu entry and is undoable/redoable like other node properties. [#656](https://github.com/cascade-outliner/cascade/issues/656)
+- [feat] Settings now has a Features page where capabilities can be enabled on demand, including search, icons, tasks, due dates, recurrence, priority, tags, boards, statuses, every "Convert into" target, and duplicate. Disabled features preserve existing data while hiding their controls and blocking edits; the default preset keeps paragraphs, tasks, and duplicate enabled.
 
 ## 2026-08-07
 - [feat] Boards now have their own independent set of status columns instead of sharing one global list — creating, renaming, recoloring, hiding, or deleting a status on one board no longer affects any other board. A hidden status's column stays visible on the board (dimmed) so its cards are never displaced, but it drops out of the "set status" picker for new assignments; unhiding restores it to full opacity. Toggle a column's visibility right from its header, or manage a board's statuses from its "Manage columns" button (moved out of account-wide Settings). [#667](https://github.com/cascade-outliner/cascade/issues/667)

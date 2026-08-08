@@ -2,7 +2,6 @@ import { z } from "zod";
 import type { CalendarDateString } from "../../dates/calendar-date";
 import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceRule } from "../../dates/recurrence";
-import type { NodeColorName } from "./node-color";
 import type { PriorityName } from "./node-priority";
 import type { StatusSummary } from "./node-statuses";
 
@@ -27,8 +26,8 @@ export interface FlatNodeRow {
 	tags: string[];
 	/** A single emoji, or `null` for no custom icon (see #557). */
 	icon: string | null;
-	/** A named color label, or `null` for no color (see #656). */
-	color?: NodeColorName | null;
+	/** A named palette color or custom hex string (`#rrggbb`), or `null` for no color (see #656). */
+	color: string | null;
 	/** Whether this node's own detail page renders its direct children as a
 	 * status-grouped board instead of the tree, or `false`/absent for the
 	 * default tree (see #455). */

@@ -25,6 +25,7 @@ function collapsedChain(length: number): VisibleNodeRow[] {
 			dueDate: null,
 			dueTime: null,
 			icon: null,
+			color: null,
 			tags: [],
 			depth: i,
 			path: [String(i)],

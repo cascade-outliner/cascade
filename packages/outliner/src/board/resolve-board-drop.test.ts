@@ -16,6 +16,7 @@ function card(id: string): VisibleNodeRow {
 		dueTime: null,
 		recurrence: null,
 		icon: null,
+		color: null,
 		tags: [],
 		status: null,
 		depth: 0,

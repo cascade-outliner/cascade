@@ -12,11 +12,12 @@ import { NodeEditor } from "../../editor/components/node-editor";
 import { getBlockType } from "../../editor/lexical/content/lexical-content";
 import { allNodeCapabilities } from "../../features/model/node-capabilities";
 import { defaultOutlinerFeatures } from "../../features/registry/default-outliner-features";
-import {
-	NODE_COLOR_BORDER,
-	isNodeColorName,
-} from "../../nodes/model/node-color";
 import { NodeActions } from "../../nodes/components/node-actions";
+import {
+	isHexColor,
+	isNodeColorName,
+	NODE_COLOR_BORDER,
+} from "../../nodes/model/node-color";
 import { RowDragAndDrop } from "../drag-and-drop/row-drag-and-drop";
 import type { VirtualTreeRowProps } from "../model/virtual-tree.types";
 import {
@@ -49,8 +50,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		(capabilities.has("board") && row.isBoard) ||
 		(row.hasChildren && props.hasVisibleChildren);
 
-	// Color label (#656): apply a left-border tint when a named color is set.
+	// Color label (#656): apply a left-border tint when a color is set.
+	// Palette names map to a Tailwind class; custom hex values use an inline style.
 	const colorName = isNodeColorName(row.color) ? row.color : null;
+	const colorHex = !colorName && isHexColor(row.color) ? row.color : null;
 	const colorBorderClass = colorName ? NODE_COLOR_BORDER[colorName] : null;
 
 	// Candidate motion (issue #509): animate this row's own transform via
@@ -150,12 +153,14 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			aria-setsize={position?.setSize}
 			className={twMerge(
 				"top-0 left-0 w-full absolute",
-				colorBorderClass && `border-l-2 ${colorBorderClass}`,
+				(colorBorderClass || colorHex) && "border-l-2",
+				colorBorderClass,
 				props.isHidden && "hidden",
 				props.isContext && "opacity-45",
 			)}
 			style={{
 				transform: `translateY(${start}px)`,
+				...(colorHex ? { borderLeftColor: colorHex } : {}),
 			}}
 		>
 			<RowDragAndDrop

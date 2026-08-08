@@ -53,6 +53,7 @@ const row: FlatNodeRow = {
 	recurrence: null,
 	tags: [],
 	icon: null,
+	color: null,
 };
 
 const queryKey = ["nodes", "visibleTree"];
@@ -210,6 +211,7 @@ describe("useVisibleTree.add/addAfter", () => {
 		status: null,
 		tags: [],
 		icon: null,
+		color: null,
 		isBoard: false,
 		parentIsBoard: false,
 		hasChildren: false,

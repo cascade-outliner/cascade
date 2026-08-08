@@ -1,5 +1,4 @@
 import { user } from "@cascade/auth/schema";
-import type { NodeColorName } from "@cascade/outliner/node-color";
 import type { PriorityName } from "@cascade/outliner/node-priority";
 import type { NodeMetadata, NodeTypeName } from "@cascade/outliner/node-types";
 import type { RecurrenceRule } from "@cascade/outliner/recurrence";
@@ -113,8 +112,8 @@ export const nodes = pgTable(
 		recurrence: jsonb("recurrence").$type<RecurrenceRule>(),
 		/** A single emoji used as this node's custom icon (see #557). */
 		icon: text(),
-		/** A named color label for at-a-glance visual categorization (see #656). */
-		color: text().$type<NodeColorName>(),
+		/** A named palette color or custom hex string for visual categorization (see #656). */
+		color: text(),
 		/**
 		 * A fixed priority level (`low`/`medium`/`high`/`urgent`), or `null`
 		 * for no priority (see #576). Top-level rather than inside `metadata`

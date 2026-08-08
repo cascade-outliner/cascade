@@ -54,6 +54,7 @@ export interface OutlinerLabels {
 	setColor: string;
 	changeColor: string;
 	colorNone: string;
+	colorCustom: string;
 	colorLabels: Record<NodeColorName, string>;
 	setStatus: string;
 	changeStatus: string;

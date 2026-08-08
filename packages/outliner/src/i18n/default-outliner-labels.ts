@@ -62,6 +62,7 @@ export const defaultOutlinerLabels: OutlinerLabels = {
 	setColor: "Set color",
 	changeColor: "Change color",
 	colorNone: "No color",
+	colorCustom: "Custom…",
 	colorLabels: {
 		red: "Red",
 		orange: "Orange",

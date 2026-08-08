@@ -20,10 +20,7 @@ export function ColorMenuItem({ ctx }: { ctx: ColorFeatureContext }) {
 				{ctx.color ? labels.changeColor : labels.setColor}
 			</ContextMenuSubTrigger>
 			<ContextMenuSubContent>
-				<ColorPicker
-					color={ctx.color ?? null}
-					onChange={ctx.onSetColor}
-				/>
+				<ColorPicker color={ctx.color ?? null} onChange={ctx.onSetColor} />
 			</ContextMenuSubContent>
 		</ContextMenuSub>
 	);

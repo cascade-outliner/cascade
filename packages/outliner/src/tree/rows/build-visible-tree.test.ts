@@ -20,6 +20,7 @@ function row(
 		dueTime: null,
 		recurrence: null,
 		icon: null,
+		color: null,
 		tags: [],
 		...overrides,
 	};
