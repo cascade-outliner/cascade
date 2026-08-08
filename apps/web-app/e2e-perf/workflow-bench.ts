@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import { allNodeCapabilities } from "@cascade/outliner/node-capabilities";
 import { textToLexicalContent } from "@/db/seed-tree";
 import { cliArgs } from "./support/cli-args";
 import { createPerfClient, type PerfOrpcClient } from "./support/http-client";
@@ -67,6 +68,9 @@ async function runWorkflow(
 
 async function main() {
 	const client = await createPerfClient();
+	await client.settings.update({
+		enabledNodeCapabilities: [...allNodeCapabilities],
+	});
 
 	console.log("Setting up scratch parents...");
 	const parentA = await client.nodes.create({ parentId: null, afterId: null });
