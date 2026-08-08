@@ -9,4 +9,7 @@ export interface FiltersBarProps {
 	existingStatuses?: StatusSummary[];
 	onFiltersChange: (filters: NodeFilters) => void;
 	completedFilterMode?: "hide" | "show";
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 }
+
+import type { NodeCapabilityId } from "../../features/model/node-capabilities";

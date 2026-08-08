@@ -5,6 +5,7 @@ import {
 	nodes,
 	statuses,
 } from "@/features/nodes/server/persistence/node-tables";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -18,6 +19,7 @@ export const setNodeStatus = authed
 	})
 	.input(setNodeStatusInputSchema)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "status");
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [before] = await transaction

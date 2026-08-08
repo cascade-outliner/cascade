@@ -7,6 +7,10 @@ import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import { getBlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
 import type { FocusPoint } from "../../editor/model/focus-point";
+import {
+	allNodeCapabilities,
+	type NodeCapabilityId,
+} from "../../features/model/node-capabilities";
 import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
 import { defaultOutlinerFeatures } from "../../features/registry/default-outliner-features";
 import { NodeActions } from "../../nodes/components/node-actions";
@@ -27,6 +31,7 @@ interface BoardCardProps {
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
 	/** Row/context-menu features to render; see `BoardViewProps.features`. */
 	features?: OutlinerFeature[];
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 	existingTags: TagSummary[];
 	existingStatuses: StatusSummary[];
 	onToggleTask: (id: string, completed: boolean) => void;
@@ -74,6 +79,7 @@ export function BoardCard({
 	columnStatusId,
 	renderNodeLink,
 	features = defaultOutlinerFeatures,
+	capabilities = allNodeCapabilities,
 	existingTags,
 	existingStatuses,
 	onToggleTask,
@@ -137,6 +143,7 @@ export function BoardCard({
 		onDeleteTag,
 		onToggleTask: (nextCompleted: boolean) =>
 			onToggleTask(row.id, nextCompleted),
+		recurrenceEnabled: capabilities.has("recurrence"),
 	};
 	const menuItems = features.flatMap((feature) => {
 		const node = feature.renderContextMenuItem?.(featureCtx);
@@ -173,6 +180,7 @@ export function BoardCard({
 					onDuplicate={() => onDuplicate(row.id)}
 					onDelete={() => onDelete(row.id)}
 					menuItems={menuItems}
+					capabilities={capabilities}
 					className="flex min-w-0 flex-1 flex-col items-stretch gap-2"
 				>
 					<div className="flex items-start gap-2">

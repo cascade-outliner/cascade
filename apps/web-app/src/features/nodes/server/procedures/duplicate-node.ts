@@ -12,6 +12,7 @@ import {
 	insertSubtreeCopy,
 	prepareSubtreeCopy,
 } from "@/features/nodes/server/persistence/subtree-copy";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	captureSubtree,
 	createHistoryRecorder,
@@ -33,6 +34,7 @@ export const duplicateNode = authed
 	})
 	.input(z.object({ id: z.string() }))
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "duplicate");
 		const userId = context.user.id;
 
 		return await db.transaction(async (tx) => {

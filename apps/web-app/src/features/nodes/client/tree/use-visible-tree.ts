@@ -42,6 +42,7 @@ export function useVisibleTree(
 	 * per-board statuses) — pass the board node's own id. Omit for the root
 	 * outline or a non-board node's tree, where status isn't offered. */
 	boardId?: string,
+	boardsEnabled = true,
 ): VisibleTree {
 	const options = visibleTreeOptions();
 	const { data } = useSuspenseQuery(options);
@@ -58,8 +59,9 @@ export function useVisibleTree(
 		() =>
 			walkVisibleTree(childrenIndex, rootId, {
 				includeCollapsed: includeCollapsedDescendants,
+				treatBoardsAsTrees: !boardsEnabled,
 			}),
-		[childrenIndex, rootId, includeCollapsedDescendants],
+		[childrenIndex, rootId, includeCollapsedDescendants, boardsEnabled],
 	);
 
 	const toggle = useToggleMutation(options.queryKey);

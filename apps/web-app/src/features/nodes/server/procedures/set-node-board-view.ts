@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { authed } from "@/orpc/context";
 import { nodes } from "../persistence/node-tables";
 
@@ -13,6 +14,9 @@ export const setNodeBoardView = authed
 	})
 	.input(z.object({ id: z.string(), isBoard: z.boolean() }))
 	.handler(async ({ input, context, errors }) => {
+		if (input.isBoard) {
+			await assertNodeCapabilityEnabled(context.user.id, "board");
+		}
 		const updated = await db
 			.update(nodes)
 			.set({ isBoard: input.isBoard })

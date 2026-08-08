@@ -6,6 +6,7 @@ import {
 	dueTimeSchema,
 } from "@/features/nodes/model/due-date.schema";
 import { nodes } from "@/features/nodes/server/persistence/node-tables";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -24,6 +25,7 @@ export const setNodeDueDate = authed
 		}),
 	)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "due-date");
 		const userId = context.user.id;
 		// A date-less due date can't carry a time of day.
 		const dueTime = input.dueDate ? (input.dueTime ?? null) : null;

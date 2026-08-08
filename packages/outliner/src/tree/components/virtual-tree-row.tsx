@@ -10,6 +10,7 @@ import { twMerge } from "tailwind-merge";
 import { parseCalendarDate } from "../../dates/calendar-date";
 import { NodeEditor } from "../../editor/components/node-editor";
 import { getBlockType } from "../../editor/lexical/content/lexical-content";
+import { allNodeCapabilities } from "../../features/model/node-capabilities";
 import { defaultOutlinerFeatures } from "../../features/registry/default-outliner-features";
 import { NodeActions } from "../../nodes/components/node-actions";
 import { RowDragAndDrop } from "../drag-and-drop/row-drag-and-drop";
@@ -29,6 +30,7 @@ export type { VirtualTreeRowProps } from "../model/virtual-tree.types";
 export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const { row, start, index, measureElement } = props;
 	const features = props.features ?? defaultOutlinerFeatures;
+	const capabilities = props.capabilities ?? allNodeCapabilities;
 	const completed = row.type === "task" && (row.metadata?.completed ?? false);
 	// row.dueDate is a `YYYY-MM-DD` calendar date, not a Date; parse it here
 	// (in local time, not UTC) so every consumer below can rely on a real
@@ -40,7 +42,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	// have children" — a board with zero cards still needs a toggle to
 	// reveal its (empty) board, which `hasChildren` alone would hide.
 	const showToggle =
-		row.isBoard || (row.hasChildren && props.hasVisibleChildren);
+		(capabilities.has("board") && row.isBoard) ||
+		(row.hasChildren && props.hasVisibleChildren);
 
 	// Candidate motion (issue #509): animate this row's own transform via
 	// WAAPI when its virtualized offset changes (drag reorder, indent/
@@ -115,6 +118,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		onTagClick: props.onTagClick,
 		onDeleteTag: props.onDeleteTag,
 		onToggleTask: props.onToggleTask,
+		recurrenceEnabled: capabilities.has("recurrence"),
 	};
 	const menuItems = features.flatMap((feature) => {
 		const node = feature.renderContextMenuItem?.(featureCtx);
@@ -160,6 +164,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					onDuplicate={props.onDuplicate}
 					onDelete={props.onDelete}
 					menuItems={menuItems}
+					capabilities={capabilities}
 					viewTransitionName={`node-${row.id}`}
 				>
 					<NodeToggle
@@ -209,11 +214,14 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 					</div>
 				</NodeActions>
 			</RowDragAndDrop>
-			{row.isBoard && row.expanded && props.renderBoard && (
-				<div style={{ paddingLeft: (row.depth + 1) * props.indentSize }}>
-					{props.renderBoard(row)}
-				</div>
-			)}
+			{capabilities.has("board") &&
+				row.isBoard &&
+				row.expanded &&
+				props.renderBoard && (
+					<div style={{ paddingLeft: (row.depth + 1) * props.indentSize }}>
+						{props.renderBoard(row)}
+					</div>
+				)}
 		</div>
 	);
 }

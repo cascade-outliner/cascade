@@ -13,7 +13,7 @@ import { DesktopTabList } from "./desktop-tab-list";
 import { MobileTabNav } from "./mobile-tab-nav";
 import { SettingsPanels } from "./settings-panels";
 import type { SettingsTab } from "./tab-groups";
-import { tabGroups } from "./tab-groups";
+import { visibleTabGroups } from "./tab-groups";
 
 export interface UserSettingsDialogViewProps {
 	user: UserMenuUser;
@@ -56,7 +56,8 @@ export function UserSettingsDialogView({
 	onReplayTour,
 	isReplayingTour,
 }: UserSettingsDialogViewProps) {
-	const activeTabLabel = tabGroups
+	const tagsEnabled = settings.enabledNodeCapabilities.includes("tags");
+	const activeTabLabel = visibleTabGroups(tagsEnabled)
 		.flatMap((group) => group.tabs)
 		.find((tab) => tab.value === activeTab)
 		?.label();
@@ -86,13 +87,14 @@ export function UserSettingsDialogView({
 						className="relative flex min-h-0 flex-1 flex-col sm:grid sm:grid-cols-[14rem_minmax(0,1fr)]"
 					>
 						<MobileTabNav
+							tagsEnabled={tagsEnabled}
 							mobilePageOpen={mobilePageOpen}
 							onSelectTab={(value) => {
 								selectTab(value);
 								openMobilePage();
 							}}
 						/>
-						<DesktopTabList />
+						<DesktopTabList tagsEnabled={tagsEnabled} />
 						<div
 							className={`absolute inset-0 flex min-h-0 min-w-0 flex-1 flex-col sm:visible sm:relative sm:inset-auto sm:transition-none ${dialogPanelMotion({ phase: mobilePageOpen ? "enter" : "exit" })} ${
 								mobilePageOpen

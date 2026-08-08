@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -25,6 +26,14 @@ export const updateNodeContent = authed
 			if (!before) throw errors.NOT_FOUND();
 			if (JSON.stringify(before.content) === JSON.stringify(input.content))
 				return;
+			const beforeBlockType = getBlockType(before.content);
+			const nextBlockType = getBlockType(input.content);
+			if (beforeBlockType !== nextBlockType) {
+				await assertNodeCapabilityEnabled(
+					userId,
+					blockTypeCapability(nextBlockType),
+				);
+			}
 
 			const history = await createHistoryRecorder(transaction, userId);
 			await transaction
@@ -45,3 +54,6 @@ export const updateNodeContent = authed
 			});
 		});
 	});
+
+import { getBlockType } from "@cascade/outliner/lexical-content";
+import { blockTypeCapability } from "@cascade/outliner/node-capabilities";

@@ -1,6 +1,7 @@
 import { normalizeTags } from "@cascade/outliner/node-tags";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -15,6 +16,7 @@ export const setNodeTags = authed
 	})
 	.input(setNodeTagsInputSchema)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "tags");
 		const userId = context.user.id;
 		const names = normalizeTags(input.tags).sort((a, b) => a.localeCompare(b));
 

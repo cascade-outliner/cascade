@@ -23,6 +23,28 @@ describe("settingsPatchSchema", () => {
 		});
 	});
 
+	it("canonicalizes capability dependencies and rejects unknown capabilities", () => {
+		expect(
+			settingsPatchSchema.parse({
+				enabledNodeCapabilities: ["recurrence", "status"],
+			}),
+		).toEqual({
+			enabledNodeCapabilities: [
+				"task",
+				"due-date",
+				"recurrence",
+				"board",
+				"status",
+				"paragraph",
+			],
+		});
+		expect(
+			settingsPatchSchema.safeParse({
+				enabledNodeCapabilities: ["teleport"],
+			}).success,
+		).toBe(false);
+	});
+
 	it("accepts a full settings object", () => {
 		const full = {
 			theme: "catppuccin-mocha",

@@ -9,6 +9,7 @@ export interface DueDateFeatureContext {
 	dueTime: CalendarTimeString | null;
 	completed: boolean;
 	isTask: boolean;
+	recurrenceEnabled: boolean;
 	recurrence: RecurrenceRule | null;
 	onSetDueDate: (date: Date | null, time: CalendarTimeString | null) => void;
 	onSetRecurrence: (recurrence: RecurrenceInput | null) => void;
@@ -25,7 +26,7 @@ export const dueDateFeature: OutlinerFeature<DueDateFeatureContext> = {
 				dueTime={ctx.dueTime}
 				completed={ctx.completed}
 				recurrence={ctx.recurrence}
-				recurrenceEnabled={ctx.isTask}
+				recurrenceEnabled={ctx.isTask && ctx.recurrenceEnabled}
 				onChange={ctx.onSetDueDate}
 				onRecurrenceChange={ctx.onSetRecurrence}
 			/>

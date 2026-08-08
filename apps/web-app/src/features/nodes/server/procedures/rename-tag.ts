@@ -1,5 +1,6 @@
 import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { createHistoryRecorder } from "@/features/tree-history/server/history-persistence";
 import { authed } from "@/orpc/context";
 import { renameTagInputSchema } from "../../model/tag-name.schema";
@@ -12,6 +13,7 @@ export const renameTag = authed
 	})
 	.input(renameTagInputSchema)
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "tags");
 		const userId = context.user.id;
 
 		await db.transaction(async (transaction) => {

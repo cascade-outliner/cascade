@@ -2,6 +2,7 @@ import type { StatusWithUsage } from "@cascade/outliner/node-statuses";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { updateStatusInputSchema } from "@/features/nodes/model/status.schema";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { authed } from "@/orpc/context";
 import { statuses } from "../persistence/node-tables";
 
@@ -22,6 +23,7 @@ export const updateStatus = authed
 			context,
 			errors,
 		}): Promise<Omit<StatusWithUsage, "count">> => {
+			await assertNodeCapabilityEnabled(context.user.id, "status");
 			const userId = context.user.id;
 
 			return db.transaction(async (transaction) => {

@@ -7,6 +7,7 @@ import {
 } from "@/features/nodes/model/node-search-text";
 import { toNodeSlug } from "@/features/nodes/model/node-slug";
 import { quickOpenSnippet } from "@/features/nodes/model/quick-open";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { authed } from "@/orpc/context";
 
 const RESULT_LIMIT = 50;
@@ -35,6 +36,7 @@ const querySchema = z
 export const quickOpen = authed
 	.input(z.object({ query: querySchema }))
 	.handler(async ({ input, context }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "search");
 		const userId = context.user.id;
 		const matchCondition = /[\\%_]/.test(input.query)
 			? sql`strpos(n.search_text, ${input.query}) > 0`

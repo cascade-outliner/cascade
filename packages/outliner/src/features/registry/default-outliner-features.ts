@@ -1,5 +1,6 @@
 import { dueDateFeature } from "../due-date/due-date-feature";
 import { iconFeature } from "../icon/icon-feature";
+import type { NodeCapabilityId } from "../model/node-capabilities";
 import type { OutlinerFeature } from "../model/outliner-feature.types";
 import { priorityFeature } from "../priority/priority-feature";
 import { statusFeature } from "../status/status-feature";
@@ -18,3 +19,11 @@ export const defaultOutlinerFeatures: OutlinerFeature[] = [
 	statusFeature,
 	tagsFeature,
 ];
+
+export function enabledOutlinerFeatures(
+	capabilities: ReadonlySet<NodeCapabilityId>,
+): OutlinerFeature[] {
+	return defaultOutlinerFeatures.filter((feature) =>
+		capabilities.has(feature.id as NodeCapabilityId),
+	);
+}

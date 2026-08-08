@@ -13,7 +13,10 @@ vi.mock("@tanstack/react-router", () => ({
 	useRouter: () => ({ navigate }),
 }));
 
-let settings = { dueDateNotificationsEnabled: true };
+let settings = {
+	dueDateNotificationsEnabled: true,
+	enabledNodeCapabilities: ["due-date"],
+};
 vi.mock("@/features/settings/client/settings-context", () => ({
 	useSettings: () => ({ settings }),
 }));
@@ -60,7 +63,10 @@ describe("useDueDateNotifications", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date(2026, 6, 1, 9, 0, 0));
-		settings = { dueDateNotificationsEnabled: true };
+		settings = {
+			dueDateNotificationsEnabled: true,
+			enabledNodeCapabilities: ["due-date"],
+		};
 		listDueSoonQueryFn.mockReset();
 		vi.mocked(toast.info).mockReset();
 		navigate.mockReset();
@@ -94,7 +100,10 @@ describe("useDueDateNotifications", () => {
 	});
 
 	it("does not schedule anything while disabled", async () => {
-		settings = { dueDateNotificationsEnabled: false };
+		settings = {
+			dueDateNotificationsEnabled: false,
+			enabledNodeCapabilities: ["due-date"],
+		};
 		const due = inMinutes(5);
 		listDueSoonQueryFn.mockResolvedValue({
 			tasks: [{ id: "task-1", slug: "task-1-abc", label: "Ship it", ...due }],

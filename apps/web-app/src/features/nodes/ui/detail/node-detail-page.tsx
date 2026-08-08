@@ -8,6 +8,7 @@ import {
 	useDeleteTag,
 	useExistingTags,
 } from "#/features/nodes/client/tags/use-existing-tags";
+import { useNodeCapabilities } from "#/features/settings/client/settings-context";
 import { orpc } from "#/orpc/client";
 import { NodeBoard } from "./node-board";
 import { useNodeDetailMutations } from "./node-detail.queries";
@@ -17,6 +18,7 @@ import { NodeTree } from "./node-tree";
 export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 	const options = orpc.nodes.get.queryOptions({ input: { id: nodeId } });
 	const { data: node } = useSuspenseQuery(options);
+	const capabilities = useNodeCapabilities();
 	const existingTags = useExistingTags();
 	const deleteTag = useDeleteTag();
 	// Status is per-board (see per-board statuses): this node's own header
@@ -57,7 +59,7 @@ export function NodeDetailPage({ nodeId }: { nodeId: string }) {
 
 	return (
 		<Suspense fallback={<TreeSkeleton />}>
-			{node.isBoard ? (
+			{node.isBoard && capabilities.has("board") ? (
 				<NodeBoard nodeId={nodeId} header={header} />
 			) : (
 				<NodeTree nodeId={nodeId} header={header} />

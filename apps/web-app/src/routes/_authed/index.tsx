@@ -1,17 +1,15 @@
-import {
-	defaultOutlinerFeatures,
-	statusFeature,
-} from "@cascade/outliner/features";
+import { enabledOutlinerFeatures } from "@cascade/outliner/features";
 import { getRowVisibility } from "@cascade/outliner/filter-visibility";
 import { FiltersBar } from "@cascade/outliner/filters-bar";
 import {
 	activeDueDateRange,
+	filtersForCapabilities,
 	hasActiveDueDateFilter,
 } from "@cascade/outliner/node-filters";
 import { TreeSkeleton } from "@cascade/outliner/tree-skeleton";
 import { VirtualTree } from "@cascade/outliner/virtual-tree";
 import { createFileRoute } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { GenericErrorComponent } from "@/app/generic-error";
 import {
 	useDelayedCompletionHide,
@@ -29,14 +27,10 @@ import {
 } from "@/features/nodes/client/tree/use-visible-tree";
 import { renderEmbeddedBoard } from "@/features/nodes/ui/board/embedded-board";
 import { NodeLink } from "@/features/nodes/ui/node-link";
-import { useSettings } from "@/features/settings/client/settings-context";
-
-// Status is per-board (see per-board statuses): the root outline isn't any
-// single board's direct-children view, so it doesn't offer status
-// assignment or filtering at all.
-const featuresWithoutStatus = defaultOutlinerFeatures.filter(
-	(feature) => feature !== statusFeature,
-);
+import {
+	useNodeCapabilities,
+	useSettings,
+} from "@/features/settings/client/settings-context";
 
 export const Route = createFileRoute("/_authed/")({
 	loader: ({ context: { queryClient } }) => {
@@ -53,10 +47,31 @@ export const Route = createFileRoute("/_authed/")({
 
 function RootTree() {
 	const { settings } = useSettings();
-	const [filters, setFilters] = useNodeFilters(settings.hideCompletedByDefault);
+	const capabilities = useNodeCapabilities();
+	const features = useMemo(
+		() =>
+			enabledOutlinerFeatures(capabilities).filter(
+				(feature) => feature.id !== "status",
+			),
+		[capabilities],
+	);
+	const filterCapabilities = useMemo(() => {
+		const next = new Set(capabilities);
+		next.delete("status");
+		return next;
+	}, [capabilities]);
+	const [rawFilters, setFilters] = useNodeFilters(
+		settings.hideCompletedByDefault,
+	);
+	const filters = filtersForCapabilities(rawFilters, filterCapabilities);
 	const includeCollapsedDescendants = hasActiveDueDateFilter(filters);
 	const dueDateRange = activeDueDateRange(filters);
-	const tree = useVisibleTree(null, includeCollapsedDescendants);
+	const tree = useVisibleTree(
+		null,
+		includeCollapsedDescendants,
+		undefined,
+		capabilities.has("board"),
+	);
 	const completionHide = useDelayedCompletionHide(
 		tree.rows,
 		filters.hideCompleted,
@@ -73,7 +88,8 @@ function RootTree() {
 			tree={tree}
 			className="h-full"
 			indentSize={settings.indentSize}
-			features={featuresWithoutStatus}
+			features={features}
+			capabilities={filterCapabilities}
 			renderNodeLink={(node) => (
 				<NodeLink id={node.id} content={node.content} />
 			)}
@@ -87,6 +103,7 @@ function RootTree() {
 					completedFilterMode={
 						settings.hideCompletedByDefault ? "show" : "hide"
 					}
+					capabilities={capabilities}
 				/>
 			}
 			hiddenRowIds={visibility.hiddenIds}

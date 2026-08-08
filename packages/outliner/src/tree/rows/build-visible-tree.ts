@@ -54,7 +54,10 @@ function sortedChildrenOf(
 export function walkVisibleTree(
 	index: ChildrenIndex,
 	rootId: string | null,
-	options: { includeCollapsed?: boolean } = {},
+	options: {
+		includeCollapsed?: boolean;
+		treatBoardsAsTrees?: boolean;
+	} = {},
 ): VisibleNodeRow[] {
 	const result: VisibleNodeRow[] = [];
 
@@ -77,7 +80,10 @@ export function walkVisibleTree(
 			// itself (its own detail page, or the embedded board's own card
 			// list) is unaffected: this check only guards *its children's*
 			// recursion, not the walk that starts at the board node itself.
-			if (!child.isBoard && (options.includeCollapsed || child.expanded)) {
+			if (
+				(!child.isBoard || options.treatBoardsAsTrees) &&
+				(options.includeCollapsed || child.expanded)
+			) {
 				walk(child.id, depth + 1, path);
 			}
 		});

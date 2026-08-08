@@ -1,3 +1,4 @@
+import { allNodeCapabilities } from "@cascade/outliner/node-capabilities";
 import { call } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -19,6 +20,7 @@ import {
 	updateNodeContent,
 } from "@/features/nodes/server/procedures";
 import { requestPremiumSeat } from "@/features/premium/server/premium-procedures";
+import { userSettings } from "@/features/settings/server/settings-table";
 import type { ORPCContext } from "@/orpc/context";
 import {
 	createTestUser,
@@ -70,6 +72,10 @@ beforeEach(async () => {
 	const testUser = await createTestUser();
 	userId = testUser.user.id;
 	context = testUser.context;
+	await db.insert(userSettings).values({
+		userId,
+		settings: { enabledNodeCapabilities: [...allNodeCapabilities] },
+	});
 });
 
 afterEach(async () => {

@@ -4,6 +4,7 @@ import type { CalendarTimeString } from "../../dates/calendar-time";
 import type { RecurrenceInput } from "../../dates/recurrence";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
+import type { NodeCapabilityId } from "../../features/model/node-capabilities";
 import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
 import { statusDot } from "../../features/status/components/status-pill.styles";
 import { useOutlinerLabels } from "../../i18n/outliner-labels-context";
@@ -24,6 +25,7 @@ interface BoardColumnProps {
 	column: BoardColumnData;
 	renderNodeLink: (node: Pick<VisibleNodeRow, "id" | "content">) => ReactNode;
 	features?: OutlinerFeature[];
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 	existingTags: TagSummary[];
 	existingStatuses: StatusSummary[];
 	onToggleTask: (id: string, completed: boolean) => void;
@@ -65,6 +67,7 @@ export function BoardColumn({
 	column,
 	renderNodeLink,
 	features,
+	capabilities,
 	existingTags,
 	existingStatuses,
 	onToggleTask,
@@ -144,6 +147,7 @@ export function BoardColumn({
 							columnStatusId={column.status?.id ?? null}
 							renderNodeLink={renderNodeLink}
 							features={features}
+							capabilities={capabilities}
 							existingTags={existingTags}
 							existingStatuses={existingStatuses}
 							onToggleTask={onToggleTask}

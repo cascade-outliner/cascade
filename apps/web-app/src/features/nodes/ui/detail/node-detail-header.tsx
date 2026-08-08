@@ -15,6 +15,7 @@ import type { RecurrenceInput } from "@cascade/outliner/recurrence";
 import { Popover, PopoverContent, PopoverTrigger } from "@cascade/ui/popover";
 import { SmileyIcon } from "@phosphor-icons/react/ssr";
 import { Breadcrumbs } from "#/features/nodes/ui/breadcrumbs";
+import { useNodeCapabilities } from "#/features/settings/client/settings-context";
 import type { NodeDetailData } from "./node-detail.types";
 
 function NodeIconTrigger({
@@ -78,6 +79,7 @@ export function NodeDetailHeader({
 	onPriorityChange: (priority: PriorityName | null) => void;
 	onStatusChange: (statusId: string | null) => void;
 }) {
+	const capabilities = useNodeCapabilities();
 	return (
 		<>
 			<Breadcrumbs nodeId={node.id} />
@@ -86,42 +88,50 @@ export function NodeDetailHeader({
 				className="group/node mb-8 flex flex-col gap-3 text-2xl"
 			>
 				<div className="flex items-center gap-3">
-					<NodeIconTrigger icon={node.icon} onChange={onIconChange} />
-					{node.type === "task" && (
+					{capabilities.has("icon") && (
+						<NodeIconTrigger icon={node.icon} onChange={onIconChange} />
+					)}
+					{capabilities.has("task") && node.type === "task" && (
 						<NodeCheckbox metadata={node.metadata} onToggle={onToggleTask} />
 					)}
 					<LexicalReadView content={toLexicalContent(node.content)} />
 				</div>
 
 				<div className="flex items-start gap-1">
-					{dueDate && (
+					{capabilities.has("due-date") && dueDate && (
 						<NodeDueDatePill
 							dueDate={dueDate}
 							dueTime={dueTime}
 							completed={completed}
 							recurrence={node.recurrence}
-							recurrenceEnabled={node.type === "task"}
+							recurrenceEnabled={
+								capabilities.has("recurrence") && node.type === "task"
+							}
 							onChange={onDueDateChange}
 							onRecurrenceChange={onRecurrenceChange}
 						/>
 					)}
-					<NodePriorityControl
-						priority={node.priority}
-						onChange={onPriorityChange}
-					/>
-					{node.parentIsBoard && (
+					{capabilities.has("priority") && (
+						<NodePriorityControl
+							priority={node.priority}
+							onChange={onPriorityChange}
+						/>
+					)}
+					{capabilities.has("status") && node.parentIsBoard && (
 						<NodeStatusControl
 							status={node.status}
 							existingStatuses={existingStatuses}
 							onSelect={onStatusChange}
 						/>
 					)}
-					<NodeTagsControl
-						tags={node.tags}
-						existingTags={existingTags}
-						onChange={onTagsChange}
-						onDeleteTag={onDeleteTag}
-					/>
+					{capabilities.has("tags") && (
+						<NodeTagsControl
+							tags={node.tags}
+							existingTags={existingTags}
+							onChange={onTagsChange}
+							onDeleteTag={onDeleteTag}
+						/>
+					)}
 				</div>
 			</header>
 		</>

@@ -5,6 +5,7 @@ import {
 } from "@cascade/ui/dialog-motion";
 import { XIcon } from "@phosphor-icons/react/ssr";
 import { m } from "#/paraglide/messages.js";
+import { useNodeCapabilities } from "@/features/settings/client/settings-context";
 import { keyboardShortcutGroups } from "../model/keyboard-shortcuts-data";
 import { KeyboardShortcutKeys } from "./keyboard-shortcut-keys";
 
@@ -15,6 +16,7 @@ export function KeyboardShortcutsDialog({
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }) {
+	const capabilities = useNodeCapabilities();
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
@@ -40,15 +42,20 @@ export function KeyboardShortcutsDialog({
 									{group.title()}
 								</h2>
 								<ul className="flex flex-col gap-2">
-									{group.entries.map((entry) => (
-										<li
-											key={entry.description()}
-											className="flex items-center justify-between gap-4 text-sm"
-										>
-											<span>{entry.description()}</span>
-											<KeyboardShortcutKeys hotkeys={entry.hotkeys} />
-										</li>
-									))}
+									{group.entries
+										.filter(
+											(entry) =>
+												!entry.capability || capabilities.has(entry.capability),
+										)
+										.map((entry) => (
+											<li
+												key={entry.description()}
+												className="flex items-center justify-between gap-4 text-sm"
+											>
+												<span>{entry.description()}</span>
+												<KeyboardShortcutKeys hotkeys={entry.hotkeys} />
+											</li>
+										))}
 								</ul>
 							</section>
 						))}

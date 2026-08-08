@@ -33,7 +33,9 @@ interface ScheduledEntry {
  */
 export function useDueDateNotifications() {
 	const { settings } = useSettings();
-	const enabled = settings.dueDateNotificationsEnabled;
+	const enabled =
+		settings.dueDateNotificationsEnabled &&
+		settings.enabledNodeCapabilities.includes("due-date");
 	const enabledRef = useRef(enabled);
 	enabledRef.current = enabled;
 	const router = useRouter();

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { iconSchema } from "@/features/nodes/model/icon.schema";
 import { nodes } from "@/features/nodes/server/persistence/node-tables";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	createHistoryRecorder,
 	historyNodeLabel,
@@ -15,6 +16,7 @@ export const setNodeIcon = authed
 	})
 	.input(z.object({ id: z.string(), icon: iconSchema.nullable() }))
 	.handler(async ({ input, context, errors }) => {
+		await assertNodeCapabilityEnabled(context.user.id, "icon");
 		const userId = context.user.id;
 		await db.transaction(async (transaction) => {
 			const [before] = await transaction

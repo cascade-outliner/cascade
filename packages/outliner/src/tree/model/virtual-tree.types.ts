@@ -4,6 +4,7 @@ import type { RecurrenceInput } from "../../dates/recurrence";
 import type { BlockType } from "../../editor/lexical/content/lexical-content";
 import type { LexicalElementNode } from "../../editor/lexical/model/lexical-node.types";
 import type { FocusPoint } from "../../editor/model/focus-point";
+import type { NodeCapabilityId } from "../../features/model/node-capabilities";
 import type { OutlinerFeature } from "../../features/model/outliner-feature.types";
 import type { PriorityName } from "../../nodes/model/node-priority";
 import type { StatusSummary } from "../../nodes/model/node-statuses";
@@ -58,6 +59,8 @@ export interface VirtualTreeProps {
 	/** Row/context-menu features to render, in order. Defaults to the
 	 * built-in task, due-date, and tags features (`defaultOutlinerFeatures`). */
 	features?: OutlinerFeature[];
+	/** Enabled node capabilities. Defaults to every built-in capability. */
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 }
 
 export interface VirtualTreeRowProps {
@@ -71,6 +74,7 @@ export interface VirtualTreeRowProps {
 	measureElement: (element: HTMLElement | null) => void;
 	/** Row/context-menu features to render; see `VirtualTreeProps.features`. */
 	features?: OutlinerFeature[];
+	capabilities?: ReadonlySet<NodeCapabilityId>;
 	/** All of this user's tags with usage counts, for the tag editor. */
 	existingTags: TagSummary[];
 	/** All of this user's statuses, for the status picker. */

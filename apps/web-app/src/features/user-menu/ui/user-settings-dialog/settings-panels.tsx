@@ -5,6 +5,7 @@ import { TagSettingsPanel } from "@/features/nodes/ui/tag-settings";
 import { SecuritySettingsPanel } from "@/features/sessions/ui/security-settings-panel";
 import type { Settings } from "@/features/settings/model/settings.schema";
 import { AppearanceSettingsPanel } from "@/features/settings/ui/appearance-settings-panel";
+import { FeaturesSettingsPanel } from "@/features/settings/ui/features-settings-panel";
 import { GeneralSettingsPanel } from "@/features/settings/ui/general-settings-panel";
 import { PremiumTab } from "../../../premium/ui/premium-tab";
 import type { UserMenuUser } from "../../model/user-menu.types";
@@ -77,6 +78,13 @@ export function SettingsPanels({
 					onReplayTour={onReplayTour}
 					isReplayingTour={isReplayingTour}
 				/>
+			</SettingsTabPanel>
+			<SettingsTabPanel
+				value="features"
+				heading={m.settings_features_tab()}
+				visited={visitedTabs.has("features")}
+			>
+				<FeaturesSettingsPanel settings={settings} setSetting={setSetting} />
 			</SettingsTabPanel>
 			<SettingsTabPanel
 				value="appearance"

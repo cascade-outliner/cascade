@@ -6,6 +6,7 @@ import { and, count, eq, max, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { createStatusInputSchema } from "@/features/nodes/model/status.schema";
 import { statuses } from "@/features/nodes/server/persistence/node-tables";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import { authed } from "@/orpc/context";
 
 /** Creates a status, appended to the end of the user's list and colored from
@@ -19,6 +20,7 @@ export const createStatus = authed
 	})
 	.input(createStatusInputSchema)
 	.handler(async ({ input, context, errors }): Promise<StatusSummary> => {
+		await assertNodeCapabilityEnabled(context.user.id, "status");
 		const userId = context.user.id;
 
 		return db.transaction(async (transaction) => {

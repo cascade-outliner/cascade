@@ -40,6 +40,7 @@ export function VirtualTreeView({
 	onDeleteTag,
 	onTagClick,
 	features,
+	capabilities,
 	onAddRoot,
 	onMoveDrop,
 	onCreateBelow,
@@ -70,6 +71,7 @@ export function VirtualTreeView({
 	| "onDeleteTag"
 	| "onTagClick"
 	| "features"
+	| "capabilities"
 > & {
 	tree: VisibleTree;
 	labels: OutlinerLabels;
@@ -152,6 +154,7 @@ export function VirtualTreeView({
 										onDeleteTag={onDeleteTag}
 										onTagClick={onTagClick}
 										features={features}
+										capabilities={capabilities}
 										isHidden={hiddenRowIds?.has(row.id) ?? false}
 										isCompletionExiting={
 											completionExitRowIds?.has(row.id) ?? false

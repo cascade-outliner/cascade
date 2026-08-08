@@ -1,11 +1,12 @@
 import { dialogPanelMotion } from "@cascade/ui/dialog-motion";
 import { CaretRightIcon } from "@phosphor-icons/react/ssr";
 import type { SettingsTab } from "./tab-groups";
-import { tabGroups } from "./tab-groups";
+import { visibleTabGroups } from "./tab-groups";
 
 interface MobileTabNavProps {
 	mobilePageOpen: boolean;
 	onSelectTab: (value: SettingsTab["value"]) => void;
+	tagsEnabled: boolean;
 }
 
 /** Small-screen tab list: a full-page menu of settings sections, replaced by
@@ -14,6 +15,7 @@ interface MobileTabNavProps {
 export function MobileTabNav({
 	mobilePageOpen,
 	onSelectTab,
+	tagsEnabled,
 }: MobileTabNavProps) {
 	return (
 		<div
@@ -23,7 +25,7 @@ export function MobileTabNav({
 					: "visible translate-x-0 opacity-100"
 			}`}
 		>
-			{tabGroups.map((group) => (
+			{visibleTabGroups(tagsEnabled).map((group) => (
 				<section key={group.label()} className="mb-6 last:mb-0">
 					<h2 className="mb-2 px-1 text-xs font-semibold tracking-wider text-ink/70 uppercase dark:text-surface/45">
 						{group.label()}

@@ -15,6 +15,7 @@
     "./node-types": "./src/nodes/model/node-types.ts",
     "./node-icon": "./src/nodes/model/emoji.ts",
     "./features": "./src/features/index.ts",
+    "./node-capabilities": "./src/features/model/node-capabilities.ts",
     "./node-tags": "./src/nodes/model/node-tags.ts",
     "./node-priority": "./src/nodes/model/node-priority.ts",
     "./node-statuses": "./src/nodes/model/node-statuses.ts",

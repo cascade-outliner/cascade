@@ -3,6 +3,7 @@ import { typedMetadataSchema } from "@cascade/outliner/node-types";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
+import { assertNodeCapabilityEnabled } from "@/features/settings/server/node-capability-access";
 import {
 	captureSubtree,
 	createHistoryRecorder,
@@ -38,6 +39,15 @@ export const createNode = authed
 	)
 	.handler(async ({ input, context, errors }) => {
 		const userId = context.user.id;
+		if (input.initialType?.type === "task") {
+			await assertNodeCapabilityEnabled(userId, "task");
+		}
+		if (input.dueDate != null || input.dueTime != null) {
+			await assertNodeCapabilityEnabled(userId, "due-date");
+		}
+		if ((input.tags?.length ?? 0) > 0) {
+			await assertNodeCapabilityEnabled(userId, "tags");
+		}
 		return db.transaction(async (transaction) => {
 			await lockNodeOrdering(transaction, userId);
 			const history = await createHistoryRecorder(transaction, userId);

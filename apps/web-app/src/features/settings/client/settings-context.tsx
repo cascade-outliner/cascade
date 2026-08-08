@@ -1,6 +1,7 @@
+import type { NodeCapabilityId } from "@cascade/outliner/node-capabilities";
 import { resolveThemeId } from "@cascade/theme/themes";
 import { toast } from "@cascade/ui/toast";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, use, useEffect, useMemo, useState } from "react";
 import { m } from "#/paraglide/messages.js";
 import {
 	type Settings,
@@ -92,4 +93,12 @@ export function useSettings() {
 	const ctx = use(SettingsContext);
 	if (!ctx) throw new Error("useSettings must be used within SettingsProvider");
 	return ctx;
+}
+
+export function useNodeCapabilities(): ReadonlySet<NodeCapabilityId> {
+	const { settings } = useSettings();
+	return useMemo(
+		() => new Set(settings.enabledNodeCapabilities),
+		[settings.enabledNodeCapabilities],
+	);
 }
