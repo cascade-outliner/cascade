@@ -37,6 +37,14 @@ export function FiltersMenu({
 		completedFilterMode === "show"
 			? !filters.hideCompleted
 			: filters.hideCompleted;
+	const hasFilterGroups =
+		capabilities.has("due-date") ||
+		capabilities.has("priority") ||
+		(capabilities.has("status") && existingStatuses.length > 0) ||
+		(capabilities.has("tags") && existingTags.length > 0) ||
+		capabilities.has("task");
+
+	if (!hasFilterGroups) return null;
 
 	return (
 		<Menu.Root open={open} onOpenChange={setOpen}>
