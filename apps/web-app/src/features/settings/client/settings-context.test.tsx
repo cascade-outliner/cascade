@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { m } from "#/paraglide/messages.js";
 import {
 	SettingsProvider,
+	useNodeCapabilities,
 	useSettings,
 } from "@/features/settings/client/settings-context";
 import { orpc } from "@/orpc/client";
@@ -41,6 +42,22 @@ function renderSettings(queryClient: QueryClient) {
 			</QueryClientProvider>
 		),
 	});
+}
+
+function renderSettingsWithCapabilities(queryClient: QueryClient) {
+	return renderHook(
+		() => ({
+			settings: useSettings(),
+			capabilities: useNodeCapabilities(),
+		}),
+		{
+			wrapper: ({ children }) => (
+				<QueryClientProvider client={queryClient}>
+					<SettingsProvider>{children}</SettingsProvider>
+				</QueryClientProvider>
+			),
+		},
+	);
 }
 
 describe("SettingsProvider", () => {
@@ -153,6 +170,26 @@ describe("SettingsProvider", () => {
 					.querySelector('meta[name="theme-color"]')
 					?.getAttribute("content"),
 			).toBe("#2e3440");
+		});
+	});
+
+	it("keeps node capabilities on confirmed remote settings until save succeeds", async () => {
+		mockRemoteSettings({ enabledNodeCapabilities: ["paragraph"] });
+		const queryClient = new QueryClient();
+
+		const { result } = renderSettingsWithCapabilities(queryClient);
+
+		await waitFor(() => {
+			expect([...result.current.capabilities]).toEqual(["paragraph"]);
+		});
+
+		result.current.settings.setSetting("enabledNodeCapabilities", [
+			"paragraph",
+			"due-date",
+		]);
+
+		await waitFor(() => {
+			expect([...result.current.capabilities]).toEqual(["paragraph"]);
 		});
 	});
 });

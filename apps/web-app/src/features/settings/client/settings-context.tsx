@@ -20,6 +20,7 @@ export {
 
 const SettingsContext = createContext<{
 	settings: Settings;
+	confirmedSettings: Settings;
 	setSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
 	saveSettings: () => void;
 } | null>(null);
@@ -58,10 +59,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	const remoteSettings: SettingsPatch = remoteResult?.success
 		? remoteResult.data
 		: {};
-
-	const settings: Settings = {
+	const confirmedSettings: Settings = {
 		...defaultSettings(),
 		...remoteSettings,
+	};
+
+	const settings: Settings = {
+		...confirmedSettings,
 		...unsaved,
 	};
 	const resolvedTheme = resolveThemeId(
@@ -83,7 +87,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<SettingsContext value={{ settings, setSetting, saveSettings }}>
+		<SettingsContext
+			value={{ settings, confirmedSettings, setSetting, saveSettings }}
+		>
 			{children}
 		</SettingsContext>
 	);
@@ -96,9 +102,9 @@ export function useSettings() {
 }
 
 export function useNodeCapabilities(): ReadonlySet<NodeCapabilityId> {
-	const { settings } = useSettings();
+	const { confirmedSettings } = useSettings();
 	return useMemo(
-		() => new Set(settings.enabledNodeCapabilities),
-		[settings.enabledNodeCapabilities],
+		() => new Set(confirmedSettings.enabledNodeCapabilities),
+		[confirmedSettings.enabledNodeCapabilities],
 	);
 }
