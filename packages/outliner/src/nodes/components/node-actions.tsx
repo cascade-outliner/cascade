@@ -123,8 +123,11 @@ export function NodeActions({
 	);
 	const canConvertTask = capabilities.has("task");
 	const canConvertBoard = capabilities.has("board");
+	const hasAlternativeBlockOption = blockOptions.some(
+		(option) => option !== currentOption,
+	);
 	const hasConversionOptions =
-		canConvertBoard || canConvertTask || blockOptions.length > 0;
+		canConvertBoard || canConvertTask || hasAlternativeBlockOption;
 
 	function optionLabel(option: ConvertOption): string {
 		if (option === "task") return labels.nodeTypeLabels.task;
