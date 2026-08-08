@@ -31,6 +31,8 @@ class CascadeColors {
 
   /// Primary action buttons.
   static const primary = Color(0xFFAD4C4E);
+
+  static const white = Color(0xFFFFFFFF);
 }
 
 /// The font family bundled from `assets/fonts/` (see `pubspec.yaml`),
@@ -62,6 +64,12 @@ class CascadeTheme {
     required Color background,
     required Color onBackground,
   }) {
+    final outlinedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(
+        color: Color.lerp(background, onBackground, 0.14)!,
+      ),
+    );
     final colorScheme = ColorScheme(
       brightness: brightness,
       primary: CascadeColors.primary,
@@ -72,17 +80,58 @@ class CascadeTheme {
       onError: CascadeColors.canvas,
       surface: background,
       onSurface: onBackground,
-      surfaceContainerHighest: CascadeColors.surface,
+      surfaceContainerHighest: Color.lerp(background, onBackground, 0.08)!,
       onSurfaceVariant: CascadeColors.muted,
-      outline: CascadeColors.muted,
+      outline: Color.lerp(background, onBackground, 0.14)!,
     );
 
     return ThemeData(
-      useMaterial3: true,
+      useMaterial3: false,
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
       fontFamily: cascadeFontFamily,
+      textTheme: Typography.material2021(platform: TargetPlatform.iOS).black
+          .apply(
+            bodyColor: onBackground,
+            displayColor: onBackground,
+            fontFamily: cascadeFontFamily,
+          )
+          .copyWith(
+            headlineSmall: TextStyle(
+              fontFamily: cascadeFontFamily,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: onBackground,
+            ),
+            titleLarge: TextStyle(
+              fontFamily: cascadeFontFamily,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: onBackground,
+            ),
+            titleMedium: TextStyle(
+              fontFamily: cascadeFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: onBackground,
+            ),
+            bodyMedium: TextStyle(
+              fontFamily: cascadeFontFamily,
+              fontSize: 14,
+              height: 1.15,
+              color: onBackground,
+            ),
+            bodySmall: TextStyle(
+              fontFamily: cascadeFontFamily,
+              fontSize: 12,
+              height: 1.15,
+              color: onBackground,
+            ),
+          ),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         foregroundColor: onBackground,
@@ -94,12 +143,52 @@ class CascadeTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: CascadeColors.primary,
-        foregroundColor: CascadeColors.canvas,
+      cardTheme: CardThemeData(
+        color: Color.lerp(
+          background,
+          CascadeColors.white,
+          brightness == Brightness.light ? 0.92 : 0.06,
+        ),
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: colorScheme.outline),
+        ),
       ),
       iconTheme: const IconThemeData(color: CascadeColors.muted),
-      textSelectionTheme: const TextSelectionThemeData(cursorColor: CascadeColors.primary),
+      dividerColor: colorScheme.outline,
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: Color.lerp(
+          background,
+          CascadeColors.white,
+          brightness == Brightness.light ? 0.85 : 0.05,
+        ),
+        hintStyle: TextStyle(
+          fontFamily: cascadeFontFamily,
+          fontSize: 13,
+          color: CascadeColors.muted.withOpacity(0.72),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        enabledBorder: outlinedBorder,
+        focusedBorder: outlinedBorder.copyWith(
+          borderSide: const BorderSide(
+            color: CascadeColors.primary,
+            width: 1.5,
+          ),
+        ),
+        border: outlinedBorder,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+        modalBackgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: CascadeColors.primary,
+      ),
     );
   }
 }

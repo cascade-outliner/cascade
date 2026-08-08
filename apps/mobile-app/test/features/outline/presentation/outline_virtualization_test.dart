@@ -12,7 +12,10 @@ const _nodeCount = 3000;
 class _LargeTreeRepository implements OutlineRepository {
   @override
   Future<List<OutlineNode>> loadTree() async {
-    return List.generate(_nodeCount, (i) => OutlineNode(id: 'node-$i', text: 'Node $i'));
+    return List.generate(
+      _nodeCount,
+      (i) => OutlineNode(id: 'node-$i', text: 'Node $i'),
+    );
   }
 
   @override
@@ -20,7 +23,9 @@ class _LargeTreeRepository implements OutlineRepository {
 }
 
 void main() {
-  testWidgets('only renders rows near the viewport, regardless of tree size', (WidgetTester tester) async {
+  testWidgets('only renders rows near the viewport, regardless of tree size', (
+    WidgetTester tester,
+  ) async {
     // A fixed, phone-sized viewport so the expected number of visible rows
     // is bounded and predictable.
     tester.view.physicalSize = const Size(400, 800);
@@ -29,12 +34,18 @@ void main() {
 
     final controller = OutlineController(repository: _LargeTreeRepository());
     addTearDown(controller.dispose);
-    await tester.pumpWidget(MaterialApp(home: OutlineScreen(controller: controller)));
+    await tester.pumpWidget(
+      MaterialApp(home: OutlineScreen(controller: controller)),
+    );
     await tester.pump();
 
-    expect(controller.visibleRows, hasLength(_nodeCount), reason: 'the full tree is still held in memory');
+    expect(
+      controller.visibleRows,
+      hasLength(_nodeCount),
+      reason: 'the full tree is still held in memory',
+    );
 
-    // 800 logical px of viewport at 44px per row is ~18 rows; allow
+    // 800 logical px of viewport at 46px per row is ~17 rows; allow
     // generous headroom for Flutter's cache extent above/below the
     // viewport without letting this regress to "renders everything".
     final mountedRows = find.byType(TextField).evaluate().length;

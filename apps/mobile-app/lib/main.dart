@@ -27,6 +27,7 @@ class CascadeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Cascade',
       theme: CascadeTheme.light(),
       darkTheme: CascadeTheme.dark(),
