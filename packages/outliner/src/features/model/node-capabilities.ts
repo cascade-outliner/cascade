@@ -1,5 +1,6 @@
 export const nodeCapabilityIds = [
 	"icon",
+	"color",
 	"task",
 	"due-date",
 	"recurrence",
@@ -37,6 +38,7 @@ export const allNodeCapabilities = new Set<NodeCapabilityId>(nodeCapabilityIds);
 
 const featureCapabilityIds = new Set<NodeCapabilityId>([
 	"icon",
+	"color",
 	"task",
 	"due-date",
 	"priority",

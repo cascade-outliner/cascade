@@ -600,5 +600,17 @@
 	"outliner_show_column": "Show column",
 	"board_manage_columns": "Manage columns",
 	"board_settings_title": "Board columns",
-	"board_settings_close": "Close board columns"
+	"board_settings_close": "Close board columns",
+	"outliner_set_color": "Set color",
+	"outliner_change_color": "Change color",
+	"outliner_color_none": "No color",
+	"outliner_color_red": "Red",
+	"outliner_color_orange": "Orange",
+	"outliner_color_yellow": "Yellow",
+	"outliner_color_green": "Green",
+	"outliner_color_blue": "Blue",
+	"outliner_color_purple": "Purple",
+	"outliner_color_pink": "Pink",
+	"outliner_color_gray": "Gray",
+	"tree_history_action_color": "Changed color"
 }

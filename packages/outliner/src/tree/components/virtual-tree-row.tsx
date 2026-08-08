@@ -12,6 +12,10 @@ import { NodeEditor } from "../../editor/components/node-editor";
 import { getBlockType } from "../../editor/lexical/content/lexical-content";
 import { allNodeCapabilities } from "../../features/model/node-capabilities";
 import { defaultOutlinerFeatures } from "../../features/registry/default-outliner-features";
+import {
+	NODE_COLOR_BORDER,
+	isNodeColorName,
+} from "../../nodes/model/node-color";
 import { NodeActions } from "../../nodes/components/node-actions";
 import { RowDragAndDrop } from "../drag-and-drop/row-drag-and-drop";
 import type { VirtualTreeRowProps } from "../model/virtual-tree.types";
@@ -44,6 +48,10 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 	const showToggle =
 		(capabilities.has("board") && row.isBoard) ||
 		(row.hasChildren && props.hasVisibleChildren);
+
+	// Color label (#656): apply a left-border tint when a named color is set.
+	const colorName = isNodeColorName(row.color) ? row.color : null;
+	const colorBorderClass = colorName ? NODE_COLOR_BORDER[colorName] : null;
 
 	// Candidate motion (issue #509): animate this row's own transform via
 	// WAAPI when its virtualized offset changes (drag reorder, indent/
@@ -115,6 +123,8 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 		onSetStatus: props.onSetStatus,
 		icon: row.icon,
 		onSetIcon: props.onSetIcon,
+		color: row.color,
+		onSetColor: props.onSetColor,
 		onTagClick: props.onTagClick,
 		onDeleteTag: props.onDeleteTag,
 		onToggleTask: props.onToggleTask,
@@ -140,6 +150,7 @@ export function VirtualTreeRow(props: VirtualTreeRowProps) {
 			aria-setsize={position?.setSize}
 			className={twMerge(
 				"top-0 left-0 w-full absolute",
+				colorBorderClass && `border-l-2 ${colorBorderClass}`,
 				props.isHidden && "hidden",
 				props.isContext && "opacity-45",
 			)}

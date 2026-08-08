@@ -5,6 +5,7 @@ export { useRemoveMutation } from "./use-remove-node";
 export { useSetBoardViewMutation } from "./use-set-node-board-view";
 export { useSetDueDateMutation } from "./use-set-node-due-date";
 export { useSetIconMutation } from "./use-set-node-icon";
+export { useSetColorMutation } from "./use-set-node-color";
 export { useSetPriorityMutation } from "./use-set-node-priority";
 export { useSetRecurrenceMutation } from "./use-set-node-recurrence";
 export { useSetStatusMutation } from "./use-set-node-status";

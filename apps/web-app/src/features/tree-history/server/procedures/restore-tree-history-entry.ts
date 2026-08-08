@@ -12,6 +12,7 @@ import {
 } from "../../model/tree-history.schema";
 import { createHistoryRecorder } from "../history-persistence";
 import { treeHistoryEvents } from "../tree-history-table";
+import { restoreColorChanged } from "./restore/restore-color-changed";
 import { restoreContentChanged } from "./restore/restore-content-changed";
 import { restoreDueDateChanged } from "./restore/restore-due-date-changed";
 import { restoreIconChanged } from "./restore/restore-icon-changed";
@@ -123,6 +124,14 @@ export const restoreTreeHistoryEntry = requirePremium
 						break;
 					case "icon_changed":
 						nextPayload = await restoreIconChanged(
+							transaction,
+							nodeId,
+							current,
+							payload,
+						);
+						break;
+					case "color_changed":
+						nextPayload = await restoreColorChanged(
 							transaction,
 							nodeId,
 							current,

@@ -1,4 +1,5 @@
 import type { BlockType } from "../editor/lexical/content/lexical-content";
+import type { NodeColorName } from "../nodes/model/node-color";
 import type { PriorityName } from "../nodes/model/node-priority";
 import type { NodeTypeName } from "../nodes/model/node-types";
 
@@ -50,6 +51,10 @@ export interface OutlinerLabels {
 	changePriorityAria: string;
 	priorityNone: string;
 	priorityLabels: Record<PriorityName, string>;
+	setColor: string;
+	changeColor: string;
+	colorNone: string;
+	colorLabels: Record<NodeColorName, string>;
 	setStatus: string;
 	changeStatus: string;
 	changeStatusAria: string;

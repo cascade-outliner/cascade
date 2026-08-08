@@ -600,5 +600,17 @@
 	"outliner_show_column": "Kolom tonen",
 	"board_manage_columns": "Kolommen beheren",
 	"board_settings_title": "Bordkolommen",
-	"board_settings_close": "Bordkolommen sluiten"
+	"board_settings_close": "Bordkolommen sluiten",
+	"outliner_set_color": "Kleur instellen",
+	"outliner_change_color": "Kleur wijzigen",
+	"outliner_color_none": "Geen kleur",
+	"outliner_color_red": "Rood",
+	"outliner_color_orange": "Oranje",
+	"outliner_color_yellow": "Geel",
+	"outliner_color_green": "Groen",
+	"outliner_color_blue": "Blauw",
+	"outliner_color_purple": "Paars",
+	"outliner_color_pink": "Roze",
+	"outliner_color_gray": "Grijs",
+	"tree_history_action_color": "Kleur gewijzigd"
 }

@@ -30,6 +30,8 @@ export function actionLabel(kind: TreeHistoryEventKind): string {
 			return m.tree_history_action_due_date();
 		case "icon_changed":
 			return m.tree_history_action_icon();
+		case "color_changed":
+			return m.tree_history_action_color();
 		case "priority_changed":
 			return m.tree_history_action_priority();
 		case "status_changed":

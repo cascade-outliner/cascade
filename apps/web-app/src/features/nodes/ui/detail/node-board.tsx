@@ -161,6 +161,7 @@ export function NodeBoard({
 			onSetPriority={(id, priority) => tree.setPriority(id, priority)}
 			onSetStatus={(id, statusId) => tree.setStatus(id, statusId)}
 			onSetIcon={(id, icon) => tree.setIcon(id, icon)}
+			onSetColor={(id, color) => tree.setColor(id, color)}
 			onDeleteTag={deleteTag}
 			onTagClick={(tag) =>
 				setFilters({

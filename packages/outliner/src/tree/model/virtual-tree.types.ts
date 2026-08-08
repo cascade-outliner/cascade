@@ -105,6 +105,7 @@ export interface VirtualTreeRowProps {
 	onSetStatus: (statusId: string | null) => void;
 	onSetBoardView: (isBoard: boolean) => void;
 	onSetIcon: (icon: string | null) => void;
+	onSetColor: (color: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onDuplicate: () => void;

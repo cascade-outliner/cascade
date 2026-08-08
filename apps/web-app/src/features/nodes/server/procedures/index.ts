@@ -19,6 +19,7 @@ export { restoreNode } from "./restore-node";
 export { setNodeBoardView } from "./set-node-board-view";
 export { setNodeDueDate } from "./set-node-due-date";
 export { setNodeIcon } from "./set-node-icon";
+export { setNodeColor } from "./set-node-color";
 export { setNodePriority } from "./set-node-priority";
 export { setNodeRecurrence } from "./set-node-recurrence";
 export { setNodeStatus } from "./set-node-status";

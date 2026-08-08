@@ -1,5 +1,7 @@
 export type { DueDateFeatureContext } from "./due-date/due-date-feature";
 export { dueDateFeature } from "./due-date/due-date-feature";
+export type { ColorFeatureContext } from "./color/color-feature";
+export { colorFeature } from "./color/color-feature";
 export {
 	allNodeCapabilities,
 	blockTypeCapability,

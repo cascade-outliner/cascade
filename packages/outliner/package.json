@@ -14,6 +14,7 @@
     "./filters-bar": "./src/filters/components/filters-bar.tsx",
     "./node-types": "./src/nodes/model/node-types.ts",
     "./node-icon": "./src/nodes/model/emoji.ts",
+    "./node-color": "./src/nodes/model/node-color.ts",
     "./features": "./src/features/index.ts",
     "./node-capabilities": "./src/features/model/node-capabilities.ts",
     "./node-tags": "./src/nodes/model/node-tags.ts",

@@ -13,6 +13,7 @@ import {
 	useSetBoardViewMutation,
 	useSetDueDateMutation,
 	useSetIconMutation,
+	useSetColorMutation,
 	useSetPriorityMutation,
 	useSetRecurrenceMutation,
 	useSetStatusMutation,
@@ -72,6 +73,7 @@ export function useVisibleTree(
 	const setType = useSetTypeMutation(options.queryKey);
 	const setDueDate = useSetDueDateMutation(options.queryKey);
 	const setIcon = useSetIconMutation(options.queryKey);
+	const setColor = useSetColorMutation(options.queryKey);
 	const setRecurrence = useSetRecurrenceMutation(options.queryKey);
 	const setTaskCompleted = useSetTaskCompletedMutation(options.queryKey);
 	const setTags = useSetTagsMutation(options.queryKey);
@@ -90,6 +92,7 @@ export function useVisibleTree(
 		setType,
 		setDueDate,
 		setIcon,
+		setColor,
 		setRecurrence,
 		setTaskCompleted,
 		setTags,
