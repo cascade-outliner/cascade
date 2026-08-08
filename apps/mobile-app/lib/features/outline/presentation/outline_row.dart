@@ -5,7 +5,8 @@ import '../../../theme/cascade_theme.dart';
 
 /// A single, presentational row of the outliner: a chevron to expand or
 /// collapse children, a bullet, an editable text field for the node's
-/// content, and per-row actions (indent, outdent, add child, delete).
+/// content, and per-row actions (indent, outdent, add inside, add below,
+/// delete).
 ///
 /// Purely a function of its parameters — it knows nothing about
 /// `OutlineController` or how the tree is stored, so it's reusable as-is
@@ -30,7 +31,8 @@ class OutlineRow extends StatelessWidget {
     required this.onSubmitted,
     required this.onIndent,
     required this.onOutdent,
-    required this.onAddChild,
+    required this.onAddInside,
+    required this.onAddBelow,
     required this.onDelete,
   });
 
@@ -44,7 +46,8 @@ class OutlineRow extends StatelessWidget {
   final VoidCallback onSubmitted;
   final VoidCallback onIndent;
   final VoidCallback onOutdent;
-  final VoidCallback onAddChild;
+  final VoidCallback onAddInside;
+  final VoidCallback onAddBelow;
   final VoidCallback onDelete;
 
   static const double height = 44;
@@ -106,25 +109,77 @@ class OutlineRow extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: _iconConstraints,
-              iconSize: 18,
-              tooltip: 'Add child',
-              icon: const Icon(Icons.add),
-              onPressed: onAddChild,
-            ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: _iconConstraints,
-              iconSize: 18,
-              tooltip: 'Delete',
-              icon: const Icon(Icons.delete_outline),
-              onPressed: onDelete,
+            Builder(
+              builder: (buttonContext) {
+                return IconButton(
+                  key: const Key('outline-row-actions'),
+                  padding: EdgeInsets.zero,
+                  constraints: _iconConstraints,
+                  iconSize: 18,
+                  tooltip: 'More actions',
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () async {
+                    final button = buttonContext.findRenderObject() as RenderBox;
+                    final overlay = Overlay.of(buttonContext).context.findRenderObject() as RenderBox;
+                    final position = RelativeRect.fromRect(
+                      Rect.fromPoints(
+                        button.localToGlobal(Offset.zero, ancestor: overlay),
+                        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+                      ),
+                      Offset.zero & overlay.size,
+                    );
+                    final action = await showMenu<OutlineRowAction>(
+                      context: buttonContext,
+                      position: position,
+                      items: const [
+                        PopupMenuItem(
+                          key: Key('outline-row-add-inside'),
+                          value: OutlineRowAction.addInside,
+                          child: Text('Add inside'),
+                        ),
+                        PopupMenuItem(
+                          key: Key('outline-row-add-below'),
+                          value: OutlineRowAction.addBelow,
+                          child: Text('Add below'),
+                        ),
+                        PopupMenuItem(
+                          key: Key('outline-row-delete'),
+                          value: OutlineRowAction.delete,
+                          child: Text('Delete'),
+                        ),
+                      ],
+                    );
+                    if (action == null) return;
+                    handleOutlineRowAction(
+                      action,
+                      onAddInside: onAddInside,
+                      onAddBelow: onAddBelow,
+                      onDelete: onDelete,
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+enum OutlineRowAction { addInside, addBelow, delete }
+
+void handleOutlineRowAction(
+  OutlineRowAction action, {
+  required VoidCallback onAddInside,
+  required VoidCallback onAddBelow,
+  required VoidCallback onDelete,
+}) {
+  if (action == OutlineRowAction.addInside) {
+    onAddInside();
+  } else if (action == OutlineRowAction.addBelow) {
+    onAddBelow();
+  } else {
+    onDelete();
   }
 }

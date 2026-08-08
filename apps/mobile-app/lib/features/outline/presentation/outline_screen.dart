@@ -36,13 +36,13 @@ class _OutlineScreenState extends State<OutlineScreen> {
     super.dispose();
   }
 
-  void _addChild(String id) {
-    final newId = _controller.addChild(id);
+  void _addBelow(String id) {
+    final newId = _controller.addSiblingAfter(id);
     _editing.requestFocus(newId);
   }
 
-  void _addSiblingAfter(String id) {
-    final newId = _controller.addSiblingAfter(id);
+  void _addInside(String id) {
+    final newId = _controller.addChild(id);
     _editing.requestFocus(newId);
   }
 
@@ -69,7 +69,7 @@ class _OutlineScreenState extends State<OutlineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cascade')),
+      appBar: AppBar(),
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -109,10 +109,11 @@ class _OutlineScreenState extends State<OutlineScreen> {
                   focusNode: _editing.focusNodeFor(node.id),
                   onToggleExpanded: () => _controller.toggleExpanded(node.id),
                   onChanged: (text) => _controller.updateText(node.id, text),
-                  onSubmitted: () => _addSiblingAfter(node.id),
+                  onSubmitted: () => _addBelow(node.id),
                   onIndent: () => _indent(node.id),
                   onOutdent: () => _outdent(node.id),
-                  onAddChild: () => _addChild(node.id),
+                  onAddInside: () => _addInside(node.id),
+                  onAddBelow: () => _addBelow(node.id),
                   onDelete: () => _delete(node.id),
                 );
               },

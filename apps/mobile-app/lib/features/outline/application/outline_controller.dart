@@ -27,11 +27,10 @@ const _defaultPersistDebounce = Duration(milliseconds: 400);
 /// `_schedulePersist`.
 class OutlineController extends ChangeNotifier {
   OutlineController({
-    required OutlineRepository repository,
+    required this._repository,
     OutlineIdGenerator? idGenerator,
     this.persistDebounce = _defaultPersistDebounce,
-  }) : _repository = repository,
-       _idGenerator = idGenerator ?? OutlineIdGenerator();
+  }) : _idGenerator = idGenerator ?? OutlineIdGenerator();
 
   final OutlineRepository _repository;
   final OutlineIdGenerator _idGenerator;
