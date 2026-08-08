@@ -19,6 +19,7 @@ void main() {
             controller: controller,
             focusNode: focusNode,
             onToggleExpanded: () {},
+            onFocusSubtree: () {},
             onChanged: (_) {},
             onSubmitted: () {},
             onIndent: () {},
@@ -72,5 +73,41 @@ void main() {
       onDelete: () => deleteTapped = true,
     );
     expect(deleteTapped, isTrue);
+  });
+
+  testWidgets('tapping focus icon invokes callback', (tester) async {
+    final controller = TextEditingController();
+    final focusNode = FocusNode();
+    var tapped = false;
+    addTearDown(controller.dispose);
+    addTearDown(focusNode.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: OutlineRow(
+            depth: 0,
+            hasChildren: false,
+            expanded: false,
+            controller: controller,
+            focusNode: focusNode,
+            onToggleExpanded: () {},
+            onFocusSubtree: () => tapped = true,
+            onChanged: (_) {},
+            onSubmitted: () {},
+            onIndent: () {},
+            onOutdent: () {},
+            onAddInside: () {},
+            onAddBelow: () {},
+            onDelete: () {},
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Focus subtree'));
+    await tester.pump();
+
+    expect(tapped, isTrue);
   });
 }

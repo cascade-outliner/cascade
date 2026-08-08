@@ -9,9 +9,10 @@ import 'outline_row_editing_controllers.dart';
 /// per-row text/focus state) and wires the two together — the widget layer
 /// itself holds no tree logic.
 class OutlineScreen extends StatefulWidget {
-  const OutlineScreen({super.key, required this.controller});
+  const OutlineScreen({super.key, required this.controller, this.focusRootId});
 
   final OutlineController controller;
+  final String? focusRootId;
 
   @override
   State<OutlineScreen> createState() => _OutlineScreenState();
@@ -66,10 +67,18 @@ class _OutlineScreenState extends State<OutlineScreen> {
     _editing.disposeFor(removedIds);
   }
 
+  void _focusSubtree(String id) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => OutlineScreen(controller: _controller, focusRootId: id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text(widget.focusRootId == null ? 'Cascade' : 'Focused node')),
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -79,9 +88,13 @@ class _OutlineScreenState extends State<OutlineScreen> {
           if (_controller.error != null) {
             return Center(child: Text('Something went wrong: ${_controller.error}'));
           }
-          final rows = _controller.visibleRows;
+          final rows = _controller.visibleRowsForFocusRoot(widget.focusRootId);
           if (rows.isEmpty) {
-            return const Center(child: Text('No notes yet — tap + to add one.'));
+            return Center(
+              child: Text(
+                widget.focusRootId == null ? 'No notes yet — tap + to add one.' : 'This node no longer exists.',
+              ),
+            );
           }
           return Scrollbar(
             controller: _scrollController,
@@ -108,6 +121,7 @@ class _OutlineScreenState extends State<OutlineScreen> {
                   controller: _editing.textControllerFor(node.id, initialText: node.text),
                   focusNode: _editing.focusNodeFor(node.id),
                   onToggleExpanded: () => _controller.toggleExpanded(node.id),
+                  onFocusSubtree: () => _focusSubtree(node.id),
                   onChanged: (text) => _controller.updateText(node.id, text),
                   onSubmitted: () => _addBelow(node.id),
                   onIndent: () => _indent(node.id),

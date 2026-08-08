@@ -42,6 +42,7 @@ class OutlineController extends ChangeNotifier {
 
   List<OutlineNode> _roots = [];
   bool _isLoading = false;
+  bool _hasLoaded = false;
   Object? _error;
   Timer? _persistTimer;
 
@@ -49,15 +50,25 @@ class OutlineController extends ChangeNotifier {
   Object? get error => _error;
   List<OutlineNode> get roots => List.unmodifiable(_roots);
   List<tree.VisibleOutlineRow> get visibleRows => tree.flattenVisible(_roots);
+  List<tree.VisibleOutlineRow> visibleRowsForFocusRoot(String? focusRootId) {
+    if (focusRootId == null) return visibleRows;
+    final focusLocation = tree.locateNode(_roots, focusRootId);
+    if (focusLocation == null) return const <tree.VisibleOutlineRow>[];
+    return tree.flattenVisible([focusLocation.node]);
+  }
 
-  Future<void> load() async {
+  Future<void> load({bool force = false}) async {
+    if (_isLoading) return;
+    if (_hasLoaded && !force) return;
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
       _roots = await _repository.loadTree();
+      _hasLoaded = true;
     } catch (e) {
       _error = e;
+      _hasLoaded = false;
     } finally {
       _isLoading = false;
       notifyListeners();

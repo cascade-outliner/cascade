@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import '../../../theme/cascade_theme.dart';
 
 /// A single, presentational row of the outliner: a chevron to expand or
-/// collapse children, a bullet, an editable text field for the node's
-/// content, and per-row actions (indent, outdent, add inside, add below,
-/// delete).
+/// collapse children, a subtree-focus circle, an editable text field for the
+/// node's content, and per-row actions (indent, outdent, add inside, add
+/// below, delete).
 ///
 /// Purely a function of its parameters — it knows nothing about
 /// `OutlineController` or how the tree is stored, so it's reusable as-is
@@ -27,6 +27,7 @@ class OutlineRow extends StatelessWidget {
     required this.controller,
     required this.focusNode,
     required this.onToggleExpanded,
+    required this.onFocusSubtree,
     required this.onChanged,
     required this.onSubmitted,
     required this.onIndent,
@@ -42,6 +43,7 @@ class OutlineRow extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final VoidCallback onToggleExpanded;
+  final VoidCallback onFocusSubtree;
   final ValueChanged<String> onChanged;
   final VoidCallback onSubmitted;
   final VoidCallback onIndent;
@@ -67,6 +69,18 @@ class OutlineRow extends StatelessWidget {
             SizedBox(
               width: _iconSlot,
               height: _iconSlot,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: _iconConstraints,
+                iconSize: 18,
+                icon: const Icon(Icons.circle_outlined),
+                tooltip: 'Focus subtree',
+                onPressed: onFocusSubtree,
+              ),
+            ),
+            SizedBox(
+              width: _iconSlot,
+              height: _iconSlot,
               child: hasChildren
                   ? IconButton(
                       padding: EdgeInsets.zero,
@@ -76,9 +90,7 @@ class OutlineRow extends StatelessWidget {
                       tooltip: expanded ? 'Collapse' : 'Expand',
                       onPressed: onToggleExpanded,
                     )
-                  : const Center(
-                      child: Icon(Icons.circle, size: 6, color: CascadeColors.muted),
-                    ),
+                  : const Center(child: Icon(Icons.remove, size: 14, color: CascadeColors.muted)),
             ),
             Expanded(
               child: Focus(

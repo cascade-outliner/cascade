@@ -52,4 +52,16 @@ void main() {
     // doesn't outlive the test.
     await tester.pump(const Duration(milliseconds: 500));
   });
+
+  testWidgets('focus subtree opens a new page with only that node branch', (WidgetTester tester) async {
+    await tester.pumpWidget(CascadeApp(controller: _controller()));
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Focus subtree').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome to Cascade'), findsOneWidget);
+    expect(find.text('Tap the chevron to expand or collapse a node'), findsOneWidget);
+    expect(find.text('This is a second top-level node'), findsNothing);
+  });
 }
