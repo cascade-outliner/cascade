@@ -52,6 +52,7 @@ export interface VisibleTree {
 	 * type/block format (see #455). */
 	setBoardView: (id: string, isBoard: boolean) => void | Promise<void>;
 	setIcon: (id: string, icon: string | null) => void | Promise<void>;
+	setColor: (id: string, color: string | null) => void | Promise<void>;
 	/** Resolves to `null` if the create fails, so callers can skip focusing a node that was never made. */
 	add: (options?: AddNodeOptions) => Promise<string | null>;
 	addAfter: (

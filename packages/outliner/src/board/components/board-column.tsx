@@ -40,6 +40,7 @@ interface BoardColumnProps {
 	onSetPriority: (id: string, priority: PriorityName | null) => void;
 	onSetStatus: (id: string, statusId: string | null) => void;
 	onSetIcon: (id: string, icon: string | null) => void;
+	onSetColor: (id: string, color: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onCardDrop: (
@@ -78,6 +79,7 @@ export function BoardColumn({
 	onSetPriority,
 	onSetStatus,
 	onSetIcon,
+	onSetColor,
 	onTagClick,
 	onDeleteTag,
 	onCardDrop,
@@ -158,6 +160,7 @@ export function BoardColumn({
 							onSetPriority={onSetPriority}
 							onSetStatus={onSetStatus}
 							onSetIcon={onSetIcon}
+							onSetColor={onSetColor}
 							onTagClick={onTagClick}
 							onDeleteTag={onDeleteTag}
 							onCardDrop={onCardDrop}

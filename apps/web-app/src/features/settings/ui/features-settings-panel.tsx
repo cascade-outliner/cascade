@@ -14,6 +14,7 @@ interface FeaturesSettingsPanelProps {
 
 const metadataCapabilities: NodeCapabilityId[] = [
 	"icon",
+	"color",
 	"due-date",
 	"recurrence",
 	"priority",
@@ -34,6 +35,7 @@ const contentCapabilities: NodeCapabilityId[] = [
 function capabilityLabel(id: NodeCapabilityId): string {
 	const labels: Record<NodeCapabilityId, () => string> = {
 		icon: m.settings_feature_icon,
+		color: m.settings_feature_color,
 		task: m.settings_feature_task,
 		"due-date": m.settings_feature_due_date,
 		recurrence: m.settings_feature_recurrence,
@@ -57,6 +59,7 @@ function capabilityLabel(id: NodeCapabilityId): string {
 function capabilityDescription(id: NodeCapabilityId): string | undefined {
 	const descriptions: Record<NodeCapabilityId, () => string> = {
 		icon: m.settings_feature_icon_description,
+		color: m.settings_feature_color_description,
 		task: m.settings_feature_task_description,
 		"due-date": m.settings_feature_due_date_description,
 		recurrence: m.settings_feature_recurrence_dependency,

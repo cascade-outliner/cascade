@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-08-09
+- [fix] Resolved TypeScript build errors introduced by the #656 color feature: `color` field is now included in the visible-tree SQL query, new-node optimistic rows, synthetic perf-test tree, board component prop chain (`BoardView` → `BoardColumn` → `BoardCard`), and the `VisibleTree` interface (`setColor`). Settings Features panel now lists Color as a toggleable capability.
+
 ## 2026-08-08
 - [feat] Nodes can now be assigned a color label — choose from a small preset palette or pick any custom color via the system color picker. The chosen color appears as a left-border tint on the row in the tree view for at-a-glance visual categorization. Color is accessible under the "Set color" context-menu entry and is undoable/redoable like other node properties. [#656](https://github.com/cascade-outliner/cascade/issues/656)
 - [feat] Settings now has a Features page where capabilities can be enabled on demand, including search, icons, tasks, due dates, recurrence, priority, tags, boards, statuses, every "Convert into" target, and duplicate. Disabled features preserve existing data while hiding their controls and blocking edits; the default preset keeps paragraphs, tasks, and duplicate enabled.

@@ -46,6 +46,7 @@ interface BoardCardProps {
 	onSetPriority: (id: string, priority: PriorityName | null) => void;
 	onSetStatus: (id: string, statusId: string | null) => void;
 	onSetIcon: (id: string, icon: string | null) => void;
+	onSetColor: (id: string, color: string | null) => void;
 	onTagClick?: (tag: string) => void;
 	onDeleteTag?: (name: string) => void | Promise<void>;
 	onCardDrop: (
@@ -90,6 +91,7 @@ export function BoardCard({
 	onSetPriority,
 	onSetStatus,
 	onSetIcon,
+	onSetColor,
 	onTagClick,
 	onDeleteTag,
 	onCardDrop,
@@ -139,6 +141,8 @@ export function BoardCard({
 		onSetStatus: (statusId: string | null) => onSetStatus(row.id, statusId),
 		icon: row.icon,
 		onSetIcon: (icon: string | null) => onSetIcon(row.id, icon),
+		color: row.color,
+		onSetColor: (color: string | null) => onSetColor(row.id, color),
 		onTagClick,
 		onDeleteTag,
 		onToggleTask: (nextCompleted: boolean) =>

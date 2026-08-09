@@ -82,6 +82,7 @@ export function useCreateMutation(
 			dueTime: created.dueTime,
 			recurrence: created.recurrence,
 			icon: created.icon,
+			color: created.color,
 			tags: created.tags,
 		};
 		await queryClient.cancelQueries({ queryKey });
@@ -123,6 +124,7 @@ export function useCreateMutation(
 			dueTime: created.dueTime,
 			recurrence: created.recurrence,
 			icon: created.icon,
+			color: created.color,
 			tags: created.tags,
 		};
 		await queryClient.cancelQueries({ queryKey });

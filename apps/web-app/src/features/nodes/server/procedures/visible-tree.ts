@@ -22,6 +22,7 @@ interface VisibleTreeSqlRow {
 	due_time: string | null;
 	recurrence: RecurrenceRule | null;
 	icon: string | null;
+	color: string | null;
 	priority: PriorityName | null;
 	status_id: string | null;
 	status_name: string | null;
@@ -42,7 +43,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 
 	const result = (await db.execute(sql`
 		SELECT n.id, n.parent_id, n.content, n.type, n.metadata, n.expanded, n."order",
-			n.due_date::text AS due_date, n.due_time, n.recurrence, n.icon, n.priority,
+			n.due_date::text AS due_date, n.due_time, n.recurrence, n.icon, n.color, n.priority,
 			n.is_board,
 			s.id AS status_id, s.name AS status_name, s.color AS status_color,
 			COALESCE(t.tags, '{}') AS tags
@@ -69,6 +70,7 @@ export const visibleTree = authed.handler(async ({ context }) => {
 		dueTime: r.due_time,
 		recurrence: r.recurrence,
 		icon: r.icon,
+		color: r.color,
 		priority: r.priority,
 		status:
 			r.status_id && r.status_name

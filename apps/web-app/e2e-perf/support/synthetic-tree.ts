@@ -99,6 +99,7 @@ export function buildSyntheticRows(
 			dueDate: random() < options.dueTodayFraction ? today : null,
 			dueTime: null,
 			icon: null,
+			color: null,
 			tags: random() < options.taggedFraction ? ["benchmark"] : [],
 			depth: entry.depth,
 			path: [String(nextId)],

@@ -80,6 +80,7 @@ export interface BoardViewProps {
 	onSetPriority: (id: string, priority: PriorityName | null) => void;
 	onSetStatus: (id: string, statusId: string | null) => void;
 	onSetIcon: (id: string, icon: string | null) => void;
+	onSetColor: (id: string, color: string | null) => void;
 	/** Handles clicking a tag pill on a card, e.g. to activate a filter. */
 	onTagClick?: (tag: string) => void;
 	/** Deletes a tag outright (every node that has it loses it), not just
@@ -130,6 +131,7 @@ export function BoardView({
 	onSetPriority,
 	onSetStatus,
 	onSetIcon,
+	onSetColor,
 	onTagClick,
 	onDeleteTag,
 	onDrop,
@@ -195,6 +197,7 @@ export function BoardView({
 						onSetPriority={onSetPriority}
 						onSetStatus={onSetStatus}
 						onSetIcon={onSetIcon}
+						onSetColor={onSetColor}
 						onTagClick={onTagClick}
 						onDeleteTag={onDeleteTag}
 						onCardDrop={handleCardDrop}

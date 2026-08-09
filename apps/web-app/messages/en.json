@@ -123,6 +123,8 @@
 	"settings_features_actions_section": "Actions",
 	"settings_feature_icon": "Icon",
 	"settings_feature_icon_description": "Add an emoji icon to identify a node at a glance.",
+	"settings_feature_color": "Color",
+	"settings_feature_color_description": "Add a color label to highlight nodes visually.",
 	"settings_feature_task": "Task",
 	"settings_feature_task_description": "Convert nodes into checkable tasks and track completion.",
 	"settings_feature_due_date": "Due date",

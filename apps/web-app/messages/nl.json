@@ -123,6 +123,8 @@
 	"settings_features_actions_section": "Acties",
 	"settings_feature_icon": "Pictogram",
 	"settings_feature_icon_description": "Voeg een emoji toe om een node in één oogopslag te herkennen.",
+	"settings_feature_color": "Kleur",
+	"settings_feature_color_description": "Voeg een kleurlabel toe om nodes visueel te markeren.",
 	"settings_feature_task": "Taak",
 	"settings_feature_task_description": "Converteer nodes naar afvinkbare taken en houd voltooiing bij.",
 	"settings_feature_due_date": "Vervaldatum",
