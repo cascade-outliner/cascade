@@ -198,6 +198,7 @@ export function VirtualTreeView({
 											if (isBoard && !row.expanded) tree.toggle(row.id, true);
 										}}
 										onSetIcon={(icon) => tree.setIcon(row.id, icon)}
+										onSetColor={(color) => tree.setColor(row.id, color)}
 										onDuplicate={() => tree.duplicate(row.id)}
 										onDelete={() => tree.remove(row.id)}
 										onSaveContent={(content) =>
