@@ -17,6 +17,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@cascade/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@nestjs/common':
         specifier: ^11.1.28
         version: 11.1.28(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -60,6 +63,9 @@ importers:
       '@types/node':
         specifier: ^24.13.3
         version: 24.13.3
+      fastify:
+        specifier: ^5.2.0
+        version: 5.10.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3

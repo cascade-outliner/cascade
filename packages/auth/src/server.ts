@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./auth.schema";
-import { env } from "./env";
+import * as schema from "./auth.schema.js";
+import { env } from "./env.js";
 
 const productionOrigins = [
 	"https://cascadelist.com",

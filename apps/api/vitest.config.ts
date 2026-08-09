@@ -12,6 +12,7 @@ export default defineConfig({
 	],
 	test: {
 		root: "./src",
+		setupFiles: ["../test/setup-env.ts"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json-summary"],

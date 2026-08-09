@@ -1,4 +1,5 @@
 import { Controller, Get, VERSION_NEUTRAL } from "@nestjs/common";
+import { Public } from "../../common/decorators/public.decorator";
 
 interface HealthReport {
 	status: "ok";
@@ -12,6 +13,7 @@ interface HealthReport {
  * process.
  */
 @Controller({ path: "health", version: VERSION_NEUTRAL })
+@Public()
 export class HealthController {
 	@Get()
 	check(): HealthReport {
