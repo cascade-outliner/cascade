@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
 import { DatabaseModule } from "./database/database.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { SessionGuard } from "./modules/auth/guards/session.guard";
 import { HealthModule } from "./modules/health/health.module";
 
 @Module({
@@ -13,14 +15,17 @@ import { HealthModule } from "./modules/health/health.module";
 		DatabaseModule,
 		AuthModule,
 		HealthModule,
-		// SessionGuard isn't wired up as an app-wide APP_GUARD provider yet —
-		// left for whichever of #684/the validation issue lands second, so
-		// two PRs don't race to add the same provider. See #684.
-		//
 		// Remaining feature modules land here as they're implemented:
 		// UsersModule, NodesModule, TreeHistoryModule, MaintenanceModule.
 		// See src/modules/*/README.md and ARCHITECTURE.md for the planned
 		// shape of each.
+	],
+	providers: [
+		// Wired app-wide here (#685) now that #684's SessionGuard exists on
+		// this branch — see #684's note about whichever PR lands second
+		// doing this. modules/health's controller stays reachable via its
+		// @Public() decorator.
+		{ provide: APP_GUARD, useClass: SessionGuard },
 	],
 })
 export class AppModule {}

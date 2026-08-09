@@ -149,19 +149,19 @@ just `apps/api` standing up its own database access, independent of
       `ARCHITECTURE.md`'s [Config](./ARCHITECTURE.md#config) section) —
       at minimum `DATABASE_URL` and `BETTER_AUTH_SECRET` become required,
       non-optional server env vars at this point.
-- [ ] Implement `modules/auth/guards`' `SessionGuard` against
+- [x] Implement `modules/auth/guards`' `SessionGuard` against
       `createAuth(db)` from `@cascade/auth/server`, plus
       `modules/auth/decorators`'s `@CurrentUser()`. Apply the guard
       app-wide (e.g. via `APP_GUARD` in `app.module.ts`) before any other
       module starts accepting requests, with an explicit `@Public()`
       escape hatch for `/health` and anything else that must stay
       unauthenticated.
-- [ ] Wire a global `ValidationPipe({ whitelist: true, transform: true })`
+- [x] Wire a global `ValidationPipe({ whitelist: true, transform: true })`
       and the RFC 7807 exception filter (`common/filters`) in `main.ts`,
-      per `ARCHITECTURE.md`'s [Validation](./ARCHITECTURE.md#validation-and-api-docs-planned)
-      and [Error handling](./ARCHITECTURE.md#error-handling-planned)
+      per `ARCHITECTURE.md`'s [Validation](./ARCHITECTURE.md#validation-and-api-docs)
+      and [Error handling](./ARCHITECTURE.md#error-handling)
       sections, before the first real DTO lands.
-- [ ] Add `@nestjs/swagger`, wire `SwaggerModule` in `main.ts` behind a
+- [x] Add `@nestjs/swagger`, wire `SwaggerModule` in `main.ts` behind a
       `/docs` route, so every module below documents itself as it's built
       instead of retrofitting docs at the end.
 - [ ] Upgrade `modules/health`'s check to a real readiness probe (via

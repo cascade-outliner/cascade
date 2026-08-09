@@ -202,28 +202,38 @@ should have one stable, unversioned URL. As a public-facing contract (see
 on an existing route — unlike the internal oRPC API, which can change
 in lockstep with its one consumer.
 
-## Validation and API docs (planned)
+## Validation and API docs
 
-Not wired up yet — no DTOs exist for the pipeline to validate. When the
-first real module lands:
+`main.ts` registers `app.useGlobalPipes(new ValidationPipe({ whitelist:
+true, transform: true, forbidNonWhitelisted: true }))` globally. No module
+has DTOs yet, so this has nothing to validate today, but it's wired before
+the first one lands rather than after: request/response shapes go in a
+module's `dto/` as `class-validator`-decorated classes, and those same
+classes get `@nestjs/swagger` decorators so the OpenAPI doc below documents
+them automatically.
 
-- Request/response shapes go in that module's `dto/` as
-  `class-validator`-decorated classes, enabled globally via a
-  `ValidationPipe({ whitelist: true, transform: true })` in `main.ts`.
-- Those same DTOs get `@nestjs/swagger` decorators so `SwaggerModule` can
-  serve generated OpenAPI docs — the point of building this on NestJS
-  instead of another oRPC instance is exactly this: a contract that's
-  documented for consumers who aren't importing this repo's TypeScript
-  types.
+`main.ts` also builds a `DocumentBuilder` config (title "Cascade API",
+version matching the app's URI-versioning scheme) and serves it via
+`SwaggerModule.setup("docs", app, document)` — `GET /docs` renders a
+Swagger UI page today even with only `health` registered, and will pick up
+each module's DTOs as they're added. This is the direct payoff of building
+on NestJS instead of another oRPC instance: a contract that's documented
+for consumers who aren't importing this repo's TypeScript types.
 
-## Error handling (planned)
+## Error handling
 
-A global exception filter (`common/filters`) will translate thrown
-domain/application errors into a consistent
+`common/filters/rfc7807-exception.filter.ts`'s `Rfc7807ExceptionFilter` is
+registered globally (`app.useGlobalFilters(...)` in `main.ts`) and
+translates every thrown error into
 [RFC 7807](https://www.rfc-editor.org/rfc/rfc7807) `application/problem+json`
-body, rather than each controller handling its own error shape. Not
-implemented yet since there are no errors to translate — `common/filters`
-is a placeholder for this one filter, not a grab-bag.
+(`type`, `title`, `status`, `detail`, `instance`), rather than Nest's
+default `{ statusCode, message, error }` shape or each controller handling
+its own error shape. `HttpException` subclasses (Nest's built-ins, or a
+domain error thrown as one) map their status/message straight through;
+anything else is reported as a generic 500 with a fixed `detail` so
+internals (stack traces, driver errors) never leak into the response body.
+Unit-tested directly in `rfc7807-exception.filter.spec.ts` rather than only
+through an e2e request, per `MIGRATION.md`'s Phase 0.
 
 ## Testing: Vitest, not Jest
 
@@ -325,7 +335,7 @@ apps/api/
     app.module.ts               Root module: ConfigModule + feature modules
     common/                     Cross-cutting, app-wide pipeline pieces
       decorators/                (empty — e.g. a future @Public() marker)
-      filters/                   (empty — the planned RFC 7807 exception filter)
+      filters/                   RFC 7807 exception filter (rfc7807-exception.filter.ts)
       interceptors/               (empty — e.g. logging/timeout)
       middleware/                 (empty — e.g. request-id)
       pipes/                      (empty — validation pipe config, if it

@@ -1,10 +1,12 @@
-import { VersioningType } from "@nestjs/common";
+import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import {
 	FastifyAdapter,
 	type NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { Rfc7807ExceptionFilter } from "./common/filters/rfc7807-exception.filter";
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestFastifyApplication>(
@@ -17,6 +19,22 @@ async function bootstrap() {
 	// don't require a new deployment target.
 	app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });
 	app.enableShutdownHooks();
+
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			transform: true,
+			forbidNonWhitelisted: true,
+		}),
+	);
+	app.useGlobalFilters(new Rfc7807ExceptionFilter());
+
+	const swaggerConfig = new DocumentBuilder()
+		.setTitle("Cascade API")
+		.setVersion("1")
+		.build();
+	const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+	SwaggerModule.setup("docs", app, swaggerDocument);
 
 	const port = Number(process.env.PORT ?? 3002);
 	await app.listen(port, "0.0.0.0");
