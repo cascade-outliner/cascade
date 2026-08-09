@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { DatabaseModule } from "./database/database.module";
 import { HealthModule } from "./modules/health/health.module";
 
 @Module({
@@ -8,6 +9,7 @@ import { HealthModule } from "./modules/health/health.module";
 			isGlobal: true,
 			envFilePath: [".env.local", ".env"],
 		}),
+		DatabaseModule,
 		HealthModule,
 		// Feature modules land here as they're implemented: AuthModule,
 		// UsersModule, NodesModule, TreeHistoryModule, MaintenanceModule.
