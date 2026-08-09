@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true,
+
+    /* Nest dependency-injection relies on decorator metadata */
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+
+    /* Linting (mirrors the rest of the repo's tsconfigs) */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

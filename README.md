@@ -6,6 +6,7 @@ Cascade is a fast, tree-based outliner for organizing ideas, notes, and structur
 
 - `apps/web-app` - outliner app, including login/register (`localhost:3001`)
 - `apps/website` - marketing + legal pages (`localhost:3000`)
+- `apps/api` - NestJS app laying the groundwork for a public REST API (`localhost:3002`); currently a scaffold, see `apps/api/ARCHITECTURE.md`
 - Shared packages for auth, UI, theme, outliner UI, and HTTP helpers
 
 ## Features
@@ -58,14 +59,17 @@ Open:
 pnpm dev
 pnpm dev:app
 pnpm dev:web
+pnpm dev:api
 
 # Build
 pnpm build:app
 pnpm build:web
+pnpm build:api
 
 # Tests
 pnpm test:app
 pnpm test:web
+pnpm test:api
 pnpm test:e2e:app
 
 # Code quality

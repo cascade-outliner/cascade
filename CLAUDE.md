@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Cascade is a self-hosted, tree-based outliner (infinitely nestable nodes, virtualized for large trees). It's a pnpm monorepo with two TanStack Start apps and several shared packages, backed by PostgreSQL via Drizzle.
+Cascade is a self-hosted, tree-based outliner (infinitely nestable nodes, virtualized for large trees). It's a pnpm monorepo with two TanStack Start apps, a scaffolded NestJS API app, and several shared packages, backed by PostgreSQL via Drizzle.
 
 - `apps/web-app` — the outliner itself (`app.cascadelist.com`, dev port 3001). Owns the database schema, the oRPC API, auth session creation, and the login/register UI.
 - `apps/website` — marketing site + legal pages (`cascadelist.com`, dev port 3000). No database access of its own; its `/login` and `/register` routes are pure redirects to `apps/web-app`.
+- `apps/api` — a NestJS app (dev port 3002) laying the groundwork for a stable, versioned, publicly-documented REST API alongside `apps/web-app`'s internal oRPC API — for third-party integrations and future non-web clients, not a replacement. Currently a **scaffold**: only `modules/health` has real code, everything else under `src/modules` is an empty placeholder directory. See `apps/api/ARCHITECTURE.md` before adding code to it — it records the module boundaries, layering convention, and several already-made tooling decisions (Fastify adapter, Vitest instead of Jest, a TypeScript 6 pin distinct from the rest of the repo) that the first real PR into this app shouldn't re-litigate.
 - `packages/auth` — better-auth setup (`createAuth(db)`), used by `apps/web-app`; the resulting session cookie is scoped to span both origins in production (`COOKIE_DOMAIN`).
 - `packages/http` — shared HTTP concerns (e.g. security headers).
 - `packages/outliner` — the tree/editor UI: virtualized tree rendering, drag-and-drop, Lexical-based node editor, node/tree types, filters. Framework-agnostic React, no oRPC/data-fetching code — consumers pass in data and callbacks.
@@ -18,20 +19,23 @@ Packages are consumed as workspace deps (`@cascade/auth`, `@cascade/http`, `@cas
 
 ## Commands
 
-Run from the repo root with pnpm. Most scripts have `:app` / `:web` variants that filter to one workspace.
+Run from the repo root with pnpm. Most scripts have `:app` / `:web` / `:api` variants that filter to one workspace.
 
 ```bash
 pnpm install            # install all workspaces
 
-pnpm dev                # run both apps in parallel (app :3001, web :3000)
+pnpm dev                # run both TanStack apps in parallel (app :3001, web :3000) — apps/api isn't wired into this yet, see apps/api/ARCHITECTURE.md
 pnpm dev:app            # just apps/web-app
 pnpm dev:web            # just apps/website
+pnpm dev:api            # just apps/api (NestJS, scaffold only — see apps/api/ARCHITECTURE.md)
 
 pnpm build:app          # vite build && tsc --noEmit
 pnpm build:web
+pnpm build:api          # nest build (swc) && tsc --noEmit
 
 pnpm test:app           # vitest run (apps/web-app)
 pnpm test:web           # vitest run (apps/website)
+pnpm test:api           # vitest run (apps/api)
 pnpm test:e2e:app       # Playwright e2e suite (apps/web-app only, see below)
 pnpm test:a11y:app      # axe-core accessibility scan (apps/web-app only, see below)
 
