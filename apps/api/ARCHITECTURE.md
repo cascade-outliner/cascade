@@ -15,6 +15,10 @@ Read this file before adding code to a placeholder directory: it records the
 decisions already made so the first real PR into `modules/nodes` (or any
 other module) doesn't have to re-litigate them.
 
+The plan for actually getting from this scaffold to `apps/api` replacing
+`apps/web-app`'s oRPC API — in what order, and with what safety net — is
+[`MIGRATION.md`](./MIGRATION.md), not this file.
+
 ## Why a second backend app
 
 `apps/web-app` already has a complete API: oRPC procedures under
@@ -35,10 +39,17 @@ contract's validation and auth rules consistently, and a module system that
 maps cleanly onto the domain boundaries `apps/web-app/src/features` already
 established.
 
-This is additive, not a migration. `apps/web-app`'s oRPC API is not going
-away, and `apps/api` reuses the same Postgres database and the same
-better-auth session cookie rather than owning a parallel copy of either —
-see [Data layer](#data-layer-shared-postgres-not-a-second-database) and
+**Update:** the intent has since become to replace `apps/web-app`'s oRPC
+API with `apps/api` over time — see `MIGRATION.md` for the step-by-step
+plan. This section's reasoning still stands as the *reason to build on
+NestJS/REST/OpenAPI in the first place*; it just turned out to also be a
+reasonable target to migrate the first-party client onto, not only
+third-party integrations. Either way, the transition is incremental: at
+every point along `MIGRATION.md`'s phases, `apps/web-app`'s oRPC API keeps
+working until the specific piece replacing it is proven, and `apps/api`
+reuses the same Postgres database and the same better-auth session cookie
+rather than owning a parallel copy of either — see
+[Data layer](#data-layer-shared-postgres-not-a-second-database) and
 [Auth](#auth-shared-session-not-a-second-login) below.
 
 ## Module map
@@ -333,20 +344,10 @@ apps/api/
 
 ## Explicit follow-ups before real implementation
 
-In priority order:
-
-1. Extract `apps/web-app/src/db/schema.ts` into a shared `packages/db` so
-   `apps/api` can import the exact same schema/types instead of duplicating
-   or drifting from it. Nothing under `src/database` or any module's
-   `infrastructure/` should be written before this.
-2. Implement `modules/auth`'s `SessionGuard` against `packages/auth`, and
-   apply it (or a module-level `APP_GUARD`) before any other module starts
-   accepting requests — every subsequent module assumes `@CurrentUser()` is
-   available.
-3. Wire `ValidationPipe` + the RFC 7807 exception filter globally in
-   `main.ts` before the first real DTO lands, so the first module doesn't
-   have to invent per-controller error handling.
-4. Decide whether `apps/api` joins the root `pnpm dev` parallel run (today
-   it only has `dev:api`, deliberately left out of the combined `dev`
-   script until there's a working module worth running alongside the other
-   two apps).
+Superseded by `MIGRATION.md`'s Phase 0, which covers the same ground
+(shared-schema extraction, the auth guard, global validation/error
+handling, the `pnpm dev` question) in the actual order and detail needed
+to execute it — this section used to list them in brief but a second,
+lower-detail copy next to the real plan is exactly the kind of drift this
+whole doc warns against elsewhere, so it's been removed in favor of one
+source of truth.
