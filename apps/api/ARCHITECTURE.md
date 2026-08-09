@@ -121,21 +121,34 @@ This is the same reasoning that already keeps
 oRPC/data-fetching in this repo — it's applied here at the module level
 instead of the package level.
 
-## Data layer: shared Postgres, not a second database
+## Data layer: same Postgres database, apps/api's own Drizzle schema
 
-`apps/api` is meant to read and write the **same** `nodes`/`tags`/
-`tree_history_events` tables `apps/web-app` owns, not a parallel copy. That
-has one prerequisite this scaffold deliberately does not do yet:
-`apps/web-app/src/db/schema.ts` currently lives inside `apps/web-app/src/`,
-which `apps/api` cannot import (cross-workspace imports only go through a
-package's `exports` map, per the root `CLAUDE.md`).
+`apps/api` and `apps/web-app` point at the **same** Postgres database
+(same `DATABASE_URL`), but there is deliberately **no shared schema
+package**. `apps/web-app`'s oRPC API is being replaced, not kept running
+alongside `apps/api` long-term (see `MIGRATION.md`), so a `packages/db`
+built for two permanent consumers would be solving a problem this repo
+won't have for long — `apps/web-app` is headed toward zero direct database
+access, fetching everything from `apps/api` over HTTP instead.
 
-**Before `src/database` gets real code**, the Drizzle schema needs to move
-to a new `packages/db` (or similar) that both apps depend on via
-`workspace:*`, the same way `packages/auth` already centralizes the
-better-auth schema. Until that happens, `src/database` stays a placeholder
-rather than growing a second, drifting copy of the schema. This is the
-single biggest piece of groundwork the next PR into this app should do.
+Instead, `apps/api` gets **its own copy** of whatever table definitions a
+given module needs, written directly under `src/database/schema/`, copied
+from `apps/web-app`'s current definitions at the point that module's
+migration starts (see `MIGRATION.md`'s per-phase steps) rather than
+imported from a shared source. For the duration of one module's migration
+window, both apps' TypeScript schema files describe the same table —
+that's an accepted, temporary fork, not a drift risk to design around,
+because `apps/web-app`'s copy is deleted as soon as that module's
+migration finishes.
+
+**DDL ownership stays singular throughout**, even while the TypeScript
+definitions are temporarily forked: `apps/web-app`'s existing
+`drizzle/` migration history remains the one source of truth for actual
+schema changes (via `drizzle-kit generate`/`push`/`migrate`) until
+`MIGRATION.md`'s final phase moves that history — and `drizzle-kit`
+ownership — to `apps/api` wholesale. `apps/api` doesn't get its own
+`drizzle-kit` config until then; until then it only ever reads/writes
+through `drizzle-orm`, against tables whose DDL someone else manages.
 
 Once that split exists, `src/database` becomes a small `DatabaseModule`
 providing a `drizzle-orm/postgres-js` client configured from `DATABASE_URL`

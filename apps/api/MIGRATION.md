@@ -17,10 +17,45 @@ Vitest/TypeScript-6 tooling decisions it records.
   session it creates is verified by `apps/api` the same way
   `ARCHITECTURE.md`'s [Auth](./ARCHITECTURE.md#auth-shared-session-not-a-second-login)
   section already describes.
-- The Drizzle schema lives in one shared package (`packages/db`), not
-  duplicated between the two apps at any point during the migration.
+- `apps/api` has its own Drizzle schema, under `apps/api/src/database/schema/`
+  — not a package shared with `apps/web-app`. There's no long-term
+  consumer on the `apps/web-app` side to share it with: once a module is
+  migrated, `apps/web-app` stops touching Postgres for it entirely and
+  fetches from `apps/api` instead. See
+  [Why no shared schema package](#why-no-shared-schema-package) below.
 - oRPC, `@orpc/*`, and `apps/web-app/src/db` are deleted at the end. Until
   then they keep working — nothing here is a big-bang cutover.
+
+## Why no shared schema package
+
+An earlier version of this plan proposed extracting the Drizzle schema
+into a `packages/db` both apps would depend on. That solves the wrong
+problem: a shared package earns its cost when two apps need to keep
+importing the same thing indefinitely (`packages/auth` is exactly that —
+both apps create sessions/verify cookies forever). That's not this
+situation — `apps/web-app`'s server-side data access is being deleted, not
+kept. Building a shared package for a consumer that's going away in a few
+phases is speculative infrastructure for a need that expires.
+
+Instead: `apps/api` writes its own copy of a table's Drizzle definition,
+copied from `apps/web-app`'s current one at the point that module's
+migration starts (each phase below says which files). For that module's
+migration window, two TypeScript files describe the same table — that's
+an accepted, temporary fork, not a drift risk to design around, because
+`apps/web-app`'s copy is deleted as soon as the module's migration
+finishes (its last step in every phase below).
+
+What does **not** fork: actual schema *changes* (DDL). `apps/web-app`'s
+existing `drizzle/` migration history stays the one source of truth for
+`db:generate`/`db:push`/`db:migrate` for the entire transition — `apps/api`
+only ever reads/writes through `drizzle-orm` against tables whose DDL
+someone else manages, and doesn't get its own `drizzle-kit` config until
+Phase 7, when migration ownership moves over wholesale (by moving the
+`drizzle/` folder itself, preserving history — not regenerating it from
+scratch). If a table needs a schema change while its migration is
+in-flight, make it in `apps/web-app`'s copy (the one still driving
+`drizzle-kit`) and hand-copy the change into `apps/api`'s copy — the same
+manual sync any other temporary fork needs.
 
 ## Guiding principles
 
@@ -35,11 +70,19 @@ Vitest/TypeScript-6 tooling decisions it records.
    that calls it (`packages/outliner` takes data/callbacks, never fetches
    anything itself). Migrating a hook's internals from the oRPC client to
    an `apps/api` HTTP call is invisible to every component that uses it.
-3. **Shared schema first, then business logic, then the wire format.**
-   Don't hand-copy Drizzle table definitions into `apps/api` — that's
-   exactly the "two schemas silently drift" failure mode
-   `ARCHITECTURE.md` already warns about. Move each table's definition
-   once, to `packages/db`, and have both apps import it.
+3. **Copy the schema a module needs, then business logic, then the wire
+   format.** Copying (not sharing) is fine here specifically because the
+   copy is short-lived — see
+   [Why no shared schema package](#why-no-shared-schema-package). Delete
+   `apps/web-app`'s copy of a table file once nothing in `apps/web-app`
+   imports it anymore — for a table used by only one phase's procedures
+   that's "as soon as that phase's retirements are done," but
+   `node-tables.ts` (used across Phases 2 *and* 3) and
+   `tree-history-table.ts` (used by Phase 1's `maintenance` *and* Phase
+   4's `tree-history`, and Phase 1's cutover is deliberately deferred to
+   Phase 7 — see that phase) live longer. Check for remaining importers
+   before deleting a table file, don't assume "this phase is done" means
+   "this table is free."
 4. **Port persistence logic, don't re-derive it.** Fractional-index
    recomputation, the advisory-lock reorder in `moveNode`, the recursive
    CTE in `visibleTree`/`duplicateNode`'s subtree copy — these are
@@ -58,7 +101,8 @@ goes through the same five steps, in the same order:
 
 1. **Port**: move the procedure's logic into
    `apps/api/src/modules/<module>/application/`, backed by a repository in
-   `infrastructure/` built on the shared `packages/db` schema/client.
+   `infrastructure/` built on `apps/api`'s own copy of the relevant
+   `src/database/schema/` table(s) and its shared `DatabaseModule` client.
 2. **Expose**: add the controller route + `dto/` request/response classes
    (`class-validator`/`class-transformer`, `@nestjs/swagger`-decorated).
 3. **Test**: unit-test the application service, integration-test the
@@ -72,60 +116,34 @@ goes through the same five steps, in the same order:
    delete the old oRPC procedure file and its exports from
    `apps/web-app/src/orpc/router.ts` in a follow-up PR.
 
-## Phase 0 — Shared foundations (blocks every module)
+## Phase 0 — Foundations (blocks every module)
 
-This is the biggest single piece of groundwork and has to land before any
-module's real logic is ported — it's `ARCHITECTURE.md`'s follow-up #1,
-expanded into concrete steps.
+This has to land before any module's real logic is ported. Unlike the
+earlier draft of this plan, there's no shared-package extraction here —
+just `apps/api` standing up its own database access, independent of
+`apps/web-app`'s.
 
-- [ ] Create `packages/db` (`@cascade/db`), following `packages/auth`'s
-      shape: `package.json` with `drizzle-orm`, `postgres`, `drizzle-kit`
-      as dependencies, and an `exports` map (`./schema`, `./client`).
-- [ ] Move the four table-definition files into `packages/db/src/schema/`,
-      one file each, preserving their current per-domain split rather than
-      flattening into one giant file:
-      - `apps/web-app/src/features/nodes/server/persistence/node-tables.ts`
-        (`statuses`, `nodes`, `tags`, `nodeTags`)
-      - `apps/web-app/src/features/tree-history/server/tree-history-table.ts`
-        (`treeHistoryEvents`, `treeHistorySnapshots`)
-      - `apps/web-app/src/features/settings/server/settings-table.ts`
-        (`userSettings`)
-      - `apps/web-app/src/features/premium/server/premium-table.ts`
-        (`premiumSeats`)
-- [ ] Add `packages/db/src/schema/index.ts` re-exporting all four, plus
-      `@cascade/auth/schema` — this becomes the new
-      `apps/web-app/src/db/schema.ts`, just relocated.
-- [ ] Add `packages/db/src/client.ts`: the `drizzle(postgres(...), {
-      schema })` factory, parameterized by `DATABASE_URL` and the
-      `statement_timeout: 30_000` connection option `apps/web-app/src/db/index.ts`
-      already sets — port that setting, don't drop it silently.
-- [ ] Update `apps/web-app` to import from `@cascade/db` everywhere it
-      currently imports `./schema`/`./db` — including every
-      `features/*/server/persistence/*` file, `features/*/server/procedures/*`,
-      `db/seed.ts`, `db/seed-tree.ts`, `db/migrate.ts`. Delete the local
-      table files and `apps/web-app/src/db/schema.ts` once nothing imports
-      them.
-- [ ] Update `apps/web-app/drizzle.config.ts`'s `schema` glob: it currently
-      reaches into `packages/auth` with a relative path
-      (`'../../packages/auth/src/auth.schema.ts'`) — add the equivalent
-      relative path(s) into `packages/db/src/schema/`, and drop the
-      `./**/*-table.ts` / `./**/*-tables.ts` globs once no table files
-      remain under `apps/web-app/src`.
-- [ ] Decide (and document in `packages/db`'s own README) which workspace
-      owns running `db:generate`/`db:migrate`/`db:push` during the
-      transition. Recommendation: keep it on `apps/web-app` — it's already
-      wired into `pnpm dev`'s `db:push` step and CI — until Phase 7, then
-      move the scripts to `apps/api` (or a neutral root-level script) in
-      the same PR that deletes `apps/web-app/src/db`.
-- [ ] Run `apps/web-app`'s full test suite
-      (`pnpm test:app`, `pnpm test:db:app`, `pnpm test:e2e:app`) after the
-      import rewrite. This step should produce a **zero-behavior-change**
-      diff — if any test's output changes, the schema move introduced a
-      regression, not a migration.
-- [ ] In `apps/api`, implement `src/database` for real: a `DatabaseModule`
-      providing a Drizzle client (via `@cascade/db`'s client factory) as a
-      Nest custom provider (e.g. token `DRIZZLE`), configured from
-      `DATABASE_URL` through the typed env validation described next.
+- [ ] In `apps/api`, implement `src/database` for real: add `drizzle-orm`
+      and `postgres` as dependencies (no `drizzle-kit` yet — see
+      [Why no shared schema package](#why-no-shared-schema-package)), and
+      a `DatabaseModule` providing a Drizzle client as a Nest custom
+      provider (e.g. token `DRIZZLE`), configured from `DATABASE_URL`. Port
+      the `statement_timeout: 30_000` connection option from
+      `apps/web-app/src/db/index.ts` — don't drop it silently.
+- [ ] `src/database/schema/` starts empty (no `.gitkeep` needed once this
+      lands — Phase 1 adds its first file immediately after). Each later
+      phase copies in exactly the table file(s) it needs, from
+      `apps/web-app`'s current definitions:
+      - Phase 1 (`maintenance`) needs
+        `features/tree-history/server/tree-history-table.ts`
+        (`treeHistoryEvents`, `treeHistorySnapshots`).
+      - Phases 2–3 (`nodes`) need
+        `features/nodes/server/persistence/node-tables.ts`
+        (`statuses`, `nodes`, `tags`, `nodeTags`).
+      - Phase 5 (`users`) needs
+        `features/settings/server/settings-table.ts` (`userSettings`) and,
+        if premium-seat data is read/written by anything ported in that
+        phase, `features/premium/server/premium-table.ts` (`premiumSeats`).
 - [ ] Add real env validation to `apps/api/src/config`: `@t3-oss/env-core`
       + `zod`, matching `packages/auth/src/env.ts`'s pattern (per
       `ARCHITECTURE.md`'s [Config](./ARCHITECTURE.md#config) section) —
@@ -161,6 +179,11 @@ token-authenticated and REST-shaped in `apps/web-app` today (`POST
 /api/maintenance/purge-tree-history`), so there's no design decision to
 make about what the contract should look like — just port it.
 
+- [ ] Copy `features/tree-history/server/tree-history-table.ts`
+      (`treeHistoryEvents`, `treeHistorySnapshots`) into
+      `apps/api/src/database/schema/` — `apps/web-app`'s copy stays put for
+      now (Phase 4 still needs it, and per the note below so does this
+      module's own cutover).
 - [ ] Port the purge logic from
       `apps/web-app/src/features/tree-history/server/purge-tree-history.ts`
       into `modules/maintenance/application`.
@@ -184,6 +207,11 @@ subtly wrong, easier to compare parity against production data) and
 `nodes` is the app's core domain — start earning real confidence here
 before touching mutations.
 
+- [ ] Copy `features/nodes/server/persistence/node-tables.ts`
+      (`statuses`, `nodes`, `tags`, `nodeTags`) into
+      `apps/api/src/database/schema/` — `apps/web-app`'s copy stays put
+      until every procedure in this phase *and* Phase 3 is retired (see
+      [Guiding principles](#guiding-principles) #3).
 - [ ] `GET /v1/nodes/:id` — port `get-node.ts`.
 - [ ] `GET /v1/nodes/:id/ancestors` — port `get-node-ancestors.ts`.
 - [ ] `GET /v1/nodes` (cursor-paginated visible tree) — port
@@ -228,6 +256,10 @@ bad deploy can corrupt sibling ordering or orphan subtrees).
       `persistence/batch-inserts.ts`. Test with the same
       `--duplicateSubtreeSize` shapes `perf:mutate:app` already exercises,
       not just single-node cases.
+- [ ] Once every Phase 2 and Phase 3 procedure above has been cut over and
+      retired (per [Step shape](#step-shape-repeat-for-every-procedure)),
+      delete `apps/web-app/src/features/nodes/server/persistence/node-tables.ts`
+      — `apps/api`'s copy is now the only one.
 
 ## Phase 4 — Tree history
 
@@ -235,7 +267,9 @@ Depends on Phase 3 being complete for the mutations that emit history
 events: port this only once node mutations in `apps/api` already write
 `tree_history_events`/`tree_history_snapshots` rows in the same shape
 `apps/web-app` does, otherwise a node edited through `apps/api` has a gap
-in its undo history.
+in its undo history. The `tree-history-table.ts` schema copy already
+exists in `apps/api/src/database/schema/` from Phase 1 — nothing to add
+there, just build on it.
 
 - [ ] Port the read/list/restore procedures under
       `features/tree-history/server/` (check that folder for the current
@@ -247,6 +281,10 @@ in its undo history.
 
 ## Phase 5 — Users / account / settings / sessions
 
+- [ ] Copy `features/settings/server/settings-table.ts` (`userSettings`)
+      into `apps/api/src/database/schema/`, and
+      `features/premium/server/premium-table.ts` (`premiumSeats`) too if
+      the premium work below ends up needing it.
 - [ ] Port `features/account-data`, `features/settings`,
       `features/sessions`'s server procedures into `modules/users`.
 - [ ] Port `features/onboarding`'s `onUserCreated` hook path — check how
@@ -258,6 +296,9 @@ in its undo history.
       pass, not a straight port).
 - [ ] Port `features/premium` if/where it has server procedures beyond
       the `premiumSeats` table itself.
+- [ ] Once this phase's procedures are cut over and retired, delete
+      `apps/web-app/src/features/settings/server/settings-table.ts` and
+      (if copied above) `.../premium/server/premium-table.ts`.
 
 ## Phase 6 — Client cutover
 
@@ -289,26 +330,42 @@ Do this incrementally, module by module, following each module's Phase
 
 Only once every procedure has been ported, tested, and cut over:
 
+- [ ] Repoint whatever deployment cron/systemd timer calls
+      `POST /api/maintenance/purge-tree-history` at `apps/api`'s
+      `/v1/maintenance/purge-tree-history` instead (Phase 1's cutover,
+      deliberately deferred to here — it's an ops target, not a client
+      hook).
 - [ ] Delete `apps/web-app/src/orpc` and the `@orpc/*` dependencies from
       `apps/web-app/package.json`.
-- [ ] Delete `apps/web-app/src/features/*/server/` for every feature that
-      migrated (keep `apps/web-app/src/features/*/client/` and `ui/` —
-      those aren't going anywhere).
-- [ ] Delete `apps/web-app/src/db` (the migration in Phase 0 should have
-      already left it empty of schema; this removes the connection
-      factory too, since `apps/web-app` no longer talks to Postgres
-      directly).
+- [ ] Sweep `apps/web-app/src/features/*/server/` for anything left —
+      per-procedure retirement (Step shape, step 5) should have already
+      emptied it out module by module, so this is a verification pass,
+      not the primary deletion mechanism. `.../tree-history/server/`
+      (including `tree-history-table.ts`, kept alive by the maintenance
+      route above) and `.../nodes/server/persistence/node-tables.ts` (if
+      Phase 3's retirement step was somehow missed) are the two most
+      likely leftovers. Keep `apps/web-app/src/features/*/client/` and
+      `ui/` — those aren't going anywhere.
+- [ ] Delete `apps/web-app/src/db` (the connection factory `apps/web-app`
+      no longer needs, since it no longer talks to Postgres directly).
+- [ ] Move Drizzle migration ownership to `apps/api`: `git mv` `apps/web-app/drizzle/`
+      (the actual migration history) and `apps/web-app/drizzle.config.ts`
+      into `apps/api`, add `drizzle-kit` as an `apps/api` dependency, and
+      point the moved config's `schema` glob at
+      `apps/api/src/database/schema/**/*.ts` instead of the old
+      `*-table(s).ts` globs. This is the one point in the whole migration
+      where `apps/api` starts owning DDL — see
+      [Why no shared schema package](#why-no-shared-schema-package).
 - [ ] Move `db:generate`/`db:migrate`/`db:push`/`db:seed`/`db:studio`
-      script ownership from `apps/web-app` to `apps/api` (per the Phase 0
-      decision above), and update root `package.json`'s `:app`-suffixed
-      DB scripts to `:api`.
+      script ownership from `apps/web-app`'s `package.json` to
+      `apps/api`'s, and update root `package.json`'s `:app`-suffixed DB
+      scripts to `:api`.
 - [ ] Update `CLAUDE.md`'s "What this is" section: `apps/web-app` no
       longer "owns the database schema [and] the oRPC API" — `apps/api`
-      does. Update `apps/api/ARCHITECTURE.md`'s "Why a second backend app"
-      framing too, since "additive, not a migration" will no longer be
-      true.
-- [ ] Add `apps/api` to the root `pnpm dev` parallel run
-      (`ARCHITECTURE.md`'s Phase-0-deferred follow-up #4).
+      does. Update `apps/api/ARCHITECTURE.md` too — its "Why a second
+      backend app" and "Data layer" sections both describe the
+      in-progress state this phase completes.
+- [ ] Add `apps/api` to the root `pnpm dev` parallel run.
 - [ ] Retire the perf harness's assumption that `apps/web-app` is the
       server under test (`e2e-perf/support/http-client.ts`'s `APP_URL`
       default) — repoint `perf:query`/`perf:mutate`/`perf:filter`/
@@ -320,10 +377,12 @@ Until a module reaches Phase 6, keep a scratch comparison test (doesn't
 need to be permanent CI) that runs the same input through both the oRPC
 procedure and the `apps/api` equivalent against the same seeded data and
 diffs the result. This is cheap insurance against the two implementations
-silently drifting during the window where both exist — the failure mode
-this whole plan is designed to avoid is exactly the one `ARCHITECTURE.md`
-already calls out for the schema (two copies, drifting quietly) happening
-again at the business-logic layer instead.
+silently drifting during the window where both exist. It's the
+business-logic equivalent of the discipline
+[Why no shared schema package](#why-no-shared-schema-package) already
+applies to the temporarily-forked table definitions: an accepted,
+temporary fork is fine as long as something is actually watching for it
+to drift, not fine left to chance.
 
 ## What this plan deliberately leaves open
 
