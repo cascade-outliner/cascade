@@ -27,6 +27,7 @@ async function bootstrap() {
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle("Cascade API")
 		.setVersion("1")
+		.addBearerAuth()
 		.build();
 
 	const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);

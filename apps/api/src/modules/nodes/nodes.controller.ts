@@ -1,10 +1,16 @@
 import { Controller, Get, Inject, UseGuards } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+	ApiBearerAuth,
+	ApiOperation,
+	ApiResponse,
+	ApiTags,
+} from "@nestjs/swagger";
 import { type AuthenticatedUser, AuthGuard, GetUser } from "../../auth";
-import { VisibleTreeResponseDTO } from "./dto/node.dto";
+import { VisibleTreeResponseDTO } from "./dto/nodeDTO";
 import { VisibleTreeService } from "./services/tree.service";
 
 @ApiTags("nodes")
+@ApiBearerAuth()
 @Controller("nodes")
 @UseGuards(AuthGuard)
 export class NodesController {
