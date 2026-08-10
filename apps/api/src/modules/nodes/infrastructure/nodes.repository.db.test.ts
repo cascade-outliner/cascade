@@ -190,10 +190,11 @@ describe("NodesRepository (Postgres integration)", () => {
 
 	it("findDueSoon only returns nodes with a due date in the padded window", async () => {
 		const near = await insertNode({
+			order: "a0",
 			dueDate: new Date().toISOString().slice(0, 10),
 		});
-		await insertNode({ dueDate: "2000-01-01" });
-		await insertNode();
+		await insertNode({ order: "a1", dueDate: "2000-01-01" });
+		await insertNode({ order: "a2" });
 
 		const rows = await repository.findDueSoon(userId);
 		expect(rows.map((r) => r.id)).toEqual([near.id]);
