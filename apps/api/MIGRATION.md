@@ -178,23 +178,23 @@ token-authenticated and REST-shaped in `apps/web-app` today (`POST
 /api/maintenance/purge-tree-history`), so there's no design decision to
 make about what the contract should look like — just port it.
 
-- [ ] Copy `features/tree-history/server/tree-history-table.ts`
+- [x] Copy `features/tree-history/server/tree-history-table.ts`
       (`treeHistoryEvents`, `treeHistorySnapshots`) into
       `apps/api/src/database/schema/` — `apps/web-app`'s copy stays put for
       now (Phase 4 still needs it, and per the note below so does this
       module's own cutover).
-- [ ] Port the purge logic from
+- [x] Port the purge logic from
       `apps/web-app/src/features/tree-history/server/purge-tree-history.ts`
       into `modules/maintenance/application`.
-- [ ] Add a token guard (bearer `TREE_HISTORY_PURGE_TOKEN`, same
+- [x] Add a token guard (bearer `TREE_HISTORY_PURGE_TOKEN`, same
       32+-char-secret convention as today) — this can reuse or sit
       alongside `modules/auth`'s guards, but it's deliberately *not* the
       session guard, matching how `apps/web-app`'s route isn't
       session-gated either.
-- [ ] Add `POST /v1/maintenance/purge-tree-history` with a DTO matching the
+- [x] Add `POST /v1/maintenance/purge-tree-history` with a DTO matching the
       existing `{ days?, dryRun? }` body.
-- [ ] Port `apps/web-app`'s test coverage for the purge job.
-- [ ] Leave `apps/web-app`'s route in place for now (it's a cron/ops
+- [x] Port `apps/web-app`'s test coverage for the purge job.
+- [x] Leave `apps/web-app`'s route in place for now (it's a cron/ops
       target, not something the SPA calls — cut it over in Phase 7 by
       repointing whatever deployment cron/systemd timer calls it, not via
       a client hook).

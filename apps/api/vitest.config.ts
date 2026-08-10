@@ -1,5 +1,5 @@
 import swc from "unplugin-swc";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
 	plugins: [
@@ -13,6 +13,7 @@ export default defineConfig({
 	test: {
 		root: "./src",
 		setupFiles: ["../test/setup-env.ts"],
+		exclude: [...configDefaults.exclude, "**/*.db.test.ts"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json-summary"],

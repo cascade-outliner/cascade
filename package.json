@@ -54,6 +54,7 @@
     "build:api": "pnpm build:auth && pnpm --filter api build",
     "test:api": "pnpm --filter api test",
     "test:coverage:api": "pnpm --filter api test:coverage",
+    "test:db:api": "pnpm --filter api test:db",
     "start:api": "pnpm --filter api start",
     "-------": "--------------------------",
     "format": "biome format",

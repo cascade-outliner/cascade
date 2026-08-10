@@ -64,7 +64,7 @@ conceptually aligned even though they're structured differently day to day.
 | `modules/users` | `account-data`, `settings` | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
 | `modules/nodes` | `nodes` (tree CRUD, tags, statuses, due dates, quick-open, board view) | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
 | `modules/tree-history` | `tree-history` | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
-| `modules/maintenance` | `tree-history`'s purge job / `POST /api/maintenance/purge-tree-history` | `application/`, `infrastructure/`, `dto/` | Placeholder |
+| `modules/maintenance` | `tree-history`'s purge job / `POST /api/maintenance/purge-tree-history` | `application/`, `infrastructure/`, `dto/` | **Implemented** |
 
 Notes on the boundary choices:
 
@@ -361,8 +361,8 @@ apps/api/
         domain/ application/ infrastructure/ dto/   due dates, quick-open, board view
       tree-history/              Placeholder: undo/history read + restore
         domain/ application/ infrastructure/ dto/
-      maintenance/               Placeholder: purge-tree-history endpoint
-        application/ infrastructure/ dto/
+      maintenance/               Implemented: purge-tree-history endpoint
+        application/ infrastructure/ dto/ guards/
   test/
     e2e/                        (empty — whole-app supertest specs)
   ARCHITECTURE.md                This file
