@@ -13,7 +13,7 @@ import { CurrentUser } from "../../auth/decorators/current-user.decorator";
 
 @ApiTags("nodes")
 @ApiCookieAuth("session")
-@Controller("nodes")
+@Controller({ path: "nodes", version: "1" })
 export class NodesController {
 	constructor(private readonly visibleTreeService: VisibleTreeService) {}
 
