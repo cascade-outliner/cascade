@@ -81,9 +81,6 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@22.20.1)(ts-node@10.9.2(@swc/core@1.15.47)(@types/node@22.20.1)(typescript@5.9.3))
-      prettier:
-        specifier: ^3.4.2
-        version: 3.9.5
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
