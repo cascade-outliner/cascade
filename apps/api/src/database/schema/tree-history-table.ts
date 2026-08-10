@@ -10,28 +10,6 @@ import {
 	timestamp,
 } from "drizzle-orm/pg-core";
 
-/**
- * Copied from apps/web-app/src/features/tree-history/server/tree-history-table.ts
- * (see MIGRATION.md's Phase 1). `kind`/`payload`/`type`/`metadata`/`recurrence`
- * are typed loosely here rather than importing apps/web-app's
- * TreeHistoryEventKind/TreeHistoryPayload/NodeTypeName/NodeMetadata/
- * RecurrenceRule types: those live behind the tree-history feature's domain
- * model, which Phase 4 (modules/tree-history) ports along with the
- * procedures that actually branch on them. modules/maintenance only ever
- * selects/deletes by `id`/`createdAt`, so it doesn't need that precision —
- * the column names/types/indexes below match the source table exactly,
- * which is what matters for querying the real Postgres table correctly.
- *
- * `userId` also skips `@cascade/auth/schema`'s `.references(() => user.id)`
- * builder that apps/web-app's copy has: apps/api's DrizzleClient and
- * `@cascade/auth/schema`'s tables are typed against drizzle-orm's ESM vs.
- * CJS declaration files respectively (apps/api is `"type": "commonjs"`,
- * `@cascade/auth` is `"type": "module"`), which TypeScript treats as
- * structurally incompatible `Column` classes for FK-builder purposes. The
- * FK constraint itself still exists in Postgres — it's owned by
- * apps/web-app's migration history per MIGRATION.md, so this copy never
- * needed to declare it for `drizzle-kit` to pick up in the first place.
- */
 export const treeHistoryEvents = pgTable(
 	"tree_history_events",
 	{
