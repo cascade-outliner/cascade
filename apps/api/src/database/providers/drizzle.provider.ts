@@ -10,6 +10,7 @@ export const drizzleProvider: Provider = {
 	provide: DRIZZLE,
 	useFactory: (): DrizzleClient => {
 		const connectionString = process.env.DATABASE_URL;
+
 		if (!connectionString) {
 			throw new Error("DATABASE_URL environment variable is required");
 		}
@@ -17,6 +18,7 @@ export const drizzleProvider: Provider = {
 		const client = postgres(connectionString, {
 			connection: { statement_timeout: 30_000 },
 		});
+
 		return drizzle(client);
 	},
 };
