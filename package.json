@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@11.10.0",
   "scripts": {
-    "dev": "pnpm --filter app db:push && pnpm --filter app --filter web --filter api --parallel run dev",
+    "dev": "pnpm --filter app db:push && pnpm --filter app --filter web --parallel run dev",
     "compile-messages": "pnpm --filter app compile-messages && pnpm --filter web compile-messages",
     "tsc": "pnpm compile-messages && pnpm --filter app exec tsc --noEmit && pnpm --filter web exec tsc --noEmit",
     "-----": "--------------------------",

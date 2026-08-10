@@ -1,13 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import type { NodeDto } from "../dto/node.dto";
-import { NodesRepository } from "../repository/nodes.repository";
+import type { NodesRepository } from "../repository/nodes.repository";
 
 @Injectable()
 export class VisibleTreeService {
-	constructor(
-		@Inject(NodesRepository)
-		private readonly repository: NodesRepository,
-	) {}
+	constructor(private readonly repository: NodesRepository) {}
 
 	async get(userId: string): Promise<{ rows: NodeDto[] }> {
 		const result = await this.repository.findVisibleTree(userId);

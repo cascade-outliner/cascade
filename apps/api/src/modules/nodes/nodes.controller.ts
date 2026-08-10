@@ -1,17 +1,12 @@
-import { Controller, Get, Inject, UseGuards } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { type AuthenticatedUser, AuthGuard, GetUser } from "../../auth";
 import { VisibleTreeResponseDTO } from "./dto/node.dto";
-import { VisibleTreeService } from "./services/tree.service";
+import type { VisibleTreeService } from "./services/tree.service";
 
 @ApiTags("nodes")
 @Controller("nodes")
-@UseGuards(AuthGuard)
 export class NodesController {
-	constructor(
-		@Inject(VisibleTreeService)
-		private readonly visibleTreeService: VisibleTreeService,
-	) {}
+	constructor(private readonly visibleTreeService: VisibleTreeService) {}
 
 	@Get()
 	@ApiOperation({
@@ -19,9 +14,8 @@ export class NodesController {
 			"Every node belonging to the current user, flat and unordered; the client builds the tree from parentId",
 	})
 	@ApiResponse({ status: 200, type: VisibleTreeResponseDTO })
-	async list(
-		@GetUser() user: AuthenticatedUser,
-	): Promise<VisibleTreeResponseDTO> {
-		return this.visibleTreeService.get(user.id);
+	async list(): Promise<VisibleTreeResponseDTO> {
+		// TODO: Hook up userId from auth context
+		return this.visibleTreeService.get();
 	}
 }

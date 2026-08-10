@@ -1,11 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { jwt } from "better-auth/plugins";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./auth.schema";
 import { env } from "./env";
-import { CASCADE_API_AUDIENCE } from "./token-validation";
 
 const productionOrigins = [
 	"https://cascadelist.com",
@@ -67,28 +65,6 @@ export function createAuth(db: object | string, hooks: CreateAuthHooks = {}) {
 				},
 			}),
 		},
-		plugins: [
-			jwt({
-				jwks: {
-					keyPairConfig: {
-						alg: "EdDSA",
-						crv: "Ed25519",
-					},
-					rotationInterval: 60 * 60 * 24 * 30, // Rotate monthly
-					gracePeriod: 60 * 60 * 24 * 30, // Accept old keys for 30 days
-					disablePrivateKeyEncryption: false, // Keep encrypted
-				},
-				jwt: {
-					expirationTime: "1h", // 1 hour for reasonable API token lifetime
-					issuer: env.BETTER_AUTH_URL,
-					audience: CASCADE_API_AUDIENCE,
-					definePayload: ({ user }) => ({
-						id: user.id,
-						email: user.email,
-					}),
-				},
-			}),
-		],
 	});
 }
 

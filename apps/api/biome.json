@@ -1,8 +1,8 @@
 {
-	"root": false,
-	"javascript": {
-		"parser": {
-			"unsafeParameterDecoratorsEnabled": true
-		}
-	}
+  "root": false,
+  "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  }
 }

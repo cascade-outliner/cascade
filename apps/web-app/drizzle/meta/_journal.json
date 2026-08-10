@@ -134,13 +134,6 @@
       "when": 1786108667711,
       "tag": "0018_steep_paladin",
       "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1786384110193,
-      "tag": "0019_petite_doctor_faustus",
-      "breakpoints": true
     }
   ]
 }

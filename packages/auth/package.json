@@ -6,14 +6,12 @@
 	"exports": {
 		"./schema": "./src/auth.schema.ts",
 		"./server": "./src/server.ts",
-		"./client": "./src/client.ts",
-		"./token-validation": "./src/token-validation.ts"
+		"./client": "./src/client.ts"
 	},
 	"dependencies": {
 		"@t3-oss/env-core": "^0.13.11",
 		"better-auth": "1.6.23",
 		"drizzle-orm": "^0.45.2",
-		"jose": "^6.1.3",
 		"postgres": "^3.4.9",
 		"zod": "^4.4.3"
 	},
