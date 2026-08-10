@@ -1,9 +1,18 @@
+import type { Session } from "@cascade/auth/server";
 import { Controller, Get } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+	ApiCookieAuth,
+	ApiOperation,
+	ApiResponse,
+	ApiTags,
+	ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 import { VisibleTreeResponseDTO } from "./dto/node.dto";
-import type { VisibleTreeService } from "./services/tree.service";
+import { VisibleTreeService } from "./services/tree.service";
+import { CurrentUser } from "../../auth/decorators/current-user.decorator";
 
 @ApiTags("nodes")
+@ApiCookieAuth("session")
 @Controller("nodes")
 export class NodesController {
 	constructor(private readonly visibleTreeService: VisibleTreeService) {}
@@ -14,8 +23,10 @@ export class NodesController {
 			"Every node belonging to the current user, flat and unordered; the client builds the tree from parentId",
 	})
 	@ApiResponse({ status: 200, type: VisibleTreeResponseDTO })
-	async list(): Promise<VisibleTreeResponseDTO> {
-		// TODO: Hook up userId from auth context
-		return this.visibleTreeService.get();
+	@ApiUnauthorizedResponse({ description: "Valid user session required" })
+	async list(
+		@CurrentUser() currentUser: Session["user"],
+	): Promise<VisibleTreeResponseDTO> {
+		return this.visibleTreeService.get(currentUser.id);
 	}
 }

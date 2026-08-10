@@ -17,6 +17,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@cascade/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@fastify/cors':
+        specifier: ^11.2.0
+        version: 11.2.0
       '@fastify/static':
         specifier: ^9.3.0
         version: 9.3.0

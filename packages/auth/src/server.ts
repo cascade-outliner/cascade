@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./auth.schema";
-import { env } from "./env";
+import { env } from "#env";
+import * as schema from "#schema";
 
 const productionOrigins = [
 	"https://cascadelist.com",
@@ -12,9 +12,6 @@ const productionOrigins = [
 const devOrigins = ["http://localhost:3000", "http://localhost:3001"];
 
 export interface CreateAuthHooks {
-	/** Called once, right after a new user row is created (sign-up or first
-	 * social login) — the natural hook point for first-run setup like seeding
-	 * onboarding content. Not called for existing users. */
 	onUserCreated?: (user: { id: string }) => Promise<void>;
 }
 

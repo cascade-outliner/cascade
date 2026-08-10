@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { NodeDto } from "../dto/node.dto";
-import type { NodesRepository } from "../repository/nodes.repository";
+import { NodesRepository } from "../repository/nodes.repository";
 
 @Injectable()
 export class VisibleTreeService {

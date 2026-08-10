@@ -1,6 +1,7 @@
 import { Controller, Get, VERSION_NEUTRAL } from "@nestjs/common";
 import { HealthCheck, HealthCheckService } from "@nestjs/terminus";
 import { DrizzleHealthIndicator } from "../../database/providers/drizzle-health.indicator";
+import { Public } from "../../auth/decorators/public.decorator";
 
 interface HealthReport {
 	status: "ok";
@@ -9,6 +10,7 @@ interface HealthReport {
 }
 
 @Controller({ path: "health", version: VERSION_NEUTRAL })
+@Public()
 export class HealthController {
 	constructor(
 		private readonly healthCheckService: HealthCheckService,

@@ -17,6 +17,8 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@cascade/auth": "workspace:*",
+    "@fastify/cors": "^11.2.0",
     "@fastify/static": "^9.3.0",
     "@nestjs/common": "^11.1.28",
     "@nestjs/config": "^4.0.4",
