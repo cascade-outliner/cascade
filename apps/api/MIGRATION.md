@@ -157,10 +157,9 @@ just `apps/api` standing up its own database access, independent of
       escape hatch for `/health` and anything else that must stay
       unauthenticated.
 - [x] Wire a global `ValidationPipe({ whitelist: true, transform: true })`
-      and the RFC 7807 exception filter (`common/filters`) in `main.ts`,
-      per `ARCHITECTURE.md`'s [Validation](./ARCHITECTURE.md#validation-and-api-docs)
-      and [Error handling](./ARCHITECTURE.md#error-handling)
-      sections, before the first real DTO lands.
+      in `main.ts`, per `ARCHITECTURE.md`'s
+      [Validation](./ARCHITECTURE.md#validation-and-api-docs) section,
+      before the first real DTO lands.
 - [x] Add `@nestjs/swagger`, wire `SwaggerModule` in `main.ts` behind a
       `/docs` route, so every module below documents itself as it's built
       instead of retrofitting docs at the end.

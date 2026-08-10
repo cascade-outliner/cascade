@@ -220,21 +220,6 @@ each module's DTOs as they're added. This is the direct payoff of building
 on NestJS instead of another oRPC instance: a contract that's documented
 for consumers who aren't importing this repo's TypeScript types.
 
-## Error handling
-
-`common/filters/rfc7807-exception.filter.ts`'s `Rfc7807ExceptionFilter` is
-registered globally (`app.useGlobalFilters(...)` in `main.ts`) and
-translates every thrown error into
-[RFC 7807](https://www.rfc-editor.org/rfc/rfc7807) `application/problem+json`
-(`type`, `title`, `status`, `detail`, `instance`), rather than Nest's
-default `{ statusCode, message, error }` shape or each controller handling
-its own error shape. `HttpException` subclasses (Nest's built-ins, or a
-domain error thrown as one) map their status/message straight through;
-anything else is reported as a generic 500 with a fixed `detail` so
-internals (stack traces, driver errors) never leak into the response body.
-Unit-tested directly in `rfc7807-exception.filter.spec.ts` rather than only
-through an e2e request, per `MIGRATION.md`'s Phase 0.
-
 ## Testing: Vitest, not Jest
 
 Nest's CLI defaults to Jest; this app uses Vitest instead, to match every
@@ -335,7 +320,7 @@ apps/api/
     app.module.ts               Root module: ConfigModule + feature modules
     common/                     Cross-cutting, app-wide pipeline pieces
       decorators/                (empty — e.g. a future @Public() marker)
-      filters/                   RFC 7807 exception filter (rfc7807-exception.filter.ts)
+      filters/                    (empty — e.g. a future error-response filter)
       interceptors/               (empty — e.g. logging/timeout)
       middleware/                 (empty — e.g. request-id)
       pipes/                      (empty — validation pipe config, if it

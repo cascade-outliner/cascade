@@ -6,7 +6,6 @@ import {
 } from "@nestjs/platform-fastify";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
-import { Rfc7807ExceptionFilter } from "./common/filters/rfc7807-exception.filter";
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestFastifyApplication>(
@@ -27,7 +26,6 @@ async function bootstrap() {
 			forbidNonWhitelisted: true,
 		}),
 	);
-	app.useGlobalFilters(new Rfc7807ExceptionFilter());
 
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle("Cascade API")
