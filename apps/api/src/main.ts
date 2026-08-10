@@ -1,4 +1,4 @@
-import { ValidationPipe } from "@nestjs/common";
+import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import {
 	FastifyAdapter,
@@ -30,6 +30,7 @@ async function bootstrap() {
 		new FastifyAdapter(),
 	);
 
+	app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });
 	app.enableShutdownHooks();
 	app.enableCors({
 		credentials: true,

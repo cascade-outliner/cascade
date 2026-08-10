@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, VERSION_NEUTRAL } from "@nestjs/common";
 import { HealthCheck, HealthCheckService } from "@nestjs/terminus";
 import { DrizzleHealthIndicator } from "../../database/providers/drizzle-health.indicator";
 import { Public } from "../../auth/decorators/public.decorator";
@@ -9,7 +9,7 @@ interface HealthReport {
 	timestamp: string;
 }
 
-@Controller("health")
+@Controller({ path: "health", version: VERSION_NEUTRAL })
 @Public()
 export class HealthController {
 	constructor(
