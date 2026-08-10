@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type { NodeDTO } from "../dto/nodeDTO";
+import type { NodeDto } from "../dto/node.dto";
 import { NodesRepository } from "../repository/nodes.repository";
 
 @Injectable()
@@ -9,10 +9,10 @@ export class VisibleTreeService {
 		private readonly repository: NodesRepository,
 	) {}
 
-	async get(userId: string): Promise<{ rows: NodeDTO[] }> {
+	async get(userId: string): Promise<{ rows: NodeDto[] }> {
 		const result = await this.repository.findVisibleTree(userId);
 
-		const rows: NodeDTO[] = result.map((r) => ({
+		const rows: NodeDto[] = result.map((r) => ({
 			id: r.id,
 			parentId: r.parent_id,
 			content: r.content,

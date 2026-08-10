@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-export class NodeDTO {
+export class NodeDto {
 	@ApiProperty()
 	id!: string;
 
@@ -12,6 +12,6 @@ export class NodeDTO {
 }
 
 export class VisibleTreeResponseDTO {
-	@ApiProperty({ type: [NodeDTO] })
-	rows!: NodeDTO[];
+	@ApiProperty({ type: [NodeDto] })
+	rows!: NodeDto[];
 }
