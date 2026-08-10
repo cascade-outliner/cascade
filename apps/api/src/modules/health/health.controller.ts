@@ -1,6 +1,6 @@
 import { Controller, Get, VERSION_NEUTRAL } from "@nestjs/common";
-import { HealthCheck, type HealthCheckService } from "@nestjs/terminus";
-import type { DrizzleHealthIndicator } from "../../database/providers/drizzle-health.indicator";
+import { HealthCheck, HealthCheckService } from "@nestjs/terminus";
+import { DrizzleHealthIndicator } from "../../database/providers/drizzle-health.indicator";
 
 interface HealthReport {
 	status: "ok";
