@@ -302,6 +302,21 @@ with the matching `jsc.baseUrl` swc config (in `vitest.config.ts`'s
 `swc.vite()` call and implicitly via `nest-cli.json`'s builder) rather than
 copying just the `tsconfig.json` half from another workspace.
 
+## `@cascade/auth` is a built dependency, not a source one
+
+Every other shared package's `exports` map points straight at TypeScript
+source, resolved and transformed on the fly by whichever bundler consumes
+it (Vite for `apps/web-app`/`apps/website`). `@cascade/auth` is the one
+exception: it has a real `tsc` build (`pnpm --filter @cascade/auth build`,
+wired ahead of `pnpm dev` and every `build:*` script at the repo root), and
+its `exports` point at the compiled `dist/` output for every consumer,
+including this app. That's specifically because `apps/api` isn't
+bundler-backed at runtime — production runs `node dist/main.js` straight,
+which can't resolve or transpile another workspace package's raw `.ts`
+source the way Vite's dev server does. Editing `packages/auth/src` needs a
+rebuild (`pnpm --filter @cascade/auth build`) before the change is visible
+to any consumer, source-based packages don't have that step.
+
 ## Biome, not ESLint/Prettier
 
 Nest's CLI scaffolds ESLint + Prettier by default; both were dropped here.
