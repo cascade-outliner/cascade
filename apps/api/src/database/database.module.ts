@@ -6,6 +6,6 @@ import { DrizzleHealthIndicator } from "./providers/drizzle-health.indicator";
 @Module({
 	imports: [TerminusModule],
 	providers: [drizzleProvider, DrizzleHealthIndicator],
-	exports: [DRIZZLE, DrizzleHealthIndicator, TerminusModule],
+	exports: [DRIZZLE, DrizzleHealthIndicator],
 })
 export class DatabaseModule {}
