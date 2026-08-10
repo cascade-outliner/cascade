@@ -59,7 +59,7 @@ conceptually aligned even though they're structured differently day to day.
 
 | Module | Mirrors (`apps/web-app/src/features/`) | Layers present | Status |
 |---|---|---|---|
-| `modules/health` | — (infra-only) | flat, no layering | **Implemented** |
+| `modules/health` | — (infra-only) | flat, no layering | **Implemented** (liveness + readiness) |
 | `modules/auth` | `auth`, `sessions` | `guards/`, `decorators/` | Placeholder |
 | `modules/users` | `account-data`, `settings` | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
 | `modules/nodes` | `nodes` (tree CRUD, tags, statuses, due dates, quick-open, board view) | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
@@ -341,9 +341,14 @@ apps/api/
       pipes/                      (empty — validation pipe config, if it
                                    outgrows a one-liner in main.ts)
     config/                      (empty — typed env validation, see Config)
-    database/                    (empty — DrizzleModule, see Data layer)
+    database/                    DatabaseModule (DRIZZLE client) + a
+                                   Terminus DrizzleHealthIndicator for
+                                   modules/health's readiness probe
+      database.module.ts
+      drizzle.provider.ts
+      drizzle-health.indicator.ts
     modules/
-      health/                    Implemented: liveness probe
+      health/                    Implemented: liveness + readiness probes
         health.module.ts
         health.controller.ts
         health.controller.spec.ts
