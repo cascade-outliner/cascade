@@ -62,7 +62,7 @@ conceptually aligned even though they're structured differently day to day.
 | `modules/health` | — (infra-only) | flat, no layering | **Implemented** (liveness + readiness) |
 | `modules/auth` | `auth`, `sessions` | `guards/`, `decorators/` | Placeholder |
 | `modules/users` | `account-data`, `settings` | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
-| `modules/nodes` | `nodes` (tree CRUD, tags, statuses, due dates, quick-open, board view) | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
+| `modules/nodes` | `nodes` (tree CRUD, tags, statuses, due dates, quick-open, board view) | `domain/`, `application/`, `infrastructure/`, `dto/` | **Partial** (read-only endpoints from MIGRATION.md's Phase 2; mutations are Phase 3) |
 | `modules/tree-history` | `tree-history` | `domain/`, `application/`, `infrastructure/`, `dto/` | Placeholder |
 | `modules/maintenance` | `tree-history`'s purge job / `POST /api/maintenance/purge-tree-history` | `application/`, `infrastructure/`, `dto/` | **Implemented** |
 

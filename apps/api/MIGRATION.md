@@ -206,26 +206,33 @@ subtly wrong, easier to compare parity against production data) and
 `nodes` is the app's core domain — start earning real confidence here
 before touching mutations.
 
-- [ ] Copy `features/nodes/server/persistence/node-tables.ts`
+- [x] Copy `features/nodes/server/persistence/node-tables.ts`
       (`statuses`, `nodes`, `tags`, `nodeTags`) into
       `apps/api/src/database/schema/` — `apps/web-app`'s copy stays put
       until every procedure in this phase *and* Phase 3 is retired (see
       [Guiding principles](#guiding-principles) #3).
-- [ ] `GET /v1/nodes/:id` — port `get-node.ts`.
-- [ ] `GET /v1/nodes/:id/ancestors` — port `get-node-ancestors.ts`.
-- [ ] `GET /v1/nodes` (cursor-paginated visible tree) — port
-      `visible-tree.ts`, including its recursive CTE from
-      `features/nodes/server/persistence/tree-cte.ts`. This is the
-      highest-traffic read in the app; give it the most parity-testing
-      attention of anything in this phase.
-- [ ] `GET /v1/nodes/resolve/:slug` — port `resolve-node-slug.ts`
+- [x] `GET /v1/nodes/:id` — port `get-node.ts`.
+- [x] `GET /v1/nodes/:id/ancestors` — port `get-node-ancestors.ts`.
+- [x] `GET /v1/nodes` (flat, unpaginated visible tree) — port
+      `visible-tree.ts`. (Its current implementation is a single flat
+      per-user query, not the cursor-paginated recursive CTE this line
+      originally described — `tree-cte.ts` is only used by
+      `get-node-ancestors.ts`'s ancestor walk now; ported as the code
+      actually is, not as this doc previously assumed.)
+- [x] `GET /v1/nodes/resolve/:slug` — port `resolve-node-slug.ts`
       (including its `SLUG_AMBIGUOUS` fallback behavior).
-- [ ] `GET /v1/tags`, `GET /v1/statuses` — port `list-tags.ts` /
+- [x] `GET /v1/tags`, `GET /v1/statuses` — port `list-tags.ts` /
       `list-statuses.ts`.
-- [ ] `GET /v1/nodes/due-soon` — port `list-due-soon.ts`.
-- [ ] `GET /v1/nodes/quick-open` — port `quick-open.ts`.
-- [ ] `GET /v1/nodes` (flat list variant, if distinct from the tree
-      query) — port `list-nodes.ts`.
+- [x] `GET /v1/nodes/due-soon` — port `list-due-soon.ts`.
+- [x] `GET /v1/nodes/quick-open` — port `quick-open.ts`. Ported without
+      its `assertNodeCapabilityEnabled(userId, "search")` gate, which
+      depends on `userSettings`/premium-seat data that lives in Phase 5's
+      `modules/users` (not ported yet) — revisit once that module exists.
+- [x] `GET /v1/nodes/children` (flat list variant, `list-nodes.ts`) — kept
+      as its own endpoint rather than folded into `GET /v1/nodes`: it's
+      parent-scoped (returns one parent's direct children, or roots) where
+      `GET /v1/nodes` is a full per-user dump, a genuinely different query
+      shape, not just a different URL for the same one.
 
 ## Phase 3 — Node mutations
 

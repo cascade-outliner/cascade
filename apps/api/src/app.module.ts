@@ -6,6 +6,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { SessionGuard } from "./modules/auth/guards/session.guard";
 import { HealthModule } from "./modules/health/health.module";
 import { MaintenanceModule } from "./modules/maintenance/maintenance.module";
+import { NodesModule } from "./modules/nodes/nodes.module";
 
 @Module({
 	imports: [
@@ -17,8 +18,9 @@ import { MaintenanceModule } from "./modules/maintenance/maintenance.module";
 		AuthModule,
 		HealthModule,
 		MaintenanceModule,
+		NodesModule,
 		// Remaining feature modules land here as they're implemented:
-		// UsersModule, NodesModule, TreeHistoryModule.
+		// UsersModule, TreeHistoryModule.
 		// See src/modules/*/README.md and ARCHITECTURE.md for the planned
 		// shape of each.
 	],
