@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
-import type {
-	HealthIndicatorResult,
+import {
+	type HealthIndicatorResult,
 	HealthIndicatorService,
 } from "@nestjs/terminus";
 import { sql } from "drizzle-orm";
