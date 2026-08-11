@@ -1,4 +1,4 @@
-import type { Auth } from "@cascade/auth/server";
+import { Auth, createAuth } from "@cascade/auth/server";
 import type { Provider } from "@nestjs/common";
 import {
 	DRIZZLE,
@@ -10,8 +10,6 @@ export const authProvider: Provider = {
 	provide: AUTH_SESSION,
 	inject: [DRIZZLE],
 	useFactory: async (db: DrizzleClient): Promise<Auth> => {
-		const { createAuth } = await import("@cascade/auth/server");
-
 		return createAuth(db);
 	},
 };
