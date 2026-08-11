@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
+import type { SerializedEditorState } from "lexical";
 import {
 	DRIZZLE,
 	type DrizzleClient,
@@ -8,7 +9,7 @@ import {
 export interface VisibleTreeSqlRow {
 	id: string;
 	parent_id: string | null;
-	content: unknown;
+	content: SerializedEditorState | null;
 }
 
 @Injectable()

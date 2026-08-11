@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import type { SerializedEditorState } from "lexical";
 
 export class NodeDto {
 	@ApiProperty()
@@ -8,7 +9,7 @@ export class NodeDto {
 	parentId!: string | null;
 
 	@ApiPropertyOptional({ type: Object, nullable: true })
-	content!: unknown;
+	content!: SerializedEditorState | null;
 }
 
 export class VisibleTreeResponseDTO {
