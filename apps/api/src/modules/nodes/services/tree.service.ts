@@ -13,6 +13,7 @@ export class VisibleTreeService {
 			id: r.id,
 			parentId: r.parent_id,
 			content: r.content,
+			metadata: r.metadata,
 		}));
 
 		return { rows };

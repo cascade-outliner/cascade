@@ -10,6 +10,7 @@ export interface VisibleTreeSqlRow {
 	id: string;
 	parent_id: string | null;
 	content: SerializedEditorState | null;
+	metadata: { expanded: boolean } | null;
 }
 
 @Injectable()
@@ -18,7 +19,7 @@ export class NodesRepository {
 
 	async findVisibleTree(userId: string): Promise<VisibleTreeSqlRow[]> {
 		return (await this.db.execute(sql`
-			SELECT n.id, n.parent_id, n.content
+			SELECT n.id, n.parent_id, n.content, n.metadata
 			FROM nodes n
 			WHERE n.user_id = ${userId}
 		`)) as unknown as VisibleTreeSqlRow[];
