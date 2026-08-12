@@ -7,6 +7,9 @@ import {
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 
+// Non-production also allows the real prod origins so a local frontend can
+// be pointed at a shared/staging API; deployments must set NODE_ENV=production
+// (or an explicit CORS_ORIGINS) to get the narrower production-only list.
 const defaultAllowedOrigins =
 	process.env.NODE_ENV === "production"
 		? ["https://app.cascadelist.com", "https://cascadelist.com"]
