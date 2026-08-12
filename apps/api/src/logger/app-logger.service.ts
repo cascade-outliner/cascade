@@ -11,12 +11,16 @@ import type { LogEntry } from "./types/log-entry";
 
 const STACK_TRACE_PATTERN = /^(.)+\n\s+at .+:\d+:\d+/;
 
+function isString(value: unknown): value is string {
+	return typeof value === "string";
+}
+
 function isStackTrace(value: unknown): value is string {
-	return typeof value === "string" && STACK_TRACE_PATTERN.test(value);
+	return isString(value) && STACK_TRACE_PATTERN.test(value);
 }
 
 function stringifyMessage(message: unknown): string {
-	if (typeof message === "string") return message;
+	if (isString(message)) return message;
 	if (message instanceof Error) return message.stack ?? message.message;
 	// util.inspect (unlike JSON.stringify) can't throw on circular
 	// references and doesn't collapse other non-plain objects to "{}".
@@ -77,7 +81,7 @@ export class AppLogger implements LoggerService {
 
 function extractContext(optionalParams: unknown[]): { context?: string } {
 	const last = optionalParams.at(-1);
-	return { context: typeof last === "string" ? last : undefined };
+	return { context: isString(last) ? last : undefined };
 }
 
 function extractContextAndTrace(optionalParams: unknown[]): {
@@ -90,12 +94,12 @@ function extractContextAndTrace(optionalParams: unknown[]): {
 		const [only] = optionalParams;
 		return isStackTrace(only)
 			? { trace: only }
-			: { context: typeof only === "string" ? only : undefined };
+			: { context: isString(only) ? only : undefined };
 	}
 
 	const [trace, context] = optionalParams;
 	return {
-		trace: typeof trace === "string" ? trace : undefined,
-		context: typeof context === "string" ? context : undefined,
+		trace: isString(trace) ? trace : undefined,
+		context: isString(context) ? context : undefined,
 	};
 }
