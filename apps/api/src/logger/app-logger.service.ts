@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import {
 	Inject,
 	Injectable,
@@ -15,7 +16,11 @@ function isStackTrace(value: unknown): value is string {
 }
 
 function stringifyMessage(message: unknown): string {
-	return typeof message === "string" ? message : JSON.stringify(message);
+	if (typeof message === "string") return message;
+	if (message instanceof Error) return message.stack ?? message.message;
+	// util.inspect (unlike JSON.stringify) can't throw on circular
+	// references and doesn't collapse other non-plain objects to "{}".
+	return inspect(message, { depth: 5 });
 }
 
 @Injectable()
