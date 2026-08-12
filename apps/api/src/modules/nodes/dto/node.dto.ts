@@ -1,22 +1,24 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import type { SerializedEditorState } from "lexical";
-import { MetadataNodeDto } from "./metadata.node.dto";
+import { createZodDto } from "nestjs-zod";
+import { z } from "zod";
+import { metadataNodeSchema } from "./metadata.node.dto";
 
-export class NodeDto {
-	@ApiProperty()
-	id!: string;
+// Lexical content is validated on write (apps/web-app); here it's an
+// opaque response field, so z.custom() keeps the SerializedEditorState
+// type without re-implementing that recursive shape check.
+const nodeSchema = z.object({
+	id: z.uuid(),
+	parentId: z.uuid().nullable(),
+	content: z.custom<SerializedEditorState>().nullable(),
+	metadata: metadataNodeSchema.nullable(),
+});
 
-	@ApiProperty({ nullable: true, type: String })
-	parentId!: string | null;
+export class NodeDto extends createZodDto(nodeSchema) {}
 
-	@ApiPropertyOptional({ type: Object, nullable: true })
-	content!: SerializedEditorState | null;
+const visibleTreeResponseSchema = z.object({
+	rows: z.array(nodeSchema),
+});
 
-	@ApiPropertyOptional({ type: Object, nullable: true })
-	metadata!: MetadataNodeDto | null;
-}
-
-export class VisibleTreeResponseDTO {
-	@ApiProperty({ type: [NodeDto] })
-	rows!: NodeDto[];
-}
+export class VisibleTreeResponseDTO extends createZodDto(
+	visibleTreeResponseSchema,
+) {}
