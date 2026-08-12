@@ -1,6 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { createZodDto } from "nestjs-zod";
+import { z } from "zod";
 
-export class MetadataNodeDto {
-	@ApiProperty()
-	expanded!: boolean;
-}
+export const metadataNodeSchema = z.object({
+	expanded: z.boolean(),
+});
+
+export class MetadataNodeDto extends createZodDto(metadataNodeSchema) {}
