@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthModule } from "./auth/auth.module";
 import { DatabaseModule } from "./database/database.module";
+import { LoggerModule } from "./logger/logger.module";
 import { HealthModule } from "./modules/health/health.module";
 import { NodesModule } from "./modules/nodes/nodes.module";
 import { AuthGuard } from "./auth/guards/auth.guard";
@@ -13,6 +14,7 @@ import { AuthGuard } from "./auth/guards/auth.guard";
 			isGlobal: true,
 			envFilePath: [".env.local", ".env"],
 		}),
+		LoggerModule,
 		AuthModule,
 		DatabaseModule,
 		HealthModule,

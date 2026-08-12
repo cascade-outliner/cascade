@@ -1,5 +1,6 @@
 import type { IncomingHttpHeaders } from "node:http";
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { AppLogger } from "../../logger/app-logger.service";
 import { AUTH_SESSION } from "../constants/auth.constants";
 import { AuthPrincipal, type SessionResolver } from "../types/auth.types";
 
@@ -20,10 +21,9 @@ function toWebHeaders(nodeHeaders: IncomingHttpHeaders): Headers {
 
 @Injectable()
 export class AuthService {
-	private readonly logger = new Logger(AuthService.name);
-
 	constructor(
 		@Inject(AUTH_SESSION) private readonly sessionResolver: SessionResolver,
+		private readonly logger: AppLogger,
 	) {}
 
 	async resolve(headers: IncomingHttpHeaders): Promise<AuthPrincipal | null> {
@@ -34,6 +34,7 @@ export class AuthService {
 		} catch (error) {
 			this.logger.warn(
 				`Session resolution failed: ${error instanceof Error ? error.message : error}`,
+				AuthService.name,
 			);
 			return null;
 		}

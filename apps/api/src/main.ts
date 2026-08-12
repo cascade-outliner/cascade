@@ -6,6 +6,7 @@ import {
 } from "@nestjs/platform-fastify";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { AppLogger } from "./logger/app-logger.service";
 
 // Non-production also allows the real prod origins so a local frontend can
 // be pointed at a shared/staging API; deployments must set NODE_ENV=production
@@ -33,6 +34,7 @@ async function bootstrap() {
 		new FastifyAdapter(),
 	);
 
+	app.useLogger(app.get(AppLogger));
 	app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });
 	app.enableShutdownHooks();
 	app.enableCors({
