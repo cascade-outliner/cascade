@@ -4,5 +4,9 @@ packages:
 overrides:
   kysely: 0.28.17
 allowBuilds:
+  '@nestjs/core': true
+  '@scarf/scarf': set this to true or false
+  '@swc/core': set this to true or false
   better-sqlite3: true
   esbuild: true
+  lightningcss: true

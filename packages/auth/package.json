@@ -3,6 +3,10 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"imports": {
+		"#env": "./src/env.ts",
+		"#schema": "./src/auth.schema.ts"
+	},
 	"exports": {
 		"./schema": "./src/auth.schema.ts",
 		"./server": "./src/server.ts",

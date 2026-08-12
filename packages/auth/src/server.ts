@@ -2,8 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./auth.schema";
-import { env } from "./env";
+import * as schema from "#schema";
 
 const productionOrigins = [
 	"https://cascadelist.com",
@@ -12,9 +11,6 @@ const productionOrigins = [
 const devOrigins = ["http://localhost:3000", "http://localhost:3001"];
 
 export interface CreateAuthHooks {
-	/** Called once, right after a new user row is created (sign-up or first
-	 * social login) — the natural hook point for first-run setup like seeding
-	 * onboarding content. Not called for existing users. */
 	onUserCreated?: (user: { id: string }) => Promise<void>;
 }
 
@@ -23,8 +19,8 @@ export function createAuth(db: object | string, hooks: CreateAuthHooks = {}) {
 		typeof db === "string" ? drizzle(postgres(db), { schema }) : db;
 
 	return betterAuth({
-		baseURL: env.BETTER_AUTH_URL,
-		secret: env.BETTER_AUTH_SECRET,
+		baseURL: process.env.BETTER_AUTH_URL,
+		secret: process.env.BETTER_AUTH_SECRET,
 		database: drizzleAdapter(resolvedDb, { provider: "pg", schema }),
 		emailAndPassword: {
 			enabled: true,
@@ -44,24 +40,24 @@ export function createAuth(db: object | string, hooks: CreateAuthHooks = {}) {
 			},
 		},
 		socialProviders: {
-			...(env.BETTER_AUTH_GOOGLE_CLIENT_ID &&
-				env.BETTER_AUTH_GOOGLE_CLIENT_SECRET && {
+			...(process.env.BETTER_AUTH_GOOGLE_CLIENT_ID &&
+				process.env.BETTER_AUTH_GOOGLE_CLIENT_SECRET && {
 					google: {
-						clientId: env.BETTER_AUTH_GOOGLE_CLIENT_ID,
-						clientSecret: env.BETTER_AUTH_GOOGLE_CLIENT_SECRET,
+						clientId: process.env.BETTER_AUTH_GOOGLE_CLIENT_ID,
+						clientSecret: process.env.BETTER_AUTH_GOOGLE_CLIENT_SECRET,
 					},
 				}),
 		},
 		// Plaintext-HTTP localhost origins are only trustworthy in dev.
 		trustedOrigins:
-			env.NODE_ENV === "production"
+			process.env.NODE_ENV === "production"
 				? productionOrigins
 				: [...devOrigins, ...productionOrigins],
 		advanced: {
-			...(env.COOKIE_DOMAIN && {
+			...(process.env.COOKIE_DOMAIN && {
 				crossSubDomainCookies: {
 					enabled: true,
-					domain: env.COOKIE_DOMAIN,
+					domain: process.env.COOKIE_DOMAIN,
 				},
 			}),
 		},
