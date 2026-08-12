@@ -18,16 +18,6 @@ function stringifyMessage(message: unknown): string {
 	return typeof message === "string" ? message : JSON.stringify(message);
 }
 
-/**
- * Generic application logger. Implements Nest's LoggerService so it can be
- * passed to `app.useLogger()` and injected anywhere `@nestjs/common`'s
- * Logger normally would be, but every entry is fanned out to the LogSink[]
- * provided by LoggerModule instead of writing to stdout/stderr directly.
- *
- * To ship logs to an external service, add a LogSink implementation (e.g.
- * a SentryLogSink or DatadogLogSink) to LOG_SINKS in LoggerModule — nothing
- * here or at any call site needs to change.
- */
 @Injectable()
 export class AppLogger implements LoggerService {
 	constructor(@Inject(LOG_SINKS) private readonly sinks: LogSink[]) {}
