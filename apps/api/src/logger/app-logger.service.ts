@@ -22,8 +22,6 @@ function isStackTrace(value: unknown): value is string {
 function stringifyMessage(message: unknown): string {
 	if (isString(message)) return message;
 	if (message instanceof Error) return message.stack ?? message.message;
-	// util.inspect (unlike JSON.stringify) can't throw on circular
-	// references and doesn't collapse other non-plain objects to "{}".
 	return inspect(message, { depth: 5 });
 }
 
