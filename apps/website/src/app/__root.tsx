@@ -29,7 +29,7 @@ function FrontendRoot({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				{children}
+				<div className="root">{children}</div>
 				<Scripts />
 			</body>
 		</html>

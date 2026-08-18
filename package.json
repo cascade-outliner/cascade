@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "pnpm --filter web --filter",
 
-    "dev:web": "pnpm --filter web dev",
-
     "format": "biome format",
     "format:write": "biome format --write",
     "lint": "biome lint",
