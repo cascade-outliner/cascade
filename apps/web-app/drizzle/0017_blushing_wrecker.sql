@@ -1,1 +1,0 @@
-ALTER TABLE "nodes" ADD COLUMN "is_board" boolean DEFAULT false NOT NULL;

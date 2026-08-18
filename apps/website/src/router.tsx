@@ -1,20 +1,28 @@
-import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import { deLocalizeUrl, localizeUrl } from "./paraglide/runtime";
+import {
+	payloadParseSearch,
+	payloadStringifySearch,
+} from "@payloadcms/tanstack-start/shared";
+import { createRouter } from "@tanstack/react-router";
+
 import { routeTree } from "./routeTree.gen";
 
+function DefaultNotFound() {
+	return (
+		<div style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
+			<h1>404 — Page not found</h1>
+			<p>The page you requested does not exist.</p>
+		</div>
+	);
+}
+
 export function getRouter() {
-	const router = createTanStackRouter({
+	return createRouter({
+		defaultNotFoundComponent: DefaultNotFound,
+		parseSearch: payloadParseSearch,
 		routeTree,
 		scrollRestoration: true,
-		defaultPreload: "intent",
-		defaultPreloadStaleTime: 0,
-		rewrite: {
-			input: ({ url }) => deLocalizeUrl(url),
-			output: ({ url }) => localizeUrl(url),
-		},
+		stringifySearch: payloadStringifySearch,
 	});
-
-	return router;
 }
 
 declare module "@tanstack/react-router" {
