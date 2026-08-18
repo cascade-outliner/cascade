@@ -1,16 +1,13 @@
 import path from "node:path";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { mcpPlugin } from "@payloadcms/plugin-mcp";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
-import { Authors } from "@/collections/Author";
-import { Blog } from "@/collections/Blog";
-import { Pages } from "@/collections/Pages";
-import { Folders } from "./collections/Folders";
-import { Media } from "./collections/Media";
-import { Tags } from "./collections/Tags";
+import { blocks } from "@/blocks";
+import { collections } from "@/collections";
+import { globals } from "@/globals";
+import { plugins } from "@/plugins";
 import { Users } from "./collections/Users";
 
 const filename = fileURLToPath(import.meta.url);
@@ -23,7 +20,12 @@ export default buildConfig({
 			baseDir: path.resolve(dirname),
 		},
 	},
-	collections: [Users, Media, Folders, Tags, Pages, Authors, Blog],
+	graphQL: {
+		disable: true,
+	},
+	blocks,
+	collections,
+	globals,
 	editor: lexicalEditor(),
 	secret: process.env.PAYLOAD_SECRET || "",
 	typescript: {
@@ -36,9 +38,9 @@ export default buildConfig({
 	}),
 	sharp,
 	localization: {
-		locales: ["en"],
-		fallback: true,
+		locales: ["en", "nl"],
+		fallback: false,
 		defaultLocale: "en",
 	},
-	plugins: [mcpPlugin({})],
+	plugins,
 });

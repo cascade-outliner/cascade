@@ -13,9 +13,9 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation srvx --prod --dir=. --static=dist/client --entry=dist/server/server.js",
-    "test": "pnpm run test:int && pnpm run test:e2e",
-    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+
+    "migrate:fresh": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:fresh",
+    "migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

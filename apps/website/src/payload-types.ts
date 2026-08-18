@@ -62,33 +62,33 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_430D10CC".
+ * via the `definition` "LexicalNodes_02CCD3CD".
  */
-export type LexicalNodes_430D10CC =
+export type LexicalNodes_02CCD3CD =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_430D10CC>
+  | SerializedParagraphNode<LexicalNodes_02CCD3CD>
   | SerializedHorizontalRuleNode
   | SerializedUploadNode<'media'>
-  | SerializedQuoteNode<LexicalNodes_430D10CC>
+  | SerializedQuoteNode<LexicalNodes_02CCD3CD>
   | SerializedRelationshipNode<
-      | 'users'
-      | 'folders'
-      | 'tags'
-      | 'pages'
       | 'authors'
-      | 'blog'
+      | 'blogs'
+      | 'folders'
+      | 'pages'
+      | 'tags'
+      | 'users'
       | 'payload-kv'
       | 'payload-locked-documents'
       | 'payload-preferences'
       | 'payload-migrations'
     >
-  | SerializedAutoLinkNode<LexicalNodes_430D10CC, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_430D10CC, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_430D10CC>
-  | SerializedListItemNode<LexicalNodes_430D10CC>
-  | SerializedHeadingNode<LexicalNodes_430D10CC>;
+  | SerializedAutoLinkNode<LexicalNodes_02CCD3CD, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_02CCD3CD, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_02CCD3CD>
+  | SerializedListItemNode<LexicalNodes_02CCD3CD>
+  | SerializedHeadingNode<LexicalNodes_02CCD3CD>;
 
 export interface Config {
   auth: {
@@ -96,13 +96,13 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    media: Media;
-    folders: Folder;
-    tags: Tag;
-    pages: Page;
     authors: Author;
-    blog: Blog;
+    blogs: Blog;
+    folders: Folder;
+    media: Media;
+    pages: Page;
+    tags: Tag;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -110,13 +110,13 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    folders: FoldersSelect<false> | FoldersSelect<true>;
-    tags: TagsSelect<false> | TagsSelect<true>;
-    pages: PagesSelect<false> | PagesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
-    blog: BlogSelect<false> | BlogSelect<true>;
+    blogs: BlogsSelect<false> | BlogsSelect<true>;
+    folders: FoldersSelect<false> | FoldersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -125,10 +125,10 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: ('false' | 'none' | 'null') | false | null | 'en' | 'en'[];
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'nl') | ('en' | 'nl')[];
   globals: {};
   globalsSelect: {};
-  locale: 'en';
+  locale: 'en' | 'nl';
   widgets: {
     collections: CollectionsWidget;
     'collection-query': CollectionQueryWidget;
@@ -160,28 +160,16 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "authors".
  */
-export interface User {
+export interface Author {
   id: number;
+  name: string;
+  email: string;
+  avatar?: (number | null) | Media;
+  bio?: string | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -232,6 +220,23 @@ export interface Tag {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs".
+ */
+export interface Blog {
+  id: number;
+  title: string;
+  slug: string;
+  author: number | Author;
+  heroImage?: (number | null) | Media;
+  excerpt?: string | null;
+  content: LexicalRichText<LexicalNodes_02CCD3CD>;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -242,33 +247,28 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "authors".
+ * via the `definition` "users".
  */
-export interface Author {
+export interface User {
   id: number;
-  name: string;
+  updatedAt: string;
+  createdAt: string;
   email: string;
-  avatar?: (number | null) | Media;
-  bio?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog".
- */
-export interface Blog {
-  id: number;
-  title: string;
-  slug: string;
-  author: number | Author;
-  heroImage?: (number | null) | Media;
-  excerpt?: string | null;
-  content: LexicalRichText<LexicalNodes_430D10CC>;
-  publishedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -295,32 +295,32 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'authors';
+        value: number | Author;
       } | null)
     | ({
-        relationTo: 'media';
-        value: number | Media;
+        relationTo: 'blogs';
+        value: number | Blog;
       } | null)
     | ({
         relationTo: 'folders';
         value: number | Folder;
       } | null)
     | ({
-        relationTo: 'tags';
-        value: number | Tag;
+        relationTo: 'media';
+        value: number | Media;
       } | null)
     | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
     | ({
-        relationTo: 'authors';
-        value: number | Author;
+        relationTo: 'tags';
+        value: number | Tag;
       } | null)
     | ({
-        relationTo: 'blog';
-        value: number | Blog;
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -366,25 +366,43 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "authors_select".
  */
-export interface UsersSelect<T extends boolean = true> {
+export interface AuthorsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  avatar?: T;
+  bio?: T;
   updatedAt?: T;
   createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs_select".
+ */
+export interface BlogsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  author?: T;
+  heroImage?: T;
+  excerpt?: T;
+  content?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "folders_select".
+ */
+export interface FoldersSelect<T extends boolean = true> {
+  _h_folders?: T;
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _h_slugPath?: T;
+  _h_titlePath?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -408,15 +426,12 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders_select".
+ * via the `definition` "pages_select".
  */
-export interface FoldersSelect<T extends boolean = true> {
-  _h_folders?: T;
+export interface PagesSelect<T extends boolean = true> {
   name?: T;
   updatedAt?: T;
   createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -432,40 +447,25 @@ export interface TagsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
+ * via the `definition` "users_select".
  */
-export interface PagesSelect<T extends boolean = true> {
-  name?: T;
+export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "authors_select".
- */
-export interface AuthorsSelect<T extends boolean = true> {
-  name?: T;
   email?: T;
-  avatar?: T;
-  bio?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blog_select".
- */
-export interface BlogSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  author?: T;
-  heroImage?: T;
-  excerpt?: T;
-  content?: T;
-  publishedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -524,7 +524,7 @@ export interface CollectionsWidget {
 export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
-    relatedCollection: 'users' | 'media' | 'folders' | 'tags' | 'pages' | 'authors' | 'blog';
+    relatedCollection: 'authors' | 'blogs' | 'folders' | 'media' | 'pages' | 'tags' | 'users';
     where?:
       | {
           [k: string]: unknown;
@@ -546,7 +546,7 @@ export interface CollectionQueryWidget {
  */
 export interface ActivityWidget {
   data?: {
-    excludedCollections?: ('users' | 'media' | 'folders' | 'tags' | 'pages' | 'authors' | 'blog')[] | null;
+    excludedCollections?: ('authors' | 'blogs' | 'folders' | 'media' | 'pages' | 'tags' | 'users')[] | null;
   };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }
