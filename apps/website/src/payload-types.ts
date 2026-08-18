@@ -94,7 +94,9 @@ export interface Config {
   auth: {
     users: UserAuthOperations;
   };
-  blocks: {};
+  blocks: {
+    blockWithTitle: BlockWithTitle;
+  };
   collections: {
     authors: Author;
     blogs: Blog;
@@ -157,6 +159,33 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BlockWithTitle".
+ */
+export interface BlockWithTitle {
+  title: string;
+  content: Faq[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'blockWithTitle';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Faq".
+ */
+export interface Faq {
+  items?:
+    | {
+        question: string;
+        answer: LexicalRichText<LexicalNodes_02CCD3CD>;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -241,6 +270,7 @@ export interface Blog {
 export interface Page {
   id: number;
   name: string;
+  blocks?: (BlockWithTitle | Faq)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -428,6 +458,47 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   name?: T;
+  blocks?:
+    | T
+    | {
+        blockWithTitle?:
+          | T
+          | {
+              title?: T;
+              content?:
+                | T
+                | {
+                    faq?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                question?: T;
+                                answer?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }

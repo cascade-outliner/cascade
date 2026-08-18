@@ -10,20 +10,19 @@ export const Authors: CollectionConfig = {
 		{
 			type: "row",
 			fields: [
-{
-			name: "name",
-			type: "text",
-			required: true,
+				{
+					name: "name",
+					type: "text",
+					required: true,
+				},
+				{
+					name: "email",
+					type: "email",
+					required: true,
+					unique: true,
+				},
+			],
 		},
-		{
-			name: "email",
-			type: "email",
-			required: true,
-			unique: true,
-		}
-			]
-		},
-		
 		{
 			name: "avatar",
 			type: "upload",
