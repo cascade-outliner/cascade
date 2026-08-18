@@ -8,6 +8,9 @@ export const Authors: CollectionConfig = {
 	},
 	fields: [
 		{
+			type: "row",
+			fields: [
+{
 			name: "name",
 			type: "text",
 			required: true,
@@ -17,7 +20,10 @@ export const Authors: CollectionConfig = {
 			type: "email",
 			required: true,
 			unique: true,
+		}
+			]
 		},
+		
 		{
 			name: "avatar",
 			type: "upload",

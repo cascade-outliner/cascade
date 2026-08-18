@@ -13,22 +13,28 @@ export const Blogs: CollectionConfig = {
 			required: true,
 		},
 		{
-			name: "slug",
-			type: "text",
-			required: true,
-			unique: true,
-			index: true,
-		},
-		{
 			name: "author",
 			type: "relationship",
 			relationTo: "authors",
 			required: true,
+			admin: {
+				position: "sidebar",
+			},
 		},
 		{
-			name: "heroImage",
-			type: "upload",
-			relationTo: "media",
+			type: "row",
+			fields: [
+				{
+					name: "coverImage",
+					type: "upload",
+					relationTo: "media",
+				},
+				{
+					name: "thumbnailImage",
+					type: "upload",
+					relationTo: "media",
+				},
+			],
 		},
 		{
 			name: "excerpt",
@@ -38,16 +44,6 @@ export const Blogs: CollectionConfig = {
 			name: "content",
 			type: "richText",
 			required: true,
-		},
-		{
-			name: "publishedAt",
-			type: "date",
-			admin: {
-				date: {
-					pickerAppearance: "dayAndTime",
-				},
-				condition: (_, siblingData) => siblingData.status === "published",
-			},
 		},
 	],
 	versions: {

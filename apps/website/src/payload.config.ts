@@ -1,9 +1,9 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 import sharp from "sharp";
-import { fileURLToPath } from "url";
 import { blocks } from "@/blocks";
 import { collections } from "@/collections";
 import { globals } from "@/globals";

@@ -225,12 +225,11 @@ export interface Tag {
 export interface Blog {
   id: number;
   title: string;
-  slug: string;
   author: number | Author;
-  heroImage?: (number | null) | Media;
+  coverImage?: (number | null) | Media;
+  thumbnailImage?: (number | null) | Media;
   excerpt?: string | null;
   content: LexicalRichText<LexicalNodes_02CCD3CD>;
-  publishedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -382,12 +381,11 @@ export interface AuthorsSelect<T extends boolean = true> {
  */
 export interface BlogsSelect<T extends boolean = true> {
   title?: T;
-  slug?: T;
   author?: T;
-  heroImage?: T;
+  coverImage?: T;
+  thumbnailImage?: T;
   excerpt?: T;
   content?: T;
-  publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
