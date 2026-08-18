@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_frontend/")({
 function HomePage() {
 	return (
 		<div>
-			<p>Hello World...</p>
+			<p className="text-4xl font-bold underline">Hello World...</p>
 		</div>
 	);
 }
