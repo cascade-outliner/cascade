@@ -12,8 +12,8 @@ export const Pages: CollectionConfig = {
 			type: "slug",
 			required: true,
 			admin: {
-				position: "sidebar"
-			}
+				position: "sidebar",
+			},
 		},
 		{
 			name: "name",

@@ -1,21 +1,22 @@
 import { cva } from "cva";
 import { useItem } from "../context";
-import { Row } from "./row";
+import type { OutlineNode } from "../types";
 
-const children = cva({ base: "flex flex-col" });
+const style = cva({ base: "flex flex-col" });
 
 export interface ChildrenProps {
 	className?: string;
+	children: (node: OutlineNode, depth: number) => React.ReactNode;
 }
 
-export function Children({ className }: ChildrenProps) {
+export function Children({ className, children }: ChildrenProps) {
 	const { node, depth } = useItem();
 
 	return (
-		<div className={children({ className })} style={{ paddingLeft: 20 }}>
-			{node.children.map((child) =>
-				<Row key={child.id} node={child} depth={depth + 1} />,
-			)}
+		<div className={style({ className })} style={{ paddingLeft: 20 }}>
+			{node.children.map((child) => (
+				<div key={child.id}>{children(child, depth + 1)}</div>
+			))}
 		</div>
 	);
 }

@@ -11,5 +11,7 @@ export function Toggle({ className }: { className?: string }) {
 		return <span className={spacer({ className })} />;
 	}
 
-	return <span className={toggle({ className })}>{node.collapsed ? "▸" : "▾"}</span>;
+	return (
+		<span className={toggle({ className })}>{node.collapsed ? "▸" : "▾"}</span>
+	);
 }

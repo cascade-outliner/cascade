@@ -12,8 +12,8 @@ export const Authors: CollectionConfig = {
 			type: "slug",
 			required: true,
 			admin: {
-				position: "sidebar"
-			}
+				position: "sidebar",
+			},
 		},
 		{
 			type: "row",

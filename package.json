@@ -1,19 +1,19 @@
 {
-  "name": "cascade-monorepo",
-  "private": true,
-  "packageManager": "pnpm@11.10.0",
-  "scripts": {
-    "dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
+	"name": "cascade-monorepo",
+	"private": true,
+	"packageManager": "pnpm@11.10.0",
+	"scripts": {
+		"dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
 
-    "format": "biome format",
-    "format:write": "biome format --write",
-    "lint": "biome lint",
-    "check": "biome check"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.5.3"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  }
+		"format": "biome format",
+		"format:write": "biome format --write",
+		"lint": "biome lint",
+		"check": "biome check"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.3"
+	},
+	"engines": {
+		"node": ">=22.0.0"
+	}
 }

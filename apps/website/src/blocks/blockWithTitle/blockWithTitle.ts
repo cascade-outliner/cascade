@@ -11,11 +11,11 @@ export const blockWithTitle: Block = {
 			type: "text",
 			required: true,
 		},
-        {
-            name: 'content',
-            type: 'blocks',
-            required: true,
-            blocks: blocksWithTitleAllowedBlocks,
-        }
+		{
+			name: "content",
+			type: "blocks",
+			required: true,
+			blocks: blocksWithTitleAllowedBlocks,
+		},
 	],
 };
