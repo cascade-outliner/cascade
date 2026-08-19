@@ -8,6 +8,14 @@ export const Authors: CollectionConfig = {
 	},
 	fields: [
 		{
+			name: "slug",
+			type: "slug",
+			required: true,
+			admin: {
+				position: "sidebar"
+			}
+		},
+		{
 			type: "row",
 			fields: [
 				{

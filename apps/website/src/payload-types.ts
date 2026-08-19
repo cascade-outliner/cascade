@@ -62,33 +62,31 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_02CCD3CD".
+ * via the `definition` "LexicalNodes_3139D75A".
  */
-export type LexicalNodes_02CCD3CD =
+export type LexicalNodes_3139D75A =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_02CCD3CD>
+  | SerializedParagraphNode<LexicalNodes_3139D75A>
   | SerializedHorizontalRuleNode
   | SerializedUploadNode<'media'>
-  | SerializedQuoteNode<LexicalNodes_02CCD3CD>
+  | SerializedQuoteNode<LexicalNodes_3139D75A>
   | SerializedRelationshipNode<
       | 'authors'
       | 'blogs'
-      | 'folders'
       | 'pages'
-      | 'tags'
       | 'users'
       | 'payload-kv'
       | 'payload-locked-documents'
       | 'payload-preferences'
       | 'payload-migrations'
     >
-  | SerializedAutoLinkNode<LexicalNodes_02CCD3CD, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_02CCD3CD, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_02CCD3CD>
-  | SerializedListItemNode<LexicalNodes_02CCD3CD>
-  | SerializedHeadingNode<LexicalNodes_02CCD3CD>;
+  | SerializedAutoLinkNode<LexicalNodes_3139D75A, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_3139D75A, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_3139D75A>
+  | SerializedListItemNode<LexicalNodes_3139D75A>
+  | SerializedHeadingNode<LexicalNodes_3139D75A>;
 
 export interface Config {
   auth: {
@@ -100,10 +98,8 @@ export interface Config {
   collections: {
     authors: Author;
     blogs: Blog;
-    folders: Folder;
     media: Media;
     pages: Page;
-    tags: Tag;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -114,10 +110,8 @@ export interface Config {
   collectionsSelect: {
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     blogs: BlogsSelect<false> | BlogsSelect<true>;
-    folders: FoldersSelect<false> | FoldersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
-    tags: TagsSelect<false> | TagsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -179,7 +173,7 @@ export interface Faq {
   items?:
     | {
         question: string;
-        answer: LexicalRichText<LexicalNodes_02CCD3CD>;
+        answer: LexicalRichText<LexicalNodes_3139D75A>;
         id?: string | null;
       }[]
     | null;
@@ -193,6 +187,7 @@ export interface Faq {
  */
 export interface Author {
   id: number;
+  slug: string;
   name: string;
   email: string;
   avatar?: (number | null) | Media;
@@ -207,8 +202,6 @@ export interface Author {
 export interface Media {
   id: number;
   alt: string;
-  _h_folders?: (number | null) | Folder;
-  _h_tags?: (number | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -223,42 +216,17 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders".
- */
-export interface Folder {
-  id: number;
-  _h_folders?: (number | null) | Folder;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: number;
-  _h_tags?: (number | null) | Tag;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blogs".
  */
 export interface Blog {
   id: number;
+  slug: string;
   title: string;
   author: number | Author;
   coverImage?: (number | null) | Media;
   thumbnailImage?: (number | null) | Media;
   excerpt?: string | null;
-  content: LexicalRichText<LexicalNodes_02CCD3CD>;
+  content: LexicalRichText<LexicalNodes_3139D75A>;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -269,6 +237,7 @@ export interface Blog {
  */
 export interface Page {
   id: number;
+  slug: string;
   name: string;
   blocks?: (BlockWithTitle | Faq)[] | null;
   updatedAt: string;
@@ -332,20 +301,12 @@ export interface PayloadLockedDocument {
         value: number | Blog;
       } | null)
     | ({
-        relationTo: 'folders';
-        value: number | Folder;
-      } | null)
-    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
     | ({
         relationTo: 'pages';
         value: number | Page;
-      } | null)
-    | ({
-        relationTo: 'tags';
-        value: number | Tag;
       } | null)
     | ({
         relationTo: 'users';
@@ -398,6 +359,7 @@ export interface PayloadMigration {
  * via the `definition` "authors_select".
  */
 export interface AuthorsSelect<T extends boolean = true> {
+  slug?: T;
   name?: T;
   email?: T;
   avatar?: T;
@@ -410,6 +372,7 @@ export interface AuthorsSelect<T extends boolean = true> {
  * via the `definition` "blogs_select".
  */
 export interface BlogsSelect<T extends boolean = true> {
+  slug?: T;
   title?: T;
   author?: T;
   coverImage?: T;
@@ -422,24 +385,10 @@ export interface BlogsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders_select".
- */
-export interface FoldersSelect<T extends boolean = true> {
-  _h_folders?: T;
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  _h_folders?: T;
-  _h_tags?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -457,6 +406,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  slug?: T;
   name?: T;
   blocks?:
     | T
@@ -501,18 +451,6 @@ export interface PagesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags_select".
- */
-export interface TagsSelect<T extends boolean = true> {
-  _h_tags?: T;
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -593,7 +531,7 @@ export interface CollectionsWidget {
 export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
-    relatedCollection: 'authors' | 'blogs' | 'folders' | 'media' | 'pages' | 'tags' | 'users';
+    relatedCollection: 'authors' | 'blogs' | 'media' | 'pages' | 'users';
     where?:
       | {
           [k: string]: unknown;
@@ -615,7 +553,7 @@ export interface CollectionQueryWidget {
  */
 export interface ActivityWidget {
   data?: {
-    excludedCollections?: ('authors' | 'blogs' | 'folders' | 'media' | 'pages' | 'tags' | 'users')[] | null;
+    excludedCollections?: ('authors' | 'blogs' | 'media' | 'pages' | 'users')[] | null;
   };
   width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }

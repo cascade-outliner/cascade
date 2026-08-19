@@ -1,0 +1,11 @@
+{
+  "name": "@cascade/ui",
+  "private": true,
+  "version": "0.0.0",
+  "exports": {
+
+  },
+  "dependencies": {
+    "@cascade/theme": "workspace:*"
+  }
+}

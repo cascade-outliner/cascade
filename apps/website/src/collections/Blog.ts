@@ -8,6 +8,14 @@ export const Blogs: CollectionConfig = {
 	},
 	fields: [
 		{
+			name: "slug",
+			type: "slug",
+			required: true,
+			admin: {
+				position: "sidebar"
+			}
+		},
+		{
 			name: "title",
 			type: "text",
 			required: true,

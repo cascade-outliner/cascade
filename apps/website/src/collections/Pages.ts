@@ -8,6 +8,14 @@ export const Pages: CollectionConfig = {
 	},
 	fields: [
 		{
+			name: "slug",
+			type: "slug",
+			required: true,
+			admin: {
+				position: "sidebar"
+			}
+		},
+		{
 			name: "name",
 			type: "text",
 			required: true,
