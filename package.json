@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@11.10.0",
   "scripts": {
-    "dev": "pnpm --filter website dev",
+    "dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
 
     "format": "biome format",
     "format:write": "biome format --write",

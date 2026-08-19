@@ -3,5 +3,5 @@ packages:
   - 'packages/*'
 allowBuilds:
   esbuild: true
-  lightningcss: set this to true or false
+  lightningcss: true
   sharp: true
