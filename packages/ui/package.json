@@ -3,9 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "exports": {
-
+    ".": "./src/index.ts"
   },
   "dependencies": {
-    "@cascade/theme": "workspace:*"
+    "@cascade/theme": "workspace:*",
+    "cva": "1.0.0-beta.8"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "typescript": "^6.0.2"
   }
 }

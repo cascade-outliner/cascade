@@ -17,6 +17,9 @@ importers:
       '@cascade/theme':
         specifier: workspace:*
         version: link:../../packages/theme
+      '@cascade/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.3.3(vite@8.1.0(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4))
@@ -201,6 +204,22 @@ importers:
       '@cascade/theme':
         specifier: workspace:*
         version: link:../theme
+      cva:
+        specifier: 1.0.0-beta.8
+        version: 1.0.0-beta.8(typescript@6.0.3)
+      react:
+        specifier: ^19.2.0
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.6(react@19.2.6)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.14
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
 
 packages:
 
