@@ -36,8 +36,7 @@ function OutlineRow({ node, depth }: { node: OutlineNode; depth: number }) {
 
 function Home() {
 	return (
-		<div className="mx-auto max-w-2xl p-8">
-			<h1 className="mb-6 text-3xl font-bold">Outliner</h1>
+		<div className="p-8">
 			<Outliner.Root className="flex flex-col gap-1">
 				{data.map((n) => (
 					<OutlineRow key={n.id} node={n} depth={0} />

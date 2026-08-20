@@ -9,6 +9,10 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
+import "@fontsource-variable/bitter/index.css";
+import "@fontsource-variable/bitter/wght.css";
+import "@fontsource-variable/bitter/wght-italic.css";
+
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
@@ -43,7 +47,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body>
+			<body className="bg-surface text-ink font-app">
 				{children}
 				<TanStackDevtools
 					config={{
