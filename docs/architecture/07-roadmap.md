@@ -4,9 +4,15 @@ Ordered so that each milestone is shippable and the next one does not require
 undoing the last. The rule throughout: **build the engine before the features**,
 because the engine is what the features are cheap or expensive relative to.
 
-Current state: `packages/ui/src/outliner` renders a static tree from a literal;
-`apps/web-app` is a TanStack Start shell; `apps/website` is the Payload
-marketing site; Postgres exists in `docker-compose.yml` but nothing talks to it.
+Current state on this branch: `packages/ui/src/outliner` renders a static tree
+from a literal; `apps/web-app` is a TanStack Start shell; `apps/website` is the
+Payload marketing site; Postgres exists in `docker-compose.yml` but nothing
+talks to it.
+
+v1 on `main` is the reference for everything below — read
+[08](./08-what-v1-taught-us.md) alongside this. Several milestones are partly a
+port rather than new work, and the things worth porting early are called out
+where they land.
 
 ## M0 — Foundations
 
@@ -35,6 +41,11 @@ The outliner becomes real, entirely in memory.
 - Convert `Outliner.Children` from recursive rendering to a flat row list, and
   make `Toggle`/`Bullet` real buttons with labels.
 
+- Port v1's performance harness (`apps/web-app/e2e-perf/`) and the axe-core a11y
+  workflow now, not later. Both are cheap to bring across while the surface is
+  small and expensive to retrofit once it is not
+  ([08 §6](./08-what-v1-taught-us.md#6-carry-these-forward-on-day-one)).
+
 **Done when:** a person can write and restructure a document for an hour without
 noticing a missing keystroke, refresh loses everything, and every tree operation
 has a unit test.
@@ -42,13 +53,19 @@ has a unit test.
 ## M2 — Persistence
 
 - `packages/db`: Drizzle schema, hand-written migrations for triggers, generated
-  columns and partial indexes.
+  columns and partial indexes. Carry over v1's `text COLLATE "C"` on the order
+  column and its advisory-lock pattern; do not carry over the unique constraint
+  on `order` or `expanded` as a node column
+  ([08 §4](./08-what-v1-taught-us.md#4-three-schema-choices-to-revisit-in-v2)).
 - `packages/api`: the oRPC contract; `mutation.push`, `sync.snapshot`.
 - Mutation pipeline: workspace advisory lock, validate, apply, write nodes,
   append to the log ([02 §8](./02-data-model.md#8-the-operation-log)).
 - Auth and workspaces: sign-in, one workspace per user, root and trash nodes
   created with it.
 - Client: snapshot loading, pending queue, IndexedDB persistence.
+
+- Database-backed tests against a real Postgres for the mutation pipeline, the
+  lock and the log sequencing — the parts a mocked database cannot check.
 
 **Done when:** an edit survives a reload and a server restart; a killed network
 mid-edit resumes cleanly; the log's `seq` is provably monotonic under a

@@ -83,7 +83,8 @@ create table node (
 	parent_id      uuid references node(id) on delete restrict,
 
 	-- Lexicographically sortable fractional index. See §3.
-	sort_key       text not null,
+	-- COLLATE "C": fractional index keys must compare byte-wise (see §3).
+	sort_key       text collate "C" not null,
 
 	-- Extension point: which registered node kind renders and validates this row.
 	kind           text not null default 'bullet',
@@ -198,6 +199,14 @@ touched. This is what makes drag-and-drop and paste `O(1)` writes instead of
 
 Rules:
 
+0. **Declare the column as `text COLLATE "C"`.** Fractional index generators
+   assume byte-wise lexicographic comparison. Under a locale collation — which
+   is the default in most Postgres installations — punctuation and case are
+   weighted differently, and the order the database returns is not the order the
+   generator produced. v1 already does this
+   ([08 §1](./08-what-v1-taught-us.md#1-keep-these--v1-got-them-right)); it is
+   the single easiest thing on this page to get wrong and the hardest to
+   diagnose afterwards.
 1. **Order by `(sort_key, id)`, always.** Two clients that concurrently insert
    at the same position can generate the same key. Tie-breaking on `id` makes
    the resulting order arbitrary but *identical on every replica*, which is what

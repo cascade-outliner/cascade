@@ -3,10 +3,18 @@
 This directory is the design record for Cascade: how data is stored, how the
 outliner front-end is built, and how both stay extendable without being rewritten.
 
-It describes a **target architecture**, not the code that exists today. The repo
-currently contains a static, non-editable outliner (`packages/ui/src/outliner`)
-and a marketing site. Everything here is written so it can be built incrementally
-on top of that, in the order given in [07-roadmap.md](./07-roadmap.md).
+It describes a **target architecture**, not the code on this branch today. Two
+things are worth knowing before reading:
+
+- This branch (`website/v2`) is a rebuild. It contains a static, non-editable
+  outliner (`packages/ui/src/outliner`) and the marketing site; everything here
+  is written to be built incrementally on top of that, in the order given in
+  [07-roadmap.md](./07-roadmap.md).
+- The `main` branch holds v1: a working outliner with nineteen migrations, a
+  Lexical editor, a virtualized tree, boards, filters, a performance harness and
+  an accessibility suite. It is the best available evidence about this problem,
+  and [08-what-v1-taught-us.md](./08-what-v1-taught-us.md) audits it — what to
+  keep, and which decisions made a rebuild look attractive.
 
 ## Reading order
 
@@ -19,6 +27,7 @@ on top of that, in the order given in [07-roadmap.md](./07-roadmap.md).
 | 05 | [Type safety](./05-type-safety.md) | Branded ids, one schema many consumers, exhaustiveness, error handling |
 | 06 | [Extensibility](./06-extensibility.md) | Registries, node kinds, commands, slots, projections, plugin sandboxing |
 | 07 | [Roadmap](./07-roadmap.md) | Milestones, definition of done, what not to build yet |
+| 08 | [What v1 taught us](./08-what-v1-taught-us.md) | An audit of the implementation on `main`: keep, change, carry forward |
 
 ## The short version
 

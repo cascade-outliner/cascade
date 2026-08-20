@@ -139,8 +139,14 @@ The central decision, and the one that is expensive to change later.
 
 **Decision: the third.** Non-focused rows render as plain, non-editable React
 output from the inline model — fast, virtualizable, trivially memoized. The
-focused row mounts a real editor (a small ProseMirror instance, or a single
-`contenteditable` with a controlled inline model) bound to that node.
+focused row mounts a real editor bound to that node.
+
+v1 reached the same arrangement with Lexical (`packages/outliner/src/editor/`),
+which is the concrete recommendation: it is small, its node model maps cleanly
+onto our inline union, and there is a working integration to port rather than
+rebuild ([08 §1](./08-what-v1-taught-us.md#1-keep-these--v1-got-them-right)).
+The choice of editor library is contained by this decision — only the focused
+row knows about it — which is precisely the point of mounting one instance.
 
 What this demands, and what must therefore be built deliberately:
 
