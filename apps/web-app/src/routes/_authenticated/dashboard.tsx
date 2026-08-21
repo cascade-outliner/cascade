@@ -25,7 +25,7 @@ const data: OutlineNode[] = [
 function OutlineRow({ node, depth }: { node: OutlineNode; depth: number }) {
 	return (
 		<Outliner.Item node={node} depth={depth}>
-			<div className="flex items-start gap-1">
+			<div className="flex items-center gap-1">
 				<Outliner.Toggle />
 				<Outliner.Bullet />
 				<Outliner.Content />

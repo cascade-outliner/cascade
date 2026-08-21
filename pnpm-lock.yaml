@@ -308,6 +308,9 @@ importers:
       '@cascade/theme':
         specifier: workspace:*
         version: link:../theme
+      '@phosphor-icons/react':
+        specifier: ^2.1.10
+        version: 2.1.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       cva:
         specifier: 1.0.0-beta.8
         version: 1.0.0-beta.8(typescript@6.0.3)
