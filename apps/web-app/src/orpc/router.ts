@@ -1,10 +1,5 @@
-import { os } from "@orpc/server";
+import { nodesRouter } from "./nodes/router.ts";
+
 export const router = {
-	nodes: {
-		list: os.route({ method: "GET", path: "/nodes" }).handler(() => {
-			return {
-				nodes: [],
-			};
-		}),
-	},
+	nodes: nodesRouter,
 };
