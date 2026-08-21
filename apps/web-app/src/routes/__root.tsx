@@ -47,7 +47,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="bg-surface text-ink font-app">
+			<body className="bg-canvas text-ink font-app">
 				{children}
 				<TanStackDevtools
 					config={{
