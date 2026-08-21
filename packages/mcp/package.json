@@ -1,0 +1,21 @@
+{
+	"name": "@cascade/mcp",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"bin": {
+		"cascade-mcp": "./src/index.ts"
+	},
+	"scripts": {
+		"start": "node --env-file-if-exists=../../.env src/index.ts"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.30.0",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"@types/node": "^24.12.3",
+		"typescript": "^6.0.2"
+	}
+}
