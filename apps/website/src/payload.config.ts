@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { blocks } from "@/blocks";
 import { collections } from "@/collections";
 import { globals } from "@/globals";
+import { migrations } from "@/migrations";
 import { plugins } from "@/plugins";
 import { Users } from "./collections/Users";
 
@@ -36,6 +37,7 @@ export default buildConfig({
 		pool: {
 			connectionString: websiteEnv.DATABASE_URL_WEBSITE,
 		},
+		prodMigrations: migrations,
 	}),
 	sharp,
 	localization: {
