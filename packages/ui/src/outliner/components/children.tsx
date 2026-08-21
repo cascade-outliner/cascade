@@ -1,16 +1,12 @@
 import { cva } from "cva";
 import { useItem } from "../context";
-import type { OutlineNode } from "../types";
+import { mapSiblings, type SiblingRenderer } from "../lib/map-siblings";
 
 const style = cva({ base: "flex flex-col gap-1" });
 
 export interface ChildrenProps {
 	className?: string;
-	children: (
-		node: OutlineNode,
-		depth: number,
-		index: number,
-	) => React.ReactNode;
+	children: SiblingRenderer;
 }
 
 export function Children({ className, children }: ChildrenProps) {
@@ -22,9 +18,7 @@ export function Children({ className, children }: ChildrenProps) {
 
 	return (
 		<div className={style({ className })} style={{ paddingLeft: 20 }}>
-			{node.children.map((child, index) => (
-				<div key={child.id}>{children(child, depth + 1, index)}</div>
-			))}
+			{mapSiblings(node.children, depth + 1, children)}
 		</div>
 	);
 }

@@ -48,11 +48,11 @@ function OutlineRow({
 				/>
 			</div>
 			<Outliner.Children>
-				{(child, childDepth, index) => (
+				{(child, childDepth, previousSiblingId) => (
 					<OutlineRow
 						node={child}
 						depth={childDepth}
-						previousSiblingId={node.children[index - 1]?.id}
+						previousSiblingId={previousSiblingId}
 						onEdit={onEdit}
 						onDelete={onDelete}
 						onIndent={onIndent}
@@ -99,19 +99,20 @@ function Dashboard() {
 				</div>
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
-				{tree.map((n, i) => (
-					<OutlineRow
-						key={n.id}
-						node={n}
-						depth={0}
-						previousSiblingId={tree[i - 1]?.id}
-						onEdit={(id, content) => updateNode.mutate({ id, content })}
-						onDelete={(id) => deleteNode.mutate({ id })}
-						onIndent={(id, newParentId) =>
-							updateNode.mutate({ id, parentId: newParentId })
-						}
-					/>
-				))}
+				<Outliner.List nodes={tree}>
+					{(n, depth, previousSiblingId) => (
+						<OutlineRow
+							node={n}
+							depth={depth}
+							previousSiblingId={previousSiblingId}
+							onEdit={(id, content) => updateNode.mutate({ id, content })}
+							onDelete={(id) => deleteNode.mutate({ id })}
+							onIndent={(id, newParentId) =>
+								updateNode.mutate({ id, parentId: newParentId })
+							}
+						/>
+					)}
+				</Outliner.List>
 			</Outliner.Root>
 		</div>
 	);
