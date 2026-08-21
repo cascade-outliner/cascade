@@ -311,6 +311,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@base-ui/react':
+        specifier: ^1.7.0
+        version: 1.7.0(@date-fns/tz@1.2.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@cascade/theme':
         specifier: workspace:*
         version: link:../theme

@@ -1,3 +1,4 @@
+import { Actions } from "./components/actions";
 import { Bullet } from "./components/bullet";
 import { Children } from "./components/children";
 import { Content } from "./components/content";
@@ -12,6 +13,7 @@ export const Outliner = {
 	Toggle,
 	Content,
 	Children,
+	Actions,
 };
 
 export type { OutlinerRootProps } from "./components/root";

@@ -20,10 +20,12 @@ function OutlineRow({
 	node,
 	depth,
 	onEdit,
+	onDelete,
 }: {
 	node: OutlineNode;
 	depth: number;
 	onEdit: (id: string, content: SerializedEditorState) => void;
+	onDelete: (id: string) => void;
 }) {
 	const debouncedEdit = useDebouncedCallback(
 		(content: SerializedEditorState) => onEdit(node.id, content),
@@ -32,7 +34,8 @@ function OutlineRow({
 
 	return (
 		<Outliner.Item node={node} depth={depth}>
-			<div className="flex items-center gap-1">
+			<div className="relative flex items-center gap-1">
+				<Outliner.Actions onDelete={onDelete} />
 				<Outliner.Toggle />
 				<Outliner.Bullet />
 				<Outliner.Content
@@ -41,7 +44,12 @@ function OutlineRow({
 			</div>
 			<Outliner.Children>
 				{(child, childDepth) => (
-					<OutlineRow node={child} depth={childDepth} onEdit={onEdit} />
+					<OutlineRow
+						node={child}
+						depth={childDepth}
+						onEdit={onEdit}
+						onDelete={onDelete}
+					/>
 				)}
 			</Outliner.Children>
 		</Outliner.Item>
@@ -55,6 +63,13 @@ function Dashboard() {
 	const tree = buildTree(data?.nodes ?? []);
 	const updateNode = useMutation(
 		orpc.nodes.update.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: orpc.nodes.list.queryKey() });
+			},
+		}),
+	);
+	const deleteNode = useMutation(
+		orpc.nodes.delete.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({ queryKey: orpc.nodes.list.queryKey() });
 			},
@@ -83,6 +98,7 @@ function Dashboard() {
 						node={n}
 						depth={0}
 						onEdit={(id, content) => updateNode.mutate({ id, content })}
+						onDelete={(id) => deleteNode.mutate({ id })}
 					/>
 				))}
 			</Outliner.Root>

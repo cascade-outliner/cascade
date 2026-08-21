@@ -6,6 +6,7 @@
 		".": "./src/index.ts"
 	},
 	"dependencies": {
+		"@base-ui/react": "^1.7.0",
 		"@cascade/theme": "workspace:*",
 		"@lexical/react": "^0.38.0",
 		"@phosphor-icons/react": "^2.1.10",
