@@ -6,10 +6,10 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
-		"generate": "node --env-file=../../.env node_modules/drizzle-kit/bin.cjs generate",
-		"migrate": "node --env-file=../../.env node_modules/drizzle-kit/bin.cjs migrate",
-		"studio": "node --env-file=../../.env node_modules/drizzle-kit/bin.cjs studio",
-		"push": "node --env-file=../../.env node_modules/drizzle-kit/bin.cjs push"
+		"generate": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs generate",
+		"migrate": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs migrate",
+		"studio": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs studio",
+		"push": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs push"
 	},
 	"dependencies": {
 		"@cascade/env": "workspace:*",
