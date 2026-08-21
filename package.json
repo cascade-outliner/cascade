@@ -5,6 +5,14 @@
 	"scripts": {
 		"dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
 
+		"website:dev": "pnpm --filter @cascade/website dev",
+		"website:build": "pnpm --filter @cascade/website build",
+		"website:start": "pnpm --filter @cascade/website start",
+
+		"web-app:dev": "pnpm --filter @cascade/web-app dev",
+		"web-app:build": "pnpm --filter @cascade/web-app build",
+		"web-app:start": "pnpm --filter @cascade/web-app start",
+
 		"db:generate": "pnpm --filter @cascade/db generate",
 		"db:push": "pnpm --filter @cascade/db push",
 		"db:migrate": "pnpm --filter @cascade/db migrate",
