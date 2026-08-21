@@ -1,3 +1,4 @@
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
@@ -8,14 +9,36 @@ import { cva } from "cva";
 import type { EditorState } from "lexical";
 import { useItem } from "../context";
 
-const content = cva({ base: "flex-1 outline-none" });
+const wrapper = cva({ base: "flex-1" });
+const content = cva({ base: "outline-none" });
+
+function Editable({
+	className,
+	onCommit,
+}: {
+	className?: string;
+	onCommit?: (state: EditorState) => void;
+}) {
+	const [editor] = useLexicalComposerContext();
+
+	return (
+		<div className={wrapper()}>
+			<ContentEditable
+				className={content({ className })}
+				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
+			/>
+		</div>
+	);
+}
 
 export function Content({
 	className,
 	onChange,
+	onCommit,
 }: {
 	className?: string;
 	onChange?: (state: EditorState) => void;
+	onCommit?: (state: EditorState) => void;
 }) {
 	const { node } = useItem();
 
@@ -30,9 +53,7 @@ export function Content({
 			}}
 		>
 			<RichTextPlugin
-				contentEditable={
-					<ContentEditable className={content({ className })} />
-				}
+				contentEditable={<Editable className={className} onCommit={onCommit} />}
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
