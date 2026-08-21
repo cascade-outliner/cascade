@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { SerializedEditorState } from "lexical";
 import { orpc } from "#/orpc/client.ts";
 
@@ -25,7 +25,16 @@ function emptyState(): SerializedEditorState {
 }
 
 export function CreateNodeButton() {
-	const createNode = useMutation(orpc.nodes.create.mutationOptions());
+	const queryClient = useQueryClient();
+	const createNode = useMutation(
+		orpc.nodes.create.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.nodes.list.queryKey(),
+				});
+			},
+		}),
+	);
 
 	return (
 		<button
