@@ -10,6 +10,7 @@
 		"generate-routes": "tsr generate",
 		"build": "node --env-file-if-exists=../../.env node_modules/vite/bin/vite.js build",
 		"preview": "node --env-file-if-exists=../../.env node_modules/vite/bin/vite.js preview",
+		"start": "node --env-file-if-exists=../../.env .output/server/index.mjs",
 		"format": "biome format",
 		"lint": "biome lint",
 		"check": "biome check"
