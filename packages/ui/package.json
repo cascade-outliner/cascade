@@ -1,37 +1,25 @@
 {
-  "name": "@cascade/ui",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
-  },
-  "exports": {
-    "./cva.config": "./src/cva.config.ts",
-    "./motion-tokens": "./src/motion-tokens.ts",
-    "./motion-variants": "./src/motion-variants.ts",
-    "./motion-reposition": "./src/motion-reposition.ts",
-    "./motion-row-lifecycle": "./src/motion-row-lifecycle.ts",
-    "./overlay-motion": "./src/overlay-motion.ts",
-    "./*": "./src/*.tsx"
-  },
-  "peerDependencies": {
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
-  },
-  "dependencies": {
-    "@base-ui/react": "^1.6.0",
-    "@phosphor-icons/react": "^2.1.10",
-    "@cascade/theme": "workspace:*",
-    "cva": "1.0.0-beta.4",
-    "motion": "^12.42.2",
-    "tailwind-merge": "^3.6.0"
-  },
-  "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitest/coverage-v8": "^4.1.10",
-    "vitest": "^4.1.10"
-  }
+	"name": "@cascade/ui",
+	"private": true,
+	"version": "0.0.0",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"@base-ui/react": "^1.7.0",
+		"@cascade/theme": "workspace:*",
+		"@lexical/react": "^0.38.0",
+		"@phosphor-icons/react": "^2.1.10",
+		"cva": "1.0.0-beta.8",
+		"lexical": "^0.38.0"
+	},
+	"peerDependencies": {
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"@types/react": "^19.2.0",
+		"typescript": "^6.0.2"
+	}
 }

@@ -1,11 +1,3 @@
 @import "tailwindcss";
 @import "@cascade/theme";
-@plugin "@tailwindcss/typography";
-
-@source "../src/**/*.{ts,tsx}";
-@source "../../../packages/ui/src";
-@source "../../../packages/outliner/src";
-
-@theme {
-	--font-serif: "Bitter Variable", serif;
-}
+@source "../../../packages/ui";

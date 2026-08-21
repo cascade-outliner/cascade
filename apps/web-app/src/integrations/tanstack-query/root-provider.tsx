@@ -1,15 +1,10 @@
-import { MutationCache, QueryClient } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 
 export function getContext() {
-	const queryClient = new QueryClient({
-		mutationCache: new MutationCache({
-			onError: (error) => {
-				console.error(error);
-			},
-		}),
-	});
+	const queryClient = new QueryClient();
 
 	return {
 		queryClient,
 	};
 }
+export default function TanstackQueryProvider() {}

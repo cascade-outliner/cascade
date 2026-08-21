@@ -8,148 +8,161 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ChangelogRouteImport } from './routes/changelog'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from './app/__root'
+import { Route as FrontendRouteImport } from './app/_frontend'
+import { Route as PayloadRouteImport } from './app/_payload'
+import { Route as FrontendIndexRouteImport } from './app/_frontend/index'
+import { Route as PayloadAdminIndexRouteImport } from './app/_payload/admin.index'
+import { Route as PayloadAdminSplatRouteImport } from './app/_payload/admin.$'
+import { Route as PayloadApiSplatRouteImport } from './app/_payload/api.$'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+const FrontendRoute = FrontendRouteImport.update({
+  id: '/_frontend',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const PayloadRoute = PayloadRouteImport.update({
+  id: '/_payload',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangelogRoute = ChangelogRouteImport.update({
-  id: '/changelog',
-  path: '/changelog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const FrontendIndexRoute = FrontendIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => FrontendRoute,
+} as any)
+const PayloadAdminIndexRoute = PayloadAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => PayloadRoute,
+} as any)
+const PayloadAdminSplatRoute = PayloadAdminSplatRouteImport.update({
+  id: '/admin/$',
+  path: '/admin/$',
+  getParentRoute: () => PayloadRoute,
+} as any)
+const PayloadApiSplatRoute = PayloadApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => PayloadRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/changelog': typeof ChangelogRoute
-  '/login': typeof LoginRoute
-  '/privacy': typeof PrivacyRoute
-  '/register': typeof RegisterRoute
-  '/terms': typeof TermsRoute
+  '/': typeof FrontendIndexRoute
+  '/admin/$': typeof PayloadAdminSplatRoute
+  '/api/$': typeof PayloadApiSplatRoute
+  '/admin/': typeof PayloadAdminIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/changelog': typeof ChangelogRoute
-  '/login': typeof LoginRoute
-  '/privacy': typeof PrivacyRoute
-  '/register': typeof RegisterRoute
-  '/terms': typeof TermsRoute
+  '/': typeof FrontendIndexRoute
+  '/admin/$': typeof PayloadAdminSplatRoute
+  '/api/$': typeof PayloadApiSplatRoute
+  '/admin': typeof PayloadAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/changelog': typeof ChangelogRoute
-  '/login': typeof LoginRoute
-  '/privacy': typeof PrivacyRoute
-  '/register': typeof RegisterRoute
-  '/terms': typeof TermsRoute
+  '/_frontend': typeof FrontendRouteWithChildren
+  '/_payload': typeof PayloadRouteWithChildren
+  '/_frontend/': typeof FrontendIndexRoute
+  '/_payload/admin/$': typeof PayloadAdminSplatRoute
+  '/_payload/api/$': typeof PayloadApiSplatRoute
+  '/_payload/admin/': typeof PayloadAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/changelog' | '/login' | '/privacy' | '/register' | '/terms'
+  fullPaths: '/' | '/admin/$' | '/api/$' | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/changelog' | '/login' | '/privacy' | '/register' | '/terms'
+  to: '/' | '/admin/$' | '/api/$' | '/admin'
   id:
     | '__root__'
-    | '/'
-    | '/changelog'
-    | '/login'
-    | '/privacy'
-    | '/register'
-    | '/terms'
+    | '/_frontend'
+    | '/_payload'
+    | '/_frontend/'
+    | '/_payload/admin/$'
+    | '/_payload/api/$'
+    | '/_payload/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ChangelogRoute: typeof ChangelogRoute
-  LoginRoute: typeof LoginRoute
-  PrivacyRoute: typeof PrivacyRoute
-  RegisterRoute: typeof RegisterRoute
-  TermsRoute: typeof TermsRoute
+  FrontendRoute: typeof FrontendRouteWithChildren
+  PayloadRoute: typeof PayloadRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
+    '/_frontend': {
+      id: '/_frontend'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof FrontendRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
+    '/_payload': {
+      id: '/_payload'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PayloadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changelog': {
-      id: '/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof ChangelogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_frontend/': {
+      id: '/_frontend/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof FrontendIndexRouteImport
+      parentRoute: typeof FrontendRoute
+    }
+    '/_payload/admin/': {
+      id: '/_payload/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof PayloadAdminIndexRouteImport
+      parentRoute: typeof PayloadRoute
+    }
+    '/_payload/admin/$': {
+      id: '/_payload/admin/$'
+      path: '/admin/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof PayloadAdminSplatRouteImport
+      parentRoute: typeof PayloadRoute
+    }
+    '/_payload/api/$': {
+      id: '/_payload/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof PayloadApiSplatRouteImport
+      parentRoute: typeof PayloadRoute
     }
   }
 }
 
+interface FrontendRouteChildren {
+  FrontendIndexRoute: typeof FrontendIndexRoute
+}
+
+const FrontendRouteChildren: FrontendRouteChildren = {
+  FrontendIndexRoute: FrontendIndexRoute,
+}
+
+const FrontendRouteWithChildren = FrontendRoute._addFileChildren(
+  FrontendRouteChildren,
+)
+
+interface PayloadRouteChildren {
+  PayloadAdminSplatRoute: typeof PayloadAdminSplatRoute
+  PayloadApiSplatRoute: typeof PayloadApiSplatRoute
+  PayloadAdminIndexRoute: typeof PayloadAdminIndexRoute
+}
+
+const PayloadRouteChildren: PayloadRouteChildren = {
+  PayloadAdminSplatRoute: PayloadAdminSplatRoute,
+  PayloadApiSplatRoute: PayloadApiSplatRoute,
+  PayloadAdminIndexRoute: PayloadAdminIndexRoute,
+}
+
+const PayloadRouteWithChildren =
+  PayloadRoute._addFileChildren(PayloadRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ChangelogRoute: ChangelogRoute,
-  LoginRoute: LoginRoute,
-  PrivacyRoute: PrivacyRoute,
-  RegisterRoute: RegisterRoute,
-  TermsRoute: TermsRoute,
+  FrontendRoute: FrontendRouteWithChildren,
+  PayloadRoute: PayloadRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

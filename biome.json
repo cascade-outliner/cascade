@@ -8,17 +8,12 @@
 	"files": {
 		"ignoreUnknown": false,
 		"includes": [
-			"**/src/**/*",
-			"**/e2e/**/*",
-			"**/e2e-perf/**/*",
-			"**/.vscode/**/*",
-			"**/index.html",
-			"**/vite.config.ts",
-			"**/playwright.config.ts",
-			"!**/src/routeTree.gen.ts",
-			"!**/src/styles.css",
+			"**/*",
 			"!**/e2e/.auth/**/*",
-			"!**/src/paraglide"
+			"!**/src/paraglide",
+			"!**/_payload/**/*",
+			"!**/payload-types.ts",
+			"!**/routeTree.gen.ts"
 		]
 	},
 	"formatter": {
@@ -35,6 +30,11 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	}
 }

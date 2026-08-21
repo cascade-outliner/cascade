@@ -1,0 +1,25 @@
+{
+	"name": "@cascade/db",
+	"private": true,
+	"version": "0.0.0",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"generate": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs generate",
+		"migrate": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs migrate",
+		"studio": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs studio",
+		"push": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs push"
+	},
+	"dependencies": {
+		"@cascade/env": "workspace:*",
+		"drizzle-orm": "^0.45.2",
+		"postgres": "^3.4.7"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"@types/node": "^24.12.3",
+		"drizzle-kit": "^0.31.6",
+		"typescript": "^6.0.2"
+	}
+}

@@ -1,73 +1,33 @@
 {
-  "name": "cascade-monorepo",
-  "private": true,
-  "packageManager": "pnpm@11.10.0",
-  "scripts": {
-    "dev": "pnpm --filter app db:push && pnpm --filter app --filter web --filter api --parallel run dev",
-    "compile-messages": "pnpm --filter app compile-messages && pnpm --filter web compile-messages",
-    "tsc": "pnpm compile-messages && pnpm --filter app exec tsc --noEmit && pnpm --filter web exec tsc --noEmit",
-    "-----": "--------------------------",
-    "dev:app": "pnpm --filter app dev",
-    "generate-routes:app": "pnpm --filter app generate-routes",
-    "build:app": "pnpm --filter app build",
-    "preview:app": "pnpm --filter app preview",
-    "test:app": "pnpm --filter app test",
-    "test:coverage:app": "pnpm --filter app test:coverage",
-    "test:outliner": "pnpm --filter @cascade/outliner test",
-    "test:coverage:outliner": "pnpm --filter @cascade/outliner test:coverage",
-    "test:ui": "pnpm --filter @cascade/ui test",
-    "test:coverage:ui": "pnpm --filter @cascade/ui test:coverage",
-    "test:coverage:http": "pnpm --filter @cascade/http test:coverage",
-    "test:db:app": "pnpm --filter app test:db",
-    "test:e2e:app": "pnpm --filter app test:e2e",
-    "test:a11y:app": "pnpm --filter app test:a11y",
-    "test:perf:ui:app": "pnpm --filter app test:perf:ui",
-    "start:app": "pnpm --filter app start",
-    "db:generate:app": "pnpm --filter app db:generate",
-    "db:migrate:app": "pnpm --filter app db:migrate",
-    "db:push:app": "pnpm --filter app db:push",
-    "db:pull:app": "pnpm --filter app db:pull",
-    "db:seed:app": "pnpm --filter app db:seed",
-    "db:purge-tree-history:app": "pnpm --filter app db:purge-tree-history",
-    "db:seed:prod:app": "pnpm --filter app db:seed:prod",
-    "start:seeded:app": "pnpm --filter app start:seeded",
-    "db:studio:app": "pnpm --filter app db:studio",
-    "perf:seed:app": "pnpm --filter app perf:seed",
-    "perf:query:app": "pnpm --filter app perf:query",
-    "perf:mutate:app": "pnpm --filter app perf:mutate",
-    "perf:filter:app": "pnpm --filter app perf:filter",
-    "perf:workflow:app": "pnpm --filter app perf:workflow",
-    "perf:report:app": "pnpm --filter app perf:report",
-    "a11y:report:app": "pnpm --filter app a11y:report",
-    "------": "--------------------------",
-    "dev:web": "pnpm --filter web dev",
-    "generate-routes:web": "pnpm --filter web generate-routes",
-    "build:web": "pnpm --filter web build",
-    "preview:web": "pnpm --filter web preview",
-    "test:web": "pnpm --filter web test",
-    "test:coverage:web": "pnpm --filter web test:coverage",
-    "start:web": "pnpm --filter web start",
-    "----": "--------------------------",
-    "dev:api": "pnpm --filter api dev",
-    "build:api": "pnpm --filter api build",
-    "test:api": "pnpm --filter api test",
-    "test:coverage:api": "pnpm --filter api test:coverage",
-    "start:api": "pnpm --filter api start",
-    "-------": "--------------------------",
-    "format": "biome format",
-    "format:write": "biome format --write",
-    "lint": "biome lint",
-    "check": "biome check"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.5.3"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "kysely": "0.28.17"
-    }
-  }
+	"name": "cascade-monorepo",
+	"private": true,
+	"packageManager": "pnpm@11.10.0",
+	"scripts": {
+		"dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
+
+		"website:dev": "pnpm --filter @cascade/website dev",
+		"website:migrate": "pnpm --filter @cascade/website migrate",
+		"website:build": "pnpm --filter @cascade/website build",
+		"website:start": "pnpm --filter @cascade/website start",
+
+		"web-app:dev": "pnpm --filter @cascade/web-app dev",
+		"web-app:build": "pnpm --filter @cascade/web-app build",
+		"web-app:start": "pnpm --filter @cascade/web-app start",
+
+		"db:generate": "pnpm --filter @cascade/db generate",
+		"db:push": "pnpm --filter @cascade/db push",
+		"db:migrate": "pnpm --filter @cascade/db migrate",
+		"db:studio": "pnpm --filter @cascade/db studio",
+
+		"format": "biome format",
+		"format:write": "biome format --write",
+		"lint": "biome lint",
+		"check": "biome check"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.3"
+	},
+	"engines": {
+		"node": ">=22.0.0"
+	}
 }

@@ -1,1 +1,0 @@
-ALTER TABLE "nodes" ALTER COLUMN "order" SET DATA TYPE text COLLATE "C";

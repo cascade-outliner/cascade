@@ -1,1 +1,0 @@
-DROP TABLE "node_versions" CASCADE;

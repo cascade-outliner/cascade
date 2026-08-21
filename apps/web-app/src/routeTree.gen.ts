@@ -9,19 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthedRouteRouteImport } from './routes/_authed/route'
-import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as ApiSplatRouteImport } from './routes/api.$'
-import { Route as AuthedNodeSlugRouteImport } from './routes/_authed/$nodeSlug'
-import { Route as ApiRpcSplatRouteImport } from './routes/api.rpc.$'
-import { Route as ApiMaintenancePurgeTreeHistoryRouteImport } from './routes/api.maintenance.purge-tree-history'
-import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as ApiSplatRouteImport } from './routes/api/$'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiDocsSplatRouteImport } from './routes/api/docs/$'
+import { Route as ApiDocsOpenapiJsonRouteImport } from './routes/api/docs/openapi-json'
+import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -29,72 +34,75 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedRouteRoute = AuthedRouteRouteImport.update({
-  id: '/_authed',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedIndexRoute = AuthedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthedRouteRoute,
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const ApiSplatRoute = ApiSplatRouteImport.update({
   id: '/api/$',
   path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedNodeSlugRoute = AuthedNodeSlugRouteImport.update({
-  id: '/$nodeSlug',
-  path: '/$nodeSlug',
-  getParentRoute: () => AuthedRouteRoute,
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocsSplatRoute = ApiDocsSplatRouteImport.update({
+  id: '/api/docs/$',
+  path: '/api/docs/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocsOpenapiJsonRoute = ApiDocsOpenapiJsonRouteImport.update({
+  id: '/api/docs/openapi-json',
+  path: '/api/docs/openapi-json',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMaintenancePurgeTreeHistoryRoute =
-  ApiMaintenancePurgeTreeHistoryRouteImport.update({
-    id: '/api/maintenance/purge-tree-history',
-    path: '/api/maintenance/purge-tree-history',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthedIndexRoute
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/$nodeSlug': typeof AuthedNodeSlugRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
+  '/api/docs/$': typeof ApiDocsSplatRoute
+  '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/$nodeSlug': typeof AuthedNodeSlugRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/$': typeof ApiSplatRoute
-  '/': typeof AuthedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
+  '/api/docs/$': typeof ApiDocsSplatRoute
+  '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_authed': typeof AuthedRouteRouteWithChildren
+  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/_authed/$nodeSlug': typeof AuthedNodeSlugRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/$': typeof ApiSplatRoute
-  '/_authed/': typeof AuthedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/maintenance/purge-tree-history': typeof ApiMaintenancePurgeTreeHistoryRoute
+  '/api/docs/$': typeof ApiDocsSplatRoute
+  '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
@@ -103,51 +111,63 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
-    | '/$nodeSlug'
+    | '/dashboard'
     | '/api/$'
     | '/api/auth/$'
-    | '/api/maintenance/purge-tree-history'
+    | '/api/docs/$'
+    | '/api/docs/openapi-json'
     | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/login'
     | '/register'
-    | '/$nodeSlug'
+    | '/dashboard'
     | '/api/$'
-    | '/'
     | '/api/auth/$'
-    | '/api/maintenance/purge-tree-history'
+    | '/api/docs/$'
+    | '/api/docs/openapi-json'
     | '/api/rpc/$'
   id:
     | '__root__'
-    | '/_authed'
+    | '/'
+    | '/_authenticated'
     | '/login'
     | '/register'
-    | '/_authed/$nodeSlug'
+    | '/_authenticated/dashboard'
     | '/api/$'
-    | '/_authed/'
     | '/api/auth/$'
-    | '/api/maintenance/purge-tree-history'
+    | '/api/docs/$'
+    | '/api/docs/openapi-json'
     | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthedRouteRoute: typeof AuthedRouteRouteWithChildren
+  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiMaintenancePurgeTreeHistoryRoute: typeof ApiMaintenancePurgeTreeHistoryRoute
+  ApiDocsSplatRoute: typeof ApiDocsSplatRoute
+  ApiDocsOpenapiJsonRoute: typeof ApiDocsOpenapiJsonRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -157,46 +177,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed': {
-      id: '/_authed'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedRouteRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/': {
-      id: '/_authed/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedIndexRouteImport
-      parentRoute: typeof AuthedRouteRoute
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/api/$': {
       id: '/api/$'
       path: '/api/$'
       fullPath: '/api/$'
       preLoaderRoute: typeof ApiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed/$nodeSlug': {
-      id: '/_authed/$nodeSlug'
-      path: '/$nodeSlug'
-      fullPath: '/$nodeSlug'
-      preLoaderRoute: typeof AuthedNodeSlugRouteImport
-      parentRoute: typeof AuthedRouteRoute
-    }
-    '/api/rpc/$': {
-      id: '/api/rpc/$'
-      path: '/api/rpc/$'
-      fullPath: '/api/rpc/$'
-      preLoaderRoute: typeof ApiRpcSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/maintenance/purge-tree-history': {
-      id: '/api/maintenance/purge-tree-history'
-      path: '/api/maintenance/purge-tree-history'
-      fullPath: '/api/maintenance/purge-tree-history'
-      preLoaderRoute: typeof ApiMaintenancePurgeTreeHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -206,30 +205,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/docs/$': {
+      id: '/api/docs/$'
+      path: '/api/docs/$'
+      fullPath: '/api/docs/$'
+      preLoaderRoute: typeof ApiDocsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/docs/openapi-json': {
+      id: '/api/docs/openapi-json'
+      path: '/api/docs/openapi-json'
+      fullPath: '/api/docs/openapi-json'
+      preLoaderRoute: typeof ApiDocsOpenapiJsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rpc/$': {
+      id: '/api/rpc/$'
+      path: '/api/rpc/$'
+      fullPath: '/api/rpc/$'
+      preLoaderRoute: typeof ApiRpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
-interface AuthedRouteRouteChildren {
-  AuthedNodeSlugRoute: typeof AuthedNodeSlugRoute
-  AuthedIndexRoute: typeof AuthedIndexRoute
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
-const AuthedRouteRouteChildren: AuthedRouteRouteChildren = {
-  AuthedNodeSlugRoute: AuthedNodeSlugRoute,
-  AuthedIndexRoute: AuthedIndexRoute,
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
-const AuthedRouteRouteWithChildren = AuthedRouteRoute._addFileChildren(
-  AuthedRouteRouteChildren,
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthedRouteRoute: AuthedRouteRouteWithChildren,
+  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   ApiSplatRoute: ApiSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiMaintenancePurgeTreeHistoryRoute: ApiMaintenancePurgeTreeHistoryRoute,
+  ApiDocsSplatRoute: ApiDocsSplatRoute,
+  ApiDocsOpenapiJsonRoute: ApiDocsOpenapiJsonRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
 export const routeTree = rootRouteImport

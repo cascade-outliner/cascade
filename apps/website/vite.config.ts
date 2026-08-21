@@ -1,51 +1,40 @@
-/// <reference types="vitest/config" />
-import { paraglideVitePlugin } from "@inlang/paraglide-js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { withPayload } from "@payloadcms/tanstack-start";
 import tailwindcss from "@tailwindcss/vite";
-import { devtools } from "@tanstack/devtools-vite";
-
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-
 import viteReact from "@vitejs/plugin-react";
-import { nitro } from "nitro/vite";
+import rsc from "@vitejs/plugin-rsc";
 import { defineConfig } from "vite";
-import { coverageConfigDefaults } from "vitest/config";
 
-const config = defineConfig({
-	resolve: { tsconfigPaths: true },
-	test: {
-		coverage: {
-			provider: "v8",
-			reporter: ["text", "json-summary"],
-			reportsDirectory: "coverage",
-			// Without `include`, v8 only reports on files the test run happened to
-			// import, so untested code silently drops out of the denominator
-			// instead of counting against the percentage.
-			include: ["src/**/*.{ts,tsx}"],
-			exclude: [...coverageConfigDefaults.exclude, "**/paraglide/**"],
-		},
-	},
-	build: {
-		rollupOptions: {
-			onLog(level, log, handler) {
-				if (log.code === "INVALID_ANNOTATION") return;
-				handler(level, log);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig(
+	withPayload(
+		({ pluginOptions }) => ({
+			plugins: [
+				tailwindcss(),
+				rsc(pluginOptions.rsc),
+				tanstackStart(pluginOptions.tanstackStart),
+				viteReact(pluginOptions.react),
+			],
+			resolve: {
+				alias: {
+					"@/": `${path.resolve(__dirname, "src")}/`,
+				},
 			},
-		},
-	},
-	plugins: [
-		paraglideVitePlugin({
-			project: "./project.inlang",
-			outdir: "./src/paraglide",
-			strategy: ["url", "cookie", "preferredLanguage", "baseLocale"],
-			cookieName: "PARAGLIDE_LOCALE",
-			emitTsDeclarations: true,
+			server: {
+				port: 3000,
+				warmup: {
+					clientFiles: [
+						"./src/app/__root.tsx",
+						"./src/app/_payload.tsx",
+						"./src/app/_payload/admin.index.tsx",
+						"./src/app/_payload/admin.$.tsx",
+					],
+				},
+			},
 		}),
-		devtools(),
-		nitro(),
-		tailwindcss(),
-		tanstackStart(),
-		viteReact(),
-	],
-});
-
-export default config;
+		{ payloadConfigPath: path.resolve(__dirname, "src", "payload.config.ts") },
+	),
+);

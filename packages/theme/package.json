@@ -1,12 +1,8 @@
 {
-  "name": "@cascade/theme",
-  "private": true,
-  "version": "0.0.0",
-  "exports": {
-    ".": "./theme.css",
-    "./themes": "./themes.ts",
-    "./fonts": "./fonts.ts",
-    "./font-sizes": "./font-sizes.ts",
-    "./motion": "./motion.ts"
-  }
+	"name": "@cascade/theme",
+	"private": true,
+	"version": "0.0.0",
+	"exports": {
+		".": "./theme.css"
+	}
 }

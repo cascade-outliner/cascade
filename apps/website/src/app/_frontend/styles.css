@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@cascade/theme";
+
+.root {
+	isolation: isolate;
+}
+
+body {
+	position: relative;
+}
