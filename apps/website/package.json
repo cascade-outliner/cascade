@@ -14,6 +14,8 @@
 		"payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
 		"start": "cross-env NODE_OPTIONS=--no-deprecation srvx --prod --dir=. --static=dist/client --entry=dist/server/server.js",
 
+		"migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+		"migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
 		"migrate:fresh": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:fresh",
 		"migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status"
 	},
