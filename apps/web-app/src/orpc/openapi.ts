@@ -12,5 +12,6 @@ export function generateSpec() {
 			title: "Cascade API",
 			version: "0.0.0",
 		},
+		servers: [{ url: "/api" }],
 	});
 }
