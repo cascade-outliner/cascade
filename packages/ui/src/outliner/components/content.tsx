@@ -15,11 +15,9 @@ const content = cva({ base: "outline-none" });
 function Editable({
 	className,
 	onCommit,
-	onIndent,
 }: {
 	className?: string;
 	onCommit?: (state: EditorState) => void;
-	onIndent?: () => void;
 }) {
 	const [editor] = useLexicalComposerContext();
 
@@ -28,15 +26,6 @@ function Editable({
 			<ContentEditable
 				className={content({ className })}
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
-				onKeyDown={
-					onIndent &&
-					((event) => {
-						if (event.key === "Tab" && !event.shiftKey) {
-							event.preventDefault();
-							onIndent();
-						}
-					})
-				}
 			/>
 		</div>
 	);
@@ -46,12 +35,10 @@ export function Content({
 	className,
 	onChange,
 	onCommit,
-	onIndent,
 }: {
 	className?: string;
 	onChange?: (state: EditorState) => void;
 	onCommit?: (state: EditorState) => void;
-	onIndent?: () => void;
 }) {
 	const { node } = useItem();
 
@@ -66,13 +53,7 @@ export function Content({
 			}}
 		>
 			<RichTextPlugin
-				contentEditable={
-					<Editable
-						className={className}
-						onCommit={onCommit}
-						onIndent={onIndent}
-					/>
-				}
+				contentEditable={<Editable className={className} onCommit={onCommit} />}
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>

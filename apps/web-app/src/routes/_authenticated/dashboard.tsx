@@ -35,17 +35,14 @@ function OutlineRow({
 	return (
 		<Outliner.Item node={node} depth={depth}>
 			<div className="relative flex items-center gap-1">
-				<Outliner.Actions onDelete={onDelete} />
+				<Outliner.Actions
+					previousSiblingId={previousSiblingId}
+					onDelete={onDelete}
+					onIndent={onIndent}
+				/>
 				<Outliner.Toggle />
 				<Outliner.Bullet />
-				<Outliner.Content
-					onChange={(state) => debouncedEdit(state.toJSON())}
-					onIndent={
-						previousSiblingId
-							? () => onIndent(node.id, previousSiblingId)
-							: undefined
-					}
-				/>
+				<Outliner.Content onChange={(state) => debouncedEdit(state.toJSON())} />
 			</div>
 			<Outliner.Children>
 				{(child, childDepth, previousSiblingId) => (
