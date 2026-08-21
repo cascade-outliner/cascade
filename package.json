@@ -6,6 +6,7 @@
 		"dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
 
 		"db:generate": "pnpm --filter @cascade/db generate",
+		"db:push": "pnpm --filter @cascade/db push",
 		"db:migrate": "pnpm --filter @cascade/db migrate",
 		"db:studio": "pnpm --filter @cascade/db studio",
 
