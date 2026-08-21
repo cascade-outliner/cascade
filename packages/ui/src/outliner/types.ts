@@ -1,6 +1,8 @@
+import type { SerializedEditorState } from "lexical";
+
 export interface OutlineNode {
 	id: string;
-	text: string;
+	text: SerializedEditorState;
 	children: OutlineNode[];
 	collapsed?: boolean;
 }

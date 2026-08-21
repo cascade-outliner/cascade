@@ -1,13 +1,46 @@
 import { type OutlineNode, Outliner } from "@cascade/ui";
 import { createFileRoute } from "@tanstack/react-router";
+import type { SerializedEditorState } from "lexical";
 import { authClient } from "#/lib/auth-client.ts";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
 	component: Dashboard,
 });
 
+function textState(text: string): SerializedEditorState {
+	return {
+		root: {
+			children: [
+				{
+					children: [
+						{
+							detail: 0,
+							format: 0,
+							mode: "normal",
+							style: "",
+							text,
+							type: "text",
+							version: 1,
+						},
+					],
+					direction: "ltr",
+					format: "",
+					indent: 0,
+					type: "paragraph",
+					version: 1,
+				},
+			],
+			direction: "ltr",
+			format: "",
+			indent: 0,
+			type: "root",
+			version: 1,
+		},
+	} as unknown as SerializedEditorState;
+}
+
 function node(text: string, children: OutlineNode[] = []): OutlineNode {
-	return { id: text, text, children };
+	return { id: text, text: textState(text), children };
 }
 
 const data: OutlineNode[] = [

@@ -2,7 +2,7 @@ import { cva } from "cva";
 import { useItem } from "../context";
 import type { OutlineNode } from "../types";
 
-const style = cva({ base: "flex flex-col" });
+const style = cva({ base: "flex flex-col gap-1" });
 
 export interface ChildrenProps {
 	className?: string;
@@ -11,6 +11,10 @@ export interface ChildrenProps {
 
 export function Children({ className, children }: ChildrenProps) {
 	const { node, depth } = useItem();
+
+	if (node.children.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className={style({ className })} style={{ paddingLeft: 20 }}>

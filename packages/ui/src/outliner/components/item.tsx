@@ -2,7 +2,7 @@ import { cva } from "cva";
 import { ItemContext } from "../context";
 import type { OutlineNode } from "../types";
 
-const item = cva({ base: "flex flex-col" });
+const item = cva({ base: "flex flex-col gap-1" });
 
 export interface ItemProps {
 	node: OutlineNode;
