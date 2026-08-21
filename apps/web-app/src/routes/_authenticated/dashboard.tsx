@@ -1,10 +1,6 @@
 import { type OutlineNode, Outliner } from "@cascade/ui";
 import { useDebouncedCallback } from "@tanstack/react-pacer";
-import {
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { CreateNodeButton } from "#/components/create-node-button";
@@ -19,13 +15,17 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function OutlineRow({
 	node,
 	depth,
+	previousSiblingId,
 	onEdit,
 	onDelete,
+	onIndent,
 }: {
 	node: OutlineNode;
 	depth: number;
+	previousSiblingId?: string;
 	onEdit: (id: string, content: SerializedEditorState) => void;
 	onDelete: (id: string) => void;
+	onIndent: (id: string, newParentId: string) => void;
 }) {
 	const debouncedEdit = useDebouncedCallback(
 		(content: SerializedEditorState) => onEdit(node.id, content),
@@ -40,15 +40,22 @@ function OutlineRow({
 				<Outliner.Bullet />
 				<Outliner.Content
 					onChange={(state) => debouncedEdit(state.toJSON())}
+					onIndent={
+						previousSiblingId
+							? () => onIndent(node.id, previousSiblingId)
+							: undefined
+					}
 				/>
 			</div>
 			<Outliner.Children>
-				{(child, childDepth) => (
+				{(child, childDepth, index) => (
 					<OutlineRow
 						node={child}
 						depth={childDepth}
+						previousSiblingId={node.children[index - 1]?.id}
 						onEdit={onEdit}
 						onDelete={onDelete}
+						onIndent={onIndent}
 					/>
 				)}
 			</Outliner.Children>
@@ -92,13 +99,17 @@ function Dashboard() {
 				</div>
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
-				{tree.map((n) => (
+				{tree.map((n, i) => (
 					<OutlineRow
 						key={n.id}
 						node={n}
 						depth={0}
+						previousSiblingId={tree[i - 1]?.id}
 						onEdit={(id, content) => updateNode.mutate({ id, content })}
 						onDelete={(id) => deleteNode.mutate({ id })}
+						onIndent={(id, newParentId) =>
+							updateNode.mutate({ id, parentId: newParentId })
+						}
 					/>
 				))}
 			</Outliner.Root>

@@ -1,5 +1,5 @@
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -15,9 +15,11 @@ const content = cva({ base: "outline-none" });
 function Editable({
 	className,
 	onCommit,
+	onIndent,
 }: {
 	className?: string;
 	onCommit?: (state: EditorState) => void;
+	onIndent?: () => void;
 }) {
 	const [editor] = useLexicalComposerContext();
 
@@ -26,6 +28,15 @@ function Editable({
 			<ContentEditable
 				className={content({ className })}
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
+				onKeyDown={
+					onIndent &&
+					((event) => {
+						if (event.key === "Tab" && !event.shiftKey) {
+							event.preventDefault();
+							onIndent();
+						}
+					})
+				}
 			/>
 		</div>
 	);
@@ -35,10 +46,12 @@ export function Content({
 	className,
 	onChange,
 	onCommit,
+	onIndent,
 }: {
 	className?: string;
 	onChange?: (state: EditorState) => void;
 	onCommit?: (state: EditorState) => void;
+	onIndent?: () => void;
 }) {
 	const { node } = useItem();
 
@@ -53,7 +66,13 @@ export function Content({
 			}}
 		>
 			<RichTextPlugin
-				contentEditable={<Editable className={className} onCommit={onCommit} />}
+				contentEditable={
+					<Editable
+						className={className}
+						onCommit={onCommit}
+						onIndent={onIndent}
+					/>
+				}
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
