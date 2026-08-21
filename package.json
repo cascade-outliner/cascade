@@ -5,6 +5,10 @@
 	"scripts": {
 		"dev": "pnpm --filter @cascade/website --filter @cascade/web-app --parallel dev",
 
+		"db:generate": "pnpm --filter @cascade/db generate",
+		"db:migrate": "pnpm --filter @cascade/db migrate",
+		"db:studio": "pnpm --filter @cascade/db studio",
+
 		"format": "biome format",
 		"format:write": "biome format --write",
 		"lint": "biome lint",

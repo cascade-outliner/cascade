@@ -1,0 +1,18 @@
+{
+	"name": "@cascade/env",
+	"private": true,
+	"version": "0.0.0",
+	"exports": {
+		"./website": "./src/website.ts",
+		"./application": "./src/application.ts"
+	},
+	"dependencies": {
+		"@t3-oss/env-core": "^0.13.11",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"@types/node": "^24.12.3",
+		"typescript": "^6.0.2"
+	}
+}

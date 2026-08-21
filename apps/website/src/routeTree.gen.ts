@@ -9,19 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './app/__root'
-import { Route as PayloadRouteImport } from './app/_payload'
 import { Route as FrontendRouteImport } from './app/_frontend'
+import { Route as PayloadRouteImport } from './app/_payload'
 import { Route as FrontendIndexRouteImport } from './app/_frontend/index'
 import { Route as PayloadAdminIndexRouteImport } from './app/_payload/admin.index'
-import { Route as PayloadApiSplatRouteImport } from './app/_payload/api.$'
 import { Route as PayloadAdminSplatRouteImport } from './app/_payload/admin.$'
+import { Route as PayloadApiSplatRouteImport } from './app/_payload/api.$'
 
-const PayloadRoute = PayloadRouteImport.update({
-  id: '/_payload',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FrontendRoute = FrontendRouteImport.update({
   id: '/_frontend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayloadRoute = PayloadRouteImport.update({
+  id: '/_payload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FrontendIndexRoute = FrontendIndexRouteImport.update({
@@ -34,14 +34,14 @@ const PayloadAdminIndexRoute = PayloadAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => PayloadRoute,
 } as any)
-const PayloadApiSplatRoute = PayloadApiSplatRouteImport.update({
-  id: '/api/$',
-  path: '/api/$',
-  getParentRoute: () => PayloadRoute,
-} as any)
 const PayloadAdminSplatRoute = PayloadAdminSplatRouteImport.update({
   id: '/admin/$',
   path: '/admin/$',
+  getParentRoute: () => PayloadRoute,
+} as any)
+const PayloadApiSplatRoute = PayloadApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
   getParentRoute: () => PayloadRoute,
 } as any)
 
@@ -88,18 +88,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_payload': {
-      id: '/_payload'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof PayloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_frontend': {
       id: '/_frontend'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof FrontendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_payload': {
+      id: '/_payload'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PayloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_frontend/': {
@@ -116,18 +116,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PayloadAdminIndexRouteImport
       parentRoute: typeof PayloadRoute
     }
-    '/_payload/api/$': {
-      id: '/_payload/api/$'
-      path: '/api/$'
-      fullPath: '/api/$'
-      preLoaderRoute: typeof PayloadApiSplatRouteImport
-      parentRoute: typeof PayloadRoute
-    }
     '/_payload/admin/$': {
       id: '/_payload/admin/$'
       path: '/admin/$'
       fullPath: '/admin/$'
       preLoaderRoute: typeof PayloadAdminSplatRouteImport
+      parentRoute: typeof PayloadRoute
+    }
+    '/_payload/api/$': {
+      id: '/_payload/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof PayloadApiSplatRouteImport
       parentRoute: typeof PayloadRoute
     }
   }

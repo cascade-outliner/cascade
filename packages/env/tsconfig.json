@@ -1,0 +1,8 @@
+{
+	"extends": "@cascade/config/tsconfig.base.json",
+	"include": ["src/**/*.ts"],
+	"compilerOptions": {
+		"lib": ["ES2022"],
+		"types": ["node"]
+	}
+}

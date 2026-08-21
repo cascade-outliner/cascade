@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { websiteEnv } from "@cascade/env/website";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
@@ -27,13 +28,13 @@ export default buildConfig({
 	collections,
 	globals,
 	editor: lexicalEditor(),
-	secret: process.env.PAYLOAD_SECRET || "",
+	secret: websiteEnv.PAYLOAD_SECRET,
 	typescript: {
 		outputFile: path.resolve(dirname, "payload-types.ts"),
 	},
 	db: postgresAdapter({
 		pool: {
-			connectionString: process.env.DATABASE_URL || "",
+			connectionString: websiteEnv.DATABASE_URL_WEBSITE,
 		},
 	}),
 	sharp,
