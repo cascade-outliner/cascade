@@ -1,7 +1,7 @@
 import { db, nodes } from "@cascade/db";
-import { os } from "@orpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
+import { authed } from "../authed.ts";
 
 const nodeSchema = z.object({
 	id: z.uuid(),
@@ -15,32 +15,33 @@ const nodeSchema = z.object({
 
 const nodeInput = z.object({
 	parentId: z.uuid().nullish(),
-	userId: z.string(),
 	content: z.unknown().nullish(),
 	expanded: z.boolean().optional(),
 });
 
 export const nodesRouter = {
-	list: os
+	list: authed
 		.route({ method: "GET", path: "/nodes" })
-		.input(z.object({ userId: z.string() }))
 		.output(z.object({ nodes: z.array(nodeSchema) }))
-		.handler(async ({ input }) => {
+		.handler(async ({ context }) => {
 			return {
 				nodes: await db
 					.select()
 					.from(nodes)
-					.where(eq(nodes.userId, input.userId)),
+					.where(eq(nodes.userId, context.userId)),
 			};
 		}),
 
-	get: os
+	get: authed
 		.route({ method: "GET", path: "/nodes/{id}" })
 		.errors({ NOT_FOUND: {} })
 		.input(z.object({ id: z.uuid() }))
 		.output(nodeSchema)
-		.handler(async ({ input, errors }) => {
-			const [node] = await db.select().from(nodes).where(eq(nodes.id, input.id));
+		.handler(async ({ input, context, errors }) => {
+			const [node] = await db
+				.select()
+				.from(nodes)
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.userId)));
 
 			if (!node) {
 				throw errors.NOT_FOUND();
@@ -49,26 +50,29 @@ export const nodesRouter = {
 			return node;
 		}),
 
-	create: os
+	create: authed
 		.route({ method: "POST", path: "/nodes" })
 		.input(nodeInput)
 		.output(nodeSchema)
-		.handler(async ({ input }) => {
-			const [node] = await db.insert(nodes).values(input).returning();
+		.handler(async ({ input, context }) => {
+			const [node] = await db
+				.insert(nodes)
+				.values({ ...input, userId: context.userId })
+				.returning();
 			return node;
 		}),
 
-	update: os
+	update: authed
 		.route({ method: "PATCH", path: "/nodes/{id}" })
 		.errors({ NOT_FOUND: {} })
 		.input(nodeInput.partial().extend({ id: z.uuid() }))
 		.output(nodeSchema)
-		.handler(async ({ input, errors }) => {
+		.handler(async ({ input, context, errors }) => {
 			const { id, ...values } = input;
 			const [node] = await db
 				.update(nodes)
 				.set(values)
-				.where(eq(nodes.id, id))
+				.where(and(eq(nodes.id, id), eq(nodes.userId, context.userId)))
 				.returning();
 
 			if (!node) {
@@ -78,14 +82,14 @@ export const nodesRouter = {
 			return node;
 		}),
 
-	delete: os
+	delete: authed
 		.route({ method: "DELETE", path: "/nodes/{id}" })
 		.input(z.object({ id: z.uuid() }))
 		.output(z.object({ success: z.boolean() }))
-		.handler(async ({ input }) => {
+		.handler(async ({ input, context }) => {
 			const result = await db
 				.delete(nodes)
-				.where(eq(nodes.id, input.id))
+				.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.userId)))
 				.returning({ id: nodes.id });
 
 			return { success: result.length > 0 };

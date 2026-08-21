@@ -1,5 +1,6 @@
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { createFileRoute } from "@tanstack/react-router";
+import { createContext } from "#/orpc/context.ts";
 import { router } from "#/orpc/router.ts";
 
 const handler = new OpenAPIHandler(router);
@@ -7,7 +8,7 @@ const handler = new OpenAPIHandler(router);
 async function handle({ request }: { request: Request }) {
 	const { response } = await handler.handle(request, {
 		prefix: "/api",
-		context: {},
+		context: await createContext({ request }),
 	});
 
 	return response ?? new Response("Not Found", { status: 404 });
