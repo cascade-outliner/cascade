@@ -2,13 +2,21 @@ import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { cva } from "cva";
+import type { EditorState } from "lexical";
 import { useItem } from "../context";
 
 const content = cva({ base: "flex-1 outline-none" });
 
-export function Content({ className }: { className?: string }) {
+export function Content({
+	className,
+	onChange,
+}: {
+	className?: string;
+	onChange?: (state: EditorState) => void;
+}) {
 	const { node } = useItem();
 
 	return (
@@ -29,6 +37,13 @@ export function Content({ className }: { className?: string }) {
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
 			<HistoryPlugin />
+			{onChange && (
+				<OnChangePlugin
+					onChange={onChange}
+					ignoreHistoryMergeTagChange
+					ignoreSelectionChange
+				/>
+			)}
 		</LexicalComposer>
 	);
 }
