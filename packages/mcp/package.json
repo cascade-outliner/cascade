@@ -3,14 +3,14 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
-	"bin": {
-		"cascade-mcp": "./src/index.ts"
-	},
-	"scripts": {
-		"start": "node --env-file-if-exists=../../.env src/index.ts"
+	"exports": {
+		".": "./src/index.ts"
 	},
 	"dependencies": {
+		"@cascade/auth": "workspace:*",
+		"@cascade/db": "workspace:*",
 		"@modelcontextprotocol/sdk": "^1.30.0",
+		"drizzle-orm": "^0.45.2",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {

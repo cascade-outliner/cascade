@@ -13,12 +13,18 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as Char91DotwellKnownChar93OauthAuthorizationServerRouteImport } from './routes/[.well-known]/oauth-authorization-server'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiDocsSplatRouteImport } from './routes/api/docs/$'
 import { Route as ApiDocsOpenapiJsonRouteImport } from './routes/api/docs/openapi-json'
+import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
+import { Route as ApiMcpOauthAuthorizeRouteImport } from './routes/api/mcp/oauth/authorize'
+import { Route as ApiMcpOauthRegisterRouteImport } from './routes/api/mcp/oauth/register'
+import { Route as ApiMcpOauthTokenRouteImport } from './routes/api/mcp/oauth/token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,6 +45,18 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthAuthorizationServerRoute =
+  Char91DotwellKnownChar93OauthAuthorizationServerRouteImport.update({
+    id: '/.well-known/oauth-authorization-server',
+    path: '/.well-known/oauth-authorization-server',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -64,9 +82,29 @@ const ApiDocsOpenapiJsonRoute = ApiDocsOpenapiJsonRouteImport.update({
   path: '/api/docs/openapi-json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
+  id: '/api/mcp/',
+  path: '/api/mcp/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpOauthAuthorizeRoute = ApiMcpOauthAuthorizeRouteImport.update({
+  id: '/api/mcp/oauth/authorize',
+  path: '/api/mcp/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpOauthRegisterRoute = ApiMcpOauthRegisterRouteImport.update({
+  id: '/api/mcp/oauth/register',
+  path: '/api/mcp/oauth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpOauthTokenRoute = ApiMcpOauthTokenRouteImport.update({
+  id: '/api/mcp/oauth/token',
+  path: '/api/mcp/oauth/token',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -74,23 +112,35 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/.well-known/oauth-authorization-server': typeof Char91DotwellKnownChar93OauthAuthorizationServerRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/docs/$': typeof ApiDocsSplatRoute
   '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/mcp/': typeof ApiMcpIndexRoute
+  '/api/mcp/oauth/authorize': typeof ApiMcpOauthAuthorizeRoute
+  '/api/mcp/oauth/register': typeof ApiMcpOauthRegisterRoute
+  '/api/mcp/oauth/token': typeof ApiMcpOauthTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/.well-known/oauth-authorization-server': typeof Char91DotwellKnownChar93OauthAuthorizationServerRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/docs/$': typeof ApiDocsSplatRoute
   '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/mcp': typeof ApiMcpIndexRoute
+  '/api/mcp/oauth/authorize': typeof ApiMcpOauthAuthorizeRoute
+  '/api/mcp/oauth/register': typeof ApiMcpOauthRegisterRoute
+  '/api/mcp/oauth/token': typeof ApiMcpOauthTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,12 +148,18 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/.well-known/oauth-authorization-server': typeof Char91DotwellKnownChar93OauthAuthorizationServerRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/docs/$': typeof ApiDocsSplatRoute
   '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/api/mcp/': typeof ApiMcpIndexRoute
+  '/api/mcp/oauth/authorize': typeof ApiMcpOauthAuthorizeRoute
+  '/api/mcp/oauth/register': typeof ApiMcpOauthRegisterRoute
+  '/api/mcp/oauth/token': typeof ApiMcpOauthTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,35 +167,53 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/.well-known/oauth-authorization-server'
+    | '/.well-known/oauth-protected-resource'
     | '/dashboard'
     | '/api/$'
     | '/api/auth/$'
     | '/api/docs/$'
     | '/api/docs/openapi-json'
     | '/api/rpc/$'
+    | '/api/mcp/'
+    | '/api/mcp/oauth/authorize'
+    | '/api/mcp/oauth/register'
+    | '/api/mcp/oauth/token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/register'
+    | '/.well-known/oauth-authorization-server'
+    | '/.well-known/oauth-protected-resource'
     | '/dashboard'
     | '/api/$'
     | '/api/auth/$'
     | '/api/docs/$'
     | '/api/docs/openapi-json'
     | '/api/rpc/$'
+    | '/api/mcp'
+    | '/api/mcp/oauth/authorize'
+    | '/api/mcp/oauth/register'
+    | '/api/mcp/oauth/token'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/register'
+    | '/.well-known/oauth-authorization-server'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/dashboard'
     | '/api/$'
     | '/api/auth/$'
     | '/api/docs/$'
     | '/api/docs/openapi-json'
     | '/api/rpc/$'
+    | '/api/mcp/'
+    | '/api/mcp/oauth/authorize'
+    | '/api/mcp/oauth/register'
+    | '/api/mcp/oauth/token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -147,11 +221,17 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  Char91DotwellKnownChar93OauthAuthorizationServerRoute: typeof Char91DotwellKnownChar93OauthAuthorizationServerRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiSplatRoute: typeof ApiSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiDocsSplatRoute: typeof ApiDocsSplatRoute
   ApiDocsOpenapiJsonRoute: typeof ApiDocsOpenapiJsonRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
+  ApiMcpIndexRoute: typeof ApiMcpIndexRoute
+  ApiMcpOauthAuthorizeRoute: typeof ApiMcpOauthAuthorizeRoute
+  ApiMcpOauthRegisterRoute: typeof ApiMcpOauthRegisterRoute
+  ApiMcpOauthTokenRoute: typeof ApiMcpOauthTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -182,6 +262,20 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-authorization-server': {
+      id: '/.well-known/oauth-authorization-server'
+      path: '/.well-known/oauth-authorization-server'
+      fullPath: '/.well-known/oauth-authorization-server'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthAuthorizationServerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -219,11 +313,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocsOpenapiJsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mcp/': {
+      id: '/api/mcp/'
+      path: '/api/mcp'
+      fullPath: '/api/mcp/'
+      preLoaderRoute: typeof ApiMcpIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/rpc/$': {
       id: '/api/rpc/$'
       path: '/api/rpc/$'
       fullPath: '/api/rpc/$'
       preLoaderRoute: typeof ApiRpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/oauth/authorize': {
+      id: '/api/mcp/oauth/authorize'
+      path: '/api/mcp/oauth/authorize'
+      fullPath: '/api/mcp/oauth/authorize'
+      preLoaderRoute: typeof ApiMcpOauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/oauth/register': {
+      id: '/api/mcp/oauth/register'
+      path: '/api/mcp/oauth/register'
+      fullPath: '/api/mcp/oauth/register'
+      preLoaderRoute: typeof ApiMcpOauthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/oauth/token': {
+      id: '/api/mcp/oauth/token'
+      path: '/api/mcp/oauth/token'
+      fullPath: '/api/mcp/oauth/token'
+      preLoaderRoute: typeof ApiMcpOauthTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -246,11 +368,19 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  Char91DotwellKnownChar93OauthAuthorizationServerRoute:
+    Char91DotwellKnownChar93OauthAuthorizationServerRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiSplatRoute: ApiSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiDocsSplatRoute: ApiDocsSplatRoute,
   ApiDocsOpenapiJsonRoute: ApiDocsOpenapiJsonRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
+  ApiMcpIndexRoute: ApiMcpIndexRoute,
+  ApiMcpOauthAuthorizeRoute: ApiMcpOauthAuthorizeRoute,
+  ApiMcpOauthRegisterRoute: ApiMcpOauthRegisterRoute,
+  ApiMcpOauthTokenRoute: ApiMcpOauthTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

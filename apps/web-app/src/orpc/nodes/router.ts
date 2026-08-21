@@ -1,5 +1,4 @@
-import { db, nodes } from "@cascade/db";
-import { and, eq } from "drizzle-orm";
+import { db, nodeQueries } from "@cascade/db";
 import { z } from "zod";
 import { authed } from "../authed.ts";
 
@@ -24,12 +23,7 @@ export const nodesRouter = {
 		.route({ method: "GET", path: "/nodes" })
 		.output(z.object({ nodes: z.array(nodeSchema) }))
 		.handler(async ({ context }) => {
-			return {
-				nodes: await db
-					.select()
-					.from(nodes)
-					.where(eq(nodes.userId, context.userId)),
-			};
+			return { nodes: await nodeQueries.list(db, context.userId) };
 		}),
 
 	get: authed
@@ -38,10 +32,7 @@ export const nodesRouter = {
 		.input(z.object({ id: z.uuid() }))
 		.output(nodeSchema)
 		.handler(async ({ input, context, errors }) => {
-			const [node] = await db
-				.select()
-				.from(nodes)
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.userId)));
+			const node = await nodeQueries.get(db, context.userId, input.id);
 
 			if (!node) {
 				throw errors.NOT_FOUND();
@@ -55,11 +46,7 @@ export const nodesRouter = {
 		.input(nodeInput)
 		.output(nodeSchema)
 		.handler(async ({ input, context }) => {
-			const [node] = await db
-				.insert(nodes)
-				.values({ ...input, userId: context.userId })
-				.returning();
-			return node;
+			return await nodeQueries.create(db, context.userId, input);
 		}),
 
 	update: authed
@@ -69,11 +56,7 @@ export const nodesRouter = {
 		.output(nodeSchema)
 		.handler(async ({ input, context, errors }) => {
 			const { id, ...values } = input;
-			const [node] = await db
-				.update(nodes)
-				.set(values)
-				.where(and(eq(nodes.id, id), eq(nodes.userId, context.userId)))
-				.returning();
+			const node = await nodeQueries.update(db, context.userId, id, values);
 
 			if (!node) {
 				throw errors.NOT_FOUND();
@@ -87,11 +70,7 @@ export const nodesRouter = {
 		.input(z.object({ id: z.uuid() }))
 		.output(z.object({ success: z.boolean() }))
 		.handler(async ({ input, context }) => {
-			const result = await db
-				.delete(nodes)
-				.where(and(eq(nodes.id, input.id), eq(nodes.userId, context.userId)))
-				.returning({ id: nodes.id });
-
-			return { success: result.length > 0 };
+			const success = await nodeQueries.delete(db, context.userId, input.id);
+			return { success };
 		}),
 };

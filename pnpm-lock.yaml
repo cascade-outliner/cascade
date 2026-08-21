@@ -20,6 +20,9 @@ importers:
       '@cascade/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@cascade/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
       '@cascade/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -309,9 +312,18 @@ importers:
 
   packages/mcp:
     dependencies:
+      '@cascade/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@cascade/db':
+        specifier: workspace:*
+        version: link:../db
       '@modelcontextprotocol/sdk':
         specifier: ^1.30.0
         version: 1.30.0(zod@4.4.3)
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@types/pg@8.20.0)(kysely@0.29.5)(pg@8.20.0)(postgres@3.4.9)
       zod:
         specifier: ^4.4.3
         version: 4.4.3

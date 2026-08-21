@@ -18,6 +18,7 @@
 	"dependencies": {
 		"@cascade/auth": "workspace:*",
 		"@cascade/db": "workspace:*",
+		"@cascade/mcp": "workspace:*",
 		"@cascade/theme": "workspace:*",
 		"@cascade/ui": "workspace:*",
 		"@fontsource-variable/bitter": "^5.3.0",

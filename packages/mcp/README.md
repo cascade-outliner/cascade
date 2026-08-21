@@ -1,52 +1,54 @@
 # @cascade/mcp
 
-An MCP (Model Context Protocol) server that exposes a Cascade user's node
-tree to MCP-compatible clients (Claude Code, Claude Desktop, etc.) as tools:
-`list_nodes`, `get_node`, `create_node`, `update_node`, `delete_node`.
+A remote MCP (Model Context Protocol) server, mounted inside `apps/web-app`,
+that lets MCP clients (Claude, etc.) connect to *your* hosted Cascade
+instance and log in as themselves — no manually copied tokens. Each
+connected client only ever sees the nodes belonging to the user who
+authorized it.
 
-It talks to the existing REST API (`apps/web-app`'s `/api/nodes` routes) over
-HTTP — it does not touch the database directly — so it works against any
-running Cascade instance, local or deployed.
+It exposes tools for a user's outliner tree: `list_nodes`, `get_node`,
+`create_node`, `update_node`, `delete_node`.
 
-## Auth
+## How it works
 
-The web app's `auth` package enables better-auth's `bearer` plugin, so any
-active session token can be used as an API token: sign in via the web app,
-then read the token from the `set-auth-token` response header (or your
-browser's session cookie value) and pass it to the server.
+This package implements the MCP Authorization spec (OAuth 2.1 + PKCE) as a
+small authorization server bolted onto the existing `better-auth` session
+system, plus the MCP Streamable HTTP transport for the tool calls
+themselves:
 
-## Configuration
+- `GET /.well-known/oauth-authorization-server` and
+  `GET /.well-known/oauth-protected-resource` — metadata clients use to
+  discover how to authenticate (RFC 8414 / RFC 9728).
+- `POST /api/mcp/oauth/register` — dynamic client registration (RFC 7591),
+  so a new MCP client doesn't need to be manually configured ahead of time.
+- `GET/POST /api/mcp/oauth/authorize` — shows a login form (if the browser
+  has no `better-auth` session yet) and then a consent screen ("Allow
+  `<client>` to access your Cascade nodes?"). Approving redirects back to
+  the client with an authorization code.
+- `POST /api/mcp/oauth/token` — exchanges the code (with PKCE) for an
+  access + refresh token, or refreshes an existing pair.
+- `POST/GET/DELETE /api/mcp` — the actual MCP endpoint. Requests must carry
+  `Authorization: Bearer <access_token>`; the token is resolved to a user id
+  and the tool calls run scoped to that user, exactly like the REST API.
 
-Set these environment variables before starting the server:
+All of this lives in `@cascade/db` (three new tables:
+`mcp_oauth_client`, `mcp_oauth_code`, `mcp_oauth_token`) and
+`@cascade/auth`/`@cascade/db` are used directly — the node tools reuse the
+same `nodeQueries` helpers as the oRPC `nodes` router, so behavior can't
+drift between the two.
 
-- `CASCADE_API_URL` — base URL of the Cascade API (defaults to
-  `http://localhost:3000/api`)
-- `CASCADE_API_TOKEN` — a bearer token for the user whose nodes should be
-  exposed
+## Connecting a client
 
-## Running
+Point an MCP client at `https://<your-deployment>/api/mcp`. A client that
+follows the MCP Authorization spec (e.g. Claude.ai's remote connectors)
+will:
 
-```sh
-pnpm mcp:start
-```
+1. Fetch `/.well-known/oauth-protected-resource` from a `401`'s
+   `WWW-Authenticate` header.
+2. Register itself via `/api/mcp/oauth/register`.
+3. Open `/api/mcp/oauth/authorize` in a browser for the user to log in to
+   Cascade and approve access.
+4. Exchange the resulting code for tokens and start calling tools.
 
-## Using with an MCP client
-
-Point your MCP client at this as a stdio server, e.g. in Claude Code /
-Claude Desktop config:
-
-```json
-{
-	"mcpServers": {
-		"cascade": {
-			"command": "pnpm",
-			"args": ["--filter", "@cascade/mcp", "start"],
-			"cwd": "/path/to/cascade",
-			"env": {
-				"CASCADE_API_URL": "http://localhost:3000/api",
-				"CASCADE_API_TOKEN": "<token>"
-			}
-		}
-	}
-}
-```
+No environment variables or manual token pasting required — this replaces
+an earlier local/stdio design that needed a token in an env var.

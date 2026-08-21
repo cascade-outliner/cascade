@@ -19,8 +19,6 @@
 		"db:migrate": "pnpm --filter @cascade/db migrate",
 		"db:studio": "pnpm --filter @cascade/db studio",
 
-		"mcp:start": "pnpm --filter @cascade/mcp start",
-
 		"format": "biome format",
 		"format:write": "biome format --write",
 		"lint": "biome lint",
