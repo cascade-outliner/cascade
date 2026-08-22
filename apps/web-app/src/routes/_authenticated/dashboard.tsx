@@ -1,10 +1,6 @@
 import { type OutlineNode, Outliner } from "@cascade/ui";
 import { useDebouncedCallback } from "@tanstack/react-pacer";
-import {
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { CreateNodeButton } from "#/components/create-node-button";
@@ -19,13 +15,19 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function OutlineRow({
 	node,
 	depth,
+	previousSiblingId,
 	onEdit,
 	onDelete,
+	onIndent,
+	onToggle,
 }: {
 	node: OutlineNode;
 	depth: number;
+	previousSiblingId?: string;
 	onEdit: (id: string, content: SerializedEditorState) => void;
 	onDelete: (id: string) => void;
+	onIndent: (id: string, newParentId: string) => void;
+	onToggle: (id: string, collapsed: boolean) => void;
 }) {
 	const debouncedEdit = useDebouncedCallback(
 		(content: SerializedEditorState) => onEdit(node.id, content),
@@ -35,20 +37,25 @@ function OutlineRow({
 	return (
 		<Outliner.Item node={node} depth={depth}>
 			<div className="relative flex items-center gap-1">
-				<Outliner.Actions onDelete={onDelete} />
-				<Outliner.Toggle />
-				<Outliner.Bullet />
-				<Outliner.Content
-					onChange={(state) => debouncedEdit(state.toJSON())}
+				<Outliner.Actions
+					previousSiblingId={previousSiblingId}
+					onDelete={onDelete}
+					onIndent={onIndent}
 				/>
+				<Outliner.Toggle onToggle={onToggle} />
+				<Outliner.Bullet />
+				<Outliner.Content onChange={(state) => debouncedEdit(state.toJSON())} />
 			</div>
 			<Outliner.Children>
-				{(child, childDepth) => (
+				{(child, childDepth, previousSiblingId) => (
 					<OutlineRow
 						node={child}
 						depth={childDepth}
+						previousSiblingId={previousSiblingId}
 						onEdit={onEdit}
 						onDelete={onDelete}
+						onIndent={onIndent}
+						onToggle={onToggle}
 					/>
 				)}
 			</Outliner.Children>
@@ -92,15 +99,24 @@ function Dashboard() {
 				</div>
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
-				{tree.map((n) => (
-					<OutlineRow
-						key={n.id}
-						node={n}
-						depth={0}
-						onEdit={(id, content) => updateNode.mutate({ id, content })}
-						onDelete={(id) => deleteNode.mutate({ id })}
-					/>
-				))}
+				<Outliner.List nodes={tree}>
+					{(n, depth, previousSiblingId) => (
+						<OutlineRow
+							node={n}
+							depth={depth}
+							previousSiblingId={previousSiblingId}
+							onEdit={(id, content) => updateNode.mutate({ id, content })}
+							onDelete={(id) => deleteNode.mutate({ id })}
+							onIndent={(id, newParentId) => {
+								updateNode.mutate({ id, parentId: newParentId });
+								updateNode.mutate({ id: newParentId, expanded: true });
+							}}
+							onToggle={(id, collapsed) =>
+								updateNode.mutate({ id, expanded: !collapsed })
+							}
+						/>
+					)}
+				</Outliner.List>
 			</Outliner.Root>
 		</div>
 	);

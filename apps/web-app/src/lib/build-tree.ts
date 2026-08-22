@@ -30,6 +30,7 @@ export function buildTree(nodes: Node[]): OutlineNode[] {
 			id: n.id,
 			text: n.content as SerializedEditorState,
 			children: (byParent.get(n.id) ?? []).map(toOutlineNode),
+			collapsed: !n.expanded,
 		};
 	}
 

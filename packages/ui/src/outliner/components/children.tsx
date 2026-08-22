@@ -1,26 +1,24 @@
 import { cva } from "cva";
 import { useItem } from "../context";
-import type { OutlineNode } from "../types";
+import { mapSiblings, type SiblingRenderer } from "../lib/map-siblings";
 
 const style = cva({ base: "flex flex-col gap-1" });
 
 export interface ChildrenProps {
 	className?: string;
-	children: (node: OutlineNode, depth: number) => React.ReactNode;
+	children: SiblingRenderer;
 }
 
 export function Children({ className, children }: ChildrenProps) {
 	const { node, depth } = useItem();
 
-	if (node.children.length === 0) {
+	if (node.children.length === 0 || node.collapsed) {
 		return null;
 	}
 
 	return (
 		<div className={style({ className })} style={{ paddingLeft: 20 }}>
-			{node.children.map((child) => (
-				<div key={child.id}>{children(child, depth + 1)}</div>
-			))}
+			{mapSiblings(node.children, depth + 1, children)}
 		</div>
 	);
 }

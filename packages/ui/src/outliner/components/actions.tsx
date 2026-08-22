@@ -1,5 +1,6 @@
 import { Menu } from "@base-ui/react/menu";
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
+import { TextIndentIcon } from "@phosphor-icons/react/dist/ssr/TextIndent";
 import { TrashSimpleIcon } from "@phosphor-icons/react/dist/ssr/TrashSimple";
 import { cva } from "cva";
 import { useItem } from "../context";
@@ -10,16 +11,23 @@ const trigger = cva({
 const popup = cva({
 	base: "min-w-36 origin-[var(--transform-origin)] rounded-lg border border-ink/10 bg-white p-1 shadow-lg outline-none transition-[transform,opacity] data-[ending-style]:scale-95 data-[starting-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0",
 });
+const item = cva({
+	base: "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-ink/10",
+});
 const deleteItem = cva({
 	base: "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-danger outline-none data-[highlighted]:bg-danger/10",
 });
 
 export function Actions({
 	className,
+	previousSiblingId,
 	onDelete,
+	onIndent,
 }: {
 	className?: string;
+	previousSiblingId?: string;
 	onDelete?: (id: string) => void;
+	onIndent?: (id: string, previousSiblingId: string) => void;
 }) {
 	const { node } = useItem();
 
@@ -31,6 +39,18 @@ export function Actions({
 			<Menu.Portal>
 				<Menu.Positioner sideOffset={8} align="end">
 					<Menu.Popup className={popup()}>
+						{onIndent && (
+							<Menu.Item
+								className={item()}
+								disabled={!previousSiblingId}
+								onClick={() =>
+									previousSiblingId && onIndent(node.id, previousSiblingId)
+								}
+							>
+								<TextIndentIcon size={14} weight="bold" />
+								Indent
+							</Menu.Item>
+						)}
 						<Menu.Item
 							className={deleteItem()}
 							onClick={() => onDelete?.(node.id)}
