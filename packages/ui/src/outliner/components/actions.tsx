@@ -1,6 +1,7 @@
 import { Menu } from "@base-ui/react/menu";
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import { TextIndentIcon } from "@phosphor-icons/react/dist/ssr/TextIndent";
+import { TextOutdentIcon } from "@phosphor-icons/react/dist/ssr/TextOutdent";
 import { TrashSimpleIcon } from "@phosphor-icons/react/dist/ssr/TrashSimple";
 import { cva } from "cva";
 import { useItem } from "../context";
@@ -21,13 +22,19 @@ const deleteItem = cva({
 export function Actions({
 	className,
 	previousSiblingId,
+	parentId,
+	grandParentId,
 	onDelete,
 	onIndent,
+	onOutdent,
 }: {
 	className?: string;
 	previousSiblingId?: string;
+	parentId?: string;
+	grandParentId?: string;
 	onDelete?: (id: string) => void;
 	onIndent?: (id: string, previousSiblingId: string) => void;
+	onOutdent?: (id: string, newParentId: string | null) => void;
 }) {
 	const { node } = useItem();
 
@@ -49,6 +56,18 @@ export function Actions({
 							>
 								<TextIndentIcon size={14} weight="bold" />
 								Indent
+							</Menu.Item>
+						)}
+						{onOutdent && (
+							<Menu.Item
+								className={item()}
+								disabled={!parentId}
+								onClick={() =>
+									parentId && onOutdent(node.id, grandParentId ?? null)
+								}
+							>
+								<TextOutdentIcon size={14} weight="bold" />
+								Outdent
 							</Menu.Item>
 						)}
 						<Menu.Item
