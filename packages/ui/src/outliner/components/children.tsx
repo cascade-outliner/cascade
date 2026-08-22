@@ -12,7 +12,7 @@ export interface ChildrenProps {
 export function Children({ className, children }: ChildrenProps) {
 	const { node, depth } = useItem();
 
-	if (node.children.length === 0) {
+	if (node.children.length === 0 || node.collapsed) {
 		return null;
 	}
 

@@ -11,7 +11,13 @@ const icon = cva({
 });
 const spacer = cva({ base: "inline-block size-[18px] shrink-0" });
 
-export function Toggle({ className }: { className?: string }) {
+export function Toggle({
+	className,
+	onToggle,
+}: {
+	className?: string;
+	onToggle?: (id: string, collapsed: boolean) => void;
+}) {
 	const { node } = useItem();
 
 	if (node.children.length === 0) {
@@ -19,7 +25,11 @@ export function Toggle({ className }: { className?: string }) {
 	}
 
 	return (
-		<button type="button" className={toggle({ className })}>
+		<button
+			type="button"
+			className={toggle({ className })}
+			onClick={() => onToggle?.(node.id, !node.collapsed)}
+		>
 			<CaretRight
 				className={icon({ collapsed: node.collapsed })}
 				size={12}
