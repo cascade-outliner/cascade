@@ -16,17 +16,23 @@ function OutlineRow({
 	node,
 	depth,
 	previousSiblingId,
+	parentId,
+	grandParentId,
 	onEdit,
 	onDelete,
 	onIndent,
+	onOutdent,
 	onToggle,
 }: {
 	node: OutlineNode;
 	depth: number;
 	previousSiblingId?: string;
+	parentId?: string;
+	grandParentId?: string;
 	onEdit: (id: string, content: SerializedEditorState) => void;
 	onDelete: (id: string) => void;
 	onIndent: (id: string, newParentId: string) => void;
+	onOutdent: (id: string, newParentId: string | null) => void;
 	onToggle: (id: string, collapsed: boolean) => void;
 }) {
 	const debouncedEdit = useDebouncedCallback(
@@ -39,8 +45,11 @@ function OutlineRow({
 			<div className="relative flex items-center gap-1">
 				<Outliner.Actions
 					previousSiblingId={previousSiblingId}
+					parentId={parentId}
+					grandParentId={grandParentId}
 					onDelete={onDelete}
 					onIndent={onIndent}
+					onOutdent={onOutdent}
 				/>
 				<Outliner.Toggle onToggle={onToggle} />
 				<Outliner.Bullet />
@@ -52,9 +61,12 @@ function OutlineRow({
 						node={child}
 						depth={childDepth}
 						previousSiblingId={previousSiblingId}
+						parentId={node.id}
+						grandParentId={parentId}
 						onEdit={onEdit}
 						onDelete={onDelete}
 						onIndent={onIndent}
+						onOutdent={onOutdent}
 						onToggle={onToggle}
 					/>
 				)}
@@ -107,10 +119,12 @@ function Dashboard() {
 							previousSiblingId={previousSiblingId}
 							onEdit={(id, content) => updateNode.mutate({ id, content })}
 							onDelete={(id) => deleteNode.mutate({ id })}
-							onIndent={(id, newParentId) => {
-								updateNode.mutate({ id, parentId: newParentId });
-								updateNode.mutate({ id: newParentId, expanded: true });
-							}}
+							onIndent={(id, newParentId) =>
+								updateNode.mutate({ id, parentId: newParentId })
+							}
+							onOutdent={(id, newParentId) =>
+								updateNode.mutate({ id, parentId: newParentId })
+							}
 							onToggle={(id, collapsed) =>
 								updateNode.mutate({ id, expanded: !collapsed })
 							}
