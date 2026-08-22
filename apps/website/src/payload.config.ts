@@ -15,6 +15,10 @@ import { Users } from "./collections/Users";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(
+	new URL(websiteEnv.DATABASE_URL_WEBSITE).hostname,
+);
+
 export default buildConfig({
 	admin: {
 		user: Users.slug,
@@ -36,6 +40,7 @@ export default buildConfig({
 	db: postgresAdapter({
 		pool: {
 			connectionString: websiteEnv.DATABASE_URL_WEBSITE,
+			ssl: isLocalhost ? false : { rejectUnauthorized: false },
 		},
 		prodMigrations: migrations,
 	}),
