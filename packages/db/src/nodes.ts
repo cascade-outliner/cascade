@@ -8,7 +8,7 @@ import {
 	timestamp,
 	uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth";
+import { user } from "./auth.ts";
 
 export const nodes = pgTable(
 	"nodes",
@@ -21,7 +21,7 @@ export const nodes = pgTable(
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
 		content: jsonb("content"),
-		expanded: boolean().notNull().default(false),
+		expanded: boolean().notNull().default(true),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()
 			.defaultNow(),
