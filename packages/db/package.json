@@ -2,6 +2,7 @@
 	"name": "@cascade/db",
 	"private": true,
 	"version": "0.0.0",
+	"type": "module",
 	"exports": {
 		".": "./src/index.ts"
 	},
@@ -9,11 +10,13 @@
 		"generate": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs generate",
 		"migrate": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs migrate",
 		"studio": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs studio",
-		"push": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs push"
+		"push": "node --env-file-if-exists=../../.env node_modules/drizzle-kit/bin.cjs push",
+		"reset": "node --env-file-if-exists=../../.env --experimental-strip-types src/scripts/reset.ts"
 	},
 	"dependencies": {
 		"@cascade/env": "workspace:*",
 		"drizzle-orm": "^0.45.2",
+		"drizzle-seed": "^0.3.1",
 		"postgres": "^3.4.7"
 	},
 	"devDependencies": {

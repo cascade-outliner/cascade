@@ -2,6 +2,7 @@
 	"name": "@cascade/env",
 	"private": true,
 	"version": "0.0.0",
+	"type": "module",
 	"exports": {
 		"./website": "./src/website.ts",
 		"./application": "./src/application.ts"
