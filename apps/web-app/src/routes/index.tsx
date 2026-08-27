@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
+import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
 
 function OutlineRow({
 	node,
@@ -64,24 +65,26 @@ function OutlineRow({
 	);
 }
 
-const Home = observer(function Home() {
+const Outline = observer(function Outline() {
+	const store = useOutlineStore();
+
 	return (
 		<div className="p-8 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<CreateNodeButton />
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
-				<Outliner.List nodes={[]}>
+				<Outliner.List nodes={store.tree}>
 					{(n, depth, previousSiblingId) => (
 						<OutlineRow
 							node={n}
 							depth={depth}
 							previousSiblingId={previousSiblingId}
-							onEdit={(id, content) => {}}
-							onDelete={(id) => {}}
-							onIndent={(id, newParentId) => {}}
-							onOutdent={(id, newParentId) => {}}
-							onToggle={(id, collapsed) => {}}
+							onEdit={(id, content) => store.setContent(id, content)}
+							onDelete={(id) => store.remove(id)}
+							onIndent={(id, newParentId) => store.move(id, newParentId)}
+							onOutdent={(id, newParentId) => store.move(id, newParentId)}
+							onToggle={(id, collapsed) => store.setCollapsed(id, collapsed)}
 						/>
 					)}
 				</Outliner.List>
@@ -89,5 +92,13 @@ const Home = observer(function Home() {
 		</div>
 	);
 });
+
+function Home() {
+	return (
+		<OutlineStoreProvider>
+			<Outline />
+		</OutlineStoreProvider>
+	);
+}
 
 export const Route = createFileRoute("/")({ component: Home });
