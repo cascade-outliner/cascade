@@ -14,11 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as ApiSplatRouteImport } from './routes/api/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ApiDocsSplatRouteImport } from './routes/api/docs/$'
-import { Route as ApiDocsOpenapiJsonRouteImport } from './routes/api/docs/openapi-json'
-import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -44,29 +40,9 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiSplatRoute = ApiSplatRouteImport.update({
-  id: '/api/$',
-  path: '/api/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDocsSplatRoute = ApiDocsSplatRouteImport.update({
-  id: '/api/docs/$',
-  path: '/api/docs/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDocsOpenapiJsonRoute = ApiDocsOpenapiJsonRouteImport.update({
-  id: '/api/docs/openapi-json',
-  path: '/api/docs/openapi-json',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
-  id: '/api/rpc/$',
-  path: '/api/rpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -75,22 +51,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/docs/$': typeof ApiDocsSplatRoute
-  '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
-  '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/docs/$': typeof ApiDocsSplatRoute
-  '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
-  '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -99,35 +67,13 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/api/$': typeof ApiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/docs/$': typeof ApiDocsSplatRoute
-  '/api/docs/openapi-json': typeof ApiDocsOpenapiJsonRoute
-  '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/login'
-    | '/register'
-    | '/dashboard'
-    | '/api/$'
-    | '/api/auth/$'
-    | '/api/docs/$'
-    | '/api/docs/openapi-json'
-    | '/api/rpc/$'
+  fullPaths: '/' | '/login' | '/register' | '/dashboard' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/login'
-    | '/register'
-    | '/dashboard'
-    | '/api/$'
-    | '/api/auth/$'
-    | '/api/docs/$'
-    | '/api/docs/openapi-json'
-    | '/api/rpc/$'
+  to: '/' | '/login' | '/register' | '/dashboard' | '/api/auth/$'
   id:
     | '__root__'
     | '/'
@@ -135,11 +81,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_authenticated/dashboard'
-    | '/api/$'
     | '/api/auth/$'
-    | '/api/docs/$'
-    | '/api/docs/openapi-json'
-    | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -147,11 +89,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
-  ApiSplatRoute: typeof ApiSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiDocsSplatRoute: typeof ApiDocsSplatRoute
-  ApiDocsOpenapiJsonRoute: typeof ApiDocsOpenapiJsonRoute
-  ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -191,39 +129,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/$': {
-      id: '/api/$'
-      path: '/api/$'
-      fullPath: '/api/$'
-      preLoaderRoute: typeof ApiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/docs/$': {
-      id: '/api/docs/$'
-      path: '/api/docs/$'
-      fullPath: '/api/docs/$'
-      preLoaderRoute: typeof ApiDocsSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/docs/openapi-json': {
-      id: '/api/docs/openapi-json'
-      path: '/api/docs/openapi-json'
-      fullPath: '/api/docs/openapi-json'
-      preLoaderRoute: typeof ApiDocsOpenapiJsonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/rpc/$': {
-      id: '/api/rpc/$'
-      path: '/api/rpc/$'
-      fullPath: '/api/rpc/$'
-      preLoaderRoute: typeof ApiRpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -246,11 +156,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  ApiSplatRoute: ApiSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiDocsSplatRoute: ApiDocsSplatRoute,
-  ApiDocsOpenapiJsonRoute: ApiDocsOpenapiJsonRoute,
-  ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

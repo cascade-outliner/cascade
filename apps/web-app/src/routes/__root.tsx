@@ -1,23 +1,13 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import type { QueryClient } from "@tanstack/react-query";
-import {
-	createRootRouteWithContext,
-	HeadContent,
-	Scripts,
-} from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/bitter/index.css";
 import "@fontsource-variable/bitter/wght.css";
 import "@fontsource-variable/bitter/wght-italic.css";
 
-interface MyRouterContext {
-	queryClient: QueryClient;
-}
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRoute({
 	head: () => ({
 		meta: [
 			{
@@ -28,7 +18,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Cascade",
 			},
 		],
 		links: [
@@ -58,7 +48,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							name: "Tanstack Router",
 							render: <TanStackRouterDevtoolsPanel />,
 						},
-						TanStackQueryDevtools,
 					]}
 				/>
 				<Scripts />

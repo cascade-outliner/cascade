@@ -1,16 +1,11 @@
 import { type OutlineNode, Outliner } from "@cascade/ui";
 import { useDebouncedCallback } from "@tanstack/react-pacer";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
+import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
+import { useNodeStore } from "#/data/store-context.tsx";
 import { authClient } from "#/lib/auth-client.ts";
-import { buildTree } from "#/lib/build-tree.ts";
-import { orpc } from "#/orpc/client.ts";
-
-export const Route = createFileRoute("/_authenticated/dashboard")({
-	component: Dashboard,
-});
 
 function OutlineRow({
 	node,
@@ -75,25 +70,9 @@ function OutlineRow({
 	);
 }
 
-function Dashboard() {
+const Dashboard = observer(function Dashboard() {
 	const { session } = Route.useRouteContext();
-	const queryClient = useQueryClient();
-	const { data } = useQuery(orpc.nodes.list.queryOptions());
-	const tree = buildTree(data?.nodes ?? []);
-	const updateNode = useMutation(
-		orpc.nodes.update.mutationOptions({
-			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: orpc.nodes.list.queryKey() });
-			},
-		}),
-	);
-	const deleteNode = useMutation(
-		orpc.nodes.delete.mutationOptions({
-			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: orpc.nodes.list.queryKey() });
-			},
-		}),
-	);
+	const store = useNodeStore();
 
 	return (
 		<div className="p-8 flex flex-col gap-4">
@@ -104,34 +83,35 @@ function Dashboard() {
 					<button
 						className="bg-ink text-canvas rounded px-3 py-2"
 						type="button"
-						onClick={() => authClient.signOut()}
+						onClick={async () => {
+							await authClient.signOut();
+							store.reset();
+						}}
 					>
 						Log out
 					</button>
 				</div>
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
-				<Outliner.List nodes={tree}>
+				<Outliner.List nodes={store.tree}>
 					{(n, depth, previousSiblingId) => (
 						<OutlineRow
 							node={n}
 							depth={depth}
 							previousSiblingId={previousSiblingId}
-							onEdit={(id, content) => updateNode.mutate({ id, content })}
-							onDelete={(id) => deleteNode.mutate({ id })}
-							onIndent={(id, newParentId) =>
-								updateNode.mutate({ id, parentId: newParentId })
-							}
-							onOutdent={(id, newParentId) =>
-								updateNode.mutate({ id, parentId: newParentId })
-							}
-							onToggle={(id, collapsed) =>
-								updateNode.mutate({ id, expanded: !collapsed })
-							}
+							onEdit={(id, content) => store.setContent(id, content)}
+							onDelete={(id) => store.removeNode(id)}
+							onIndent={(id, newParentId) => store.move(id, newParentId)}
+							onOutdent={(id, newParentId) => store.move(id, newParentId)}
+							onToggle={(id, collapsed) => store.setExpanded(id, !collapsed)}
 						/>
 					)}
 				</Outliner.List>
 			</Outliner.Root>
 		</div>
 	);
-}
+});
+
+export const Route = createFileRoute("/_authenticated/dashboard")({
+	component: Dashboard,
+});
