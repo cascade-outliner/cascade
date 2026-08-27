@@ -16,6 +16,7 @@
 	},
 	"devDependencies": {
 		"@cascade/config": "workspace:*",
+		"fake-indexeddb": "^6.2.5",
 		"typescript": "^6.0.2",
 		"vitest": "^3.2.7"
 	}

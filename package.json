@@ -20,6 +20,8 @@
 		"db:studio": "pnpm --filter @cascade/db studio",
 		"db:reset": "pnpm --filter @cascade/db reset",
 
+		"test": "pnpm -r test",
+
 		"format": "biome format",
 		"format:write": "biome format --write",
 		"lint": "biome lint",

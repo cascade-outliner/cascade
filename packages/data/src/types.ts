@@ -15,16 +15,11 @@ export interface Node {
 	childIds: string[];
 	content: SerializedEditorState;
 	collapsed: boolean;
-	/** Epoch ms. Bumped on every write. Reserved for future sync conflict resolution. */
+	/**
+	 * Epoch ms, made monotonic by the store: every write gets a value strictly
+	 * greater than the last, so it doubles as a per-node change token (the
+	 * IndexedDB adapter rewrites a record only when this moves) and, later, as
+	 * an ordering for sync conflict resolution.
+	 */
 	updatedAt: number;
-}
-
-/**
- * The seam `OutlineStore` persists through. Not implemented this round - the
- * default is a no-op and the store runs fully in memory. The IndexedDB adapter
- * is the next step; it slots in here without touching the store.
- */
-export interface OutlinePersistence {
-	load(): Promise<{ nodes: Node[] } | null>;
-	save(snapshot: { nodes: Node[] }): Promise<void>;
 }
