@@ -1,5 +1,4 @@
 import { type OutlineNode, Outliner } from "@cascade/ui";
-import { useDebouncedCallback } from "@tanstack/react-pacer";
 import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
@@ -28,11 +27,6 @@ function OutlineRow({
 	onOutdent: (id: string, newParentId: string | null) => void;
 	onToggle: (id: string, collapsed: boolean) => void;
 }) {
-	const debouncedEdit = useDebouncedCallback(
-		(content: SerializedEditorState) => onEdit(node.id, content),
-		{ wait: 500 },
-	);
-
 	return (
 		<Outliner.Item node={node} depth={depth}>
 			<div className="relative flex items-center gap-1">
@@ -46,7 +40,9 @@ function OutlineRow({
 				/>
 				<Outliner.Toggle onToggle={onToggle} />
 				<Outliner.Bullet />
-				<Outliner.Content onChange={(state) => debouncedEdit(state.toJSON())} />
+				<Outliner.Content
+					onChange={(state) => onEdit(node.id, state.toJSON())}
+				/>
 			</div>
 			<Outliner.Children>
 				{(child, childDepth, previousSiblingId) => (
