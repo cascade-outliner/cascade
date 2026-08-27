@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@cascade/auth": "workspace:*",
+		"@cascade/data": "workspace:*",
 		"@cascade/theme": "workspace:*",
 		"@cascade/ui": "workspace:*",
 		"@fontsource-variable/bitter": "^5.3.0",
@@ -28,7 +29,6 @@
 		"@tanstack/react-router-devtools": "latest",
 		"@tanstack/react-start": "latest",
 		"better-auth": "^1.4.1",
-		"idb": "^8.0.3",
 		"lexical": "^0.38.0",
 		"mobx": "^6.15.0",
 		"mobx-react-lite": "^4.1.1",

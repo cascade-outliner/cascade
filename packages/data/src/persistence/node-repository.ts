@@ -2,11 +2,20 @@ import type { NodeSnapshot } from "../types.ts";
 import { openDatabase } from "./idb.ts";
 
 /**
- * Reads and writes whole `NodeSnapshot`s. Deliberately dumb: it knows nothing
- * about trees, so a future sync engine can reuse it to land server deltas.
+ * The seam `NodeStore` persists through. The IndexedDB adapter below is one
+ * implementation; tests pass an in-memory one.
  */
-export class NodeRepository {
-	/** Every node belonging to `userId`, tombstones included. */
+export interface NodePersistence {
+	loadForUser(userId: string): Promise<NodeSnapshot[]>;
+	loadRootIds(userId: string): Promise<string[]>;
+	save(
+		userId: string,
+		snapshots: NodeSnapshot[],
+		rootIds?: string[],
+	): Promise<void>;
+}
+
+export class NodeRepository implements NodePersistence {
 	async loadForUser(userId: string): Promise<NodeSnapshot[]> {
 		const db = await openDatabase();
 		return db.getAllFromIndex("nodes", "by-user", userId);
@@ -18,10 +27,6 @@ export class NodeRepository {
 		return record?.ids ?? [];
 	}
 
-	/**
-	 * Writes snapshots, and optionally the root order, in a single transaction so
-	 * a partial write cannot land.
-	 */
 	async save(
 		userId: string,
 		snapshots: NodeSnapshot[],

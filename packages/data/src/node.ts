@@ -1,9 +1,11 @@
 import type { OutlineNode } from "@cascade/ui";
 import type { SerializedEditorState } from "lexical";
-import { computed, makeObservable, observable, toJS } from "mobx";
+import { computed, makeObservable, observable } from "mobx";
 import { emptyState } from "./empty-content.ts";
-import type { NodeStore } from "./node-store.ts";
 import type { NodeSnapshot } from "./types.ts";
+
+/** Resolves a sibling/child id to its model. `NodeStore.get`, in practice. */
+type Lookup = (id: string) => NodeModel | undefined;
 
 /** One node of the outline, observable so the UI reacts to it directly. */
 export class NodeModel {
@@ -18,10 +20,10 @@ export class NodeModel {
 	updatedAt: number;
 	deletedAt: number | null;
 
-	private readonly store: NodeStore;
+	private readonly lookup: Lookup;
 
-	constructor(store: NodeStore, snapshot: NodeSnapshot) {
-		this.store = store;
+	constructor(lookup: Lookup, snapshot: NodeSnapshot) {
+		this.lookup = lookup;
 		this.id = snapshot.id;
 		this.userId = snapshot.userId;
 		this.createdAt = snapshot.createdAt;
@@ -46,9 +48,19 @@ export class NodeModel {
 		});
 	}
 
+	/** Copy the mutable fields from a fresh snapshot; identity fields never change. */
+	applySnapshot(snapshot: NodeSnapshot): void {
+		this.parentId = snapshot.parentId;
+		this.childIds = snapshot.childIds;
+		this.content = snapshot.content;
+		this.expanded = snapshot.expanded;
+		this.updatedAt = snapshot.updatedAt;
+		this.deletedAt = snapshot.deletedAt;
+	}
+
 	get children(): NodeModel[] {
 		return this.childIds
-			.map((id) => this.store.get(id))
+			.map((id) => this.lookup(id))
 			.filter((node): node is NodeModel => node !== undefined);
 	}
 
@@ -59,24 +71,6 @@ export class NodeModel {
 			text: this.content ?? emptyState(),
 			children: this.children.map((child) => child.outlineNode),
 			collapsed: !this.expanded,
-		};
-	}
-
-	/**
-	 * Plain, structured-cloneable data for IndexedDB. Observable arrays are
-	 * Proxies, which `structuredClone` refuses, so `toJS` is load-bearing here.
-	 */
-	toSnapshot(): NodeSnapshot {
-		return {
-			id: this.id,
-			userId: this.userId,
-			parentId: this.parentId,
-			childIds: toJS(this.childIds),
-			content: this.content,
-			expanded: this.expanded,
-			createdAt: this.createdAt,
-			updatedAt: this.updatedAt,
-			deletedAt: this.deletedAt,
 		};
 	}
 }

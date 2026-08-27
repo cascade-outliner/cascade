@@ -1,4 +1,4 @@
-import { useNodeStore } from "#/data/store-context.tsx";
+import { useNodeStore } from "#/context/store-context.tsx";
 
 export function CreateNodeButton() {
 	const store = useNodeStore();

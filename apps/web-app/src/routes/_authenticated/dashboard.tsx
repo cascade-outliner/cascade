@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
-import { useNodeStore } from "#/data/store-context.tsx";
+import { useNodeStore } from "#/context/store-context.tsx";
 import { authClient } from "#/lib/auth-client.ts";
 
 function OutlineRow({

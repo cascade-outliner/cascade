@@ -2,7 +2,7 @@ import { auth } from "@cascade/auth";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { StoreProvider } from "#/data/store-context.tsx";
+import { StoreProvider } from "#/context/store-context.tsx";
 
 const getSession = createServerFn({ method: "GET" }).handler(() =>
 	auth.api.getSession({ headers: getRequest().headers }),
