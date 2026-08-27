@@ -16,7 +16,6 @@
 		"check": "biome check"
 	},
 	"dependencies": {
-		"@cascade/auth": "workspace:*",
 		"@cascade/data": "workspace:*",
 		"@cascade/theme": "workspace:*",
 		"@cascade/ui": "workspace:*",
@@ -28,7 +27,6 @@
 		"@tanstack/react-router": "latest",
 		"@tanstack/react-router-devtools": "latest",
 		"@tanstack/react-start": "latest",
-		"better-auth": "^1.4.1",
 		"lexical": "^0.38.0",
 		"mobx": "^6.15.0",
 		"mobx-react-lite": "^4.1.1",

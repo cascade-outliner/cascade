@@ -4,7 +4,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
-import { authClient } from "#/lib/auth-client.ts";
 
 function OutlineRow({
 	node,
@@ -70,24 +69,10 @@ function OutlineRow({
 }
 
 const Dashboard = observer(function Dashboard() {
-	const { session } = Route.useRouteContext();
-
 	return (
 		<div className="p-8 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
-				<p>Logged in as {session.user.email}</p>
-				<div className="flex items-center gap-2">
-					<CreateNodeButton />
-					<button
-						className="bg-ink text-canvas rounded px-3 py-2"
-						type="button"
-						onClick={async () => {
-							await authClient.signOut();
-						}}
-					>
-						Log out
-					</button>
-				</div>
+				<CreateNodeButton />
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
 				<Outliner.List nodes={[]}>
@@ -109,6 +94,6 @@ const Dashboard = observer(function Dashboard() {
 	);
 });
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
+export const Route = createFileRoute("/dashboard")({
 	component: Dashboard,
 });

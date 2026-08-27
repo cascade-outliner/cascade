@@ -14,12 +14,6 @@
 		"web-app:build": "pnpm --filter @cascade/web-app build",
 		"web-app:start": "pnpm --filter @cascade/web-app start",
 
-		"db:generate": "pnpm --filter @cascade/db generate",
-		"db:push": "pnpm --filter @cascade/db push",
-		"db:migrate": "pnpm --filter @cascade/db migrate",
-		"db:studio": "pnpm --filter @cascade/db studio",
-		"db:reset": "pnpm --filter @cascade/db reset",
-
 		"format": "biome format",
 		"format:write": "biome format --write",
 		"lint": "biome lint",
