@@ -9,8 +9,8 @@ Cascade is a fast, tree-based outliner for organizing ideas, notes, and structur
 ## Features
 
 - Infinitely nestable tree with virtualization for large datasets
-- PostgreSQL-backed data model for durable, scalable storage
-- Type-safe stack (oRPC, Drizzle, TanStack Start/Router)
+- Local-first data model: the client owns the outline, durable in IndexedDB, with no server round-trip on the editing path
+- Type-safe stack (MobX, Drizzle, TanStack Start/Router)
 
 ## AI usage
 

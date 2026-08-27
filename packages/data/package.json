@@ -1,0 +1,22 @@
+{
+	"name": "@cascade/data",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@cascade/ui": "workspace:*",
+		"lexical": "^0.38.0",
+		"mobx": "^6.15.0"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"typescript": "^6.0.2",
+		"vitest": "^3.2.7"
+	}
+}
