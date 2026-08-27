@@ -4,7 +4,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
-import { useNodeStore } from "#/context/store-context.tsx";
 import { authClient } from "#/lib/auth-client.ts";
 
 function OutlineRow({
@@ -72,7 +71,6 @@ function OutlineRow({
 
 const Dashboard = observer(function Dashboard() {
 	const { session } = Route.useRouteContext();
-	const store = useNodeStore();
 
 	return (
 		<div className="p-8 flex flex-col gap-4">
@@ -85,7 +83,6 @@ const Dashboard = observer(function Dashboard() {
 						type="button"
 						onClick={async () => {
 							await authClient.signOut();
-							store.reset();
 						}}
 					>
 						Log out
@@ -93,17 +90,17 @@ const Dashboard = observer(function Dashboard() {
 				</div>
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
-				<Outliner.List nodes={store.tree}>
+				<Outliner.List nodes={[]}>
 					{(n, depth, previousSiblingId) => (
 						<OutlineRow
 							node={n}
 							depth={depth}
 							previousSiblingId={previousSiblingId}
-							onEdit={(id, content) => store.setContent(id, content)}
-							onDelete={(id) => store.removeNode(id)}
-							onIndent={(id, newParentId) => store.move(id, newParentId)}
-							onOutdent={(id, newParentId) => store.move(id, newParentId)}
-							onToggle={(id, collapsed) => store.setExpanded(id, !collapsed)}
+							onEdit={(id, content) => {}}
+							onDelete={(id) => {}}
+							onIndent={(id, newParentId) => {}}
+							onOutdent={(id, newParentId) => {}}
+							onToggle={(id, collapsed) => {}}
 						/>
 					)}
 				</Outliner.List>
