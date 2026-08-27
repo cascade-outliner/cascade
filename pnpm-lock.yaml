@@ -247,18 +247,12 @@ importers:
       '@cascade/ui':
         specifier: workspace:*
         version: link:../ui
-      idb:
-        specifier: ^8.0.3
-        version: 8.0.3
       lexical:
         specifier: ^0.38.0
         version: 0.38.2
       mobx:
         specifier: ^6.15.0
         version: 6.16.1
-      mobx-react-lite:
-        specifier: ^4.1.1
-        version: 4.1.1(mobx@6.16.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
     devDependencies:
       '@cascade/config':
         specifier: workspace:*
@@ -267,7 +261,7 @@ importers:
         specifier: ^6.0.2
         version: 6.0.3
       vitest:
-        specifier: ^3.2.4
+        specifier: ^3.2.7
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.12.3)(happy-dom@20.11.2)(jiti@2.7.0)(jsdom@28.0.0(@noble/hashes@2.3.0))(lightningcss@1.33.0)(tsx@4.22.4)
 
   packages/db:
@@ -3690,9 +3684,6 @@ packages:
 
   httpxy@0.5.5:
     resolution: {integrity: sha512-uDjmnPyp1q4Sgzf3w+J/Fc6UqcCEj0x4Wjp7OqK5dGhNeDgpyrAmnS6ey8QWrX3SWDon2DMKf9sBa5X9+CVyMA==}
-
-  idb@8.0.3:
-    resolution: {integrity: sha512-LtwtVyVYO5BqRvcsKuB2iUMnHwPVByPCXFXOpuU96IZPPoPN6xjOGxZQ74pgSVVLQWtUOYgyeL4GE98BY5D3wg==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -8541,8 +8532,6 @@ snapshots:
       - supports-color
 
   httpxy@0.5.5: {}
-
-  idb@8.0.3: {}
 
   ieee754@1.2.1: {}
 

@@ -11,13 +11,12 @@
 	},
 	"dependencies": {
 		"@cascade/ui": "workspace:*",
-		"idb": "^8.0.3",
 		"lexical": "^0.38.0",
-		"mobx": "^6.15.0",
-		"mobx-react-lite": "^4.1.1"
+		"mobx": "^6.15.0"
 	},
 	"devDependencies": {
 		"@cascade/config": "workspace:*",
-		"typescript": "^6.0.2"
+		"typescript": "^6.0.2",
+		"vitest": "^3.2.7"
 	}
 }
