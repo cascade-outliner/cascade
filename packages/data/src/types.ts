@@ -20,11 +20,30 @@ export interface Node {
 }
 
 /**
- * The seam `OutlineStore` persists through. Not implemented this round - the
- * default is a no-op and the store runs fully in memory. The IndexedDB adapter
- * is the next step; it slots in here without touching the store.
+ * The whole outline in one value. Adapters treat it as opaque: they store and
+ * return it, they do not interpret it. Always plain data - MobX proxies are not
+ * structured-cloneable, so `OutlineStore` copies out before handing it over.
+ */
+export interface OutlineSnapshot {
+	nodes: Node[];
+}
+
+/**
+ * The seam `OutlineStore` persists through. Implementations live in
+ * `./persistence/` and are injected at construction, so swapping IndexedDB for
+ * a server-backed adapter is a change at the composition root and nowhere else.
+ *
+ * `load` returning `null` means "nothing stored yet", which is not an error.
+ * Both methods may reject; the store treats a failed read as "no data" and a
+ * failed write as dropped, because neither is worth losing the session over.
  */
 export interface OutlinePersistence {
-	load(): Promise<{ nodes: Node[] } | null>;
-	save(snapshot: { nodes: Node[] }): Promise<void>;
+	load(): Promise<OutlineSnapshot | null>;
+	save(snapshot: OutlineSnapshot): Promise<void>;
+	/**
+	 * Write anything the adapter is holding back and wait for it to land.
+	 * Only adapters that defer writes (see `coalescedPersistence`) implement it;
+	 * callers should treat it as best-effort.
+	 */
+	flush?(): Promise<void>;
 }

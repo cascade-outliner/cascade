@@ -1,8 +1,9 @@
 import type { OutlineNode } from "@cascade/ui";
 import type { SerializedEditorState } from "lexical";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 import { emptyState } from "./empty-content.ts";
-import type { Node, OutlinePersistence } from "./types.ts";
+import { memoryPersistence } from "./persistence/memory.ts";
+import type { Node, OutlinePersistence, OutlineSnapshot } from "./types.ts";
 
 /**
  * Synthetic parent for top-level nodes. Its `childIds` is the top-level order,
@@ -12,17 +13,11 @@ import type { Node, OutlinePersistence } from "./types.ts";
  */
 const ROOT_ID = "__root__";
 
-// ponytail: no-op until the IndexedDB adapter lands; the store already routes
-// every write through `#persist`, so that's a one-file addition, not a rewrite.
-const NOOP_PERSISTENCE: OutlinePersistence = {
-	load: async () => null,
-	save: async () => {},
-};
-
 /**
  * The outline, client-side and mutable. MobX-observable: `observer` components
- * that read `tree` re-render on any change. In-memory this round - construct
- * with a persistence adapter later and nothing else moves.
+ * that read `tree` re-render on any change. Durability is somebody else's
+ * problem: the store writes whole snapshots through the injected
+ * `OutlinePersistence` and never learns which adapter it got.
  *
  * Invalid structural ops (unknown id, moving a node into its own subtree) are
  * no-ops - stale ids from a React render are normal, not exceptional. `create`
@@ -36,19 +31,58 @@ export class OutlineStore {
 	 * ref rather than a deep proxy over a whole Lexical document.
 	 */
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
+	/**
+	 * `false` until `hydrate` settles. Observable, so the UI can hold off
+	 * rendering an editable outline that is about to be replaced by the stored
+	 * one - an edit made in that window would be written over.
+	 */
+	hydrated = false;
 	readonly #persistence: OutlinePersistence;
+	/** Set by the first local write. Guards hydration from clobbering live edits. */
+	#mutated = false;
+	/** Cached so concurrent callers - React in strict mode, say - share one read. */
+	#hydration: Promise<void> | undefined;
 
-	constructor(persistence: OutlinePersistence = NOOP_PERSISTENCE) {
+	constructor(persistence: OutlinePersistence = memoryPersistence()) {
 		this.#persistence = persistence;
 		makeAutoObservable(this, { nodes: false }, { autoBind: true });
-		this.#put({
-			id: ROOT_ID,
-			parentId: null,
-			childIds: [],
-			content: emptyState(),
-			collapsed: false,
-			updatedAt: 0,
+		this.#put(newRoot());
+	}
+
+	/**
+	 * Replace the in-memory outline with the stored one. Call before anything can
+	 * edit. Repeat calls join the first read rather than re-running it, and a
+	 * failed read leaves an empty outline instead of a broken app.
+	 */
+	hydrate(): Promise<void> {
+		this.#hydration ??= this.#hydrate();
+		return this.#hydration;
+	}
+
+	async #hydrate(): Promise<void> {
+		let snapshot: OutlineSnapshot | null = null;
+		try {
+			snapshot = await this.#persistence.load();
+		} catch {
+			// Unreadable storage reads as an empty outline. Writes still go out;
+			// whether they land is the adapter's business.
+		}
+
+		runInAction(() => {
+			// An edit beat the read back. The user's typing wins over stale disk.
+			if (snapshot && !this.#mutated) {
+				this.#replace(snapshot.nodes);
+			}
+			this.hydrated = true;
 		});
+	}
+
+	/**
+	 * Write anything the adapter is holding back. Worth calling when the page is
+	 * being hidden or unloaded; a no-op for adapters that write straight through.
+	 */
+	async flush(): Promise<void> {
+		await this.#persistence.flush?.();
 	}
 
 	/** The shape `@cascade/ui` renders. Rebuilt whole on any change; the visible tree is small. */
@@ -132,6 +166,22 @@ export class OutlineStore {
 		}
 		this.#detach(node);
 		this.#persist();
+	}
+
+	/**
+	 * Swap in a stored outline. The snapshot carries the synthetic root along
+	 * with everything else, so ordering comes back with it; a snapshot without
+	 * one (older build, truncated record) gets a fresh empty root rather than a
+	 * map with no top level.
+	 */
+	#replace(nodes: Node[]): void {
+		this.nodes.clear();
+		for (const node of nodes) {
+			this.#put({ ...node, childIds: [...node.childIds] });
+		}
+		if (!this.nodes.has(ROOT_ID)) {
+			this.#put(newRoot());
+		}
 	}
 
 	/** Make `node` observable (deep, except `content`) and register it. */
@@ -226,10 +276,38 @@ export class OutlineStore {
 	}
 
 	#persist(): void {
+		this.#mutated = true;
 		// ponytail: whole-snapshot save, caller debounces. A diff/outbox is the
 		// job of the sync layer, not this one.
-		void this.#persistence
-			.save({ nodes: [...this.nodes.values()] })
-			.catch(() => {});
+		void this.#persistence.save(this.#snapshot()).catch(() => {});
 	}
+
+	/**
+	 * Plain copies, not the observables themselves: MobX hands out proxies, and
+	 * a proxy is not structured-cloneable, so IndexedDB would reject the write.
+	 * `content` is already a plain ref, so it goes across as-is.
+	 */
+	#snapshot(): OutlineSnapshot {
+		return {
+			nodes: [...this.nodes.values()].map((node) => ({
+				id: node.id,
+				parentId: node.parentId,
+				childIds: [...node.childIds],
+				content: node.content,
+				collapsed: node.collapsed,
+				updatedAt: node.updatedAt,
+			})),
+		};
+	}
+}
+
+function newRoot(): Node {
+	return {
+		id: ROOT_ID,
+		parentId: null,
+		childIds: [],
+		content: emptyState(),
+		collapsed: false,
+		updatedAt: 0,
+	};
 }

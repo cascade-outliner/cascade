@@ -68,6 +68,13 @@ function OutlineRow({
 const Outline = observer(function Outline() {
 	const store = useOutlineStore();
 
+	// Nothing editable until the stored outline is in: an edit made before it
+	// arrives would either be written over or win over the stored copy, and
+	// neither is what someone typing expects.
+	if (!store.hydrated) {
+		return <div className="p-8 text-muted">Loading outline…</div>;
+	}
+
 	return (
 		<div className="p-8 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
