@@ -30,8 +30,9 @@ export interface OutlineSnapshot {
 
 /**
  * The seam `OutlineStore` persists through. Implementations live in
- * `./persistence/` and are injected at construction, so swapping IndexedDB for
- * a server-backed adapter is a change at the composition root and nowhere else.
+ * `./persistence.ts` and are injected at construction, so swapping IndexedDB
+ * for a server-backed adapter is a change at the composition root and nowhere
+ * else.
  *
  * `load` returning `null` means "nothing stored yet", which is not an error.
  * Both methods may reject; the store treats a failed read as "no data" and a
@@ -40,10 +41,4 @@ export interface OutlineSnapshot {
 export interface OutlinePersistence {
 	load(): Promise<OutlineSnapshot | null>;
 	save(snapshot: OutlineSnapshot): Promise<void>;
-	/**
-	 * Write anything the adapter is holding back and wait for it to land.
-	 * Only adapters that defer writes (see `coalescedPersistence`) implement it;
-	 * callers should treat it as best-effort.
-	 */
-	flush?(): Promise<void>;
 }

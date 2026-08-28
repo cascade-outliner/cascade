@@ -68,9 +68,8 @@ function OutlineRow({
 const Outline = observer(function Outline() {
 	const store = useOutlineStore();
 
-	// Nothing editable until the stored outline is in: an edit made before it
-	// arrives would either be written over or win over the stored copy, and
-	// neither is what someone typing expects.
+	// Nothing editable until the stored outline is in: hydration replaces what is
+	// in memory, so an edit made before it lands would be thrown away.
 	if (!store.hydrated) {
 		return <div className="p-8 text-muted">Loading outline…</div>;
 	}

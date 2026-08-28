@@ -2,7 +2,7 @@ import type { OutlineNode } from "@cascade/ui";
 import type { SerializedEditorState } from "lexical";
 import { makeAutoObservable, observable, runInAction } from "mobx";
 import { emptyState } from "./empty-content.ts";
-import { memoryPersistence } from "./persistence/memory.ts";
+import { memoryPersistence } from "./persistence.ts";
 import type { Node, OutlinePersistence, OutlineSnapshot } from "./types.ts";
 
 /**
@@ -33,13 +33,11 @@ export class OutlineStore {
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
 	/**
 	 * `false` until `hydrate` settles. Observable, so the UI can hold off
-	 * rendering an editable outline that is about to be replaced by the stored
-	 * one - an edit made in that window would be written over.
+	 * rendering an editable outline: `hydrate` replaces what is in memory, so an
+	 * edit made before it lands would be thrown away.
 	 */
 	hydrated = false;
 	readonly #persistence: OutlinePersistence;
-	/** Set by the first local write. Guards hydration from clobbering live edits. */
-	#mutated = false;
 	/** Cached so concurrent callers - React in strict mode, say - share one read. */
 	#hydration: Promise<void> | undefined;
 
@@ -69,20 +67,11 @@ export class OutlineStore {
 		}
 
 		runInAction(() => {
-			// An edit beat the read back. The user's typing wins over stale disk.
-			if (snapshot && !this.#mutated) {
+			if (snapshot) {
 				this.#replace(snapshot.nodes);
 			}
 			this.hydrated = true;
 		});
-	}
-
-	/**
-	 * Write anything the adapter is holding back. Worth calling when the page is
-	 * being hidden or unloaded; a no-op for adapters that write straight through.
-	 */
-	async flush(): Promise<void> {
-		await this.#persistence.flush?.();
 	}
 
 	/** The shape `@cascade/ui` renders. Rebuilt whole on any change; the visible tree is small. */
@@ -170,17 +159,14 @@ export class OutlineStore {
 
 	/**
 	 * Swap in a stored outline. The snapshot carries the synthetic root along
-	 * with everything else, so ordering comes back with it; a snapshot without
-	 * one (older build, truncated record) gets a fresh empty root rather than a
-	 * map with no top level.
+	 * with everything else, so top-level ordering comes back with it; seeding one
+	 * first means a snapshot missing it still leaves a usable store.
 	 */
 	#replace(nodes: Node[]): void {
 		this.nodes.clear();
+		this.#put(newRoot());
 		for (const node of nodes) {
 			this.#put({ ...node, childIds: [...node.childIds] });
-		}
-		if (!this.nodes.has(ROOT_ID)) {
-			this.#put(newRoot());
 		}
 	}
 
@@ -276,7 +262,6 @@ export class OutlineStore {
 	}
 
 	#persist(): void {
-		this.#mutated = true;
 		// ponytail: whole-snapshot save, caller debounces. A diff/outbox is the
 		// job of the sync layer, not this one.
 		void this.#persistence.save(this.#snapshot()).catch(() => {});

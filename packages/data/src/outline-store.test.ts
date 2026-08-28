@@ -2,12 +2,10 @@ import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it, vi } from "vitest";
 import { emptyState } from "./empty-content.ts";
 import { OutlineStore } from "./outline-store.ts";
-import { coalescedPersistence } from "./persistence/coalesced.ts";
-import { indexedDbPersistence } from "./persistence/indexed-db.ts";
-import { memoryPersistence } from "./persistence/memory.ts";
-import type { OutlinePersistence, OutlineSnapshot } from "./types.ts";
+import { indexedDbPersistence, memoryPersistence } from "./persistence.ts";
+import type { Node, OutlinePersistence, OutlineSnapshot } from "./types.ts";
 
-/** An adapter that records writes and answers reads from the last of them. */
+/** An adapter that records every write. */
 function recorder(): OutlinePersistence & { writes: OutlineSnapshot[] } {
 	const writes: OutlineSnapshot[] = [];
 	return {
@@ -19,8 +17,20 @@ function recorder(): OutlinePersistence & { writes: OutlineSnapshot[] } {
 	};
 }
 
+function node(id: string, overrides: Partial<Node> = {}): Node {
+	return {
+		id,
+		parentId: null,
+		childIds: [],
+		content: emptyState(),
+		collapsed: false,
+		updatedAt: 0,
+		...overrides,
+	};
+}
+
 describe("OutlineStore persistence", () => {
-	it("writes a snapshot on every mutation", async () => {
+	it("writes a snapshot on every mutation", () => {
 		const persistence = recorder();
 		const store = new OutlineStore(persistence);
 
@@ -31,15 +41,13 @@ describe("OutlineStore persistence", () => {
 		expect(persistence.writes).toHaveLength(3);
 	});
 
-	it("writes plain data, not observables", async () => {
+	it("writes plain data, not observables", () => {
 		const persistence = recorder();
 		const store = new OutlineStore(persistence);
 		store.create();
 
-		const snapshot = persistence.writes.at(-1);
-
 		// A MobX proxy is not structured-cloneable; IndexedDB would reject it.
-		expect(() => structuredClone(snapshot)).not.toThrow();
+		expect(() => structuredClone(persistence.writes.at(-1))).not.toThrow();
 	});
 
 	it("restores an outline through the adapter", async () => {
@@ -60,23 +68,23 @@ describe("OutlineStore persistence", () => {
 
 	it("survives a round trip through IndexedDB", async () => {
 		const factory = new IDBFactory();
-		// The composed stack the app runs: coalescing in front of IndexedDB.
-		const first = new OutlineStore(
-			coalescedPersistence(indexedDbPersistence({ factory }), 0),
-		);
+		const persistence = indexedDbPersistence(factory);
+		const first = new OutlineStore(persistence);
 		const parent = first.create();
 		first.create(parent);
-		// The store fires writes without awaiting them; flush lands the last one.
-		await first.flush();
+		// The store fires writes without awaiting them.
+		await vi.waitFor(async () =>
+			expect((await persistence.load())?.nodes).toHaveLength(3),
+		);
 
-		const second = new OutlineStore(indexedDbPersistence({ factory }));
+		const second = new OutlineStore(indexedDbPersistence(factory));
 		await second.hydrate();
 
 		expect(second.tree.map((each) => each.id)).toEqual([parent]);
 		expect(second.tree[0]?.children).toHaveLength(1);
 	});
 
-	it("marks itself hydrated when there is nothing stored", async () => {
+	it("hydrates to an empty outline when there is nothing stored", async () => {
 		const store = new OutlineStore(memoryPersistence());
 
 		expect(store.hydrated).toBe(false);
@@ -94,73 +102,28 @@ describe("OutlineStore persistence", () => {
 			save: async () => {},
 		});
 
-		await expect(store.hydrate()).resolves.toBeUndefined();
+		await store.hydrate();
+
 		expect(store.hydrated).toBe(true);
 	});
 
-	it("keeps a local edit that beat the read back", async () => {
-		const persistence = memoryPersistence({
-			nodes: [
-				{
-					id: "stored",
-					parentId: "__root__",
-					childIds: [],
-					content: emptyState(),
-					collapsed: false,
-					updatedAt: 0,
-				},
-			],
-		});
-		const store = new OutlineStore(persistence);
-
-		const hydrating = store.hydrate();
-		const typed = store.create();
-		await hydrating;
-
-		expect(store.tree.map((each) => each.id)).toEqual([typed]);
-	});
-
-	it("only hydrates once", async () => {
+	it("reads once however many callers ask", async () => {
 		const persistence = memoryPersistence();
 		const load = vi.spyOn(persistence, "load");
 		const store = new OutlineStore(persistence);
 
-		await store.hydrate();
+		await Promise.all([store.hydrate(), store.hydrate()]);
 		await store.hydrate();
 
 		expect(load).toHaveBeenCalledTimes(1);
 	});
 
-	it("rebuilds a missing root rather than losing the outline", async () => {
-		const store = new OutlineStore(
-			memoryPersistence({
-				nodes: [
-					{
-						id: "orphan",
-						parentId: "__root__",
-						childIds: [],
-						content: emptyState(),
-						collapsed: false,
-						updatedAt: 0,
-					},
-				],
-			}),
-		);
+	it("stays usable when the snapshot has no root", async () => {
+		const store = new OutlineStore(memoryPersistence({ nodes: [node("a")] }));
 
 		await store.hydrate();
 
-		expect(store.tree).toEqual([]);
 		expect(store.create()).toBeTypeOf("string");
 		expect(store.tree).toHaveLength(1);
-	});
-
-	it("flushes through to the adapter", async () => {
-		const persistence = memoryPersistence();
-		const flush = vi.fn(async () => {});
-		const store = new OutlineStore({ ...persistence, flush });
-
-		await store.flush();
-
-		expect(flush).toHaveBeenCalledOnce();
 	});
 });

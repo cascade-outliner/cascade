@@ -41,28 +41,6 @@ export function OutlineStoreProvider({
 		void store.hydrate();
 	}, [store]);
 
-	useEffect(() => {
-		// Writes are coalesced, so the last few edits can still be in the window
-		// when the tab goes away. `pagehide` and a hidden `visibilitychange` are
-		// the two moments mobile browsers actually deliver; `beforeunload` is not.
-		function flush() {
-			void store.flush();
-		}
-		function flushWhenHidden() {
-			if (document.visibilityState === "hidden") {
-				flush();
-			}
-		}
-
-		window.addEventListener("pagehide", flush);
-		document.addEventListener("visibilitychange", flushWhenHidden);
-		return () => {
-			window.removeEventListener("pagehide", flush);
-			document.removeEventListener("visibilitychange", flushWhenHidden);
-			flush();
-		};
-	}, [store]);
-
 	return (
 		<OutlineStoreContext.Provider value={store}>
 			{children}
