@@ -1,8 +1,8 @@
 import type { OutlineNode } from "@cascade/ui";
 import type { SerializedEditorState } from "lexical";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 import { emptyState } from "./empty-content.ts";
-import type { Node, OutlinePersistence } from "./types.ts";
+import type { Node, OutlinePersistence, OutlineSnapshot } from "./types.ts";
 
 /**
  * Synthetic parent for top-level nodes. Its `childIds` is the top-level order,
@@ -12,8 +12,7 @@ import type { Node, OutlinePersistence } from "./types.ts";
  */
 const ROOT_ID = "__root__";
 
-// ponytail: no-op until the IndexedDB adapter lands; the store already routes
-// every write through `#persist`, so that's a one-file addition, not a rewrite.
+/** The default: the store runs in memory. `IndexedDbPersistence` is the browser one. */
 const NOOP_PERSISTENCE: OutlinePersistence = {
 	load: async () => null,
 	save: async () => {},
@@ -21,8 +20,9 @@ const NOOP_PERSISTENCE: OutlinePersistence = {
 
 /**
  * The outline, client-side and mutable. MobX-observable: `observer` components
- * that read `tree` re-render on any change. In-memory this round - construct
- * with a persistence adapter later and nothing else moves.
+ * that read `tree` re-render on any change. Construct it with an
+ * `OutlinePersistence` adapter and call `hydrate` to read a stored outline
+ * back; every mutation writes through on its own from then on.
  *
  * Invalid structural ops (unknown id, moving a node into its own subtree) are
  * no-ops - stale ids from a React render are normal, not exceptional. `create`
@@ -37,6 +37,7 @@ export class OutlineStore {
 	 */
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
 	readonly #persistence: OutlinePersistence;
+	#hydrated = false;
 
 	constructor(persistence: OutlinePersistence = NOOP_PERSISTENCE) {
 		this.#persistence = persistence;
@@ -54,6 +55,45 @@ export class OutlineStore {
 	/** The shape `@cascade/ui` renders. Rebuilt whole on any change; the visible tree is small. */
 	get tree(): OutlineNode[] {
 		return this.#childrenOf(ROOT_ID);
+	}
+
+	/**
+	 * Replace the in-memory outline with the stored one. Call it once, from the
+	 * client, before the user can type: it is a no-op on a second call and on a
+	 * store that has already been mutated, so a slow read can never swallow
+	 * edits made while it was in flight.
+	 *
+	 * A snapshot missing its root node is unusable - every other node hangs off
+	 * it - so it is ignored rather than repaired, and the fresh outline stands.
+	 * A read that fails is treated the same way: an empty outline beats a
+	 * blocked one, and the next write will overwrite whatever is down there.
+	 */
+	async hydrate(): Promise<void> {
+		if (this.#hydrated || this.nodes.size > 1) {
+			return;
+		}
+		this.#hydrated = true;
+
+		const snapshot = await this.#persistence.load().catch(() => null);
+		if (!snapshot?.nodes.some((node) => node.id === ROOT_ID)) {
+			return;
+		}
+
+		runInAction(() => {
+			this.nodes.clear();
+			for (const node of snapshot.nodes) {
+				this.#put(node);
+			}
+		});
+	}
+
+	/**
+	 * Wait for the writes already under way to land. Edits persist on their own;
+	 * this is for callers that need to know when - a test asserting on storage,
+	 * an export about to read the database directly.
+	 */
+	async flush(): Promise<void> {
+		await this.#persistence.flush?.();
 	}
 
 	create(parentId: string | null = null, index?: number): string {
@@ -225,11 +265,29 @@ export class OutlineStore {
 		});
 	}
 
+	/**
+	 * Whole snapshot every time; the adapter decides how to batch the bursts. A
+	 * diff or an outbox is the job of the sync layer, not this one. Failures are
+	 * swallowed on purpose - a storage problem must not break the edit in front
+	 * of the user.
+	 */
 	#persist(): void {
-		// ponytail: whole-snapshot save, caller debounces. A diff/outbox is the
-		// job of the sync layer, not this one.
-		void this.#persistence
-			.save({ nodes: [...this.nodes.values()] })
-			.catch(() => {});
+		void this.#persistence.save(this.#snapshot()).catch(() => {});
+	}
+
+	/** Plain copies: observable proxies are not structured-cloneable, and the seam promises data. */
+	#snapshot(): OutlineSnapshot {
+		return {
+			nodes: [...this.nodes.values()].map((node) => ({
+				id: node.id,
+				parentId: node.parentId,
+				childIds: [...node.childIds],
+				// Held by ref and replaced wholesale by `setContent`, never mutated
+				// in place, so the snapshot can share it.
+				content: node.content,
+				collapsed: node.collapsed,
+				updatedAt: node.updatedAt,
+			})),
+		};
 	}
 }

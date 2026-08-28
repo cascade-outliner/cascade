@@ -14,6 +14,8 @@
 		"web-app:build": "pnpm --filter @cascade/web-app build",
 		"web-app:start": "pnpm --filter @cascade/web-app start",
 
+		"test": "pnpm -r test",
+
 		"format": "biome format",
 		"format:write": "biome format --write",
 		"lint": "biome lint",

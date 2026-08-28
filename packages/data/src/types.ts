@@ -19,12 +19,23 @@ export interface Node {
 	updatedAt: number;
 }
 
+/** Every node in the outline, the synthetic root included. */
+export interface OutlineSnapshot {
+	nodes: Node[];
+}
+
 /**
- * The seam `OutlineStore` persists through. Not implemented this round - the
- * default is a no-op and the store runs fully in memory. The IndexedDB adapter
- * is the next step; it slots in here without touching the store.
+ * The seam `OutlineStore` persists through. `IndexedDbPersistence` is the
+ * browser implementation; the default is a no-op and the store runs fully in
+ * memory.
+ *
+ * `save` resolves once the snapshot - or a newer one that replaced it - has
+ * landed, so an adapter is free to coalesce calls. `flush` waits for whatever
+ * saves are still outstanding, for callers that need to know when storage has
+ * caught up; adapters that write synchronously don't need it.
  */
 export interface OutlinePersistence {
-	load(): Promise<{ nodes: Node[] } | null>;
-	save(snapshot: { nodes: Node[] }): Promise<void>;
+	load(): Promise<OutlineSnapshot | null>;
+	save(snapshot: OutlineSnapshot): Promise<void>;
+	flush?(): Promise<void>;
 }
