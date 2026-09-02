@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
-import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
+import { SyncStatus } from "#/components/sync-status";
+import { OutlineProvider, useOutlineStore } from "#/lib/outline-store.tsx";
 
 function OutlineRow({
 	node,
@@ -72,6 +73,7 @@ const Outline = observer(function Outline() {
 		<div className="p-8 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<CreateNodeButton />
+				<SyncStatus />
 			</div>
 			<Outliner.Root className="flex flex-col gap-1">
 				<Outliner.List nodes={store.tree}>
@@ -95,9 +97,9 @@ const Outline = observer(function Outline() {
 
 function Home() {
 	return (
-		<OutlineStoreProvider>
+		<OutlineProvider>
 			<Outline />
-		</OutlineStoreProvider>
+		</OutlineProvider>
 	);
 }
 
