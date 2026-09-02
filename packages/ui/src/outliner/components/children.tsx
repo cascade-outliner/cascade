@@ -1,15 +1,22 @@
-import { cva } from "cva";
+import * as stylex from "@stylexjs/stylex";
 import { useItem } from "../context";
 import { mapSiblings, type SiblingRenderer } from "../lib/map-siblings";
 
-const style = cva({ base: "flex flex-col gap-1" });
+const styles = stylex.create({
+	children: {
+		display: "flex",
+		flexDirection: "column",
+		gap: 4,
+		paddingLeft: 20,
+	},
+});
 
 export interface ChildrenProps {
-	className?: string;
+	style?: stylex.StyleXStyles;
 	children: SiblingRenderer;
 }
 
-export function Children({ className, children }: ChildrenProps) {
+export function Children({ style, children }: ChildrenProps) {
 	const { node, depth } = useItem();
 
 	if (node.children.length === 0 || node.collapsed) {
@@ -17,7 +24,7 @@ export function Children({ className, children }: ChildrenProps) {
 	}
 
 	return (
-		<div className={style({ className })} style={{ paddingLeft: 20 }}>
+		<div {...stylex.props(styles.children, style)}>
 			{mapSiblings(node.children, depth + 1, children)}
 		</div>
 	);
