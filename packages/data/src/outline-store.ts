@@ -1,180 +1,141 @@
 import type { OutlineNode } from "@cascade/ui";
 import type { SerializedEditorState } from "lexical";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { emptyState } from "./empty-content.ts";
 import type { Node, OutlinePersistence } from "./types.ts";
 
-/**
- * Synthetic parent for top-level nodes. Its `childIds` is the top-level order,
- * so there is one ordering code path instead of a `rootIds` field plus an
- * "is this a root?" branch in every mutation. Never rendered, never exposed:
- * the public API uses `parentId: null` to mean "top level".
- */
-const ROOT_ID = "__root__";
-
-// ponytail: no-op until the IndexedDB adapter lands; the store already routes
-// every write through `#persist`, so that's a one-file addition, not a rewrite.
 const NOOP_PERSISTENCE: OutlinePersistence = {
-	load: async () => null,
-	save: async () => {},
+	load: async () => [],
+	write: async () => {},
 };
 
 /**
- * The outline, client-side and mutable. MobX-observable: `observer` components
- * that read `tree` re-render on any change. In-memory this round - construct
- * with a persistence adapter later and nothing else moves.
+ * The outline, client-side and mutable.
  *
- * Invalid structural ops (unknown id, moving a node into its own subtree) are
- * no-ops - stale ids from a React render are normal, not exceptional. `create`
- * is the one exception: an unknown parent there is a caller bug and throws,
- * because there is no id to hand back.
+ * TODO: two tabs each hold their own store and last write per node wins.
  */
 export class OutlineStore {
-	/**
-	 * Reactive membership (create/remove), non-reactive values: each `Node` is
-	 * made observable individually by `#put` so that `content` can stay a plain
-	 * ref rather than a deep proxy over a whole Lexical document.
-	 */
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
 	readonly #persistence: OutlinePersistence;
+	status: "loading" | "ready" = "loading";
 
 	constructor(persistence: OutlinePersistence = NOOP_PERSISTENCE) {
 		this.#persistence = persistence;
 		makeAutoObservable(this, { nodes: false }, { autoBind: true });
-		this.#put({
-			id: ROOT_ID,
-			parentId: null,
-			childIds: [],
-			content: emptyState(),
-			collapsed: false,
-			updatedAt: 0,
-		});
+		void this.#load();
 	}
 
-	/** The shape `@cascade/ui` renders. Rebuilt whole on any change; the visible tree is small. */
 	get tree(): OutlineNode[] {
-		return this.#childrenOf(ROOT_ID);
+		const children = this.#childrenByParent();
+		const build = (parentId: string | null): OutlineNode[] =>
+			(children.get(parentId) ?? []).map((node) => ({
+				id: node.id,
+				text: node.content,
+				children: build(node.id),
+				collapsed: node.collapsed,
+			}));
+		return build(null);
 	}
 
-	create(parentId: string | null = null, index?: number): string {
-		const parent = this.#resolveParent(parentId);
-		if (!parent) {
+	create(parentId: string | null = null): string {
+		if (parentId !== null && !this.nodes.has(parentId)) {
 			throw new Error(`create: unknown parent ${parentId}`);
 		}
 
-		const id = crypto.randomUUID();
-		this.#put({
-			id,
-			parentId: parent.id,
-			childIds: [],
+		const node = this.#put({
+			id: crypto.randomUUID(),
+			parentId,
 			content: emptyState(),
 			collapsed: false,
 			updatedAt: Date.now(),
 		});
-		this.#insertChild(parent, id, index);
-		this.#persist();
-		return id;
+		this.#persist([node]);
+		return node.id;
 	}
 
 	setContent(id: string, content: SerializedEditorState): void {
-		const node = this.#writable(id);
+		const node = this.nodes.get(id);
 		if (!node) {
 			return;
 		}
 		node.content = content;
 		node.updatedAt = Date.now();
-		this.#persist();
+		// TODO: trailing debounce if one put per keystroke ever shows up in profiles.
+		this.#persist([node]);
 	}
 
 	setCollapsed(id: string, collapsed: boolean): void {
-		const node = this.#writable(id);
+		const node = this.nodes.get(id);
 		if (!node) {
 			return;
 		}
 		node.collapsed = collapsed;
 		node.updatedAt = Date.now();
-		this.#persist();
+		this.#persist([node]);
 	}
 
-	/**
-	 * Reparent `id` under `newParentId` (`null` = top level) at `index`
-	 * (default: append). Same-parent calls reorder. Returns `false` if the move
-	 * is impossible: unknown node/parent, or `newParentId` is inside `id`'s own
-	 * subtree.
-	 */
-	move(id: string, newParentId: string | null, index?: number): boolean {
-		const node = this.#writable(id);
+	move(id: string, newParentId: string | null): boolean {
+		const node = this.nodes.get(id);
 		if (!node) {
 			return false;
 		}
-
-		const parent = this.#resolveParent(newParentId);
-		if (!parent || parent.id === id || this.#isDescendant(parent.id, id)) {
+		if (
+			newParentId !== null &&
+			(newParentId === id ||
+				!this.nodes.has(newParentId) ||
+				this.#isDescendant(newParentId, id))
+		) {
 			return false;
 		}
 
-		this.#detach(node);
-		node.parentId = parent.id;
+		node.parentId = newParentId;
 		node.updatedAt = Date.now();
-		this.#insertChild(parent, id, index);
-		this.#persist();
+		this.#persist([node]);
 		return true;
 	}
 
-	/** Hard-delete `id` and its whole subtree. */
 	remove(id: string): void {
-		const node = this.#writable(id);
-		if (!node) {
+		if (!this.nodes.has(id)) {
 			return;
 		}
-		for (const descendantId of this.#subtree(id)) {
-			this.nodes.delete(descendantId);
+		const ids = this.#subtree(id);
+		for (const each of ids) {
+			this.nodes.delete(each);
 		}
-		this.#detach(node);
-		this.#persist();
+		this.#persist([], ids);
 	}
 
-	/** Make `node` observable (deep, except `content`) and register it. */
+	async #load(): Promise<void> {
+		let nodes: Node[] = [];
+		try {
+			nodes = await this.#persistence.load();
+		} catch (error) {
+			console.error("OutlineStore: load failed, starting empty", error);
+		}
+		runInAction(() => {
+			for (const node of nodes) {
+				this.#put(node);
+			}
+			this.status = "ready";
+		});
+	}
+
 	#put(node: Node): Node {
 		const registered = observable.object(node, { content: observable.ref });
 		this.nodes.set(node.id, registered);
 		return registered;
 	}
 
-	/** A node that exists and is not the synthetic root. */
-	#writable(id: string): Node | undefined {
-		if (id === ROOT_ID) {
-			return undefined;
+	#childrenByParent(): Map<string | null, Node[]> {
+		const groups = new Map<string | null, Node[]>();
+		for (const node of this.nodes.values()) {
+			const siblings = groups.get(node.parentId) ?? [];
+			siblings.push(node);
+			groups.set(node.parentId, siblings);
 		}
-		return this.nodes.get(id);
+		return groups;
 	}
 
-	#resolveParent(parentId: string | null): Node | undefined {
-		return this.nodes.get(parentId ?? ROOT_ID);
-	}
-
-	/** Drop `node` from its current parent's `childIds`. Leaves `node.parentId` for the caller to set. */
-	#detach(node: Node): void {
-		const parent = this.nodes.get(node.parentId ?? ROOT_ID);
-		if (!parent) {
-			return;
-		}
-		parent.childIds = parent.childIds.filter((childId) => childId !== node.id);
-		parent.updatedAt = Date.now();
-	}
-
-	#insertChild(parent: Node, childId: string, index?: number): void {
-		const without = parent.childIds.filter((each) => each !== childId);
-		const at =
-			index === undefined
-				? without.length
-				: Math.max(0, Math.min(index, without.length));
-		without.splice(at, 0, childId);
-		parent.childIds = without;
-		parent.updatedAt = Date.now();
-	}
-
-	/** True if `ancestorId` is on the parent chain above `id`. */
 	#isDescendant(id: string, ancestorId: string): boolean {
 		let current = this.nodes.get(id)?.parentId ?? null;
 		while (current !== null) {
@@ -186,50 +147,27 @@ export class OutlineStore {
 		return false;
 	}
 
-	/** `id` plus every descendant, via `childIds`. */
+	/** `id` plus every descendant. */
 	#subtree(id: string): string[] {
+		const children = this.#childrenByParent();
 		const collected: string[] = [];
 		const stack = [id];
-		while (stack.length > 0) {
-			const current = stack.pop();
-			if (current === undefined) {
-				continue;
-			}
+		for (
+			let current = stack.pop();
+			current !== undefined;
+			current = stack.pop()
+		) {
 			collected.push(current);
-			const node = this.nodes.get(current);
-			if (node) {
-				stack.push(...node.childIds);
+			for (const child of children.get(current) ?? []) {
+				stack.push(child.id);
 			}
 		}
 		return collected;
 	}
 
-	#childrenOf(id: string): OutlineNode[] {
-		const node = this.nodes.get(id);
-		if (!node) {
-			return [];
-		}
-		return node.childIds.flatMap((childId) => {
-			const child = this.nodes.get(childId);
-			if (!child) {
-				return [];
-			}
-			return [
-				{
-					id: child.id,
-					text: child.content,
-					children: this.#childrenOf(child.id),
-					collapsed: child.collapsed,
-				},
-			];
-		});
-	}
-
-	#persist(): void {
-		// ponytail: whole-snapshot save, caller debounces. A diff/outbox is the
-		// job of the sync layer, not this one.
+	#persist(put: Node[], remove: string[] = []): void {
 		void this.#persistence
-			.save({ nodes: [...this.nodes.values()] })
-			.catch(() => {});
+			.write({ put: put.map((node) => toJS(node)), delete: remove })
+			.catch((error) => console.error("OutlineStore: write failed", error));
 	}
 }

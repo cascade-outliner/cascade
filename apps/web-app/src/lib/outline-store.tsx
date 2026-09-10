@@ -1,15 +1,11 @@
-import { OutlineStore } from "@cascade/data";
-import { enableStaticRendering } from "mobx-react-lite";
+import { IdbPersistence, OutlineStore } from "@cascade/data";
 import { createContext, type ReactNode, useContext, useState } from "react";
-
-// The store is mutated outside of React re-renders; without this, `observer`
-// components leak subscriptions across requests on the server.
-enableStaticRendering(typeof window === "undefined");
 
 const OutlineStoreContext = createContext<OutlineStore | null>(null);
 
 export function OutlineStoreProvider({ children }: { children: ReactNode }) {
-	const [store] = useState(() => new OutlineStore());
+	const [store] = useState(() => new OutlineStore(new IdbPersistence()));
+
 	return (
 		<OutlineStoreContext.Provider value={store}>
 			{children}

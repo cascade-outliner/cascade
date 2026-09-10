@@ -25,7 +25,7 @@ const config = defineConfig({
 				path.join(rootDir, "packages/theme/src/**/*.{ts,tsx}"),
 			],
 		}),
-		tanstackStart(),
+		tanstackStart({ spa: { enabled: true } }),
 		viteReact(),
 	],
 	server: {
