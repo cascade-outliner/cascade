@@ -38,3 +38,13 @@ export interface OutlinePersistence {
 	 */
 	write(change: { put: Node[]; delete: string[] }): Promise<void>;
 }
+
+/**
+ * A node in the derived outline tree, as consumed by the UI.
+ */
+export interface OutlineNode {
+	id: string;
+	text: SerializedEditorState;
+	children: OutlineNode[];
+	collapsed?: boolean;
+}

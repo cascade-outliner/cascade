@@ -1,8 +1,7 @@
-import type { OutlineNode } from "@cascade/ui";
 import type { SerializedEditorState } from "lexical";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { emptyState } from "./empty-content.ts";
-import type { Node, OutlinePersistence } from "./types.ts";
+import type { Node, OutlineNode, OutlinePersistence } from "./types.ts";
 
 const NOOP_PERSISTENCE: OutlinePersistence = {
 	load: async () => [],

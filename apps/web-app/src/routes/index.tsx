@@ -1,7 +1,8 @@
-import { type OutlineNode, Outliner } from "@cascade/ui";
+import { Content } from "@cascade/ui/outliner/content";
+import { Root } from "@cascade/ui/outliner/root";
+import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
-import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
 import { SeedToolbar } from "#/components/seed-toolbar.tsx";
@@ -32,38 +33,6 @@ const styles = stylex.create({
 	},
 });
 
-function OutlineRow({
-	node,
-	depth,
-	onEdit,
-	onToggle,
-}: {
-	node: OutlineNode;
-	depth: number;
-	onEdit: (id: string, content: SerializedEditorState) => void;
-	onToggle: (id: string, collapsed: boolean) => void;
-}) {
-	return (
-		<Outliner.Item node={node} depth={depth}>
-			<div {...stylex.props(styles.row)}>
-				<Outliner.Content
-					onChange={(state) => onEdit(node.id, state.toJSON())}
-				/>
-			</div>
-			<Outliner.Children>
-				{(child, childDepth) => (
-					<OutlineRow
-						node={child}
-						depth={childDepth}
-						onEdit={onEdit}
-						onToggle={onToggle}
-					/>
-				)}
-			</Outliner.Children>
-		</Outliner.Item>
-	);
-}
-
 const Outline = observer(function Outline() {
 	const store = useOutlineStore();
 	if (store.status !== "ready") {
@@ -76,18 +45,17 @@ const Outline = observer(function Outline() {
 				<CreateNodeButton />
 				<SeedToolbar />
 			</div>
-			<Outliner.Root style={styles.outline}>
-				<Outliner.List nodes={store.tree}>
-					{(n, depth) => (
-						<OutlineRow
-							node={n}
-							depth={depth}
-							onEdit={(id, content) => store.setContent(id, content)}
-							onToggle={(id, collapsed) => store.setCollapsed(id, collapsed)}
-						/>
+			<Root style={styles.outline}>
+				<VirtualList nodes={store.tree}>
+					{(node) => (
+						<div {...stylex.props(styles.row)}>
+							<Content
+								onChange={(state) => store.setContent(node.id, state.toJSON())}
+							/>
+						</div>
 					)}
-				</Outliner.List>
-			</Outliner.Root>
+				</VirtualList>
+			</Root>
 		</div>
 	);
 });
