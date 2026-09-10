@@ -34,6 +34,8 @@ function Editable({
 			<ContentEditable
 				{...stylex.props(styles.content, style)}
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
+				aria-placeholder="Type here..."
+				placeholder={<div>Type here...</div>}
 			/>
 		</div>
 	);

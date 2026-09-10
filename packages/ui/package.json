@@ -3,14 +3,16 @@
 	"private": true,
 	"version": "0.0.0",
 	"exports": {
-		".": "./src/index.ts"
+		"./outliner/*": "./src/outliner/components/*.tsx"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.7.0",
+		"@cascade/data": "workspace:*",
 		"@cascade/theme": "workspace:*",
 		"@lexical/react": "^0.38.0",
 		"@phosphor-icons/react": "^2.1.10",
 		"@stylexjs/stylex": "0.19.0",
+		"@tanstack/react-virtual": "^3.14.11",
 		"lexical": "^0.38.0"
 	},
 	"peerDependencies": {

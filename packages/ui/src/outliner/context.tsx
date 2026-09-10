@@ -1,5 +1,5 @@
+import type { OutlineNode } from "@cascade/data";
 import { createContext, useContext } from "react";
-import type { OutlineNode } from "./types";
 
 export interface ItemContextValue {
 	node: OutlineNode;
@@ -11,6 +11,8 @@ export const ItemContext = createContext<ItemContextValue | null>(null);
 export function useItem(): ItemContextValue {
 	const ctx = useContext(ItemContext);
 	if (!ctx)
-		throw new Error("Outliner.Item parts must be used inside <Outliner.Item>");
+		throw new Error(
+			"Outliner.Content must be rendered inside Outliner.VirtualList",
+		);
 	return ctx;
 }
