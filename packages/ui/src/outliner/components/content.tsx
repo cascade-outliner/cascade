@@ -5,26 +5,34 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { cva } from "cva";
+import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
 import { useItem } from "../context";
 
-const wrapper = cva({ base: "flex-1" });
-const content = cva({ base: "outline-none" });
+const styles = stylex.create({
+	wrapper: {
+		flexGrow: 1,
+		flexShrink: 1,
+		flexBasis: "0%",
+	},
+	content: {
+		outline: "none",
+	},
+});
 
 function Editable({
-	className,
+	style,
 	onCommit,
 }: {
-	className?: string;
+	style?: stylex.StyleXStyles;
 	onCommit?: (state: EditorState) => void;
 }) {
 	const [editor] = useLexicalComposerContext();
 
 	return (
-		<div className={wrapper()}>
+		<div {...stylex.props(styles.wrapper)}>
 			<ContentEditable
-				className={content({ className })}
+				{...stylex.props(styles.content, style)}
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
 			/>
 		</div>
@@ -32,11 +40,11 @@ function Editable({
 }
 
 export function Content({
-	className,
+	style,
 	onChange,
 	onCommit,
 }: {
-	className?: string;
+	style?: stylex.StyleXStyles;
 	onChange?: (state: EditorState) => void;
 	onCommit?: (state: EditorState) => void;
 }) {
@@ -53,7 +61,7 @@ export function Content({
 			}}
 		>
 			<RichTextPlugin
-				contentEditable={<Editable className={className} onCommit={onCommit} />}
+				contentEditable={<Editable style={style} onCommit={onCommit} />}
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>

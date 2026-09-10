@@ -1,12 +1,10 @@
-import { cva } from "cva";
-
-const root = cva({ base: "" });
+import * as stylex from "@stylexjs/stylex";
 
 export interface OutlinerRootProps {
 	children: React.ReactNode;
-	className?: string;
+	style?: stylex.StyleXStyles;
 }
 
-export function Root({ children, className }: OutlinerRootProps) {
-	return <div className={root({ className })}>{children}</div>;
+export function Root({ children, style }: OutlinerRootProps) {
+	return <div {...stylex.props(style)}>{children}</div>;
 }
