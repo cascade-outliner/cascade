@@ -1,3 +1,5 @@
+import { colors, fonts } from "@cascade/theme/tokens.stylex";
+import * as stylex from "@stylexjs/stylex";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
@@ -31,13 +33,21 @@ export const Route = createRootRoute({
 	shellComponent: RootDocument,
 });
 
+const styles = stylex.create({
+	body: {
+		backgroundColor: colors.canvas,
+		color: colors.ink,
+		fontFamily: fonts.app,
+	},
+});
+
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
 			<head>
 				<HeadContent />
 			</head>
-			<body className="bg-canvas text-ink font-app">
+			<body {...stylex.props(styles.body)}>
 				{children}
 				<TanStackDevtools
 					config={{

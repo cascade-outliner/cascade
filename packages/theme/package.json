@@ -2,7 +2,16 @@
 	"name": "@cascade/theme",
 	"private": true,
 	"version": "0.0.0",
+	"type": "module",
 	"exports": {
-		".": "./theme.css"
+		"./tokens.stylex": "./src/tokens.stylex.ts",
+		"./reset.css": "./reset.css"
+	},
+	"dependencies": {
+		"@stylexjs/stylex": "0.19.0"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"typescript": "^6.0.2"
 	}
 }

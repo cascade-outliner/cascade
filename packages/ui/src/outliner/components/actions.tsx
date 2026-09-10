@@ -1,26 +1,101 @@
 import { Menu } from "@base-ui/react/menu";
+import { colors } from "@cascade/theme/tokens.stylex";
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import { TextIndentIcon } from "@phosphor-icons/react/dist/ssr/TextIndent";
 import { TextOutdentIcon } from "@phosphor-icons/react/dist/ssr/TextOutdent";
 import { TrashSimpleIcon } from "@phosphor-icons/react/dist/ssr/TrashSimple";
-import { cva } from "cva";
+import * as stylex from "@stylexjs/stylex";
 import { useItem } from "../context";
+import { rowVars } from "../vars.stylex";
 
-const trigger = cva({
-	base: "absolute right-full top-1/2 -translate-y-1/2 inline-flex size-[18px] shrink-0 cursor-pointer select-none items-center justify-center rounded-full p-0 text-muted opacity-0 hover:bg-ink/20 hover:text-ink focus-visible:opacity-100 group-hover/row:opacity-100 data-[popup-open]:opacity-100 data-[popup-open]:bg-ink/20 data-[popup-open]:text-ink",
-});
-const popup = cva({
-	base: "min-w-36 origin-[var(--transform-origin)] rounded-lg border border-ink/10 bg-white p-1 shadow-lg outline-none transition-[transform,opacity] data-[ending-style]:scale-95 data-[starting-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0",
-});
-const item = cva({
-	base: "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-ink/10",
-});
-const deleteItem = cva({
-	base: "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-danger outline-none data-[highlighted]:bg-danger/10",
+const inkTint20 = `color-mix(in oklab, ${colors.ink} 20%, transparent)`;
+const inkTint10 = `color-mix(in oklab, ${colors.ink} 10%, transparent)`;
+const dangerTint10 = `color-mix(in oklab, ${colors.danger} 10%, transparent)`;
+
+const styles = stylex.create({
+	trigger: {
+		position: "absolute",
+		right: "100%",
+		top: "50%",
+		transform: "translateY(-50%)",
+		display: "inline-flex",
+		width: 18,
+		height: 18,
+		flexShrink: 0,
+		cursor: "pointer",
+		userSelect: "none",
+		alignItems: "center",
+		justifyContent: "center",
+		borderRadius: 9999,
+		padding: 0,
+		color: {
+			default: colors.muted,
+			":hover": colors.ink,
+			":is([data-popup-open])": colors.ink,
+		},
+		backgroundColor: {
+			default: "transparent",
+			":hover": inkTint20,
+			":is([data-popup-open])": inkTint20,
+		},
+		opacity: {
+			default: rowVars.actionsOpacity,
+			":focus-visible": 1,
+			":is([data-popup-open])": 1,
+		},
+	},
+	popup: {
+		minWidth: 144,
+		transformOrigin: "var(--transform-origin)",
+		borderRadius: 8,
+		borderWidth: 1,
+		borderStyle: "solid",
+		borderColor: inkTint10,
+		backgroundColor: "#fff",
+		padding: 4,
+		boxShadow:
+			"0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+		outline: "none",
+		transitionProperty: "transform, opacity",
+		transitionDuration: "150ms",
+		transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+		transform: {
+			default: null,
+			":is([data-starting-style], [data-ending-style])": "scale(0.95)",
+		},
+		opacity: {
+			default: 1,
+			":is([data-starting-style], [data-ending-style])": 0,
+		},
+	},
+	item: {
+		display: "flex",
+		cursor: "pointer",
+		userSelect: "none",
+		alignItems: "center",
+		gap: 8,
+		borderRadius: 6,
+		paddingInline: 8,
+		paddingBlock: 6,
+		fontSize: 14,
+		lineHeight: "20px",
+		outline: "none",
+		backgroundColor: {
+			default: "transparent",
+			":is([data-highlighted])": inkTint10,
+		},
+	},
+	deleteItem: {
+		color: colors.danger,
+		backgroundColor: {
+			default: "transparent",
+			":is([data-highlighted])": dangerTint10,
+		},
+	},
 });
 
 export function Actions({
-	className,
+	style,
 	previousSiblingId,
 	parentId,
 	grandParentId,
@@ -28,7 +103,7 @@ export function Actions({
 	onIndent,
 	onOutdent,
 }: {
-	className?: string;
+	style?: stylex.StyleXStyles;
 	previousSiblingId?: string;
 	parentId?: string;
 	grandParentId?: string;
@@ -40,15 +115,15 @@ export function Actions({
 
 	return (
 		<Menu.Root>
-			<Menu.Trigger className={trigger({ className })}>
+			<Menu.Trigger {...stylex.props(styles.trigger, style)}>
 				<DotsThreeIcon size={14} weight="bold" />
 			</Menu.Trigger>
 			<Menu.Portal>
 				<Menu.Positioner sideOffset={8} align="end">
-					<Menu.Popup className={popup()}>
+					<Menu.Popup {...stylex.props(styles.popup)}>
 						{onIndent && (
 							<Menu.Item
-								className={item()}
+								{...stylex.props(styles.item)}
 								disabled={!previousSiblingId}
 								onClick={() =>
 									previousSiblingId && onIndent(node.id, previousSiblingId)
@@ -60,7 +135,7 @@ export function Actions({
 						)}
 						{onOutdent && (
 							<Menu.Item
-								className={item()}
+								{...stylex.props(styles.item)}
 								disabled={!parentId}
 								onClick={() =>
 									parentId && onOutdent(node.id, grandParentId ?? null)
@@ -71,7 +146,7 @@ export function Actions({
 							</Menu.Item>
 						)}
 						<Menu.Item
-							className={deleteItem()}
+							{...stylex.props(styles.item, styles.deleteItem)}
 							onClick={() => onDelete?.(node.id)}
 						>
 							<TrashSimpleIcon size={14} weight="bold" />

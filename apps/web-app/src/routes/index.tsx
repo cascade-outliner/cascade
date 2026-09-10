@@ -1,9 +1,35 @@
 import { type OutlineNode, Outliner } from "@cascade/ui";
+import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
 import type { SerializedEditorState } from "lexical";
 import { observer } from "mobx-react-lite";
 import { CreateNodeButton } from "#/components/create-node-button";
 import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
+
+const styles = stylex.create({
+	row: {
+		position: "relative",
+		display: "flex",
+		alignItems: "center",
+		gap: 4,
+	},
+	page: {
+		padding: 32,
+		display: "flex",
+		flexDirection: "column",
+		gap: 16,
+	},
+	toolbar: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "space-between",
+	},
+	outline: {
+		display: "flex",
+		flexDirection: "column",
+		gap: 4,
+	},
+});
 
 function OutlineRow({
 	node,
@@ -30,7 +56,7 @@ function OutlineRow({
 }) {
 	return (
 		<Outliner.Item node={node} depth={depth}>
-			<div className="relative flex items-center gap-1">
+			<div {...stylex.props(styles.row)}>
 				<Outliner.Actions
 					previousSiblingId={previousSiblingId}
 					parentId={parentId}
@@ -69,11 +95,11 @@ const Outline = observer(function Outline() {
 	const store = useOutlineStore();
 
 	return (
-		<div className="p-8 flex flex-col gap-4">
-			<div className="flex items-center justify-between">
+		<div {...stylex.props(styles.page)}>
+			<div {...stylex.props(styles.toolbar)}>
 				<CreateNodeButton />
 			</div>
-			<Outliner.Root className="flex flex-col gap-1">
+			<Outliner.Root style={styles.outline}>
 				<Outliner.List nodes={store.tree}>
 					{(n, depth, previousSiblingId) => (
 						<OutlineRow

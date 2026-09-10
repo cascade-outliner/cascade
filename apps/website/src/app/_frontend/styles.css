@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@import "@cascade/theme";
+@import "@cascade/theme/reset.css";
+
+@stylex;
 
 .root {
 	isolation: isolate;
