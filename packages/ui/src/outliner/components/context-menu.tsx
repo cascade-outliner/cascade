@@ -13,7 +13,9 @@ const styles = stylex.create({
 	popup: {
 		minWidth: 190,
 		borderRadius: 10,
-		border: "1px solid rgba(43, 45, 51, 0.08)",
+		borderWidth: 1,
+		borderStyle: "solid",
+		borderColor: "rgba(43, 45, 51, 0.08)",
 		backgroundColor: colors.white,
 		paddingBlock: 6,
 		boxShadow: "0 8px 24px -6px rgba(0, 0, 0, 0.18)",
@@ -62,7 +64,7 @@ export function OutlinerContextMenu({
 							onClick={onConvertToTask}
 						>
 							<CheckSquare size={15} />
-							Convert to task
+							Convert to Task
 						</BaseContextMenu.Item>
 						<BaseContextMenu.Item
 							{...stylex.props(styles.item, styles.danger)}

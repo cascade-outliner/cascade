@@ -11,28 +11,35 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
+		cursor: "pointer",
 	},
 	todo: {
-		border: "1.5px solid rgba(43, 45, 51, 0.22)",
+		borderWidth: 1.5,
+		borderStyle: "solid",
+		borderColor: "rgba(43, 45, 51, 0.22)",
 	},
 	done: {
 		backgroundColor: colors.primary,
 		color: colors.canvas,
 	},
-	ai: {
-		border: "1.5px dashed rgba(43, 45, 51, 0.3)",
-	},
 });
 
-export type TaskMarkerVariant = "todo" | "done" | "ai";
+export type TaskMarkerVariant = "todo" | "done";
 
-export interface TaskMarkerProps {
+export interface TaskMarkerProps extends React.HTMLAttributes<HTMLDivElement> {
 	variant: TaskMarkerVariant;
 }
 
-export function TaskMarker({ variant }: TaskMarkerProps) {
+export function TaskMarker({ variant, ...props }: TaskMarkerProps) {
 	return (
-		<div {...stylex.props(styles.marker, styles[variant])}>
+		<div
+			{...stylex.props(
+				styles.marker,
+				variant === "done" && styles.done,
+				variant === "todo" && styles.todo,
+			)}
+			{...props}
+		>
 			{variant === "done" && <Check size={11} weight="bold" />}
 		</div>
 	);

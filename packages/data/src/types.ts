@@ -12,6 +12,8 @@ export interface Node {
 	content: SerializedEditorState;
 	/** Whether the node's children are hidden in the UI. */
 	collapsed: boolean;
+	/** Task state, or `undefined` if this node is plain text. */
+	task?: { done: boolean };
 	/**
 	 * Timestamp of the last modification, in milliseconds since the epoch.
 	 *
@@ -47,4 +49,5 @@ export interface OutlineNode {
 	text: SerializedEditorState;
 	children: OutlineNode[];
 	collapsed?: boolean;
+	task?: { done: boolean };
 }
