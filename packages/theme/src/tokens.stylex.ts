@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 
 export const colors = stylex.defineVars({
+	white: "#ffffff",
 	canvas: "#fcf5ee",
 	surface: "#f9e4d6",
 	danger: "#ad4c4e",

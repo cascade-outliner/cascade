@@ -32,6 +32,7 @@ export class OutlineStore {
 				text: node.content,
 				children: build(node.id),
 				collapsed: node.collapsed,
+				task: node.task,
 			}));
 		return build(null);
 	}
@@ -69,6 +70,16 @@ export class OutlineStore {
 			return;
 		}
 		node.collapsed = collapsed;
+		node.updatedAt = Date.now();
+		this.#persist([node]);
+	}
+
+	setTask(id: string, task: { done: boolean } | null): void {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return;
+		}
+		node.task = task ?? undefined;
 		node.updatedAt = Date.now();
 		this.#persist([node]);
 	}

@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 const styles = stylex.create({
 	heading: {
-		fontSize: 36,
+		fontSize: "1rem",
 		lineHeight: "40px",
 		fontWeight: 700,
 		textDecoration: "underline",
