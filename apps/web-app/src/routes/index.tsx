@@ -1,6 +1,7 @@
 import { AddNodeButton } from "@cascade/ui/outliner/add-node-button";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Content } from "@cascade/ui/outliner/content";
+import { OutlinerContextMenu } from "@cascade/ui/outliner/context-menu";
 import { DragHandle } from "@cascade/ui/outliner/drag-handle";
 import { Root } from "@cascade/ui/outliner/root";
 import { Row } from "@cascade/ui/outliner/row";
@@ -44,13 +45,15 @@ const Outline = observer(function Outline() {
 			<Root style={styles.outline}>
 				<VirtualList nodes={store.tree}>
 					{(node) => (
-						<Row>
-							<DragHandle />
-							<Bullet collapsed={node.collapsed && node.children.length > 0} />
-							<Content
-								onChange={(state) => store.setContent(node.id, state.toJSON())}
-							/>
-						</Row>
+						<OutlinerContextMenu>
+							<Row>
+								<DragHandle />
+								<Bullet collapsed={node.collapsed && node.children.length > 0} />
+								<Content
+									onChange={(state) => store.setContent(node.id, state.toJSON())}
+								/>
+							</Row>
+						</OutlinerContextMenu>
 					)}
 				</VirtualList>
 			</Root>
