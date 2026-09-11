@@ -1,20 +1,17 @@
+import { AddNodeButton } from "@cascade/ui/outliner/add-node-button";
+import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Content } from "@cascade/ui/outliner/content";
+import { DragHandle } from "@cascade/ui/outliner/drag-handle";
 import { Root } from "@cascade/ui/outliner/root";
+import { Row } from "@cascade/ui/outliner/row";
 import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
-import { CreateNodeButton } from "#/components/create-node-button";
 import { SeedToolbar } from "#/components/seed-toolbar.tsx";
 import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
 
 const styles = stylex.create({
-	row: {
-		position: "relative",
-		display: "flex",
-		alignItems: "center",
-		gap: 4,
-	},
 	page: {
 		padding: 32,
 		display: "flex",
@@ -42,20 +39,22 @@ const Outline = observer(function Outline() {
 	return (
 		<div {...stylex.props(styles.page)}>
 			<div {...stylex.props(styles.toolbar)}>
-				<CreateNodeButton />
 				<SeedToolbar />
 			</div>
 			<Root style={styles.outline}>
 				<VirtualList nodes={store.tree}>
 					{(node) => (
-						<div {...stylex.props(styles.row)}>
+						<Row>
+							<DragHandle />
+							<Bullet collapsed={node.collapsed && node.children.length > 0} />
 							<Content
 								onChange={(state) => store.setContent(node.id, state.toJSON())}
 							/>
-						</div>
+						</Row>
 					)}
 				</VirtualList>
 			</Root>
+			<AddNodeButton onClick={() => store.create()}>Add Node</AddNodeButton>
 		</div>
 	);
 });
