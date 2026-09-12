@@ -75,7 +75,7 @@ function Home() {
 	return (
 		<OutlineStoreProvider>
 			<Outline />
-			{import.meta.env.DEV && <DevSeedToolbar />}
+			<DevSeedToolbar />
 		</OutlineStoreProvider>
 	);
 }
