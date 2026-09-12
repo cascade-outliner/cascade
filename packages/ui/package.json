@@ -5,6 +5,7 @@
 	"exports": {
 		"./outliner/*": "./src/outliner/components/*.tsx",
 		"./context-menu": "./src/context-menu/context-menu.tsx",
+		"./dialog": "./src/dialog/dialog.tsx",
 		"./kbd": "./src/kbd/kdb.tsx",
 		"./capture-bar": "./src/capture-bar/capture-bar.tsx"
 	},

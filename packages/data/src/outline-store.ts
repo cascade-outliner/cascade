@@ -145,6 +145,13 @@ export class OutlineStore {
 		this.#persist([], ids);
 	}
 
+	/** Removes every node in the outline. */
+	clearAll(): void {
+		const ids = [...this.nodes.keys()];
+		this.nodes.clear();
+		this.#persist([], ids);
+	}
+
 	async #load(): Promise<void> {
 		let nodes: Node[] = [];
 		try {
