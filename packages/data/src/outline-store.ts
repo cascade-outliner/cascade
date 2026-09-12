@@ -1,3 +1,4 @@
+import { generateKeyBetween, generateNKeysBetween } from "fractional-indexing";
 import type { SerializedEditorState } from "lexical";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { emptyState } from "./empty-content.ts";
@@ -8,30 +9,46 @@ const NOOP_PERSISTENCE: OutlinePersistence = {
 	write: async () => {},
 };
 
-const MIN_GAP = 1e-6;
-
 function byOrder(a: Node, b: Node): number {
-	return a.order - b.order;
+	return a.order < b.order ? -1 : a.order > b.order ? 1 : 0;
 }
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
 }
 
-function orderBetween(
-	prev: number | undefined,
-	next: number | undefined,
-): number {
-	if (prev === undefined && next === undefined) {
-		return 0;
+function orderBetween(prev?: string, next?: string): string {
+	return generateKeyBetween(prev ?? null, next ?? null);
+}
+
+function backfillOrder(nodes: Node[]): Node[] {
+	const last = new Map<string | null, string>();
+	const missing = new Map<string | null, Node[]>();
+	for (const node of nodes) {
+		if (typeof node.order === "string") {
+			const current = last.get(node.parentId);
+			if (current === undefined || current < node.order) {
+				last.set(node.parentId, node.order);
+			}
+		} else {
+			const group = missing.get(node.parentId) ?? [];
+			group.push(node);
+			missing.set(node.parentId, group);
+		}
 	}
-	if (prev === undefined) {
-		return (next as number) - 1;
+	const backfilled: Node[] = [];
+	for (const [parentId, group] of missing) {
+		const keys = generateNKeysBetween(
+			last.get(parentId) ?? null,
+			null,
+			group.length,
+		);
+		group.forEach((node, position) => {
+			node.order = keys[position];
+			backfilled.push(node);
+		});
 	}
-	if (next === undefined) {
-		return prev + 1;
-	}
-	return (prev + next) / 2;
+	return backfilled;
 }
 
 /**
@@ -155,23 +172,10 @@ export class OutlineStore {
 		);
 		const at =
 			index === undefined ? siblings.length : clamp(index, 0, siblings.length);
-		const prev = siblings[at - 1];
-		const next = siblings[at];
-		const changed: Node[] = [node];
-
-		if (prev && next && next.order - prev.order < MIN_GAP) {
-			siblings.splice(at, 0, node);
-			siblings.forEach((each, position) => {
-				each.order = position;
-			});
-			changed.push(...siblings.filter((each) => each !== node));
-		} else {
-			node.order = orderBetween(prev?.order, next?.order);
-		}
-
+		node.order = orderBetween(siblings[at - 1]?.order, siblings[at]?.order);
 		node.parentId = newParentId;
 		node.updatedAt = Date.now();
-		this.#persist(changed);
+		this.#persist([node]);
 		return true;
 	}
 
@@ -200,15 +204,11 @@ export class OutlineStore {
 		} catch (error) {
 			console.error("OutlineStore: load failed, starting empty", error);
 		}
-		const backfilled: Node[] = [];
+		const backfilled = backfillOrder(nodes);
 		runInAction(() => {
-			nodes.forEach((node, position) => {
-				if (typeof node.order !== "number") {
-					node.order = position;
-					backfilled.push(node);
-				}
+			for (const node of nodes) {
 				this.#put(node);
-			});
+			}
 			this.status = "ready";
 		});
 		if (backfilled.length > 0) {

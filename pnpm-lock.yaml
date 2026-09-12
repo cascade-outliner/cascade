@@ -221,6 +221,9 @@ importers:
 
   packages/data:
     dependencies:
+      fractional-indexing:
+        specifier: ^4.0.0
+        version: 4.0.0
       idb:
         specifier: 8.0.3
         version: 8.0.3
@@ -3314,6 +3317,10 @@ packages:
 
   focus-trap@7.5.4:
     resolution: {integrity: sha512-N7kHdlgsO/v+iD/dMoJKtsSqs5Dz/dXZVebRgJw23LDk+jMi/974zyiOYDziY2JPp8xivq9BmUGwIJMiuSBi7w==}
+
+  fractional-indexing@4.0.0:
+    resolution: {integrity: sha512-Nr2P1Yyaj2sy1Qdt/wI3GcByxrUdbSKg5+cGvw8f18hT2SkQt6V72iOjBpk7IO3UkzBsdlGRs2a4z6dLrJprgw==}
+    engines: {node: ^14.13.1 || >=16.0.0}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -7791,6 +7798,8 @@ snapshots:
   focus-trap@7.5.4:
     dependencies:
       tabbable: 6.5.0
+
+  fractional-indexing@4.0.0: {}
 
   fsevents@2.3.3:
     optional: true

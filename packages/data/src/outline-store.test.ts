@@ -120,7 +120,37 @@ describe("OutlineStore ordering", () => {
 		await ready(store);
 		expect(ids(store)).toEqual(["a", "b"]);
 		await new Promise((resolve) => setTimeout(resolve, 0));
-		expect(rows.get("a")?.order).toBe(0);
-		expect(rows.get("b")?.order).toBe(1);
+		const a = rows.get("a")?.order ?? "";
+		const b = rows.get("b")?.order ?? "";
+		expect(a).not.toBe("");
+		expect(a < b).toBe(true);
+	});
+
+	it("backfills after existing keys within the same parent", async () => {
+		const legacy = (id: string, order?: string): Node =>
+			({
+				id,
+				parentId: null,
+				order,
+				content: { root: {} },
+				collapsed: false,
+				updatedAt: 0,
+			}) as unknown as Node;
+		const { persistence } = memory([
+			legacy("keyed", "a0"),
+			legacy("old1"),
+			legacy("old2"),
+		]);
+		const store = new OutlineStore(persistence);
+		await ready(store);
+		expect(ids(store)).toEqual(["keyed", "old1", "old2"]);
+	});
+
+	it("keeps keys short under repeated appends", async () => {
+		const store = new OutlineStore();
+		await ready(store);
+		let id = "";
+		for (let i = 0; i < 300; i++) id = store.create();
+		expect(store.nodes.get(id)?.order.length).toBeLessThan(6);
 	});
 });
