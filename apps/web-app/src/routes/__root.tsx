@@ -38,6 +38,7 @@ const styles = stylex.create({
 		backgroundColor: colors.canvas,
 		color: colors.ink,
 		fontFamily: fonts.app,
+		touchAction: "manipulation",
 	},
 });
 

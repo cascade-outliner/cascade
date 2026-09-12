@@ -4,8 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
 	marker: {
-		width: 18,
-		height: 18,
+		width: { default: 18, "@media (hover: none)": 22 },
+		height: { default: 18, "@media (hover: none)": 22 },
 		flexShrink: 0,
 		borderRadius: "50%",
 		display: "flex",

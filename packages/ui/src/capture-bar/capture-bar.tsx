@@ -9,7 +9,7 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		gap: 10,
-		marginTop: 32,
+		marginTop: { default: 32, "@media (max-width: 640px)": 16 },
 		paddingBlock: 11,
 		paddingInline: "16px 14px",
 		borderRadius: 14,
@@ -24,7 +24,7 @@ const styles = stylex.create({
 		backgroundColor: "transparent",
 		outline: "none",
 		color: colors.ink,
-		fontSize: "0.875rem",
+		fontSize: { default: "0.875rem", "@media (hover: none)": "1rem" },
 		"::placeholder": {
 			color: "#a8a7ad",
 		},

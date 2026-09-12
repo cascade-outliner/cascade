@@ -2,6 +2,7 @@ import type { OutlineNode } from "@cascade/data";
 import * as stylex from "@stylexjs/stylex";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
+import { useMediaQuery } from "../../hooks/use-media-query";
 import { ItemContext } from "../context";
 
 const styles = stylex.create({
@@ -49,6 +50,8 @@ export function VirtualList({
 }: VirtualListProps) {
 	const parentRef = useRef<HTMLDivElement>(null);
 	const rows = flatten(nodes, 0, []);
+	const isCompact = useMediaQuery("(max-width: 640px)");
+	const indentStep = isCompact ? 14 : 20;
 
 	const virtualizer = useWindowVirtualizer({
 		count: rows.length,
@@ -72,7 +75,7 @@ export function VirtualList({
 						data-index={item.index}
 						{...stylex.props(styles.row)}
 						style={{
-							paddingLeft: depth * 20,
+							paddingLeft: depth * indentStep,
 							transform: `translateY(${
 								item.start - virtualizer.options.scrollMargin
 							}px)`,

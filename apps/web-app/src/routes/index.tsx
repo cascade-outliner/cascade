@@ -18,7 +18,7 @@ const styles = stylex.create({
 	page: {
 		maxWidth: 980,
 		margin: "0 auto",
-		padding: 32,
+		padding: { default: 32, "@media (max-width: 640px)": 16 },
 	},
 	outline: {
 		display: "flex",

@@ -6,8 +6,8 @@ const styles = stylex.create({
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
-		gap: 10,
-		paddingBlock: 6,
+		gap: { default: 10, "@media (max-width: 640px)": 8 },
+		paddingBlock: { default: 6, "@media (hover: none)": 9 },
 		paddingInline: 10,
 		borderRadius: 10,
 		transition:
