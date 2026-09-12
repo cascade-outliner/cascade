@@ -13,7 +13,9 @@
 			"!**/src/paraglide",
 			"!**/_payload/**/*",
 			"!**/payload-types.ts",
-			"!**/routeTree.gen.ts"
+			"!**/routeTree.gen.ts",
+			"!**/migrations/**/*",
+			"!**/.output/**/*"
 		]
 	},
 	"formatter": {

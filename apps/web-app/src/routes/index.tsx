@@ -1,8 +1,7 @@
 import { textState } from "@cascade/data";
+import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
-import { CaptureBar } from "@cascade/ui/outliner/capture-bar";
 import { Content } from "@cascade/ui/outliner/content";
-import { OutlinerContextMenu } from "@cascade/ui/outliner/context-menu";
 import { DragHandle } from "@cascade/ui/outliner/drag-handle";
 import { Row } from "@cascade/ui/outliner/row";
 import { TaskMarker } from "@cascade/ui/outliner/task-marker";
@@ -10,6 +9,7 @@ import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
+import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
 
 const styles = stylex.create({
@@ -35,12 +35,7 @@ const Outline = observer(function Outline() {
 		<div {...stylex.props(styles.page)}>
 			<VirtualList nodes={store.tree}>
 				{(node) => (
-					<OutlinerContextMenu
-						onDelete={() => store.remove(node.id)}
-						onConvertToTask={() =>
-							store.setTask(node.id, node.task ? null : { done: false })
-						}
-					>
+					<OutlinerContextMenu node={node}>
 						<Row>
 							<DragHandle />
 							<Bullet collapsed={node.collapsed && node.children.length > 0} />

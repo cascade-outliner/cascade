@@ -3,7 +3,10 @@
 	"private": true,
 	"version": "0.0.0",
 	"exports": {
-		"./outliner/*": "./src/outliner/components/*.tsx"
+		"./outliner/*": "./src/outliner/components/*.tsx",
+		"./context-menu": "./src/context-menu/context-menu.tsx",
+		"./kbd": "./src/kbd/kdb.tsx",
+		"./capture-bar": "./src/capture-bar/capture-bar.tsx"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.7.0",

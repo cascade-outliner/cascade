@@ -1,3 +1,4 @@
 @import "@cascade/theme/reset.css";
 
+/* biome-ignore lint/suspicious/noUnknownAtRules: stylex supported */
 @stylex;
