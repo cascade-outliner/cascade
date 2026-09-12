@@ -1,4 +1,5 @@
 import type { OutlineNode } from "@cascade/data";
+import { mediaQueries } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
@@ -50,7 +51,7 @@ export function VirtualList({
 }: VirtualListProps) {
 	const parentRef = useRef<HTMLDivElement>(null);
 	const rows = flatten(nodes, 0, []);
-	const isCompact = useMediaQuery("(max-width: 640px)");
+	const isCompact = useMediaQuery(mediaQueries.mobile);
 	const indentStep = isCompact ? 14 : 20;
 
 	const virtualizer = useWindowVirtualizer({

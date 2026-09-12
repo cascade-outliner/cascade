@@ -1,5 +1,5 @@
 import { Dialog as Base } from "@base-ui/react/dialog";
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import { X } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -18,18 +18,18 @@ const styles = stylex.create({
 	popup: {
 		position: "fixed",
 		zIndex: 101,
-		top: { default: "50%", "@media (max-width: 640px)": "auto" },
-		left: { default: "50%", "@media (max-width: 640px)": 16 },
-		right: { default: "auto", "@media (max-width: 640px)": 16 },
-		bottom: { default: "auto", "@media (max-width: 640px)": 16 },
+		top: { default: "50%", [breakpoints.mobile]: "auto" },
+		left: { default: "50%", [breakpoints.mobile]: 16 },
+		right: { default: "auto", [breakpoints.mobile]: 16 },
+		bottom: { default: "auto", [breakpoints.mobile]: 16 },
 		transform: {
 			default: "translate(-50%, -50%) scale(1)",
-			"@media (max-width: 640px)": "none",
+			[breakpoints.mobile]: "none",
 		},
-		minWidth: { default: 320, "@media (max-width: 640px)": "auto" },
+		minWidth: { default: 320, [breakpoints.mobile]: "auto" },
 		maxWidth: {
 			default: "min(480px, calc(100vw - 32px))",
-			"@media (max-width: 640px)": "none",
+			[breakpoints.mobile]: "none",
 		},
 		maxHeight: "calc(100vh - 32px)",
 		overflowY: "auto",
@@ -38,13 +38,13 @@ const styles = stylex.create({
 		borderStyle: "solid",
 		borderColor: "rgba(43, 45, 51, 0.08)",
 		backgroundColor: colors.white,
-		padding: { default: 20, "@media (max-width: 640px)": 16 },
+		padding: { default: 20, [breakpoints.mobile]: 16 },
 		boxShadow: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
 		outline: "none",
 		"@starting-style": {
 			transform: {
 				default: "translate(-50%, -50%) scale(0.96)",
-				"@media (max-width: 640px)": "translateY(16px)",
+				[breakpoints.mobile]: "translateY(16px)",
 			},
 			opacity: 0,
 		},
@@ -74,8 +74,8 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: { default: 24, "@media (hover: none)": 32 },
-		height: { default: 24, "@media (hover: none)": 32 },
+		width: { default: 24, [breakpoints.touch]: 32 },
+		height: { default: 24, [breakpoints.touch]: 32 },
 		flexShrink: 0,
 		borderRadius: 7,
 		border: "none",

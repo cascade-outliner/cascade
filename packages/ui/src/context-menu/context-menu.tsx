@@ -1,5 +1,5 @@
 import { ContextMenu as Base } from "@base-ui/react/context-menu";
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import { CaretRight, Check } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kdb";
@@ -28,7 +28,7 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		gap: 11,
-		paddingBlock: { default: 8, "@media (hover: none)": 11 },
+		paddingBlock: { default: 8, [breakpoints.touch]: 11 },
 		paddingInline: 11,
 		borderRadius: 9,
 		fontSize: "0.9rem",

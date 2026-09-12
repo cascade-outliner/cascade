@@ -1,11 +1,11 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import { Check } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
 	marker: {
-		width: { default: 18, "@media (hover: none)": 22 },
-		height: { default: 18, "@media (hover: none)": 22 },
+		width: { default: 18, [breakpoints.touch]: 22 },
+		height: { default: 18, [breakpoints.touch]: 22 },
 		flexShrink: 0,
 		borderRadius: "50%",
 		display: "flex",

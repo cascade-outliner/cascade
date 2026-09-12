@@ -1,5 +1,5 @@
 import { Input } from "@base-ui/react/input";
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { Kbd } from "../kbd/kdb.tsx";
@@ -9,7 +9,7 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		gap: 10,
-		marginTop: { default: 32, "@media (max-width: 640px)": 16 },
+		marginTop: { default: 32, [breakpoints.mobile]: 16 },
 		paddingBlock: 11,
 		paddingInline: "16px 14px",
 		borderRadius: 14,
@@ -24,7 +24,7 @@ const styles = stylex.create({
 		backgroundColor: "transparent",
 		outline: "none",
 		color: colors.ink,
-		fontSize: { default: "0.875rem", "@media (hover: none)": "1rem" },
+		fontSize: { default: "0.875rem", [breakpoints.touch]: "1rem" },
 		"::placeholder": {
 			color: "#a8a7ad",
 		},
