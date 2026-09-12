@@ -1,6 +1,6 @@
 import { ContextMenu as Base } from "@base-ui/react/context-menu";
 import { colors } from "@cascade/theme/tokens.stylex";
-import { Check } from "@phosphor-icons/react";
+import { CaretRight, Check } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kdb";
 
@@ -69,8 +69,8 @@ const styles = stylex.create({
 		marginInline: 8,
 	},
 	chevron: {
+		display: "flex",
 		color: colors.muted,
-		fontSize: "0.75rem",
 	},
 	radioIndicator: {
 		display: "flex",
@@ -151,7 +151,9 @@ function Submenu({ icon, label, children }: MenuSubmenuProps) {
 			<Base.SubmenuTrigger {...stylex.props(styles.item)}>
 				{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
 				<span {...stylex.props(styles.label)}>{label}</span>
-				<span {...stylex.props(styles.chevron)}>›</span>
+				<span {...stylex.props(styles.chevron)}>
+				<CaretRight size={11} weight="bold" />
+			</span>
 			</Base.SubmenuTrigger>
 			<Popup>{children}</Popup>
 		</Base.SubmenuRoot>

@@ -1,10 +1,10 @@
 import type { OutlineNode } from "@cascade/data";
-import { Menu } from "@cascade/ui/outliner/context-menu";
+import { Menu } from "@cascade/ui/context-menu";
 import {
 	ArrowLineLeft,
 	ArrowLineRight,
 	ArrowSquareOut,
-	ArrowsClockwise,
+	ArrowsLeftRight,
 	CalendarBlank,
 	Circle,
 	Copy,
@@ -33,7 +33,7 @@ export function OutlinerContextMenu({
 		<Menu.Root>
 			<Menu.Trigger>{children}</Menu.Trigger>
 			<Menu.Popup>
-				<Menu.Submenu icon={<ArrowsClockwise size={15} />} label="Convert into">
+				<Menu.Submenu icon={<ArrowsLeftRight size={15} />} label="Convert into">
 					<Menu.RadioGroup
 						value={node.task ? "task" : "text"}
 						onValueChange={(value) => {
