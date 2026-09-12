@@ -7,6 +7,7 @@ const styles = stylex.create({
 	backdrop: {
 		position: "fixed",
 		inset: 0,
+		zIndex: 100,
 		backgroundColor: "rgba(43, 45, 51, 0.32)",
 		"@starting-style": {
 			opacity: 0,
@@ -16,11 +17,20 @@ const styles = stylex.create({
 	},
 	popup: {
 		position: "fixed",
-		top: "50%",
-		left: "50%",
-		transform: "translate(-50%, -50%) scale(1)",
+		zIndex: 101,
+		top: { default: "50%", "@media (max-width: 640px)": "auto" },
+		left: { default: "50%", "@media (max-width: 640px)": 16 },
+		right: { default: "auto", "@media (max-width: 640px)": 16 },
+		bottom: { default: "auto", "@media (max-width: 640px)": 16 },
+		transform: {
+			default: "translate(-50%, -50%) scale(1)",
+			"@media (max-width: 640px)": "none",
+		},
 		minWidth: { default: 320, "@media (max-width: 640px)": "auto" },
-		maxWidth: "min(480px, calc(100vw - 32px))",
+		maxWidth: {
+			default: "min(480px, calc(100vw - 32px))",
+			"@media (max-width: 640px)": "none",
+		},
 		maxHeight: "calc(100vh - 32px)",
 		overflowY: "auto",
 		borderRadius: 13,
@@ -32,7 +42,10 @@ const styles = stylex.create({
 		boxShadow: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
 		outline: "none",
 		"@starting-style": {
-			transform: "translate(-50%, -50%) scale(0.96)",
+			transform: {
+				default: "translate(-50%, -50%) scale(0.96)",
+				"@media (max-width: 640px)": "translateY(16px)",
+			},
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",

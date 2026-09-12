@@ -9,6 +9,7 @@ const styles = stylex.create({
 		display: "contents",
 	},
 	positioner: {
+		zIndex: 100,
 		outline: "none",
 	},
 	popup: {
