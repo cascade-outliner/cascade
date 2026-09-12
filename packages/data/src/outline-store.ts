@@ -8,6 +8,32 @@ const NOOP_PERSISTENCE: OutlinePersistence = {
 	write: async () => {},
 };
 
+const MIN_GAP = 1e-6;
+
+function byOrder(a: Node, b: Node): number {
+	return a.order - b.order;
+}
+
+function clamp(value: number, min: number, max: number): number {
+	return Math.min(Math.max(value, min), max);
+}
+
+function orderBetween(
+	prev: number | undefined,
+	next: number | undefined,
+): number {
+	if (prev === undefined && next === undefined) {
+		return 0;
+	}
+	if (prev === undefined) {
+		return (next as number) - 1;
+	}
+	if (next === undefined) {
+		return prev + 1;
+	}
+	return (prev + next) / 2;
+}
+
 /**
  * The outline, client-side and mutable.
  *
@@ -26,6 +52,9 @@ export class OutlineStore {
 
 	get tree(): OutlineNode[] {
 		const children = this.#childrenByParent();
+		for (const siblings of children.values()) {
+			siblings.sort(byOrder);
+		}
 		const build = (parentId: string | null): OutlineNode[] =>
 			(children.get(parentId) ?? []).map((node) => ({
 				id: node.id,
@@ -42,9 +71,11 @@ export class OutlineStore {
 			throw new Error(`create: unknown parent ${parentId}`);
 		}
 
+		const siblings = this.#siblings(parentId);
 		const node = this.#put({
 			id: crypto.randomUUID(),
 			parentId,
+			order: orderBetween(siblings.at(-1)?.order, undefined),
 			content: emptyState(),
 			collapsed: false,
 			updatedAt: Date.now(),
@@ -90,9 +121,12 @@ export class OutlineStore {
 		if (!node) {
 			return null;
 		}
+		const siblings = this.#siblings(node.parentId);
+		const next = siblings[siblings.indexOf(node) + 1];
 		const copy = this.#put({
 			id: crypto.randomUUID(),
 			parentId: node.parentId,
+			order: orderBetween(node.order, next?.order),
 			content: node.content,
 			collapsed: false,
 			task: node.task ? { ...node.task } : undefined,
@@ -102,7 +136,7 @@ export class OutlineStore {
 		return copy.id;
 	}
 
-	move(id: string, newParentId: string | null): boolean {
+	move(id: string, newParentId: string | null, index?: number): boolean {
 		const node = this.nodes.get(id);
 		if (!node) {
 			return false;
@@ -116,9 +150,28 @@ export class OutlineStore {
 			return false;
 		}
 
+		const siblings = this.#siblings(newParentId).filter(
+			(each) => each.id !== id,
+		);
+		const at =
+			index === undefined ? siblings.length : clamp(index, 0, siblings.length);
+		const prev = siblings[at - 1];
+		const next = siblings[at];
+		const changed: Node[] = [node];
+
+		if (prev && next && next.order - prev.order < MIN_GAP) {
+			siblings.splice(at, 0, node);
+			siblings.forEach((each, position) => {
+				each.order = position;
+			});
+			changed.push(...siblings.filter((each) => each !== node));
+		} else {
+			node.order = orderBetween(prev?.order, next?.order);
+		}
+
 		node.parentId = newParentId;
 		node.updatedAt = Date.now();
-		this.#persist([node]);
+		this.#persist(changed);
 		return true;
 	}
 
@@ -147,18 +200,36 @@ export class OutlineStore {
 		} catch (error) {
 			console.error("OutlineStore: load failed, starting empty", error);
 		}
+		const backfilled: Node[] = [];
 		runInAction(() => {
-			for (const node of nodes) {
+			nodes.forEach((node, position) => {
+				if (typeof node.order !== "number") {
+					node.order = position;
+					backfilled.push(node);
+				}
 				this.#put(node);
-			}
+			});
 			this.status = "ready";
 		});
+		if (backfilled.length > 0) {
+			this.#persist(backfilled);
+		}
 	}
 
 	#put(node: Node): Node {
 		const registered = observable.object(node, { content: observable.ref });
 		this.nodes.set(node.id, registered);
 		return registered;
+	}
+
+	#siblings(parentId: string | null): Node[] {
+		const siblings: Node[] = [];
+		for (const node of this.nodes.values()) {
+			if (node.parentId === parentId) {
+				siblings.push(node);
+			}
+		}
+		return siblings.sort(byOrder);
 	}
 
 	#childrenByParent(): Map<string | null, Node[]> {

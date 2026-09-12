@@ -284,6 +284,12 @@ importers:
       '@cascade/theme':
         specifier: workspace:*
         version: link:../theme
+      '@dnd-kit/core':
+        specifier: 6.3.1
+        version: 6.3.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@dnd-kit/utilities':
+        specifier: 3.2.2
+        version: 3.2.2(react@19.2.6)
       '@lexical/react':
         specifier: ^0.38.0
         version: 0.38.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(yjs@13.6.32)

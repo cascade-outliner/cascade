@@ -37,7 +37,10 @@ const Outline = observer(function Outline() {
 
 	return (
 		<div {...stylex.props(styles.page)}>
-			<VirtualList nodes={store.tree}>
+			<VirtualList
+				nodes={store.tree}
+				onMove={(id, parentId, index) => store.move(id, parentId, index)}
+			>
 				{(node) => (
 					<OutlinerContextMenu
 						node={node}

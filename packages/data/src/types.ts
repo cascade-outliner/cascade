@@ -8,6 +8,7 @@ export interface Node {
 	id: string;
 	/** Identifier of the parent node, or `null` for a root node. */
 	parentId: string | null;
+	order: number;
 	/** Rich text content, serialized from a Lexical editor state. */
 	content: SerializedEditorState;
 	/** Whether the node's children are hidden in the UI. */
