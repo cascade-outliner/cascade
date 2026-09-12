@@ -72,7 +72,7 @@ export function VirtualList({
 						data-index={item.index}
 						{...stylex.props(styles.row)}
 						style={{
-							paddingLeft: depth * 20,
+							paddingLeft: depth * 12,
 							transform: `translateY(${
 								item.start - virtualizer.options.scrollMargin
 							}px)`,

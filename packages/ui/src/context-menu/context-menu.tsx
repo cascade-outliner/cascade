@@ -1,5 +1,5 @@
 import { ContextMenu as Base } from "@base-ui/react/context-menu";
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import { CaretRight, Check } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kdb";
@@ -9,10 +9,12 @@ const styles = stylex.create({
 		display: "contents",
 	},
 	positioner: {
+		zIndex: 100,
 		outline: "none",
 	},
 	popup: {
 		minWidth: 200,
+		maxWidth: "calc(100vw - 32px)",
 		borderRadius: 13,
 		borderWidth: 1,
 		borderStyle: "solid",
@@ -26,7 +28,7 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		gap: 11,
-		paddingBlock: 8,
+		paddingBlock: { default: 8, [breakpoints.touch]: 11 },
 		paddingInline: 11,
 		borderRadius: 9,
 		fontSize: "0.9rem",
@@ -152,8 +154,8 @@ function Submenu({ icon, label, children }: MenuSubmenuProps) {
 				{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
 				<span {...stylex.props(styles.label)}>{label}</span>
 				<span {...stylex.props(styles.chevron)}>
-				<CaretRight size={11} weight="bold" />
-			</span>
+					<CaretRight size={11} weight="bold" />
+				</span>
 			</Base.SubmenuTrigger>
 			<Popup>{children}</Popup>
 		</Base.SubmenuRoot>

@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -6,8 +6,8 @@ const styles = stylex.create({
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
-		gap: 10,
-		paddingBlock: 6,
+		gap: { default: 10, [breakpoints.mobile]: 8 },
+		paddingBlock: { default: 6, [breakpoints.touch]: 9 },
 		paddingInline: 10,
 		borderRadius: 10,
 		transition:
