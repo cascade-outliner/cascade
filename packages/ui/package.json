@@ -2,6 +2,9 @@
 	"name": "@cascade/ui",
 	"private": true,
 	"version": "0.0.0",
+	"scripts": {
+		"test": "vitest run"
+	},
 	"exports": {
 		"./outliner/*": "./src/outliner/components/*.tsx",
 		"./context-menu": "./src/context-menu/context-menu.tsx",
@@ -28,6 +31,7 @@
 	"devDependencies": {
 		"@cascade/config": "workspace:*",
 		"@types/react": "^19.2.0",
-		"typescript": "^6.0.2"
+		"typescript": "^6.0.2",
+		"vitest": "^3.2.7"
 	}
 }
