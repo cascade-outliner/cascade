@@ -10,6 +10,7 @@ import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { DevSeedToolbar } from "#/components/dev-seed-toolbar.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
 
@@ -74,6 +75,7 @@ function Home() {
 	return (
 		<OutlineStoreProvider>
 			<Outline />
+			{import.meta.env.DEV && <DevSeedToolbar />}
 		</OutlineStoreProvider>
 	);
 }
