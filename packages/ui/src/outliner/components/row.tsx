@@ -21,12 +21,20 @@ const styles = stylex.create({
 				"0 0 0 1px rgba(173, 76, 78, 0.3), 0 3px 10px -3px rgba(0, 0, 0, 0.12)",
 		},
 	},
+	active: {
+		backgroundColor: colors.white,
+		boxShadow:
+			"0 0 0 1px rgba(173, 76, 78, 0.3), 0 3px 10px -3px rgba(0, 0, 0, 0.12)",
+	},
 });
 
 export interface RowProps {
+	active?: boolean;
 	children: React.ReactNode;
 }
 
-export function Row({ children }: RowProps) {
-	return <div {...stylex.props(styles.row)}>{children}</div>;
+export function Row({ active, children }: RowProps) {
+	return (
+		<div {...stylex.props(styles.row, active && styles.active)}>{children}</div>
+	);
 }

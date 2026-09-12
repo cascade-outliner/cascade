@@ -1,6 +1,6 @@
 *,
-::before,
-::after {
+*::before,
+*::after {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
@@ -8,61 +8,74 @@
 }
 
 html {
-	font-size: 18px;
-	line-height: 1.5;
-	-webkit-text-size-adjust: 100%;
-	tab-size: 4;
-	font-family: ui-sans-serif, system-ui, sans-serif;
+	-moz-text-size-adjust: none;
+	-webkit-text-size-adjust: none;
+	text-size-adjust: none;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+	margin-block-end: 0;
+}
+
+ul[role="list"],
+ol[role="list"] {
+	list-style: none;
 }
 
 body {
-	line-height: inherit;
+	min-height: 100vh;
+	line-height: 1.5;
 }
 
 h1,
 h2,
 h3,
 h4,
-h5,
-h6 {
-	font-size: inherit;
-	font-weight: inherit;
-}
-
-a {
-	color: inherit;
-	text-decoration: inherit;
-}
-
-ol,
-ul {
-	list-style: none;
-}
-
-img,
-svg,
-video,
-canvas,
-audio,
-iframe,
-embed,
-object {
-	display: block;
-	vertical-align: middle;
-}
-
-img,
-video {
-	max-width: 100%;
-	height: auto;
-}
-
 button,
 input,
-select,
-textarea {
-	font: inherit;
-	color: inherit;
-	background-color: transparent;
-	border-radius: 0;
+label {
+	line-height: 1.1;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	text-wrap: balance;
+}
+
+a:not([class]) {
+	text-decoration-skip-ink: auto;
+	color: currentColor;
+}
+
+img,
+picture {
+	max-width: 100%;
+	display: block;
+}
+
+input,
+button,
+textarea,
+select {
+	font-family: inherit;
+	font-size: inherit;
+}
+
+textarea:not([rows]) {
+	min-height: 10em;
+}
+
+:target {
+	scroll-margin-block: 5ex;
 }

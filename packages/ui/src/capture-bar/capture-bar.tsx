@@ -2,6 +2,7 @@ import { Input } from "@base-ui/react/input";
 import { colors } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
+import { Kbd } from "../kbd/kdb.tsx";
 
 const styles = stylex.create({
 	bar: {
@@ -22,7 +23,7 @@ const styles = stylex.create({
 		border: "none",
 		backgroundColor: "transparent",
 		outline: "none",
-		color: colors.white,
+		color: colors.ink,
 		fontSize: "0.875rem",
 		"::placeholder": {
 			color: "#a8a7ad",
@@ -55,6 +56,7 @@ export function CaptureBar({ onSubmit }: CaptureBarProps) {
 				}}
 				placeholder="Type a node…"
 			/>
+			<Kbd>⏎</Kbd>
 		</div>
 	);
 }

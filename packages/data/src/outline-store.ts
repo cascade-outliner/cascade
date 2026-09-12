@@ -84,6 +84,24 @@ export class OutlineStore {
 		this.#persist([node]);
 	}
 
+	/** Copies a node (not its descendants) as a new sibling. Returns the new id, or `null` if `id` is unknown. */
+	duplicate(id: string): string | null {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return null;
+		}
+		const copy = this.#put({
+			id: crypto.randomUUID(),
+			parentId: node.parentId,
+			content: node.content,
+			collapsed: false,
+			task: node.task ? { ...node.task } : undefined,
+			updatedAt: Date.now(),
+		});
+		this.#persist([copy]);
+		return copy.id;
+	}
+
 	move(id: string, newParentId: string | null): boolean {
 		const node = this.nodes.get(id);
 		if (!node) {
