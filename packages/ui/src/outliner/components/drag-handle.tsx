@@ -1,7 +1,7 @@
 import { colors } from "@cascade/theme/tokens.stylex";
 import { DotsSixVertical } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { DragHandleContext } from "../context";
 
 const styles = stylex.create({
@@ -15,6 +15,8 @@ const styles = stylex.create({
 		color: colors.muted,
 		cursor: "grab",
 		touchAction: "none",
+		userSelect: "none",
+		WebkitTouchCallout: "none",
 		outline: "none",
 		opacity: { default: 0.35, "@media (hover: none)": 0.55 },
 		":hover": {
@@ -32,8 +34,15 @@ const styles = stylex.create({
 	},
 });
 
-export function DragHandle(props: React.HTMLAttributes<HTMLDivElement>) {
+export function DragHandle({
+	onTouchStart,
+	onTouchEnd,
+	onTouchCancel,
+	onContextMenu,
+	...props
+}: React.HTMLAttributes<HTMLDivElement>) {
 	const drag = useContext(DragHandleContext);
+	const touching = useRef(false);
 
 	return (
 		<div
@@ -41,6 +50,27 @@ export function DragHandle(props: React.HTMLAttributes<HTMLDivElement>) {
 			{...stylex.props(styles.handle, drag?.isDragging && styles.dragging)}
 			{...drag?.attributes}
 			{...drag?.listeners}
+			onTouchStart={(event) => {
+				touching.current = true;
+				event.stopPropagation();
+				onTouchStart?.(event);
+			}}
+			onTouchEnd={(event) => {
+				touching.current = false;
+				onTouchEnd?.(event);
+			}}
+			onTouchCancel={(event) => {
+				touching.current = false;
+				onTouchCancel?.(event);
+			}}
+			onContextMenu={(event) => {
+				if (touching.current || drag?.isDragging) {
+					event.preventDefault();
+					event.stopPropagation();
+					return;
+				}
+				onContextMenu?.(event);
+			}}
 			{...props}
 		>
 			<DotsSixVertical size={14} />
