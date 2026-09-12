@@ -21,16 +21,18 @@ import { useOutlineStore } from "#/lib/outline-store.tsx";
 export interface OutlinerContextMenuProps {
 	node: OutlineNode;
 	children: ReactNode;
+	onOpenChange?: (open: boolean) => void;
 }
 
 export function OutlinerContextMenu({
 	node,
 	children,
+	onOpenChange,
 }: OutlinerContextMenuProps) {
 	const store = useOutlineStore();
 
 	return (
-		<Menu.Root>
+		<Menu.Root onOpenChange={onOpenChange}>
 			<Menu.Trigger>{children}</Menu.Trigger>
 			<Menu.Popup>
 				<Menu.Submenu icon={<ArrowsLeftRight size={15} />} label="Convert into">

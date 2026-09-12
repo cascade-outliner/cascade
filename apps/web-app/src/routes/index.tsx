@@ -9,6 +9,7 @@ import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
 
@@ -27,6 +28,8 @@ const styles = stylex.create({
 
 const Outline = observer(function Outline() {
 	const store = useOutlineStore();
+	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+
 	if (store.status !== "ready") {
 		return null;
 	}
@@ -35,8 +38,11 @@ const Outline = observer(function Outline() {
 		<div {...stylex.props(styles.page)}>
 			<VirtualList nodes={store.tree}>
 				{(node) => (
-					<OutlinerContextMenu node={node}>
-						<Row>
+					<OutlinerContextMenu
+						node={node}
+						onOpenChange={(open) => setMenuOpenId(open ? node.id : null)}
+					>
+						<Row active={menuOpenId === node.id}>
 							<DragHandle />
 							<Bullet collapsed={node.collapsed && node.children.length > 0} />
 							{node.task && (
