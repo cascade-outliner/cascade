@@ -19,7 +19,3 @@ export const breakpoints = {
 	mobile: "@media (max-width: 640px)",
 	touch: "@media (hover: none)",
 } as const;
-
-export const mediaQueries = {
-	mobile: "(max-width: 640px)",
-} as const;
