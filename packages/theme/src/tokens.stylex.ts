@@ -14,8 +14,3 @@ export const colors = stylex.defineVars({
 export const fonts = stylex.defineVars({
 	app: '"Bitter Variable", serif',
 });
-
-export const breakpoints = {
-	mobile: "@media (max-width: 640px)",
-	touch: "@media (hover: none)",
-} as const;
