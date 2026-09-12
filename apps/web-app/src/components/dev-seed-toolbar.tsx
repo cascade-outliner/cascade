@@ -1,6 +1,6 @@
 import type { OutlineStore } from "@cascade/data";
 import { textState } from "@cascade/data";
-import { colors } from "@cascade/theme/tokens.stylex";
+import { breakpoints, colors } from "@cascade/theme/tokens.stylex";
 import { Dialog } from "@cascade/ui/dialog";
 import { faker } from "@faker-js/faker";
 import { FlowArrow, Plus, Stack, Trash } from "@phosphor-icons/react";
@@ -11,12 +11,15 @@ import { useOutlineStore } from "#/lib/outline-store.tsx";
 const styles = stylex.create({
 	toolbar: {
 		position: "fixed",
-		bottom: 16,
-		left: 16,
+		bottom: { default: 16, [breakpoints.mobile]: 8 },
+		left: { default: 16, [breakpoints.mobile]: 8 },
 		zIndex: 50,
 		display: "flex",
+		flexWrap: "wrap",
 		alignItems: "center",
 		gap: 2,
+		rowGap: 4,
+		maxWidth: "calc(100vw - 16px)",
 		borderRadius: 13,
 		borderWidth: 1,
 		borderStyle: "solid",
@@ -43,8 +46,8 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		gap: 7,
-		paddingBlock: 8,
-		paddingInline: 11,
+		paddingBlock: { default: 8, [breakpoints.touch]: 11 },
+		paddingInline: { default: 11, [breakpoints.mobile]: 9 },
 		borderRadius: 9,
 		border: "none",
 		backgroundColor: "transparent",
