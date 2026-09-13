@@ -1,5 +1,5 @@
 import { type Node, plainText } from "@cascade/data";
-import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
+import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
 import { CaretRightIcon, HouseSimpleIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
@@ -14,32 +14,51 @@ const styles = stylex.create({
 	header: {
 		display: "flex",
 		flexDirection: "column",
-		gap: space["1"],
+		gap: space["1.5"],
 	},
 	trail: {
 		display: "flex",
 		alignItems: "center",
 		flexWrap: "wrap",
-		gap: space["1"],
+		gap: space["0.5"],
 		fontSize: fontSize["300"],
 		color: colors.muted,
 	},
 	homeButton: {
 		display: "flex",
 		alignItems: "center",
+		justifyContent: "center",
+		width: 20,
+		height: 20,
+		flexShrink: 0,
 		border: "none",
 		padding: 0,
-		background: "none",
-		color: "inherit",
+		borderRadius: "50%",
+		backgroundColor: colors.inkSubtle,
+		color: colors.muted,
 		cursor: "pointer",
 		":hover": {
+			backgroundColor: colors.inkSubtleHover,
 			color: colors.ink,
 		},
 	},
+	separator: {
+		display: "flex",
+		alignItems: "center",
+		flexShrink: 0,
+		color: colors.muted,
+	},
+	ellipsis: {
+		flexShrink: 0,
+	},
 	crumbButton: {
+		display: "flex",
+		alignItems: "center",
 		border: "none",
-		padding: 0,
-		background: "none",
+		paddingBlock: space["0.5"],
+		paddingInline: space["1.5"],
+		borderRadius: radius.sm,
+		backgroundColor: "transparent",
 		font: "inherit",
 		color: "inherit",
 		cursor: "pointer",
@@ -48,8 +67,8 @@ const styles = stylex.create({
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",
 		":hover": {
+			backgroundColor: colors.inkSubtleHover,
 			color: colors.ink,
-			textDecoration: "underline",
 		},
 	},
 	title: {
@@ -90,17 +109,23 @@ export function ZoomHeader({
 					onClick={() => onZoomTo(null)}
 					aria-label="Zoom out to root"
 				>
-					<HouseSimpleIcon size={13} weight="bold" />
+					<HouseSimpleIcon size={12} weight="bold" />
 				</button>
 				{collapsed && (
 					<>
-						<CaretRightIcon size={10} weight="bold" />
-						<span aria-hidden="true">…</span>
+						<span {...stylex.props(styles.separator)}>
+							<CaretRightIcon size={10} weight="bold" />
+						</span>
+						<span {...stylex.props(styles.ellipsis)} aria-hidden="true">
+							…
+						</span>
 					</>
 				)}
 				{visible.map((ancestor) => (
 					<Fragment key={ancestor.id}>
-						<CaretRightIcon size={10} weight="bold" />
+						<span {...stylex.props(styles.separator)}>
+							<CaretRightIcon size={10} weight="bold" />
+						</span>
 						<button
 							type="button"
 							{...stylex.props(styles.crumbButton)}
