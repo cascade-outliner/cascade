@@ -24,31 +24,12 @@ export interface Node {
 }
 
 /**
- * Persistence boundary for the outline.
+ * One visible line of the outline: a node at its indentation depth.
  */
-export interface OutlinePersistence {
-	/**
-	 * Return all stored nodes.
-	 *
-	 * Called once when the store is initialized.
-	 */
-	load(): Promise<Node[]>;
-	/**
-	 * Apply a set of changes atomically.
-	 *
-	 * Nodes in `put` are inserted or replaced by `id`; identifiers in `delete`
-	 * are removed. The returned promise resolves once all changes are durable.
-	 */
-	write(change: { put: Node[]; delete: string[] }): Promise<void>;
-}
-
-/**
- * A node in the derived outline tree, as consumed by the UI.
- */
-export interface OutlineNode {
-	id: string;
-	text: SerializedEditorState;
-	children: OutlineNode[];
-	collapsed?: boolean;
-	task?: { done: boolean };
+export interface Row {
+	node: Node;
+	/** Nesting depth below the row's root, starting at 0. */
+	depth: number;
+	/** Number of direct children, whether or not they are visible. */
+	childCount: number;
 }

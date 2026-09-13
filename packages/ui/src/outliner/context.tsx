@@ -1,4 +1,4 @@
-import type { OutlineNode } from "@cascade/data";
+import type { Node } from "@cascade/data";
 import type {
 	DraggableAttributes,
 	DraggableSyntheticListeners,
@@ -7,7 +7,7 @@ import type {
 import { createContext, useContext } from "react";
 
 export interface ItemContextValue {
-	node: OutlineNode;
+	node: Node;
 	depth: number;
 }
 

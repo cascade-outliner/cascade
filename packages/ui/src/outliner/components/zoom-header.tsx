@@ -1,4 +1,4 @@
-import type { OutlineNode } from "@cascade/data";
+import type { Node } from "@cascade/data";
 import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import { CaretLeftIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
@@ -38,7 +38,7 @@ const styles = stylex.create({
 
 export interface ZoomHeaderProps {
 	/** The node currently zoomed into. */
-	node: OutlineNode;
+	node: Node;
 	/** Its parent, or `null` if it's a root node. */
 	parentId: string | null;
 	/** Zoom to another node, or `null` to zoom all the way out. */

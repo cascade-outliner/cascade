@@ -1,4 +1,4 @@
-import type { OutlineNode } from "@cascade/data";
+import type { Node } from "@cascade/data";
 import { Menu } from "@cascade/ui/context-menu";
 import {
 	ArrowLineLeftIcon,
@@ -19,7 +19,8 @@ import type { ReactNode } from "react";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
 export interface OutlinerContextMenuProps {
-	node: OutlineNode;
+	node: Node;
+	childCount: number;
 	children: ReactNode;
 	onOpenChange?: (open: boolean) => void;
 	onZoomIn?: (id: string) => void;
@@ -27,6 +28,7 @@ export interface OutlinerContextMenuProps {
 
 export function OutlinerContextMenu({
 	node,
+	childCount,
 	children,
 	onOpenChange,
 	onZoomIn,
@@ -92,7 +94,7 @@ export function OutlinerContextMenu({
 						Duplicate selected
 					</Menu.Item>
 					<Menu.Item
-						disabled={node.children.length === 0}
+						disabled={childCount === 0}
 						onClick={() => store.duplicateWithChildren(node.id)}
 					>
 						Duplicate with children

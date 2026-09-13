@@ -56,7 +56,7 @@ export function Content({
 		<LexicalComposer
 			initialConfig={{
 				namespace: `outliner-node-${node.id}`,
-				editorState: JSON.stringify(node.text),
+				editorState: JSON.stringify(node.content),
 				onError: (error) => {
 					throw error;
 				},
