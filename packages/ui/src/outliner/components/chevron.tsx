@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { colors, duration, radius, shadow } from "@cascade/theme/tokens.stylex";
 import { CaretRight } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -16,14 +16,14 @@ const styles = stylex.create({
 		color: colors.muted,
 		cursor: "pointer",
 		opacity: { default: 0.35, "@media (hover: none)": 0.55 },
-		transition: "transform 0.1s ease-in-out",
+		transition: `transform ${duration["100"]} ease-in-out`,
 		":hover": {
 			opacity: 1,
 		},
 		":focus-visible": {
 			opacity: 1,
-			boxShadow: "0 0 0 2px rgba(173, 76, 78, 0.35)",
-			borderRadius: 4,
+			boxShadow: shadow.focusRing,
+			borderRadius: radius.sm,
 		},
 	},
 	open: {

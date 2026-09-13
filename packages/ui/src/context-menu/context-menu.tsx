@@ -1,5 +1,14 @@
 import { ContextMenu as Base } from "@base-ui/react/context-menu";
-import { colors } from "@cascade/theme/tokens.stylex";
+import {
+	borderWidth,
+	colors,
+	fontSize,
+	opacity,
+	radius,
+	shadow,
+	space,
+	zIndex,
+} from "@cascade/theme/tokens.stylex";
 import { CaretRight, Check } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kdb";
@@ -9,29 +18,29 @@ const styles = stylex.create({
 		display: "contents",
 	},
 	positioner: {
-		zIndex: 100,
+		zIndex: zIndex.overlay,
 		outline: "none",
 	},
 	popup: {
 		minWidth: 200,
 		maxWidth: "calc(100vw - 32px)",
-		borderRadius: 13,
-		borderWidth: 1,
+		borderRadius: radius.lg,
+		borderWidth: borderWidth.thin,
 		borderStyle: "solid",
-		borderColor: "rgba(43, 45, 51, 0.08)",
+		borderColor: colors.border,
 		backgroundColor: colors.white,
-		padding: 6,
-		boxShadow: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
+		padding: space["1.5"],
+		boxShadow: shadow.popup,
 		outline: "none",
 	},
 	item: {
 		display: "flex",
 		alignItems: "center",
-		gap: 11,
-		paddingBlock: { default: 8, "@media (hover: none)": 11 },
-		paddingInline: 11,
-		borderRadius: 9,
-		fontSize: "0.9rem",
+		gap: space["3"],
+		paddingBlock: { default: space["2"], "@media (hover: none)": space["3"] },
+		paddingInline: space["3"],
+		borderRadius: radius.md,
+		fontSize: fontSize["500"],
 		color: colors.ink,
 		cursor: "default",
 		outline: "none",
@@ -39,11 +48,11 @@ const styles = stylex.create({
 			backgroundColor: colors.surface,
 		},
 		"[data-checked]": {
-			backgroundColor: "rgba(173, 76, 78, 0.08)",
+			backgroundColor: colors.primaryMuted,
 			fontWeight: 500,
 		},
 		"[data-disabled]": {
-			opacity: 0.4,
+			opacity: opacity.disabled,
 		},
 	},
 	danger: {
@@ -66,9 +75,9 @@ const styles = stylex.create({
 	separator: {
 		height: 1,
 		border: "none",
-		backgroundColor: "rgba(43, 45, 51, 0.08)",
-		marginBlock: 6,
-		marginInline: 8,
+		backgroundColor: colors.border,
+		marginBlock: space["1.5"],
+		marginInline: space["2"],
 	},
 	chevron: {
 		display: "flex",

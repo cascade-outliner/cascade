@@ -1,5 +1,11 @@
 import { Input } from "@base-ui/react/input";
-import { colors } from "@cascade/theme/tokens.stylex";
+import {
+	colors,
+	fontSize,
+	radius,
+	shadow,
+	space,
+} from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { Kbd } from "../kbd/kdb.tsx";
@@ -8,14 +14,17 @@ const styles = stylex.create({
 	bar: {
 		display: "flex",
 		alignItems: "center",
-		gap: 10,
-		marginTop: { default: 32, "@media (max-width: 640px)": 16 },
-		paddingBlock: 11,
-		paddingInline: "16px 14px",
-		borderRadius: 14,
+		gap: space["2.5"],
+		marginTop: {
+			default: space["8"],
+			"@media (max-width: 640px)": space["4"],
+		},
+		paddingBlock: space["3"],
+		paddingInline: `${space["4"]} ${space["3.5"]}`,
+		borderRadius: radius.xl,
 		border: "none",
 		backgroundColor: colors.white,
-		boxShadow: "0 10px 30px -8px rgba(0, 0, 0, 0.25)",
+		boxShadow: shadow.float,
 	},
 	input: {
 		flexGrow: 1,
@@ -24,9 +33,12 @@ const styles = stylex.create({
 		backgroundColor: "transparent",
 		outline: "none",
 		color: colors.ink,
-		fontSize: { default: "0.875rem", "@media (hover: none)": "1rem" },
+		fontSize: {
+			default: fontSize["400"],
+			"@media (hover: none)": fontSize["600"],
+		},
 		"::placeholder": {
-			color: "#a8a7ad",
+			color: colors.placeholder,
 		},
 	},
 });

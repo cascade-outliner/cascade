@@ -1,3 +1,4 @@
+import { fontSize } from "@cascade/theme/tokens.stylex";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -17,7 +18,7 @@ const styles = stylex.create({
 	},
 	content: {
 		outline: "none",
-		fontSize: "1rem",
+		fontSize: fontSize["600"],
 	},
 });
 

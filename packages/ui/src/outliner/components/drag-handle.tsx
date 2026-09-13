@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { colors, radius, shadow } from "@cascade/theme/tokens.stylex";
 import { DotsSixVertical } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { useContext, useRef } from "react";
@@ -28,8 +28,8 @@ const styles = stylex.create({
 		},
 		":focus-visible": {
 			opacity: 1,
-			boxShadow: "0 0 0 2px rgba(173, 76, 78, 0.35)",
-			borderRadius: 4,
+			boxShadow: shadow.focusRing,
+			borderRadius: radius.sm,
 		},
 	},
 	dragging: {
