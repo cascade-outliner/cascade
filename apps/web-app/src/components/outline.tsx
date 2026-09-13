@@ -121,7 +121,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				>
 					<ZoomHeader
 						node={zoomed}
-						parentId={store.parentOf(zoomed.id)}
+						ancestors={store.ancestorsOf(zoomed.id)}
 						onZoomTo={zoomTo}
 						onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
 					/>
