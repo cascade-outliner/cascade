@@ -4,19 +4,16 @@ import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
-import { DragHandle } from "@cascade/ui/outliner/drag-handle";
 import { Row } from "@cascade/ui/outliner/row";
 import { TaskMarker } from "@cascade/ui/outliner/task-marker";
 import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import { ZoomHeader } from "@cascade/ui/outliner/zoom-header";
 import * as stylex from "@stylexjs/stylex";
-import { createFileRoute } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
-import { flushSync } from "react-dom";
-import { DevSeedToolbar } from "#/components/dev-seed-toolbar.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
-import { OutlineStoreProvider, useOutlineStore } from "#/lib/outline-store.tsx";
+import { useOutlineStore } from "#/lib/outline-store.tsx";
 
 const styles = stylex.create({
 	page: {
@@ -38,24 +35,23 @@ function zoomTransitionName(id: string): string {
 	return `outline-node-${id}`;
 }
 
-function zoomTo(setZoomedId: (id: string | null) => void, id: string | null) {
-	if (!document.startViewTransition) {
-		setZoomedId(id);
-		return;
-	}
-
-	const transition = document.startViewTransition(() =>
-		flushSync(() => setZoomedId(id)),
-	);
-
-	transition.ready.catch(() => {});
-	transition.finished.catch(() => {});
+export interface OutlineProps {
+	/** The node to zoom into, or `null` to show the top-level outline. */
+	zoomedId: string | null;
 }
 
-const Outline = observer(function Outline() {
+export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const store = useOutlineStore();
+	const navigate = useNavigate();
 	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-	const [zoomedId, setZoomedId] = useState<string | null>(null);
+
+	const zoomTo = (id: string | null) => {
+		navigate({
+			to: id ? "/node/$id" : "/",
+			params: id ? { id } : undefined,
+			viewTransition: true,
+		});
+	};
 
 	if (store.status !== "ready") {
 		return null;
@@ -76,7 +72,7 @@ const Outline = observer(function Outline() {
 					<ZoomHeader
 						node={zoomed}
 						parentId={store.parentOf(zoomed.id)}
-						onZoomTo={(id) => zoomTo(setZoomedId, id)}
+						onZoomTo={zoomTo}
 						onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
 					/>
 				</div>
@@ -90,13 +86,12 @@ const Outline = observer(function Outline() {
 					<OutlinerContextMenu
 						node={node}
 						onOpenChange={(open) => setMenuOpenId(open ? node.id : null)}
-						onZoomIn={(id) => zoomTo(setZoomedId, id)}
+						onZoomIn={zoomTo}
 					>
 						<Row
 							active={menuOpenId === node.id}
 							style={{ viewTransitionName: zoomTransitionName(node.id) }}
 						>
-							<DragHandle />
 							<Chevron
 								open={!node.collapsed}
 								hidden={node.children.length === 0}
@@ -104,7 +99,7 @@ const Outline = observer(function Outline() {
 							/>
 							<Bullet
 								collapsed={node.collapsed && node.children.length > 0}
-								onClick={() => zoomTo(setZoomedId, node.id)}
+								onClick={() => zoomTo(node.id)}
 							/>
 							{node.task && (
 								<TaskMarker
@@ -132,14 +127,3 @@ const Outline = observer(function Outline() {
 		</div>
 	);
 });
-
-function Home() {
-	return (
-		<OutlineStoreProvider>
-			<Outline />
-			<DevSeedToolbar />
-		</OutlineStoreProvider>
-	);
-}
-
-export const Route = createFileRoute("/")({ component: Home });

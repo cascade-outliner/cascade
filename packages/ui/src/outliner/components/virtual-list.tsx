@@ -1,5 +1,5 @@
 import type { OutlineNode } from "@cascade/data";
-import { duration, space } from "@cascade/theme/tokens.stylex";
+import { colors, duration, space } from "@cascade/theme/tokens.stylex";
 import { DndContext } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
 import {
@@ -14,7 +14,7 @@ import { DropIndicator } from "../dnd/drop-indicator";
 import { type MoveHandler, useOutlineDnd } from "../dnd/use-outline-dnd";
 import { useRowDnd } from "../dnd/use-row-dnd";
 import type { FlatNode } from "../flatten";
-import { INDENT } from "../layout";
+import { CHEVRON_CENTER, INDENT } from "../layout";
 
 const styles = stylex.create({
 	viewport: {
@@ -31,6 +31,13 @@ const styles = stylex.create({
 	},
 	dragging: {
 		opacity: 0.3,
+	},
+	guide: {
+		position: "absolute",
+		top: 0,
+		bottom: 0,
+		width: 1,
+		backgroundColor: colors.border,
 	},
 });
 
@@ -61,17 +68,25 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 			data-index={item.index}
 			{...stylex.props(styles.row, dnd.isDragging && styles.dragging)}
 			style={{
-				paddingLeft: depth * INDENT,
 				transform: `translateY(${
 					item.start - virtualizer.options.scrollMargin
 				}px)`,
 			}}
 		>
-			<ItemContext.Provider value={row}>
-				<DragHandleContext.Provider value={dnd.handle}>
-					{children(node, depth)}
-				</DragHandleContext.Provider>
-			</ItemContext.Provider>
+			{Array.from({ length: depth }, (_, i) => (
+				<div
+					key={i}
+					{...stylex.props(styles.guide)}
+					style={{ left: i * INDENT + CHEVRON_CENTER }}
+				/>
+			))}
+			<div style={{ paddingLeft: depth * INDENT }}>
+				<ItemContext.Provider value={row}>
+					<DragHandleContext.Provider value={dnd.handle}>
+						{children(node, depth)}
+					</DragHandleContext.Provider>
+				</ItemContext.Provider>
+			</div>
 		</div>
 	);
 }
