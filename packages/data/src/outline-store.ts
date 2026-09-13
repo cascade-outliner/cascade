@@ -25,16 +25,28 @@ export class OutlineStore {
 	}
 
 	get tree(): OutlineNode[] {
+		return this.#buildChildren(null, this.#childrenByParent());
+	}
+
+	/** The subtree rooted at `id`, or `null` if it doesn't exist. Used to zoom into a node. */
+	subtree(id: string): OutlineNode | null {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return null;
+		}
 		const children = this.#childrenByParent();
-		const build = (parentId: string | null): OutlineNode[] =>
-			(children.get(parentId) ?? []).map((node) => ({
-				id: node.id,
-				text: node.content,
-				children: build(node.id),
-				collapsed: node.collapsed,
-				task: node.task,
-			}));
-		return build(null);
+		return {
+			id: node.id,
+			text: node.content,
+			children: this.#buildChildren(node.id, children),
+			collapsed: node.collapsed,
+			task: node.task,
+		};
+	}
+
+	/** `id`'s parent, or `null` if it's a root node or unknown. Used to zoom back out. */
+	parentOf(id: string): string | null {
+		return this.nodes.get(id)?.parentId ?? null;
 	}
 
 	create(parentId: string | null = null): string {
@@ -159,6 +171,19 @@ export class OutlineStore {
 		const registered = observable.object(node, { content: observable.ref });
 		this.nodes.set(node.id, registered);
 		return registered;
+	}
+
+	#buildChildren(
+		parentId: string | null,
+		children: Map<string | null, Node[]>,
+	): OutlineNode[] {
+		return (children.get(parentId) ?? []).map((node) => ({
+			id: node.id,
+			text: node.content,
+			children: this.#buildChildren(node.id, children),
+			collapsed: node.collapsed,
+			task: node.task,
+		}));
 	}
 
 	#childrenByParent(): Map<string | null, Node[]> {
