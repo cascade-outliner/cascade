@@ -1,4 +1,3 @@
-import { generateKeyBetween } from "fractional-indexing";
 import type { SerializedEditorState } from "lexical";
 import {
 	computed,
@@ -10,22 +9,12 @@ import {
 } from "mobx";
 import { MemoryPersistence } from "../persistence/memory.ts";
 import type { OutlinePersistence } from "../persistence/types.ts";
+import { clamp } from "../util/clamp.ts";
+import { byOrder, orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
 import type { Node, Row } from "./types.ts";
 
 type Children = Map<string | null, Node[]>;
-
-function byOrder(a: Node, b: Node): number {
-	return a.order < b.order ? -1 : a.order > b.order ? 1 : 0;
-}
-
-function clamp(value: number, min: number, max: number): number {
-	return Math.min(Math.max(value, min), max);
-}
-
-function orderBetween(prev?: string, next?: string): string {
-	return generateKeyBetween(prev ?? null, next ?? null);
-}
 
 /**
  * The outline, client-side and mutable.
