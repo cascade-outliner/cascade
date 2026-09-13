@@ -1,9 +1,10 @@
+import { fontSize } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
 
 const styles = stylex.create({
 	heading: {
-		fontSize: "1rem",
+		fontSize: fontSize["600"],
 		lineHeight: "40px",
 		fontWeight: 700,
 		textDecoration: "underline",

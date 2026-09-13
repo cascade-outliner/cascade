@@ -1,8 +1,14 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import type { Row } from "@cascade/data";
+import {
+	colors,
+	fontSize,
+	lineHeight,
+	radius,
+	space,
+} from "@cascade/theme/tokens.stylex";
 import { DragOverlay } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
 import { ItemContext } from "../context";
-import type { FlatNode } from "../flatten";
 import { INDENT, ROW_GAP } from "../layout";
 
 const styles = stylex.create({
@@ -18,24 +24,24 @@ const styles = stylex.create({
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingBlock: 1,
-		paddingInline: 5,
-		borderRadius: 999,
+		paddingBlock: space.px,
+		paddingInline: space["1.5"],
+		borderRadius: radius.full,
 		backgroundColor: colors.primary,
 		color: colors.white,
-		fontSize: "0.7rem",
-		lineHeight: 1.8,
+		fontSize: fontSize["200"],
+		lineHeight: lineHeight.compact,
 		whiteSpace: "nowrap",
 	},
 });
 
 export interface DragGhostProps {
-	row: FlatNode | null;
-	children: (row: FlatNode) => React.ReactNode;
+	row: Row | null;
+	children: (row: Row) => React.ReactNode;
 }
 
 export function DragGhost({ row, children }: DragGhostProps) {
-	const childCount = row?.node.children.length ?? 0;
+	const childCount = row?.childCount ?? 0;
 	return (
 		<DragOverlay dropAnimation={null}>
 			{row && (

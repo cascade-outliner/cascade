@@ -1,9 +1,23 @@
 import type { OutlineStore } from "@cascade/data";
 import { textState } from "@cascade/data";
-import { colors } from "@cascade/theme/tokens.stylex";
+import {
+	borderWidth,
+	colors,
+	fontSize,
+	opacity,
+	radius,
+	shadow,
+	space,
+	zIndex,
+} from "@cascade/theme/tokens.stylex";
 import { Dialog } from "@cascade/ui/dialog";
 import { faker } from "@faker-js/faker";
-import { FlowArrow, Plus, Stack, Trash } from "@phosphor-icons/react";
+import {
+	FlowArrowIcon,
+	PlusIcon,
+	StackIcon,
+	TrashIcon,
+} from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { observer } from "mobx-react-lite";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
@@ -11,47 +25,50 @@ import { useOutlineStore } from "#/lib/outline-store.tsx";
 const styles = stylex.create({
 	toolbar: {
 		position: "fixed",
-		bottom: { default: 16, "@media (max-width: 640px)": 8 },
-		left: { default: 16, "@media (max-width: 640px)": 8 },
-		zIndex: 50,
+		bottom: { default: space["4"], "@media (max-width: 640px)": space["2"] },
+		left: { default: space["4"], "@media (max-width: 640px)": space["2"] },
+		zIndex: zIndex.toolbar,
 		display: "flex",
 		flexWrap: "wrap",
 		alignItems: "center",
-		gap: 2,
-		rowGap: 4,
+		gap: space["0.5"],
+		rowGap: space["1"],
 		maxWidth: "calc(100vw - 16px)",
-		borderRadius: 13,
-		borderWidth: 1,
+		borderRadius: radius.lg,
+		borderWidth: borderWidth.thin,
 		borderStyle: "solid",
-		borderColor: "rgba(43, 45, 51, 0.08)",
+		borderColor: colors.border,
 		backgroundColor: colors.white,
-		padding: 6,
-		boxShadow: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
+		padding: space["1.5"],
+		boxShadow: shadow.popup,
 	},
 	tag: {
-		fontSize: "0.65rem",
+		fontSize: fontSize["100"],
 		fontWeight: 700,
 		letterSpacing: "0.04em",
 		textTransform: "uppercase",
 		color: colors.muted,
-		paddingInline: 9,
+		paddingInline: space["2.5"],
 	},
 	divider: {
 		width: 1,
 		alignSelf: "stretch",
-		backgroundColor: "rgba(43, 45, 51, 0.08)",
-		marginBlock: 4,
+		backgroundColor: colors.border,
+		marginBlock: space["1"],
 	},
 	button: {
 		display: "flex",
 		alignItems: "center",
-		gap: 7,
-		paddingBlock: { default: 8, "@media (hover: none)": 11 },
-		paddingInline: { default: 11, "@media (max-width: 640px)": 9 },
-		borderRadius: 9,
+		gap: space["2"],
+		paddingBlock: { default: space["2"], "@media (hover: none)": space["3"] },
+		paddingInline: {
+			default: space["3"],
+			"@media (max-width: 640px)": space["2.5"],
+		},
+		borderRadius: radius.md,
 		border: "none",
 		backgroundColor: "transparent",
-		fontSize: "0.85rem",
+		fontSize: fontSize["300"],
 		fontFamily: "inherit",
 		color: colors.ink,
 		cursor: "default",
@@ -59,7 +76,7 @@ const styles = stylex.create({
 			backgroundColor: colors.surface,
 		},
 		":disabled": {
-			opacity: 0.4,
+			opacity: opacity.disabled,
 			cursor: "default",
 			backgroundColor: "transparent",
 		},
@@ -76,26 +93,26 @@ const styles = stylex.create({
 	},
 	dialogActions: {
 		display: "flex",
-		gap: 8,
+		gap: space["2"],
 	},
 	cancelButton: {
-		paddingBlock: 8,
-		paddingInline: 14,
-		borderRadius: 9,
+		paddingBlock: space["2"],
+		paddingInline: space["3.5"],
+		borderRadius: radius.md,
 		border: "none",
 		backgroundColor: colors.surface,
-		fontSize: "0.85rem",
+		fontSize: fontSize["300"],
 		fontFamily: "inherit",
 		color: colors.ink,
 		cursor: "default",
 	},
 	confirmButton: {
-		paddingBlock: 8,
-		paddingInline: 14,
-		borderRadius: 9,
+		paddingBlock: space["2"],
+		paddingInline: space["3.5"],
+		borderRadius: radius.md,
 		border: "none",
 		backgroundColor: colors.danger,
-		fontSize: "0.85rem",
+		fontSize: fontSize["300"],
 		fontFamily: "inherit",
 		fontWeight: 500,
 		color: colors.white,
@@ -136,7 +153,7 @@ function seedTree(store: OutlineStore): void {
 
 export const DevSeedToolbar = observer(function DevSeedToolbar() {
 	const store = useOutlineStore();
-	const nodeCount = store.nodes.size;
+	const nodeCount = store.size;
 
 	return (
 		<div {...stylex.props(styles.toolbar)}>
@@ -148,7 +165,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 				onClick={() => seedFlat(store, 1)}
 			>
 				<span {...stylex.props(styles.icon)}>
-					<Plus size={15} />
+					<PlusIcon size={15} />
 				</span>
 				Add one
 			</button>
@@ -158,7 +175,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 				onClick={() => seedFlat(store, 5)}
 			>
 				<span {...stylex.props(styles.icon)}>
-					<Stack size={15} />
+					<StackIcon size={15} />
 				</span>
 				Add 5
 			</button>
@@ -168,7 +185,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 				onClick={() => seedTree(store)}
 			>
 				<span {...stylex.props(styles.icon)}>
-					<FlowArrow size={15} />
+					<FlowArrowIcon size={15} />
 				</span>
 				Seed tree
 			</button>
@@ -179,7 +196,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 					disabled={nodeCount === 0}
 				>
 					<span {...stylex.props(styles.icon, styles.dangerIcon)}>
-						<Trash size={15} />
+						<TrashIcon size={15} />
 					</span>
 					Delete all
 				</Dialog.Trigger>

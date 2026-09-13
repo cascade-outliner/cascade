@@ -1,25 +1,26 @@
-import type { OutlineNode } from "@cascade/data";
+import type { Node } from "@cascade/data";
 import { Menu } from "@cascade/ui/context-menu";
 import {
-	ArrowLineLeft,
-	ArrowLineRight,
-	ArrowSquareOut,
-	ArrowsLeftRight,
-	CalendarBlank,
-	Circle,
-	Copy,
-	LinkSimple,
-	ListChecks,
-	MagnifyingGlassPlus,
-	Note,
-	Sparkle,
-	Trash,
+	ArrowLineLeftIcon,
+	ArrowLineRightIcon,
+	ArrowSquareOutIcon,
+	ArrowsLeftRightIcon,
+	CalendarBlankIcon,
+	CircleIcon,
+	CopyIcon,
+	LinkSimpleIcon,
+	ListChecksIcon,
+	MagnifyingGlassPlusIcon,
+	NoteIcon,
+	SparkleIcon,
+	TrashIcon,
 } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
 export interface OutlinerContextMenuProps {
-	node: OutlineNode;
+	node: Node;
+	childCount: number;
 	children: ReactNode;
 	onOpenChange?: (open: boolean) => void;
 	onZoomIn?: (id: string) => void;
@@ -27,6 +28,7 @@ export interface OutlinerContextMenuProps {
 
 export function OutlinerContextMenu({
 	node,
+	childCount,
 	children,
 	onOpenChange,
 	onZoomIn,
@@ -37,7 +39,10 @@ export function OutlinerContextMenu({
 		<Menu.Root onOpenChange={onOpenChange}>
 			<Menu.Trigger>{children}</Menu.Trigger>
 			<Menu.Popup>
-				<Menu.Submenu icon={<ArrowsLeftRight size={15} />} label="Convert into">
+				<Menu.Submenu
+					icon={<ArrowsLeftRightIcon size={15} />}
+					label="Convert into"
+				>
 					<Menu.RadioGroup
 						value={node.task ? "task" : "text"}
 						onValueChange={(value) => {
@@ -47,66 +52,86 @@ export function OutlinerContextMenu({
 					>
 						<Menu.RadioItem
 							value="text"
-							icon={<Circle size={6} weight="fill" />}
+							icon={<CircleIcon size={6} weight="fill" />}
 						>
 							Text
 						</Menu.RadioItem>
-						<Menu.RadioItem value="task" icon={<Circle size={14} />}>
+						<Menu.RadioItem value="task" icon={<CircleIcon size={14} />}>
 							Task
 						</Menu.RadioItem>
 						<Menu.RadioItem
 							value="date"
-							icon={<CalendarBlank size={15} />}
+							icon={<CalendarBlankIcon size={15} />}
 							disabled
 						>
 							Date
 						</Menu.RadioItem>
 						<Menu.RadioItem
 							value="checklist"
-							icon={<ListChecks size={15} />}
+							icon={<ListChecksIcon size={15} />}
 							disabled
 						>
 							Checklist
 						</Menu.RadioItem>
-						<Menu.RadioItem value="note" icon={<Note size={15} />} disabled>
+						<Menu.RadioItem value="note" icon={<NoteIcon size={15} />} disabled>
 							Note
 						</Menu.RadioItem>
 					</Menu.RadioGroup>
 				</Menu.Submenu>
 				<Menu.Item
-					icon={<MagnifyingGlassPlus size={15} />}
+					icon={<MagnifyingGlassPlusIcon size={15} />}
 					shortcut="⌥↓"
 					onClick={() => onZoomIn?.(node.id)}
 				>
 					Zoom in
 				</Menu.Item>
-				<Menu.Item icon={<ArrowSquareOut size={15} />} disabled>
+				<Menu.Item icon={<ArrowSquareOutIcon size={15} />} disabled>
 					Open in new pane
 				</Menu.Item>
 				<Menu.Separator />
+				<Menu.Submenu icon={<CopyIcon size={15} />} label="Duplicate">
+					<Menu.Item shortcut="⌘D" onClick={() => store.duplicate(node.id)}>
+						Duplicate selected
+					</Menu.Item>
+					<Menu.Item
+						disabled={childCount === 0}
+						onClick={() => store.duplicateWithChildren(node.id)}
+					>
+						Duplicate with children
+					</Menu.Item>
+				</Menu.Submenu>
 				<Menu.Item
-					icon={<Copy size={15} />}
-					shortcut="⌘D"
-					onClick={() => store.duplicate(node.id)}
+					icon={<ArrowLineRightIcon size={15} />}
+					shortcut="⇥"
+					disabled={!store.canIndent(node.id)}
+					onClick={() => store.indent(node.id)}
 				>
-					Duplicate
-				</Menu.Item>
-				<Menu.Item icon={<ArrowLineRight size={15} />} shortcut="⇥" disabled>
 					Indent
 				</Menu.Item>
-				<Menu.Item icon={<ArrowLineLeft size={15} />} shortcut="⇧⇥" disabled>
+				<Menu.Item
+					icon={<ArrowLineLeftIcon size={15} />}
+					shortcut="⇧⇥"
+					disabled={!store.canOutdent(node.id)}
+					onClick={() => store.outdent(node.id)}
+				>
 					Outdent
 				</Menu.Item>
 				<Menu.Separator />
-				<Menu.Item icon={<Sparkle size={15} />} shortcut="⌘⏎" disabled>
+				<Menu.Item icon={<SparkleIcon size={15} />} shortcut="⌘⏎" disabled>
 					Break into steps
 				</Menu.Item>
-				<Menu.Item icon={<LinkSimple size={15} />} disabled>
+				<Menu.Item
+					icon={<LinkSimpleIcon size={15} />}
+					onClick={() => {
+						const url = new URL(`/node/${node.id}`, window.location.origin);
+						navigator.clipboard.writeText(url.toString());
+					}}
+				>
 					Copy link
 				</Menu.Item>
 				<Menu.Separator />
 				<Menu.Item
-					icon={<Trash size={15} />}
+					icon={<TrashIcon size={15} />}
 					shortcut="⌘⌫"
 					danger
 					onClick={() => store.remove(node.id)}

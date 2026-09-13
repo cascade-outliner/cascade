@@ -1,4 +1,4 @@
-import type { FlatNode } from "../flatten";
+import type { Row } from "@cascade/data";
 import { INDENT } from "../layout";
 
 export interface Projection {
@@ -12,7 +12,7 @@ export interface Projection {
 }
 
 export interface ProjectionInput {
-	rows: FlatNode[];
+	rows: Row[];
 	overId: string;
 	before: boolean;
 	activeDepth: number;
@@ -45,7 +45,7 @@ export function project({
 		maxDepth,
 	);
 
-	let parent: FlatNode | null = null;
+	let parent: Row | null = null;
 	let index = 0;
 	for (let i = gap - 1; i >= 0; i--) {
 		const row = rows[i];
@@ -57,7 +57,7 @@ export function project({
 		}
 	}
 	if (parent?.node.collapsed) {
-		index = parent.node.children.length;
+		index = parent.childCount;
 	}
 	const nesting = prev !== undefined && depth === prev.depth + 1;
 

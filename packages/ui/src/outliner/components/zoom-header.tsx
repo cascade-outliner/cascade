@@ -1,7 +1,7 @@
-import type { OutlineNode } from "@cascade/data";
-import { colors } from "@cascade/theme/tokens.stylex";
+import type { Node } from "@cascade/data";
+import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
+import { CaretLeftIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { CaretLeft } from "@phosphor-icons/react";
 import type { EditorState } from "lexical";
 import { ItemContext } from "../context.tsx";
 import { Content } from "./content.tsx";
@@ -10,7 +10,7 @@ const styles = stylex.create({
 	titleRow: {
 		display: "flex",
 		alignItems: "center",
-		gap: 11,
+		gap: space["3"],
 	},
 	backButton: {
 		width: 20,
@@ -19,18 +19,18 @@ const styles = stylex.create({
 		border: "none",
 		padding: 0,
 		borderRadius: "50%",
-		backgroundColor: "rgba(43, 45, 51, 0.1)",
+		backgroundColor: colors.inkSubtle,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		cursor: "pointer",
 		color: colors.muted,
 		":hover": {
-			backgroundColor: "rgba(43, 45, 51, 0.18)",
+			backgroundColor: colors.inkSubtleHover,
 		},
 	},
 	title: {
-		fontSize: "1.7rem",
+		fontSize: fontSize["800"],
 		fontWeight: 600,
 		letterSpacing: "-0.02em",
 	},
@@ -38,7 +38,7 @@ const styles = stylex.create({
 
 export interface ZoomHeaderProps {
 	/** The node currently zoomed into. */
-	node: OutlineNode;
+	node: Node;
 	/** Its parent, or `null` if it's a root node. */
 	parentId: string | null;
 	/** Zoom to another node, or `null` to zoom all the way out. */
@@ -46,7 +46,12 @@ export interface ZoomHeaderProps {
 	onChange?: (state: EditorState) => void;
 }
 
-export function ZoomHeader({ node, parentId, onZoomTo, onChange }: ZoomHeaderProps) {
+export function ZoomHeader({
+	node,
+	parentId,
+	onZoomTo,
+	onChange,
+}: ZoomHeaderProps) {
 	return (
 		<div {...stylex.props(styles.titleRow)}>
 			<button
@@ -55,7 +60,7 @@ export function ZoomHeader({ node, parentId, onZoomTo, onChange }: ZoomHeaderPro
 				onClick={() => onZoomTo(parentId)}
 				aria-label="Zoom out to parent"
 			>
-				<CaretLeft size={11} weight="bold" />
+				<CaretLeftIcon size={11} weight="bold" />
 			</button>
 			<ItemContext.Provider value={{ node, depth: 0 }}>
 				<Content key={node.id} style={styles.title} onChange={onChange} />

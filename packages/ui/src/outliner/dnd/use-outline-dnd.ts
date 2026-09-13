@@ -1,4 +1,4 @@
-import type { OutlineNode } from "@cascade/data";
+import type { Row } from "@cascade/data";
 import {
 	closestCenter,
 	type DndContextProps,
@@ -8,7 +8,6 @@ import {
 	getClientRect,
 } from "@dnd-kit/core";
 import { useMemo, useRef, useState } from "react";
-import { type FlatNode, flatten } from "../flatten";
 import { type Projection, project, sameProjection } from "./projection";
 import { useOutlineSensors } from "./sensors";
 
@@ -18,17 +17,30 @@ export type MoveHandler = (
 	index: number,
 ) => void;
 
+/** `rows` without the descendants of `id`: they are the contiguous deeper run right after it. */
+function withoutDescendants(rows: Row[], id: string | null): Row[] {
+	const start = id === null ? -1 : rows.findIndex((row) => row.node.id === id);
+	if (start < 0) {
+		return rows;
+	}
+	let end = start + 1;
+	while (end < rows.length && rows[end].depth > rows[start].depth) {
+		end++;
+	}
+	return [...rows.slice(0, start + 1), ...rows.slice(end)];
+}
+
 export interface OutlineDndOptions {
-	nodes: OutlineNode[];
+	rows: Row[];
 	rowStep: number;
-	/** Parent of the rows in `nodes`, e.g. the zoomed node. Defaults to the top-level root. */
+	/** Parent of the rows, e.g. the zoomed node. Defaults to the top-level root. */
 	rootId?: string | null;
 	onMove?: MoveHandler;
 }
 
 export interface OutlineDnd {
-	rows: FlatNode[];
-	activeRow: FlatNode | null;
+	rows: Row[];
+	activeRow: Row | null;
 	projection: Projection | null;
 	contextProps: DndContextProps;
 }
@@ -39,7 +51,7 @@ const measuring: DndContextProps["measuring"] = {
 };
 
 export function useOutlineDnd({
-	nodes,
+	rows: allRows,
 	rowStep,
 	rootId = null,
 	onMove,
@@ -49,7 +61,10 @@ export function useOutlineDnd({
 	const projectionRef = useRef<Projection | null>(null);
 	const sensors = useOutlineSensors(rowStep);
 
-	const rows = useMemo(() => flatten(nodes, activeId), [nodes, activeId]);
+	const rows = useMemo(
+		() => withoutDescendants(allRows, activeId),
+		[allRows, activeId],
+	);
 	const dropRows = useMemo(
 		() => (activeId ? rows.filter((row) => row.node.id !== activeId) : rows),
 		[rows, activeId],
