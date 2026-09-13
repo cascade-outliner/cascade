@@ -8,9 +8,10 @@ import {
 	runInAction,
 	toJS,
 } from "mobx";
-import { emptyState } from "./empty-content.ts";
-import { MemoryPersistence } from "./memory-persistence.ts";
-import type { Node, OutlinePersistence, Row } from "./types.ts";
+import { MemoryPersistence } from "../persistence/memory.ts";
+import type { OutlinePersistence } from "../persistence/types.ts";
+import { emptyState } from "./content.ts";
+import type { Node, Row } from "./types.ts";
 
 type Children = Map<string | null, Node[]>;
 

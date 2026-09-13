@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { textState } from "./empty-content.ts";
-import { MemoryPersistence } from "./memory-persistence.ts";
-import { OutlineStore } from "./outline-store.ts";
+import { MemoryPersistence } from "../persistence/memory.ts";
+import { textState } from "./content.ts";
+import { OutlineStore } from "./store.ts";
 
 async function open(persistence = new MemoryPersistence()) {
 	const store = new OutlineStore(persistence);

@@ -108,7 +108,6 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	}
 
 	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
-	// Read here, inside the observer, so structural changes re-render the list.
 	const rows = store.rows(zoomedId);
 
 	return (

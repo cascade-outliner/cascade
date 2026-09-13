@@ -1,5 +1,6 @@
 import { type IDBPDatabase, openDB } from "idb";
-import type { Node, OutlinePersistence } from "./types.ts";
+import type { Node } from "../outline/types.ts";
+import type { OutlinePersistence } from "./types.ts";
 
 const DB_NAME = "cascade";
 const STORE = "nodes";

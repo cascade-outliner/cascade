@@ -1,4 +1,5 @@
-import type { Node, OutlinePersistence } from "./types.ts";
+import type { Node } from "../outline/types.ts";
+import type { OutlinePersistence } from "./types.ts";
 
 /** Keeps the outline in memory. The default persistence, and the one tests read back from. */
 export class MemoryPersistence implements OutlinePersistence {
