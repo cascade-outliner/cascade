@@ -1,4 +1,5 @@
 import {
+	KeyboardCode,
 	type KeyboardCoordinateGetter,
 	KeyboardSensor,
 	PointerSensor,
@@ -27,6 +28,14 @@ export function useOutlineSensors(rowStep: number) {
 
 	return useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-		useSensor(KeyboardSensor, { coordinateGetter }),
+		useSensor(KeyboardSensor, {
+			coordinateGetter,
+			// Reserve Enter for the bullet's click-to-zoom action; Space picks up/drops the drag.
+			keyboardCodes: {
+				start: [KeyboardCode.Space],
+				cancel: [KeyboardCode.Esc],
+				end: [KeyboardCode.Space],
+			},
+		}),
 	);
 }
