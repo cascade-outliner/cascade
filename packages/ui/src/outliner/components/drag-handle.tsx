@@ -12,6 +12,10 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
+		border: "none",
+		padding: 0,
+		backgroundColor: "transparent",
+		font: "inherit",
 		color: colors.muted,
 		cursor: "grab",
 		touchAction: "none",
@@ -40,13 +44,14 @@ export function DragHandle({
 	onTouchCancel,
 	onContextMenu,
 	...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	const drag = useContext(DragHandleContext);
 	const touching = useRef(false);
 
 	return (
-		<div
+		<button
 			ref={drag?.setActivatorNodeRef}
+			type="button"
 			{...stylex.props(styles.handle, drag?.isDragging && styles.dragging)}
 			{...drag?.attributes}
 			{...drag?.listeners}
@@ -74,6 +79,6 @@ export function DragHandle({
 			{...props}
 		>
 			<DotsSixVertical size={14} />
-		</div>
+		</button>
 	);
 }

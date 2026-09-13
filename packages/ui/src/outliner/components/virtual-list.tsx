@@ -81,6 +81,8 @@ export interface VirtualListProps {
 	/** Row height guess before measurement, in px. */
 	estimateSize?: number;
 	overscan?: number;
+	/** Parent of `nodes`, e.g. the zoomed node. Defaults to the top-level root. */
+	rootId?: string | null;
 	onMove?: MoveHandler;
 }
 
@@ -89,10 +91,11 @@ export function VirtualList({
 	children,
 	estimateSize = 32,
 	overscan = 8,
+	rootId = null,
 	onMove,
 }: VirtualListProps) {
 	const parentRef = useRef<HTMLDivElement>(null);
-	const dnd = useOutlineDnd({ nodes, rowStep: estimateSize, onMove });
+	const dnd = useOutlineDnd({ nodes, rowStep: estimateSize, rootId, onMove });
 	const { rows, projection } = dnd;
 
 	const virtualizer = useWindowVirtualizer({

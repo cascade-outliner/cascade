@@ -21,6 +21,8 @@ export type MoveHandler = (
 export interface OutlineDndOptions {
 	nodes: OutlineNode[];
 	rowStep: number;
+	/** Parent of the rows in `nodes`, e.g. the zoomed node. Defaults to the top-level root. */
+	rootId?: string | null;
 	onMove?: MoveHandler;
 }
 
@@ -39,6 +41,7 @@ const measuring: DndContextProps["measuring"] = {
 export function useOutlineDnd({
 	nodes,
 	rowStep,
+	rootId = null,
 	onMove,
 }: OutlineDndOptions): OutlineDnd {
 	const [activeId, setActiveId] = useState<string | null>(null);
@@ -93,7 +96,7 @@ export function useOutlineDnd({
 		const target = projectionRef.current;
 		reset();
 		if (target) {
-			onMove?.(String(active.id), target.parentId, target.index);
+			onMove?.(String(active.id), target.parentId ?? rootId, target.index);
 		}
 	};
 

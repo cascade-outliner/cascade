@@ -38,19 +38,28 @@ export class OutlineStore {
 	}
 
 	get tree(): OutlineNode[] {
-		const children = this.#childrenByParent();
-		for (const siblings of children.values()) {
-			siblings.sort(byOrder);
+		return this.#buildChildren(null, this.#childrenByParent());
+	}
+
+	/** The subtree rooted at `id`, or `null` if it doesn't exist. Used to zoom into a node. */
+	subtree(id: string): OutlineNode | null {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return null;
 		}
-		const build = (parentId: string | null): OutlineNode[] =>
-			(children.get(parentId) ?? []).map((node) => ({
-				id: node.id,
-				text: node.content,
-				children: build(node.id),
-				collapsed: node.collapsed,
-				task: node.task,
-			}));
-		return build(null);
+		const children = this.#childrenByParent();
+		return {
+			id: node.id,
+			text: node.content,
+			children: this.#buildChildren(node.id, children),
+			collapsed: node.collapsed,
+			task: node.task,
+		};
+	}
+
+	/** `id`'s parent, or `null` if it's a root node or unknown. Used to zoom back out. */
+	parentOf(id: string): string | null {
+		return this.nodes.get(id)?.parentId ?? null;
 	}
 
 	create(parentId: string | null = null): string {
@@ -198,12 +207,28 @@ export class OutlineStore {
 		return siblings.sort(byOrder);
 	}
 
+	#buildChildren(
+		parentId: string | null,
+		children: Map<string | null, Node[]>,
+	): OutlineNode[] {
+		return (children.get(parentId) ?? []).map((node) => ({
+			id: node.id,
+			text: node.content,
+			children: this.#buildChildren(node.id, children),
+			collapsed: node.collapsed,
+			task: node.task,
+		}));
+	}
+
 	#childrenByParent(): Map<string | null, Node[]> {
 		const groups = new Map<string | null, Node[]>();
 		for (const node of this.nodes.values()) {
 			const siblings = groups.get(node.parentId) ?? [];
 			siblings.push(node);
 			groups.set(node.parentId, siblings);
+		}
+		for (const siblings of groups.values()) {
+			siblings.sort(byOrder);
 		}
 		return groups;
 	}
