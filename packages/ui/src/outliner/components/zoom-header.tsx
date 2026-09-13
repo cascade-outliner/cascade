@@ -1,6 +1,7 @@
 import type { OutlineNode } from "@cascade/data";
 import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
+import { CaretLeft } from "@phosphor-icons/react";
 import type { EditorState } from "lexical";
 import { ItemContext } from "../context.tsx";
 import { Content } from "./content.tsx";
@@ -11,7 +12,7 @@ const styles = stylex.create({
 		alignItems: "center",
 		gap: space["3"],
 	},
-	bullet: {
+	backButton: {
 		width: 20,
 		height: 20,
 		flexShrink: 0,
@@ -23,12 +24,10 @@ const styles = stylex.create({
 		alignItems: "center",
 		justifyContent: "center",
 		cursor: "pointer",
-	},
-	dot: {
-		width: 7,
-		height: 7,
-		borderRadius: "50%",
-		backgroundColor: colors.muted,
+		color: colors.muted,
+		":hover": {
+			backgroundColor: "rgba(43, 45, 51, 0.18)",
+		},
 	},
 	title: {
 		fontSize: fontSize["800"],
@@ -47,24 +46,19 @@ export interface ZoomHeaderProps {
 	onChange?: (state: EditorState) => void;
 }
 
-export function ZoomHeader({
-	node,
-	parentId,
-	onZoomTo,
-	onChange,
-}: ZoomHeaderProps) {
+export function ZoomHeader({ node, parentId, onZoomTo, onChange }: ZoomHeaderProps) {
 	return (
 		<div {...stylex.props(styles.titleRow)}>
 			<button
 				type="button"
-				{...stylex.props(styles.bullet)}
+				{...stylex.props(styles.backButton)}
 				onClick={() => onZoomTo(parentId)}
-				aria-label="Zoom out"
+				aria-label="Zoom out to parent"
 			>
-				<div {...stylex.props(styles.dot)} />
+				<CaretLeft size={11} weight="bold" />
 			</button>
 			<ItemContext.Provider value={{ node, depth: 0 }}>
-				<Content style={styles.title} onChange={onChange} />
+				<Content key={node.id} style={styles.title} onChange={onChange} />
 			</ItemContext.Provider>
 		</div>
 	);
