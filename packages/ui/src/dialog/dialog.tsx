@@ -22,7 +22,7 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: duration.fast,
+		transitionDuration: duration["150"],
 	},
 	popup: {
 		position: "fixed",
@@ -58,7 +58,7 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: duration.fast,
+		transitionDuration: duration["150"],
 	},
 	header: {
 		display: "flex",

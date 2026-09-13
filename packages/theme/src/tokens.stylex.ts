@@ -14,6 +14,7 @@ export const colors = stylex.defineVars({
 	borderStrong: "rgba(43, 45, 51, 0.22)",
 	overlay: "rgba(43, 45, 51, 0.32)",
 	inkSubtle: "rgba(43, 45, 51, 0.1)",
+	inkSubtleHover: "rgba(43, 45, 51, 0.18)",
 	primaryMuted: "rgba(173, 76, 78, 0.08)",
 });
 
@@ -38,6 +39,7 @@ export const radius = stylex.defineVars({
 	md: "8px",
 	lg: "12px",
 	xl: "16px",
+	full: "999px",
 });
 
 // Tailwind-style spacing scale: each step is a multiple of a 4px (0.25rem) base unit.
@@ -61,6 +63,7 @@ export const shadow = stylex.defineVars({
 	popup: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
 	focus:
 		"0 0 0 1px rgba(173, 76, 78, 0.3), 0 3px 10px -3px rgba(0, 0, 0, 0.12)",
+	focusRing: "0 0 0 2px rgba(173, 76, 78, 0.35)",
 });
 
 export const zIndex = stylex.defineVars({
@@ -69,9 +72,11 @@ export const zIndex = stylex.defineVars({
 	popup: "101",
 });
 
+// Milliseconds.
 export const duration = stylex.defineVars({
-	instant: "0.05s",
-	fast: "150ms",
+	"50": "50ms",
+	"100": "100ms",
+	"150": "150ms",
 });
 
 export const opacity = stylex.defineVars({
@@ -81,4 +86,8 @@ export const opacity = stylex.defineVars({
 export const borderWidth = stylex.defineVars({
 	thin: "1px",
 	thick: "1.5px",
+});
+
+export const lineHeight = stylex.defineVars({
+	compact: "1.8",
 });

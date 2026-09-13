@@ -1,4 +1,10 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import {
+	colors,
+	fontSize,
+	lineHeight,
+	radius,
+	space,
+} from "@cascade/theme/tokens.stylex";
 import { DragOverlay } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
 import { ItemContext } from "../context";
@@ -18,13 +24,13 @@ const styles = stylex.create({
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingBlock: 1,
-		paddingInline: 5,
-		borderRadius: 999,
+		paddingBlock: space.px,
+		paddingInline: space["1.5"],
+		borderRadius: radius.full,
 		backgroundColor: colors.primary,
 		color: colors.white,
-		fontSize: "0.7rem",
-		lineHeight: 1.8,
+		fontSize: fontSize["200"],
+		lineHeight: lineHeight.compact,
 		whiteSpace: "nowrap",
 	},
 });

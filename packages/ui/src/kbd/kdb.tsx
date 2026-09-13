@@ -1,4 +1,10 @@
-import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
+import {
+	colors,
+	fontSize,
+	lineHeight,
+	radius,
+	space,
+} from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 
@@ -21,7 +27,7 @@ const styles = stylex.create({
 		color: colors.white,
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
-		lineHeight: 1.8,
+		lineHeight: lineHeight.compact,
 	},
 });
 

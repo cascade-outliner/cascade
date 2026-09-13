@@ -1,4 +1,5 @@
 import type { OutlineNode } from "@cascade/data";
+import { duration, space } from "@cascade/theme/tokens.stylex";
 import { DndContext } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
 import {
@@ -25,8 +26,8 @@ const styles = stylex.create({
 		top: 0,
 		left: 0,
 		width: "100%",
-		paddingBottom: 4,
-		transition: "opacity 0.1s ease-in-out",
+		paddingBottom: space["1"],
+		transition: `opacity ${duration["100"]} ease-in-out`,
 	},
 	dragging: {
 		opacity: 0.3,

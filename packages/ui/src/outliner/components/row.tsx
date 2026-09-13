@@ -19,7 +19,7 @@ const styles = stylex.create({
 		},
 		paddingInline: space["2.5"],
 		borderRadius: radius.lg,
-		transition: `background-color ${duration.instant} ease-in-out, box-shadow ${duration.instant} ease-in-out`,
+		transition: `background-color ${duration["50"]} ease-in-out, box-shadow ${duration["50"]} ease-in-out`,
 		":hover:not(:focus-within)": {
 			backgroundColor: colors.surface,
 		},

@@ -1,7 +1,7 @@
 import type { OutlineNode } from "@cascade/data";
 import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
 import { CaretLeft } from "@phosphor-icons/react";
+import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
 import { ItemContext } from "../context.tsx";
 import { Content } from "./content.tsx";
@@ -26,7 +26,7 @@ const styles = stylex.create({
 		cursor: "pointer",
 		color: colors.muted,
 		":hover": {
-			backgroundColor: "rgba(43, 45, 51, 0.18)",
+			backgroundColor: colors.inkSubtleHover,
 		},
 	},
 	title: {
@@ -46,7 +46,12 @@ export interface ZoomHeaderProps {
 	onChange?: (state: EditorState) => void;
 }
 
-export function ZoomHeader({ node, parentId, onZoomTo, onChange }: ZoomHeaderProps) {
+export function ZoomHeader({
+	node,
+	parentId,
+	onZoomTo,
+	onChange,
+}: ZoomHeaderProps) {
 	return (
 		<div {...stylex.props(styles.titleRow)}>
 			<button
