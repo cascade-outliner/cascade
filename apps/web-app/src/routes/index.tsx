@@ -32,22 +32,20 @@ const styles = stylex.create({
 	},
 });
 
-/** The row for a node and its zoomed-in header share this name, so the View Transitions API morphs one into the other instead of just cross-fading. */
 function zoomTransitionName(id: string): string {
 	return `outline-node-${id}`;
 }
 
-/** Swaps the zoomed node, cross-fading the outline via the View Transitions API when available. */
 function zoomTo(setZoomedId: (id: string | null) => void, id: string | null) {
 	if (!document.startViewTransition) {
 		setZoomedId(id);
 		return;
 	}
-	// A transition in flight when a new one starts gets skipped, rejecting its
-	// promises — that's expected on fast repeat clicks, not an error to surface.
+
 	const transition = document.startViewTransition(() =>
 		flushSync(() => setZoomedId(id)),
 	);
+
 	transition.ready.catch(() => {});
 	transition.finished.catch(() => {});
 }
@@ -61,7 +59,6 @@ const Outline = observer(function Outline() {
 		return null;
 	}
 
-	// A zoomed node deleted out from under us just falls back to the root view.
 	const zoomed = zoomedId ? store.subtree(zoomedId) : null;
 	const nodes = zoomed ? zoomed.children : store.tree;
 
