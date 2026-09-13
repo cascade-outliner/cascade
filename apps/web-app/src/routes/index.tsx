@@ -114,12 +114,14 @@ const Outline = observer(function Outline() {
 					</OutlinerContextMenu>
 				)}
 			</VirtualList>
-			<CaptureBar
-				onSubmit={(text) => {
-					const id = store.create(zoomedId);
-					store.setContent(id, textState(text));
-				}}
-			/>
+			<div style={{ viewTransitionName: "capture-bar" }}>
+				<CaptureBar
+					onSubmit={(text) => {
+						const id = store.create(zoomedId);
+						store.setContent(id, textState(text));
+					}}
+				/>
+			</div>
 		</div>
 	);
 });
