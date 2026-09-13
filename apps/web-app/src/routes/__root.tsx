@@ -3,7 +3,6 @@ import * as stylex from "@stylexjs/stylex";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { useEffect } from "react";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/bitter/index.css";
@@ -68,12 +67,6 @@ const styles = stylex.create({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-	useEffect(() => {
-		if ("serviceWorker" in navigator) {
-			navigator.serviceWorker.register("/sw.js");
-		}
-	}, []);
-
 	return (
 		<html lang="en">
 			<head>
