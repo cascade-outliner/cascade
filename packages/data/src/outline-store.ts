@@ -132,6 +132,49 @@ export class OutlineStore {
 		return copy.id;
 	}
 
+	/** Copies a node and all its descendants as a new sibling subtree. Returns the new root id, or `null` if `id` is unknown. */
+	duplicateWithChildren(id: string): string | null {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return null;
+		}
+		const childrenByParent = this.#childrenByParent();
+		const clones: Node[] = [];
+
+		const clone = (
+			source: Node,
+			parentId: string | null,
+			order: string,
+		): Node => {
+			const copy = this.#put({
+				id: crypto.randomUUID(),
+				parentId,
+				order,
+				content: source.content,
+				collapsed: source.collapsed,
+				task: source.task ? { ...source.task } : undefined,
+				updatedAt: Date.now(),
+			});
+			clones.push(copy);
+			let previousOrder: string | undefined;
+			for (const child of childrenByParent.get(source.id) ?? []) {
+				previousOrder = orderBetween(previousOrder, undefined);
+				clone(child, copy.id, previousOrder);
+			}
+			return copy;
+		};
+
+		const siblings = this.#siblings(node.parentId);
+		const next = siblings[siblings.indexOf(node) + 1];
+		const root = clone(
+			node,
+			node.parentId,
+			orderBetween(node.order, next?.order),
+		);
+		this.#persist(clones);
+		return root.id;
+	}
+
 	move(id: string, newParentId: string | null, index?: number): boolean {
 		const node = this.nodes.get(id);
 		if (!node) {

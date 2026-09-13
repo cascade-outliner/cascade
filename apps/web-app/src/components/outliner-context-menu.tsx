@@ -84,13 +84,17 @@ export function OutlinerContextMenu({
 					Open in new pane
 				</Menu.Item>
 				<Menu.Separator />
-				<Menu.Item
-					icon={<Copy size={15} />}
-					shortcut="⌘D"
-					onClick={() => store.duplicate(node.id)}
-				>
-					Duplicate
-				</Menu.Item>
+				<Menu.Submenu icon={<Copy size={15} />} label="Duplicate">
+					<Menu.Item shortcut="⌘D" onClick={() => store.duplicate(node.id)}>
+						Duplicate selected
+					</Menu.Item>
+					<Menu.Item
+						disabled={node.children.length === 0}
+						onClick={() => store.duplicateWithChildren(node.id)}
+					>
+						Duplicate with children
+					</Menu.Item>
+				</Menu.Submenu>
 				<Menu.Item icon={<ArrowLineRight size={15} />} shortcut="⇥" disabled>
 					Indent
 				</Menu.Item>
