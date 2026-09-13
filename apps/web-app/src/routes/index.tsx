@@ -21,15 +21,15 @@ const styles = stylex.create({
 	page: {
 		maxWidth: 980,
 		margin: "0 auto",
-		padding: { default: space["32"], "@media (max-width: 640px)": space["16"] },
+		padding: { default: space["8"], "@media (max-width: 640px)": space["4"] },
 	},
 	outline: {
 		display: "flex",
 		flexDirection: "column",
-		gap: space["4"],
+		gap: space["1"],
 	},
 	zoomHeader: {
-		marginBottom: space["22"],
+		marginBottom: space["6"],
 	},
 });
 

@@ -9,7 +9,7 @@ const styles = stylex.create({
 	titleRow: {
 		display: "flex",
 		alignItems: "center",
-		gap: space["11"],
+		gap: space["3"],
 	},
 	bullet: {
 		width: 20,

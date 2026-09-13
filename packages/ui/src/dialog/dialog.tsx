@@ -28,9 +28,9 @@ const styles = stylex.create({
 		position: "fixed",
 		zIndex: zIndex.popup,
 		top: { default: "50%", "@media (max-width: 640px)": "auto" },
-		left: { default: "50%", "@media (max-width: 640px)": space["16"] },
-		right: { default: "auto", "@media (max-width: 640px)": space["16"] },
-		bottom: { default: "auto", "@media (max-width: 640px)": space["16"] },
+		left: { default: "50%", "@media (max-width: 640px)": space["4"] },
+		right: { default: "auto", "@media (max-width: 640px)": space["4"] },
+		bottom: { default: "auto", "@media (max-width: 640px)": space["4"] },
 		transform: {
 			default: "translate(-50%, -50%) scale(1)",
 			"@media (max-width: 640px)": "none",
@@ -42,12 +42,12 @@ const styles = stylex.create({
 		},
 		maxHeight: "calc(100vh - 32px)",
 		overflowY: "auto",
-		borderRadius: radius.xl,
+		borderRadius: radius.lg,
 		borderWidth: borderWidth.thin,
 		borderStyle: "solid",
 		borderColor: colors.border,
 		backgroundColor: colors.white,
-		padding: { default: space["20"], "@media (max-width: 640px)": space["16"] },
+		padding: { default: space["5"], "@media (max-width: 640px)": space["4"] },
 		boxShadow: shadow.popup,
 		outline: "none",
 		"@starting-style": {
@@ -64,8 +64,8 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "flex-start",
 		justifyContent: "space-between",
-		gap: space["12"],
-		marginBottom: space["12"],
+		gap: space["3"],
+		marginBottom: space["3"],
 	},
 	title: {
 		fontSize: fontSize["700"],
@@ -76,7 +76,7 @@ const styles = stylex.create({
 	description: {
 		fontSize: fontSize["500"],
 		color: colors.muted,
-		marginTop: space["4"],
+		marginTop: space["1"],
 		marginBottom: 0,
 	},
 	close: {
@@ -86,7 +86,7 @@ const styles = stylex.create({
 		width: { default: 24, "@media (hover: none)": 32 },
 		height: { default: 24, "@media (hover: none)": 32 },
 		flexShrink: 0,
-		borderRadius: radius.sm,
+		borderRadius: radius.md,
 		border: "none",
 		backgroundColor: "transparent",
 		color: colors.muted,
@@ -103,8 +103,8 @@ const styles = stylex.create({
 		display: "flex",
 		flexWrap: "wrap",
 		justifyContent: "flex-end",
-		gap: space["8"],
-		marginTop: space["20"],
+		gap: space["2"],
+		marginTop: space["5"],
 	},
 });
 

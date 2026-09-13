@@ -32,32 +32,28 @@ export const fontSize = stylex.defineVars({
 	"800": "1.7rem",
 });
 
+// 4px base unit, same scale as `space` below.
 export const radius = stylex.defineVars({
-	xs: "5px",
-	sm: "7px",
-	md: "9px",
-	lg: "10px",
-	xl: "13px",
-	xxl: "14px",
+	sm: "4px",
+	md: "8px",
+	lg: "12px",
+	xl: "16px",
 });
 
+// Tailwind-style spacing scale: each step is a multiple of a 4px (0.25rem) base unit.
 export const space = stylex.defineVars({
-	"1": "1px",
-	"2": "2px",
-	"4": "4px",
-	"5": "5px",
-	"6": "6px",
-	"7": "7px",
-	"8": "8px",
-	"9": "9px",
-	"10": "10px",
-	"11": "11px",
-	"12": "12px",
-	"14": "14px",
-	"16": "16px",
-	"20": "20px",
-	"22": "22px",
-	"32": "32px",
+	px: "1px",
+	"0.5": "2px",
+	"1": "4px",
+	"1.5": "6px",
+	"2": "8px",
+	"2.5": "10px",
+	"3": "12px",
+	"3.5": "14px",
+	"4": "16px",
+	"5": "20px",
+	"6": "24px",
+	"8": "32px",
 });
 
 export const shadow = stylex.defineVars({

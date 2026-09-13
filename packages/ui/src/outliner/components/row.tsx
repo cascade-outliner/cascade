@@ -12,9 +12,12 @@ const styles = stylex.create({
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
-		gap: { default: space["10"], "@media (max-width: 640px)": space["8"] },
-		paddingBlock: { default: space["6"], "@media (hover: none)": space["9"] },
-		paddingInline: space["10"],
+		gap: { default: space["2.5"], "@media (max-width: 640px)": space["2"] },
+		paddingBlock: {
+			default: space["1.5"],
+			"@media (hover: none)": space["2.5"],
+		},
+		paddingInline: space["2.5"],
 		borderRadius: radius.lg,
 		transition: `background-color ${duration.instant} ease-in-out, box-shadow ${duration.instant} ease-in-out`,
 		":hover:not(:focus-within)": {
