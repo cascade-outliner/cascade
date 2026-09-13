@@ -3,7 +3,8 @@
 	"private": true,
 	"version": "0.0.0",
 	"scripts": {
-		"test": "vitest run"
+		"test": "vitest run",
+		"typecheck": "tsc"
 	},
 	"exports": {
 		"./outliner/*": "./src/outliner/components/*.tsx",

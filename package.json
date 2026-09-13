@@ -17,7 +17,8 @@
 		"format": "biome format",
 		"format:write": "biome format --write",
 		"lint": "biome lint",
-		"check": "biome check"
+		"check": "biome check",
+		"typecheck": "pnpm -r run typecheck"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3"
