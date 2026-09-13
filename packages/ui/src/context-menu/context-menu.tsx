@@ -9,7 +9,7 @@ import {
 	space,
 	zIndex,
 } from "@cascade/theme/tokens.stylex";
-import { CaretRight, Check } from "@phosphor-icons/react";
+import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kdb";
 
@@ -163,7 +163,7 @@ function Submenu({ icon, label, children }: MenuSubmenuProps) {
 				{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
 				<span {...stylex.props(styles.label)}>{label}</span>
 				<span {...stylex.props(styles.chevron)}>
-					<CaretRight size={11} weight="bold" />
+					<CaretRightIcon size={11} weight="bold" />
 				</span>
 			</Base.SubmenuTrigger>
 			<Popup>{children}</Popup>
@@ -188,7 +188,7 @@ function RadioItem({ icon, value, disabled, children }: MenuRadioItemProps) {
 			{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
 			<span {...stylex.props(styles.label)}>{children}</span>
 			<Base.RadioItemIndicator {...stylex.props(styles.radioIndicator)}>
-				<Check size={13} weight="bold" />
+				<CheckIcon size={13} weight="bold" />
 			</Base.RadioItemIndicator>
 		</Base.RadioItem>
 	);

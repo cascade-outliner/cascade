@@ -1,5 +1,5 @@
 import { colors } from "@cascade/theme/tokens.stylex";
-import { ArrowElbowDownRight } from "@phosphor-icons/react";
+import { ArrowElbowDownRightIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { INDENT, NEST_SHIFT, ROW_GAP, ROW_INSET } from "../layout";
 import type { Projection } from "./projection";
@@ -59,7 +59,7 @@ export function DropIndicator({
 			}}
 		>
 			{projection.nesting ? (
-				<ArrowElbowDownRight
+				<ArrowElbowDownRightIcon
 					size={12}
 					weight="bold"
 					{...stylex.props(styles.nestIcon)}

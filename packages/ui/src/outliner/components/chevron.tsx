@@ -1,5 +1,5 @@
 import { colors, duration, radius, shadow } from "@cascade/theme/tokens.stylex";
-import { CaretRight } from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -55,7 +55,7 @@ export function Chevron({ open, hidden, ...props }: ChevronProps) {
 			)}
 			{...props}
 		>
-			<CaretRight size={12} weight="bold" />
+			<CaretRightIcon size={12} weight="bold" />
 		</button>
 	);
 }

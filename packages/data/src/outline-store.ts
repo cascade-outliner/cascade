@@ -132,6 +132,92 @@ export class OutlineStore {
 		return copy.id;
 	}
 
+	/** Copies a node and all its descendants as a new sibling subtree. Returns the new root id, or `null` if `id` is unknown. */
+	duplicateWithChildren(id: string): string | null {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return null;
+		}
+		const childrenByParent = this.#childrenByParent();
+		const clones: Node[] = [];
+
+		const clone = (
+			source: Node,
+			parentId: string | null,
+			order: string,
+		): Node => {
+			const copy = this.#put({
+				id: crypto.randomUUID(),
+				parentId,
+				order,
+				content: source.content,
+				collapsed: source.collapsed,
+				task: source.task ? { ...source.task } : undefined,
+				updatedAt: Date.now(),
+			});
+			clones.push(copy);
+			let previousOrder: string | undefined;
+			for (const child of childrenByParent.get(source.id) ?? []) {
+				previousOrder = orderBetween(previousOrder, undefined);
+				clone(child, copy.id, previousOrder);
+			}
+			return copy;
+		};
+
+		const siblings = this.#siblings(node.parentId);
+		const next = siblings[siblings.indexOf(node) + 1];
+		const root = clone(
+			node,
+			node.parentId,
+			orderBetween(node.order, next?.order),
+		);
+		this.#persist(clones);
+		return root.id;
+	}
+
+	/** Whether `id` has a previous sibling it could be nested under. */
+	canIndent(id: string): boolean {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return false;
+		}
+		const siblings = this.#siblings(node.parentId);
+		return siblings.indexOf(node) > 0;
+	}
+
+	/** Makes `id` a child of its previous sibling. No-op if it has none. */
+	indent(id: string): boolean {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return false;
+		}
+		const siblings = this.#siblings(node.parentId);
+		const previous = siblings[siblings.indexOf(node) - 1];
+		if (!previous) {
+			return false;
+		}
+		return this.move(id, previous.id);
+	}
+
+	/** Whether `id` has a parent it could be moved out of. */
+	canOutdent(id: string): boolean {
+		return (this.nodes.get(id)?.parentId ?? null) !== null;
+	}
+
+	/** Moves `id` out to its parent's level, right after its former parent. No-op for a root node. */
+	outdent(id: string): boolean {
+		const node = this.nodes.get(id);
+		if (!node || node.parentId === null) {
+			return false;
+		}
+		const grandparentId = this.nodes.get(node.parentId)?.parentId ?? null;
+		const parentSiblings = this.#siblings(grandparentId);
+		const parentIndex = parentSiblings.findIndex(
+			(each) => each.id === node.parentId,
+		);
+		return this.move(id, grandparentId, parentIndex + 1);
+	}
+
 	move(id: string, newParentId: string | null, index?: number): boolean {
 		const node = this.nodes.get(id);
 		if (!node) {

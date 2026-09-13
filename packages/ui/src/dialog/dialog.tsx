@@ -9,7 +9,7 @@ import {
 	space,
 	zIndex,
 } from "@cascade/theme/tokens.stylex";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -133,7 +133,7 @@ function Popup({
 						)}
 					</div>
 					<Base.Close {...stylex.props(styles.close)}>
-						<X size={13} weight="bold" />
+						<XIcon size={13} weight="bold" />
 					</Base.Close>
 				</div>
 				{children && <div {...stylex.props(styles.body)}>{children}</div>}
