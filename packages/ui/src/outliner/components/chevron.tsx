@@ -48,6 +48,8 @@ export function Chevron({ open, hidden, ...props }: ChevronProps) {
 		<button
 			type="button"
 			tabIndex={hidden ? -1 : 0}
+			aria-label="Toggle children"
+			aria-expanded={open}
 			{...stylex.props(
 				styles.chevron,
 				open && styles.open,
