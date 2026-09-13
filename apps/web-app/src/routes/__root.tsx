@@ -3,6 +3,8 @@ import * as stylex from "@stylexjs/stylex";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { ThemeToggle } from "#/components/theme-toggle.tsx";
+import { ThemeProvider, themeInitScript } from "#/lib/theme.tsx";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/bitter/index.css";
@@ -47,9 +49,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 		<html lang="en">
 			<head>
 				<HeadContent />
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, compiler-generated theme class names, no user input */}
+				<script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
 			</head>
 			<body {...stylex.props(styles.body)}>
-				{children}
+				<ThemeProvider>
+					{children}
+					<ThemeToggle />
+				</ThemeProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",
