@@ -11,6 +11,9 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
+		border: "none",
+		padding: 0,
+		cursor: "pointer",
 	},
 	dot: {
 		width: 6,
@@ -23,15 +26,21 @@ const styles = stylex.create({
 	},
 });
 
-export interface BulletProps {
+export interface BulletProps
+	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	/** Shows a ring, indicating the node has hidden children. */
 	collapsed?: boolean;
 }
 
-export function Bullet({ collapsed }: BulletProps) {
+/** The zoom target on every node: click to zoom in on it. */
+export function Bullet({ collapsed, ...props }: BulletProps) {
 	return (
-		<div {...stylex.props(styles.bullet, collapsed && styles.collapsed)}>
+		<button
+			type="button"
+			{...stylex.props(styles.bullet, collapsed && styles.collapsed)}
+			{...props}
+		>
 			<div {...stylex.props(styles.dot)} />
-		</div>
+		</button>
 	);
 }

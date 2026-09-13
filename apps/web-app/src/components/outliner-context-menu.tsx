@@ -22,12 +22,14 @@ export interface OutlinerContextMenuProps {
 	node: OutlineNode;
 	children: ReactNode;
 	onOpenChange?: (open: boolean) => void;
+	onZoomIn?: (id: string) => void;
 }
 
 export function OutlinerContextMenu({
 	node,
 	children,
 	onOpenChange,
+	onZoomIn,
 }: OutlinerContextMenuProps) {
 	const store = useOutlineStore();
 
@@ -74,7 +76,7 @@ export function OutlinerContextMenu({
 				<Menu.Item
 					icon={<MagnifyingGlassPlus size={15} />}
 					shortcut="⌥↓"
-					disabled
+					onClick={() => onZoomIn?.(node.id)}
 				>
 					Zoom in
 				</Menu.Item>

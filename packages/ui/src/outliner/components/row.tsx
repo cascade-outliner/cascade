@@ -28,13 +28,15 @@ const styles = stylex.create({
 	},
 });
 
-export interface RowProps {
+export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 	active?: boolean;
 	children: React.ReactNode;
 }
 
-export function Row({ active, children }: RowProps) {
+export function Row({ active, children, ...props }: RowProps) {
 	return (
-		<div {...stylex.props(styles.row, active && styles.active)}>{children}</div>
+		<div {...stylex.props(styles.row, active && styles.active)} {...props}>
+			{children}
+		</div>
 	);
 }
