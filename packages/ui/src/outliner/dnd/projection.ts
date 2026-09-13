@@ -7,6 +7,8 @@ export interface Projection {
 	depth: number;
 	parentId: string | null;
 	index: number;
+	/** Whether this drop nests the dragged row under the row directly above it, rather than placing it as that row's sibling. */
+	nesting: boolean;
 }
 
 export interface ProjectionInput {
@@ -57,8 +59,16 @@ export function project({
 	if (parent?.node.collapsed) {
 		index = parent.node.children.length;
 	}
+	const nesting = prev !== undefined && depth === prev.depth + 1;
 
-	return { overId, before, depth, parentId: parent?.node.id ?? null, index };
+	return {
+		overId,
+		before,
+		depth,
+		parentId: parent?.node.id ?? null,
+		index,
+		nesting,
+	};
 }
 
 export function sameProjection(

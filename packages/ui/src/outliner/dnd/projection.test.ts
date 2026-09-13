@@ -27,28 +27,36 @@ describe("project", () => {
 	});
 
 	it("drops between root siblings", () => {
-		expect(at("b", true)).toMatchObject({ parentId: null, index: 1, depth: 0 });
+		expect(at("b", true)).toMatchObject({
+			parentId: null,
+			index: 1,
+			depth: 0,
+			nesting: false,
+		});
 		expect(at("b", false)).toMatchObject({ parentId: null, index: 2 });
 	});
 
-	it("clamps depth to the row above plus one", () => {
+	it("clamps depth to the row above plus one, nesting under it", () => {
 		expect(at("a1", true, 500)).toMatchObject({
 			parentId: "a",
 			index: 0,
 			depth: 1,
+			nesting: true,
 		});
 		expect(at("a2", false, 500)).toMatchObject({
 			parentId: "a2",
 			index: 0,
 			depth: 2,
+			nesting: true,
 		});
 	});
 
-	it("clamps depth to the row below", () => {
+	it("clamps depth to the row below, without nesting under it", () => {
 		expect(at("a2", true, -500)).toMatchObject({
 			parentId: "a",
 			index: 1,
 			depth: 1,
+			nesting: false,
 		});
 	});
 
@@ -57,18 +65,24 @@ describe("project", () => {
 			parentId: null,
 			index: 1,
 			depth: 0,
+			nesting: false,
 		});
 	});
 
-	it("counts sibling index from visible rows", () => {
-		expect(at("a2", false, 0, 1)).toMatchObject({ parentId: "a", index: 2 });
+	it("counts sibling index from visible rows, without nesting under the last one", () => {
+		expect(at("a2", false, 0, 1)).toMatchObject({
+			parentId: "a",
+			index: 2,
+			nesting: false,
+		});
 	});
 
-	it("appends when dropping into a collapsed node", () => {
+	it("appends when dropping into a collapsed node, nesting under it", () => {
 		expect(at("c", false, 12)).toMatchObject({
 			parentId: "c",
 			index: 1,
 			depth: 1,
+			nesting: true,
 		});
 	});
 
@@ -77,11 +91,13 @@ describe("project", () => {
 			parentId: null,
 			index: 0,
 			depth: 0,
+			nesting: false,
 		});
 		expect(at("d", false, 100)).toMatchObject({
 			parentId: "d",
 			index: 0,
 			depth: 1,
+			nesting: true,
 		});
 	});
 });
