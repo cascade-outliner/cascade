@@ -1,6 +1,7 @@
 import { textState } from "@cascade/data";
 import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
+import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
 import { DragHandle } from "@cascade/ui/outliner/drag-handle";
 import { Row } from "@cascade/ui/outliner/row";
@@ -95,6 +96,11 @@ const Outline = observer(function Outline() {
 							style={{ viewTransitionName: zoomTransitionName(node.id) }}
 						>
 							<DragHandle />
+							<Chevron
+								open={!node.collapsed}
+								hidden={node.children.length === 0}
+								onClick={() => store.setCollapsed(node.id, !node.collapsed)}
+							/>
 							<Bullet
 								collapsed={node.collapsed && node.children.length > 0}
 								onClick={() => zoomTo(setZoomedId, node.id)}
