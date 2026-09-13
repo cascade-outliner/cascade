@@ -12,7 +12,12 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { Dialog } from "@cascade/ui/dialog";
 import { faker } from "@faker-js/faker";
-import { FlowArrow, Plus, Stack, Trash } from "@phosphor-icons/react";
+import {
+	FlowArrowIcon,
+	PlusIcon,
+	StackIcon,
+	TrashIcon,
+} from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { observer } from "mobx-react-lite";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
@@ -160,7 +165,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 				onClick={() => seedFlat(store, 1)}
 			>
 				<span {...stylex.props(styles.icon)}>
-					<Plus size={15} />
+					<PlusIcon size={15} />
 				</span>
 				Add one
 			</button>
@@ -170,7 +175,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 				onClick={() => seedFlat(store, 5)}
 			>
 				<span {...stylex.props(styles.icon)}>
-					<Stack size={15} />
+					<StackIcon size={15} />
 				</span>
 				Add 5
 			</button>
@@ -180,7 +185,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 				onClick={() => seedTree(store)}
 			>
 				<span {...stylex.props(styles.icon)}>
-					<FlowArrow size={15} />
+					<FlowArrowIcon size={15} />
 				</span>
 				Seed tree
 			</button>
@@ -191,7 +196,7 @@ export const DevSeedToolbar = observer(function DevSeedToolbar() {
 					disabled={nodeCount === 0}
 				>
 					<span {...stylex.props(styles.icon, styles.dangerIcon)}>
-						<Trash size={15} />
+						<TrashIcon size={15} />
 					</span>
 					Delete all
 				</Dialog.Trigger>

@@ -1,6 +1,6 @@
 import type { OutlineNode } from "@cascade/data";
 import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
-import { CaretLeft } from "@phosphor-icons/react";
+import { CaretLeftIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
 import { ItemContext } from "../context.tsx";
@@ -60,7 +60,7 @@ export function ZoomHeader({
 				onClick={() => onZoomTo(parentId)}
 				aria-label="Zoom out to parent"
 			>
-				<CaretLeft size={11} weight="bold" />
+				<CaretLeftIcon size={11} weight="bold" />
 			</button>
 			<ItemContext.Provider value={{ node, depth: 0 }}>
 				<Content key={node.id} style={styles.title} onChange={onChange} />

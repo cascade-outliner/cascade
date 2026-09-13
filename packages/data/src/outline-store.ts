@@ -175,6 +175,49 @@ export class OutlineStore {
 		return root.id;
 	}
 
+	/** Whether `id` has a previous sibling it could be nested under. */
+	canIndent(id: string): boolean {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return false;
+		}
+		const siblings = this.#siblings(node.parentId);
+		return siblings.indexOf(node) > 0;
+	}
+
+	/** Makes `id` a child of its previous sibling. No-op if it has none. */
+	indent(id: string): boolean {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return false;
+		}
+		const siblings = this.#siblings(node.parentId);
+		const previous = siblings[siblings.indexOf(node) - 1];
+		if (!previous) {
+			return false;
+		}
+		return this.move(id, previous.id);
+	}
+
+	/** Whether `id` has a parent it could be moved out of. */
+	canOutdent(id: string): boolean {
+		return (this.nodes.get(id)?.parentId ?? null) !== null;
+	}
+
+	/** Moves `id` out to its parent's level, right after its former parent. No-op for a root node. */
+	outdent(id: string): boolean {
+		const node = this.nodes.get(id);
+		if (!node || node.parentId === null) {
+			return false;
+		}
+		const grandparentId = this.nodes.get(node.parentId)?.parentId ?? null;
+		const parentSiblings = this.#siblings(grandparentId);
+		const parentIndex = parentSiblings.findIndex(
+			(each) => each.id === node.parentId,
+		);
+		return this.move(id, grandparentId, parentIndex + 1);
+	}
+
 	move(id: string, newParentId: string | null, index?: number): boolean {
 		const node = this.nodes.get(id);
 		if (!node) {

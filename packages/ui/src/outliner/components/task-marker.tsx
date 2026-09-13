@@ -1,5 +1,5 @@
 import { borderWidth, colors } from "@cascade/theme/tokens.stylex";
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -40,7 +40,7 @@ export function TaskMarker({ variant, ...props }: TaskMarkerProps) {
 			)}
 			{...props}
 		>
-			{variant === "done" && <Check size={11} weight="bold" />}
+			{variant === "done" && <CheckIcon size={11} weight="bold" />}
 		</div>
 	);
 }
