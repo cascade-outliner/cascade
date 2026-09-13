@@ -43,12 +43,12 @@ export interface OutlinePersistence {
 }
 
 /**
- * A node in the derived outline tree, as consumed by the UI.
+ * One visible line of the outline: a node at its indentation depth.
  */
-export interface OutlineNode {
-	id: string;
-	text: SerializedEditorState;
-	children: OutlineNode[];
-	collapsed?: boolean;
-	task?: { done: boolean };
+export interface Row {
+	node: Node;
+	/** Nesting depth below the row's root, starting at 0. */
+	depth: number;
+	/** Number of direct children, whether or not they are visible. */
+	childCount: number;
 }

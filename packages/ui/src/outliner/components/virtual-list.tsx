@@ -1,4 +1,4 @@
-import type { OutlineNode } from "@cascade/data";
+import type { Row } from "@cascade/data";
 import { colors, duration, space } from "@cascade/theme/tokens.stylex";
 import { DndContext } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
@@ -13,7 +13,6 @@ import { DragGhost } from "../dnd/drag-ghost";
 import { DropIndicator } from "../dnd/drop-indicator";
 import { type MoveHandler, useOutlineDnd } from "../dnd/use-outline-dnd";
 import { useRowDnd } from "../dnd/use-row-dnd";
-import type { FlatNode } from "../flatten";
 import { CHEVRON_CENTER, INDENT } from "../layout";
 
 const styles = stylex.create({
@@ -41,11 +40,11 @@ const styles = stylex.create({
 	},
 });
 
-type RowRenderer = (node: OutlineNode, depth: number) => React.ReactNode;
+type RowRenderer = (row: Row) => React.ReactNode;
 
 interface VirtualRowProps {
 	item: VirtualItem;
-	row: FlatNode;
+	row: Row;
 	virtualizer: Virtualizer<Window, Element>;
 	children: RowRenderer;
 }
@@ -83,7 +82,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 			<div style={{ paddingLeft: depth * INDENT }}>
 				<ItemContext.Provider value={row}>
 					<DragHandleContext.Provider value={dnd.handle}>
-						{children(node, depth)}
+						{children(row)}
 					</DragHandleContext.Provider>
 				</ItemContext.Provider>
 			</div>
@@ -92,18 +91,19 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 }
 
 export interface VirtualListProps {
-	nodes: OutlineNode[];
+	/** The visible rows. The dragged row's descendants are hidden while dragging. */
+	rows: Row[];
 	children: RowRenderer;
 	/** Row height guess before measurement, in px. */
 	estimateSize?: number;
 	overscan?: number;
-	/** Parent of `nodes`, e.g. the zoomed node. Defaults to the top-level root. */
+	/** Parent of the rows, e.g. the zoomed node. Defaults to the top-level root. */
 	rootId?: string | null;
 	onMove?: MoveHandler;
 }
 
 export function VirtualList({
-	nodes,
+	rows: allRows,
 	children,
 	estimateSize = 32,
 	overscan = 8,
@@ -111,7 +111,12 @@ export function VirtualList({
 	onMove,
 }: VirtualListProps) {
 	const parentRef = useRef<HTMLDivElement>(null);
-	const dnd = useOutlineDnd({ nodes, rowStep: estimateSize, rootId, onMove });
+	const dnd = useOutlineDnd({
+		rows: allRows,
+		rowStep: estimateSize,
+		rootId,
+		onMove,
+	});
 	const { rows, projection } = dnd;
 
 	const virtualizer = useWindowVirtualizer({
@@ -153,9 +158,7 @@ export function VirtualList({
 					/>
 				)}
 			</div>
-			<DragGhost row={dnd.activeRow}>
-				{(row) => children(row.node, row.depth)}
-			</DragGhost>
+			<DragGhost row={dnd.activeRow}>{children}</DragGhost>
 		</DndContext>
 	);
 }

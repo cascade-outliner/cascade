@@ -10,7 +10,7 @@ import {
 } from "mobx";
 import { emptyState } from "./empty-content.ts";
 import { MemoryPersistence } from "./memory-persistence.ts";
-import type { Node, OutlineNode, OutlinePersistence } from "./types.ts";
+import type { Node, OutlinePersistence, Row } from "./types.ts";
 
 type Children = Map<string | null, Node[]>;
 
@@ -51,23 +51,33 @@ export class OutlineStore {
 		this.ready = this.#load();
 	}
 
-	get tree(): OutlineNode[] {
-		return this.#buildChildren(null, this.#children.get());
+	get size(): number {
+		return this.nodes.size;
 	}
 
-	/** The subtree rooted at `id`, or `null` if it doesn't exist. Used to zoom into a node. */
-	subtree(id: string): OutlineNode | null {
-		const node = this.nodes.get(id);
-		if (!node) {
-			return null;
-		}
-		return {
-			id: node.id,
-			text: node.content,
-			children: this.#buildChildren(node.id, this.#children.get()),
-			collapsed: node.collapsed,
-			task: node.task,
+	get(id: string): Node | undefined {
+		return this.nodes.get(id);
+	}
+
+	/**
+	 * The visible rows below `rootId` (the whole outline when `null`), depth-first.
+	 * Children of collapsed nodes are left out.
+	 */
+	// ponytail: not memoised per rootId; computedFn from mobx-utils if the walk shows up in profiles.
+	rows(rootId: string | null = null): Row[] {
+		const children = this.#children.get();
+		const rows: Row[] = [];
+		const walk = (parentId: string | null, depth: number) => {
+			for (const node of children.get(parentId) ?? []) {
+				const childCount = children.get(node.id)?.length ?? 0;
+				rows.push({ node, depth, childCount });
+				if (childCount > 0 && !node.collapsed) {
+					walk(node.id, depth + 1);
+				}
+			}
 		};
+		walk(rootId, 0);
+		return rows;
 	}
 
 	/** `id`'s parent, or `null` if it's a root node or unknown. Used to zoom back out. */
@@ -317,16 +327,6 @@ export class OutlineStore {
 		const at =
 			index === undefined ? siblings.length : clamp(index, 0, siblings.length);
 		return orderBetween(siblings[at - 1]?.order, siblings[at]?.order);
-	}
-
-	#buildChildren(parentId: string | null, children: Children): OutlineNode[] {
-		return (children.get(parentId) ?? []).map((node) => ({
-			id: node.id,
-			text: node.content,
-			children: this.#buildChildren(node.id, children),
-			collapsed: node.collapsed,
-			task: node.task,
-		}));
 	}
 
 	#isDescendant(id: string, ancestorId: string): boolean {

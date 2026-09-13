@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { textState } from "./empty-content.ts";
 import { MemoryPersistence } from "./memory-persistence.ts";
 import { OutlineStore } from "./outline-store.ts";
-import type { OutlineNode } from "./types.ts";
 
 async function open(persistence = new MemoryPersistence()) {
 	const store = new OutlineStore(persistence);
@@ -10,22 +9,12 @@ async function open(persistence = new MemoryPersistence()) {
 	return { store, persistence };
 }
 
-/** Root ids, in order. */
-function roots(store: OutlineStore): string[] {
-	return store.tree.map((node) => node.id);
-}
-
-/** Direct child ids of `id`, in order. */
-function childrenOf(store: OutlineStore, id: string): string[] {
-	const find = (nodes: OutlineNode[]): OutlineNode | undefined => {
-		for (const node of nodes) {
-			if (node.id === id) return node;
-			const hit = find(node.children);
-			if (hit) return hit;
-		}
-		return undefined;
-	};
-	return (find(store.tree)?.children ?? []).map((node) => node.id);
+/** Direct child ids of `id` (root nodes when `null`), in order. */
+function childrenOf(store: OutlineStore, id: string | null = null): string[] {
+	return store
+		.rows(id)
+		.filter((row) => row.depth === 0)
+		.map((row) => row.node.id);
 }
 
 /** a, b, c at the root; b has children b1, b2. */
@@ -49,22 +38,46 @@ describe("OutlineStore", () => {
 
 		const second = await open(persistence);
 		expect(second.store.status).toBe("ready");
-		expect(roots(second.store)).toEqual([id]);
+		expect(childrenOf(second.store)).toEqual([id]);
+		expect(second.store.get(id)?.content).toEqual(textState("hello"));
 	});
 
 	it("create appends to its parent", async () => {
 		const { store, a, b, c, b1, b2 } = await seed();
-		expect(roots(store)).toEqual([a, b, c]);
+		expect(childrenOf(store)).toEqual([a, b, c]);
 		expect(childrenOf(store, b)).toEqual([b1, b2]);
+		expect(store.size).toBe(5);
 		expect(() => store.create("missing")).toThrow();
+	});
+
+	it("rows walks depth-first and hides collapsed children", async () => {
+		const { store, a, b, c, b1, b2 } = await seed();
+		const ids = (rows: ReturnType<typeof store.rows>) =>
+			rows.map((row) => `${row.node.id}@${row.depth}`);
+
+		expect(ids(store.rows())).toEqual([
+			`${a}@0`,
+			`${b}@0`,
+			`${b1}@1`,
+			`${b2}@1`,
+			`${c}@0`,
+		]);
+		expect(store.rows()[1]?.childCount).toBe(2);
+
+		store.setCollapsed(b, true);
+		expect(ids(store.rows())).toEqual([`${a}@0`, `${b}@0`, `${c}@0`]);
+		expect(store.rows()[1]?.childCount).toBe(2);
+
+		expect(ids(store.rows(b))).toEqual([`${b1}@0`, `${b2}@0`]);
+		expect(store.rows("missing")).toEqual([]);
 	});
 
 	it("move places at an index, clamps it, and refuses cycles", async () => {
 		const { store, a, b, c, b1 } = await seed();
 		expect(store.move(c, null, 0)).toBe(true);
-		expect(roots(store)).toEqual([c, a, b]);
+		expect(childrenOf(store)).toEqual([c, a, b]);
 		expect(store.move(c, null, 99)).toBe(true);
-		expect(roots(store)).toEqual([a, b, c]);
+		expect(childrenOf(store)).toEqual([a, b, c]);
 		expect(store.move(a, b, 1)).toBe(true);
 		expect(childrenOf(store, b)).toEqual([b1, a, expect.any(String)]);
 
@@ -85,37 +98,39 @@ describe("OutlineStore", () => {
 		expect(store.canOutdent(a)).toBe(false);
 		expect(store.outdent(a)).toBe(false);
 		expect(store.outdent(b1)).toBe(true);
-		expect(roots(store)).toEqual([a, b, b1]);
+		expect(childrenOf(store)).toEqual([a, b, b1]);
 		expect(childrenOf(store, b)).toEqual([b2, c]);
+		expect(store.parentOf(b1)).toBeNull();
+		expect(store.parentOf(c)).toBe(b);
 	});
 
 	it("duplicate copies one node right after the original", async () => {
 		const { store, a, b, c } = await seed();
 		store.setTask(a, { done: true });
-		const copy = store.duplicate(a);
-		expect(roots(store)).toEqual([a, copy, b, c]);
-		expect(childrenOf(store, copy as string)).toEqual([]);
-		expect(store.tree[1]?.task).toEqual({ done: true });
+		const copy = store.duplicate(a) as string;
+		expect(childrenOf(store)).toEqual([a, copy, b, c]);
+		expect(childrenOf(store, copy)).toEqual([]);
+		expect(store.get(copy)?.task).toEqual({ done: true });
 		expect(store.duplicate("missing")).toBeNull();
 	});
 
 	it("duplicateWithChildren copies the subtree in order", async () => {
 		const { store, a, b, c } = await seed();
 		const copy = store.duplicateWithChildren(b) as string;
-		expect(roots(store)).toEqual([a, b, copy, c]);
+		expect(childrenOf(store)).toEqual([a, b, copy, c]);
 		expect(childrenOf(store, copy)).toHaveLength(2);
 		expect(childrenOf(store, b)).toHaveLength(2);
-		expect(store.nodes.size).toBe(8);
+		expect(store.size).toBe(8);
 	});
 
 	it("remove deletes the whole subtree", async () => {
 		const { store, a, b, c, b1, b2 } = await seed();
 		store.remove(b);
-		expect(roots(store)).toEqual([a, c]);
-		expect(store.nodes.has(b1)).toBe(false);
-		expect(store.nodes.has(b2)).toBe(false);
+		expect(childrenOf(store)).toEqual([a, c]);
+		expect(store.get(b1)).toBeUndefined();
+		expect(store.get(b2)).toBeUndefined();
 		store.clearAll();
-		expect(store.nodes.size).toBe(0);
+		expect(store.size).toBe(0);
 	});
 
 	it("writes once per action and persists exactly the outline", async () => {

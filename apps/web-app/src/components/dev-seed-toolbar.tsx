@@ -153,7 +153,7 @@ function seedTree(store: OutlineStore): void {
 
 export const DevSeedToolbar = observer(function DevSeedToolbar() {
 	const store = useOutlineStore();
-	const nodeCount = store.nodes.size;
+	const nodeCount = store.size;
 
 	return (
 		<div {...stylex.props(styles.toolbar)}>
