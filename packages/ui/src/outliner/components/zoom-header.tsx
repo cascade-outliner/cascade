@@ -1,5 +1,5 @@
 import type { OutlineNode } from "@cascade/data";
-import { colors } from "@cascade/theme/tokens.stylex";
+import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
 import { ItemContext } from "../context.tsx";
@@ -9,7 +9,7 @@ const styles = stylex.create({
 	titleRow: {
 		display: "flex",
 		alignItems: "center",
-		gap: 11,
+		gap: space["11"],
 	},
 	bullet: {
 		width: 20,
@@ -18,7 +18,7 @@ const styles = stylex.create({
 		border: "none",
 		padding: 0,
 		borderRadius: "50%",
-		backgroundColor: "rgba(43, 45, 51, 0.1)",
+		backgroundColor: colors.inkSubtle,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -31,7 +31,7 @@ const styles = stylex.create({
 		backgroundColor: colors.muted,
 	},
 	title: {
-		fontSize: "1.7rem",
+		fontSize: fontSize["800"],
 		fontWeight: 600,
 		letterSpacing: "-0.02em",
 	},

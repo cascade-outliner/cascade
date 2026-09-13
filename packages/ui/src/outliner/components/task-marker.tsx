@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { borderWidth, colors } from "@cascade/theme/tokens.stylex";
 import { Check } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -14,9 +14,9 @@ const styles = stylex.create({
 		cursor: "pointer",
 	},
 	todo: {
-		borderWidth: 1.5,
+		borderWidth: borderWidth.thick,
 		borderStyle: "solid",
-		borderColor: "rgba(43, 45, 51, 0.22)",
+		borderColor: colors.borderStrong,
 	},
 	done: {
 		backgroundColor: colors.primary,

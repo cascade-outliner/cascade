@@ -1,4 +1,5 @@
 import { textState } from "@cascade/data";
+import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Content } from "@cascade/ui/outliner/content";
@@ -20,15 +21,15 @@ const styles = stylex.create({
 	page: {
 		maxWidth: 980,
 		margin: "0 auto",
-		padding: { default: 32, "@media (max-width: 640px)": 16 },
+		padding: { default: space["32"], "@media (max-width: 640px)": space["16"] },
 	},
 	outline: {
 		display: "flex",
 		flexDirection: "column",
-		gap: 4,
+		gap: space["4"],
 	},
 	zoomHeader: {
-		marginBottom: 22,
+		marginBottom: space["22"],
 	},
 });
 

@@ -1,4 +1,10 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import {
+	colors,
+	duration,
+	radius,
+	shadow,
+	space,
+} from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -6,25 +12,22 @@ const styles = stylex.create({
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
-		gap: { default: 10, "@media (max-width: 640px)": 8 },
-		paddingBlock: { default: 6, "@media (hover: none)": 9 },
-		paddingInline: 10,
-		borderRadius: 10,
-		transition:
-			"background-color 0.05s ease-in-out, box-shadow 0.05s ease-in-out",
+		gap: { default: space["10"], "@media (max-width: 640px)": space["8"] },
+		paddingBlock: { default: space["6"], "@media (hover: none)": space["9"] },
+		paddingInline: space["10"],
+		borderRadius: radius.lg,
+		transition: `background-color ${duration.instant} ease-in-out, box-shadow ${duration.instant} ease-in-out`,
 		":hover:not(:focus-within)": {
 			backgroundColor: colors.surface,
 		},
 		":focus-within": {
 			backgroundColor: colors.white,
-			boxShadow:
-				"0 0 0 1px rgba(173, 76, 78, 0.3), 0 3px 10px -3px rgba(0, 0, 0, 0.12)",
+			boxShadow: shadow.focus,
 		},
 	},
 	active: {
 		backgroundColor: colors.white,
-		boxShadow:
-			"0 0 0 1px rgba(173, 76, 78, 0.3), 0 3px 10px -3px rgba(0, 0, 0, 0.12)",
+		boxShadow: shadow.focus,
 	},
 });
 

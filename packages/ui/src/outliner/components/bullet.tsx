@@ -7,7 +7,7 @@ const styles = stylex.create({
 		height: 18,
 		flexShrink: 0,
 		borderRadius: "50%",
-		backgroundColor: "rgba(43, 45, 51, 0.09)",
+		backgroundColor: colors.inkSubtle,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -22,7 +22,7 @@ const styles = stylex.create({
 		backgroundColor: colors.muted,
 	},
 	collapsed: {
-		boxShadow: "0 0 0 3.5px rgba(43, 45, 51, 0.07)",
+		boxShadow: `0 0 0 3.5px ${colors.inkSubtle}`,
 	},
 });
 

@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 
@@ -7,20 +7,20 @@ const styles = stylex.create({
 		cursor: "default",
 		display: "inline-flex",
 		alignItems: "center",
-		gap: 2,
+		gap: space["2"],
 	},
 	key: {
 		cursor: "default",
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingBlock: 1,
-		paddingInline: 5,
-		borderRadius: 5,
+		paddingBlock: space["1"],
+		paddingInline: space["5"],
+		borderRadius: radius.xs,
 		backgroundColor: colors.muted,
 		color: colors.white,
 		fontFamily: "monospace",
-		fontSize: "0.7rem",
+		fontSize: fontSize["200"],
 		lineHeight: 1.8,
 	},
 });

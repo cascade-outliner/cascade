@@ -1,5 +1,14 @@
 import { Dialog as Base } from "@base-ui/react/dialog";
-import { colors } from "@cascade/theme/tokens.stylex";
+import {
+	borderWidth,
+	colors,
+	duration,
+	fontSize,
+	radius,
+	shadow,
+	space,
+	zIndex,
+} from "@cascade/theme/tokens.stylex";
 import { X } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -7,21 +16,21 @@ const styles = stylex.create({
 	backdrop: {
 		position: "fixed",
 		inset: 0,
-		zIndex: 100,
-		backgroundColor: "rgba(43, 45, 51, 0.32)",
+		zIndex: zIndex.overlay,
+		backgroundColor: colors.overlay,
 		"@starting-style": {
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: "150ms",
+		transitionDuration: duration.fast,
 	},
 	popup: {
 		position: "fixed",
-		zIndex: 101,
+		zIndex: zIndex.popup,
 		top: { default: "50%", "@media (max-width: 640px)": "auto" },
-		left: { default: "50%", "@media (max-width: 640px)": 16 },
-		right: { default: "auto", "@media (max-width: 640px)": 16 },
-		bottom: { default: "auto", "@media (max-width: 640px)": 16 },
+		left: { default: "50%", "@media (max-width: 640px)": space["16"] },
+		right: { default: "auto", "@media (max-width: 640px)": space["16"] },
+		bottom: { default: "auto", "@media (max-width: 640px)": space["16"] },
 		transform: {
 			default: "translate(-50%, -50%) scale(1)",
 			"@media (max-width: 640px)": "none",
@@ -33,13 +42,13 @@ const styles = stylex.create({
 		},
 		maxHeight: "calc(100vh - 32px)",
 		overflowY: "auto",
-		borderRadius: 13,
-		borderWidth: 1,
+		borderRadius: radius.xl,
+		borderWidth: borderWidth.thin,
 		borderStyle: "solid",
-		borderColor: "rgba(43, 45, 51, 0.08)",
+		borderColor: colors.border,
 		backgroundColor: colors.white,
-		padding: { default: 20, "@media (max-width: 640px)": 16 },
-		boxShadow: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
+		padding: { default: space["20"], "@media (max-width: 640px)": space["16"] },
+		boxShadow: shadow.popup,
 		outline: "none",
 		"@starting-style": {
 			transform: {
@@ -49,25 +58,25 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: "150ms",
+		transitionDuration: duration.fast,
 	},
 	header: {
 		display: "flex",
 		alignItems: "flex-start",
 		justifyContent: "space-between",
-		gap: 12,
-		marginBottom: 12,
+		gap: space["12"],
+		marginBottom: space["12"],
 	},
 	title: {
-		fontSize: "1.05rem",
+		fontSize: fontSize["700"],
 		fontWeight: 600,
 		color: colors.ink,
 		margin: 0,
 	},
 	description: {
-		fontSize: "0.9rem",
+		fontSize: fontSize["500"],
 		color: colors.muted,
-		marginTop: 4,
+		marginTop: space["4"],
 		marginBottom: 0,
 	},
 	close: {
@@ -77,7 +86,7 @@ const styles = stylex.create({
 		width: { default: 24, "@media (hover: none)": 32 },
 		height: { default: 24, "@media (hover: none)": 32 },
 		flexShrink: 0,
-		borderRadius: 7,
+		borderRadius: radius.sm,
 		border: "none",
 		backgroundColor: "transparent",
 		color: colors.muted,
@@ -87,15 +96,15 @@ const styles = stylex.create({
 		},
 	},
 	body: {
-		fontSize: "0.9rem",
+		fontSize: fontSize["500"],
 		color: colors.ink,
 	},
 	footer: {
 		display: "flex",
 		flexWrap: "wrap",
 		justifyContent: "flex-end",
-		gap: 8,
-		marginTop: 20,
+		gap: space["8"],
+		marginTop: space["20"],
 	},
 });
 
