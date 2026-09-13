@@ -74,6 +74,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 		>
 			{Array.from({ length: depth }, (_, i) => (
 				<div
+					// biome-ignore lint/suspicious/noArrayIndexKey: guides are a fixed-length, non-reorderable sequence
 					key={i}
 					{...stylex.props(styles.guide)}
 					style={{ left: i * INDENT + CHEVRON_CENTER }}

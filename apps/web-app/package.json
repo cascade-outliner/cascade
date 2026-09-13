@@ -13,7 +13,8 @@
 		"start": "node --env-file-if-exists=../../.env .output/server/index.mjs",
 		"format": "biome format",
 		"lint": "biome lint",
-		"check": "biome check"
+		"check": "biome check",
+		"typecheck": "tsc"
 	},
 	"dependencies": {
 		"@cascade/data": "workspace:*",
