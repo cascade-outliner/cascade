@@ -79,7 +79,11 @@ const Outline = observer(function Outline() {
 					/>
 				</div>
 			)}
-			<VirtualList nodes={nodes}>
+			<VirtualList
+				nodes={nodes}
+				rootId={zoomedId}
+				onMove={(id, parentId, index) => store.move(id, parentId, index)}
+			>
 				{(node) => (
 					<OutlinerContextMenu
 						node={node}
@@ -110,12 +114,14 @@ const Outline = observer(function Outline() {
 					</OutlinerContextMenu>
 				)}
 			</VirtualList>
-			<CaptureBar
-				onSubmit={(text) => {
-					const id = store.create(zoomedId);
-					store.setContent(id, textState(text));
-				}}
-			/>
+			<div style={{ viewTransitionName: "capture-bar" }}>
+				<CaptureBar
+					onSubmit={(text) => {
+						const id = store.create(zoomedId);
+						store.setContent(id, textState(text));
+					}}
+				/>
+			</div>
 		</div>
 	);
 });

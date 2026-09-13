@@ -1,3 +1,4 @@
+import { generateKeyBetween } from "fractional-indexing";
 import type { SerializedEditorState } from "lexical";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { emptyState } from "./empty-content.ts";
@@ -7,6 +8,18 @@ const NOOP_PERSISTENCE: OutlinePersistence = {
 	load: async () => [],
 	write: async () => {},
 };
+
+function byOrder(a: Node, b: Node): number {
+	return a.order < b.order ? -1 : a.order > b.order ? 1 : 0;
+}
+
+function clamp(value: number, min: number, max: number): number {
+	return Math.min(Math.max(value, min), max);
+}
+
+function orderBetween(prev?: string, next?: string): string {
+	return generateKeyBetween(prev ?? null, next ?? null);
+}
 
 /**
  * The outline, client-side and mutable.
@@ -54,9 +67,11 @@ export class OutlineStore {
 			throw new Error(`create: unknown parent ${parentId}`);
 		}
 
+		const siblings = this.#siblings(parentId);
 		const node = this.#put({
 			id: crypto.randomUUID(),
 			parentId,
+			order: orderBetween(siblings.at(-1)?.order, undefined),
 			content: emptyState(),
 			collapsed: false,
 			updatedAt: Date.now(),
@@ -102,9 +117,12 @@ export class OutlineStore {
 		if (!node) {
 			return null;
 		}
+		const siblings = this.#siblings(node.parentId);
+		const next = siblings[siblings.indexOf(node) + 1];
 		const copy = this.#put({
 			id: crypto.randomUUID(),
 			parentId: node.parentId,
+			order: orderBetween(node.order, next?.order),
 			content: node.content,
 			collapsed: false,
 			task: node.task ? { ...node.task } : undefined,
@@ -114,7 +132,7 @@ export class OutlineStore {
 		return copy.id;
 	}
 
-	move(id: string, newParentId: string | null): boolean {
+	move(id: string, newParentId: string | null, index?: number): boolean {
 		const node = this.nodes.get(id);
 		if (!node) {
 			return false;
@@ -128,6 +146,12 @@ export class OutlineStore {
 			return false;
 		}
 
+		const siblings = this.#siblings(newParentId).filter(
+			(each) => each.id !== id,
+		);
+		const at =
+			index === undefined ? siblings.length : clamp(index, 0, siblings.length);
+		node.order = orderBetween(siblings[at - 1]?.order, siblings[at]?.order);
 		node.parentId = newParentId;
 		node.updatedAt = Date.now();
 		this.#persist([node]);
@@ -173,6 +197,16 @@ export class OutlineStore {
 		return registered;
 	}
 
+	#siblings(parentId: string | null): Node[] {
+		const siblings: Node[] = [];
+		for (const node of this.nodes.values()) {
+			if (node.parentId === parentId) {
+				siblings.push(node);
+			}
+		}
+		return siblings.sort(byOrder);
+	}
+
 	#buildChildren(
 		parentId: string | null,
 		children: Map<string | null, Node[]>,
@@ -192,6 +226,9 @@ export class OutlineStore {
 			const siblings = groups.get(node.parentId) ?? [];
 			siblings.push(node);
 			groups.set(node.parentId, siblings);
+		}
+		for (const siblings of groups.values()) {
+			siblings.sort(byOrder);
 		}
 		return groups;
 	}

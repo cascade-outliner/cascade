@@ -1,4 +1,9 @@
 import type { OutlineNode } from "@cascade/data";
+import type {
+	DraggableAttributes,
+	DraggableSyntheticListeners,
+} from "@dnd-kit/core";
+
 import { createContext, useContext } from "react";
 
 export interface ItemContextValue {
@@ -16,3 +21,14 @@ export function useItem(): ItemContextValue {
 		);
 	return ctx;
 }
+
+export interface DragHandleContextValue {
+	attributes: DraggableAttributes;
+	listeners: DraggableSyntheticListeners;
+	setActivatorNodeRef: (element: HTMLElement | null) => void;
+	isDragging: boolean;
+}
+
+export const DragHandleContext = createContext<DragHandleContextValue | null>(
+	null,
+);

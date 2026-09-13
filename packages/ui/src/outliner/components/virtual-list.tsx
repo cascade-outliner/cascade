@@ -1,8 +1,19 @@
 import type { OutlineNode } from "@cascade/data";
+import { DndContext } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
-import { ItemContext } from "../context";
+import {
+	useWindowVirtualizer,
+	type VirtualItem,
+	type Virtualizer,
+} from "@tanstack/react-virtual";
+import { useCallback, useRef } from "react";
+import { DragHandleContext, ItemContext } from "../context";
+import { DragGhost } from "../dnd/drag-ghost";
+import { DropIndicator } from "../dnd/drop-indicator";
+import { type MoveHandler, useOutlineDnd } from "../dnd/use-outline-dnd";
+import { useRowDnd } from "../dnd/use-row-dnd";
+import type { FlatNode } from "../flatten";
+import { INDENT } from "../layout";
 
 const styles = stylex.create({
 	viewport: {
@@ -15,30 +26,64 @@ const styles = stylex.create({
 		left: 0,
 		width: "100%",
 		paddingBottom: 4,
+		transition: "opacity 0.1s ease-in-out",
+	},
+	dragging: {
+		opacity: 0.3,
 	},
 });
 
-interface FlatNode {
-	node: OutlineNode;
-	depth: number;
+type RowRenderer = (node: OutlineNode, depth: number) => React.ReactNode;
+
+interface VirtualRowProps {
+	item: VirtualItem;
+	row: FlatNode;
+	virtualizer: Virtualizer<Window, Element>;
+	children: RowRenderer;
 }
 
-function flatten(nodes: OutlineNode[], depth: number, out: FlatNode[]) {
-	for (const node of nodes) {
-		out.push({ node, depth });
-		if (node.children.length > 0 && !node.collapsed) {
-			flatten(node.children, depth + 1, out);
-		}
-	}
-	return out;
+function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
+	const { node, depth } = row;
+	const dnd = useRowDnd(node.id, depth);
+	const setDndRef = dnd.setNodeRef;
+	const setRef = useCallback(
+		(element: HTMLDivElement | null) => {
+			virtualizer.measureElement(element);
+			setDndRef(element);
+		},
+		[virtualizer, setDndRef],
+	);
+
+	return (
+		<div
+			ref={setRef}
+			data-index={item.index}
+			{...stylex.props(styles.row, dnd.isDragging && styles.dragging)}
+			style={{
+				paddingLeft: depth * INDENT,
+				transform: `translateY(${
+					item.start - virtualizer.options.scrollMargin
+				}px)`,
+			}}
+		>
+			<ItemContext.Provider value={row}>
+				<DragHandleContext.Provider value={dnd.handle}>
+					{children(node, depth)}
+				</DragHandleContext.Provider>
+			</ItemContext.Provider>
+		</div>
+	);
 }
 
 export interface VirtualListProps {
 	nodes: OutlineNode[];
-	children: (node: OutlineNode, depth: number) => React.ReactNode;
+	children: RowRenderer;
 	/** Row height guess before measurement, in px. */
 	estimateSize?: number;
 	overscan?: number;
+	/** Parent of `nodes`, e.g. the zoomed node. Defaults to the top-level root. */
+	rootId?: string | null;
+	onMove?: MoveHandler;
 }
 
 export function VirtualList({
@@ -46,9 +91,12 @@ export function VirtualList({
 	children,
 	estimateSize = 32,
 	overscan = 8,
+	rootId = null,
+	onMove,
 }: VirtualListProps) {
 	const parentRef = useRef<HTMLDivElement>(null);
-	const rows = flatten(nodes, 0, []);
+	const dnd = useOutlineDnd({ nodes, rowStep: estimateSize, rootId, onMove });
+	const { rows, projection } = dnd;
 
 	const virtualizer = useWindowVirtualizer({
 		count: rows.length,
@@ -56,34 +104,42 @@ export function VirtualList({
 		overscan,
 		scrollMargin: parentRef.current?.offsetTop ?? 0,
 	});
+	const virtualItems = virtualizer.getVirtualItems();
+	const scrollMargin = virtualizer.options.scrollMargin;
+	const overItem = projection
+		? virtualItems.find(
+				(item) => rows[item.index]?.node.id === projection.overId,
+			)
+		: undefined;
 
 	return (
-		<div
-			ref={parentRef}
-			{...stylex.props(styles.viewport)}
-			style={{ height: virtualizer.getTotalSize() }}
-		>
-			{virtualizer.getVirtualItems().map((item) => {
-				const { node, depth } = rows[item.index];
-				return (
-					<div
-						key={node.id}
-						ref={virtualizer.measureElement}
-						data-index={item.index}
-						{...stylex.props(styles.row)}
-						style={{
-							paddingLeft: depth * 12,
-							transform: `translateY(${
-								item.start - virtualizer.options.scrollMargin
-							}px)`,
-						}}
+		<DndContext {...dnd.contextProps}>
+			<div
+				ref={parentRef}
+				{...stylex.props(styles.viewport)}
+				style={{ height: virtualizer.getTotalSize() }}
+			>
+				{virtualItems.map((item) => (
+					<VirtualRow
+						key={rows[item.index].node.id}
+						item={item}
+						row={rows[item.index]}
+						virtualizer={virtualizer}
 					>
-						<ItemContext.Provider value={{ node, depth }}>
-							{children(node, depth)}
-						</ItemContext.Provider>
-					</div>
-				);
-			})}
-		</div>
+						{children}
+					</VirtualRow>
+				))}
+				{projection && overItem && (
+					<DropIndicator
+						projection={projection}
+						overStart={overItem.start - scrollMargin}
+						overEnd={overItem.end - scrollMargin}
+					/>
+				)}
+			</div>
+			<DragGhost row={dnd.activeRow}>
+				{(row) => children(row.node, row.depth)}
+			</DragGhost>
+		</DndContext>
 	);
 }
