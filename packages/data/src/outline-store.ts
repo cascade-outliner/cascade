@@ -1,13 +1,18 @@
 import { generateKeyBetween } from "fractional-indexing";
 import type { SerializedEditorState } from "lexical";
-import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
+import {
+	computed,
+	type IComputedValue,
+	makeAutoObservable,
+	observable,
+	runInAction,
+	toJS,
+} from "mobx";
 import { emptyState } from "./empty-content.ts";
+import { MemoryPersistence } from "./memory-persistence.ts";
 import type { Node, OutlineNode, OutlinePersistence } from "./types.ts";
 
-const NOOP_PERSISTENCE: OutlinePersistence = {
-	load: async () => [],
-	write: async () => {},
-};
+type Children = Map<string | null, Node[]>;
 
 function byOrder(a: Node, b: Node): number {
 	return a.order < b.order ? -1 : a.order > b.order ? 1 : 0;
@@ -29,16 +34,25 @@ function orderBetween(prev?: string, next?: string): string {
 export class OutlineStore {
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
 	readonly #persistence: OutlinePersistence;
+	/** Every node's children, sorted. The single index behind all tree queries. */
+	readonly #children: IComputedValue<Children>;
+	/** Resolves once `load` has finished, whether or not it succeeded. */
+	readonly ready: Promise<void>;
+	/**
+	 * `"loading"` until persistence has been read. Mutations made meanwhile are
+	 * not guarded: stored nodes are added on top of them when the load resolves.
+	 */
 	status: "loading" | "ready" = "loading";
 
-	constructor(persistence: OutlinePersistence = NOOP_PERSISTENCE) {
+	constructor(persistence: OutlinePersistence = new MemoryPersistence()) {
 		this.#persistence = persistence;
+		this.#children = computed(() => this.#index(), { keepAlive: true });
 		makeAutoObservable(this, { nodes: false }, { autoBind: true });
-		void this.#load();
+		this.ready = this.#load();
 	}
 
 	get tree(): OutlineNode[] {
-		return this.#buildChildren(null, this.#childrenByParent());
+		return this.#buildChildren(null, this.#children.get());
 	}
 
 	/** The subtree rooted at `id`, or `null` if it doesn't exist. Used to zoom into a node. */
@@ -47,11 +61,10 @@ export class OutlineStore {
 		if (!node) {
 			return null;
 		}
-		const children = this.#childrenByParent();
 		return {
 			id: node.id,
 			text: node.content,
-			children: this.#buildChildren(node.id, children),
+			children: this.#buildChildren(node.id, this.#children.get()),
 			collapsed: node.collapsed,
 			task: node.task,
 		};
@@ -67,11 +80,10 @@ export class OutlineStore {
 			throw new Error(`create: unknown parent ${parentId}`);
 		}
 
-		const siblings = this.#siblings(parentId);
 		const node = this.#put({
 			id: crypto.randomUUID(),
 			parentId,
-			order: orderBetween(siblings.at(-1)?.order, undefined),
+			order: this.#orderAt(parentId),
 			content: emptyState(),
 			collapsed: false,
 			updatedAt: Date.now(),
@@ -117,12 +129,10 @@ export class OutlineStore {
 		if (!node) {
 			return null;
 		}
-		const siblings = this.#siblings(node.parentId);
-		const next = siblings[siblings.indexOf(node) + 1];
 		const copy = this.#put({
 			id: crypto.randomUUID(),
 			parentId: node.parentId,
-			order: orderBetween(node.order, next?.order),
+			order: this.#orderAt(node.parentId, this.#indexOf(node) + 1),
 			content: node.content,
 			collapsed: false,
 			task: node.task ? { ...node.task } : undefined,
@@ -138,7 +148,8 @@ export class OutlineStore {
 		if (!node) {
 			return null;
 		}
-		const childrenByParent = this.#childrenByParent();
+		// Snapshot: clones are put while walking, and must not be walked themselves.
+		const children = this.#children.get();
 		const clones: Node[] = [];
 
 		const clone = (
@@ -157,19 +168,17 @@ export class OutlineStore {
 			});
 			clones.push(copy);
 			let previousOrder: string | undefined;
-			for (const child of childrenByParent.get(source.id) ?? []) {
+			for (const child of children.get(source.id) ?? []) {
 				previousOrder = orderBetween(previousOrder, undefined);
 				clone(child, copy.id, previousOrder);
 			}
 			return copy;
 		};
 
-		const siblings = this.#siblings(node.parentId);
-		const next = siblings[siblings.indexOf(node) + 1];
 		const root = clone(
 			node,
 			node.parentId,
-			orderBetween(node.order, next?.order),
+			this.#orderAt(node.parentId, this.#indexOf(node) + 1),
 		);
 		this.#persist(clones);
 		return root.id;
@@ -178,11 +187,7 @@ export class OutlineStore {
 	/** Whether `id` has a previous sibling it could be nested under. */
 	canIndent(id: string): boolean {
 		const node = this.nodes.get(id);
-		if (!node) {
-			return false;
-		}
-		const siblings = this.#siblings(node.parentId);
-		return siblings.indexOf(node) > 0;
+		return node !== undefined && this.#indexOf(node) > 0;
 	}
 
 	/** Makes `id` a child of its previous sibling. No-op if it has none. */
@@ -191,8 +196,7 @@ export class OutlineStore {
 		if (!node) {
 			return false;
 		}
-		const siblings = this.#siblings(node.parentId);
-		const previous = siblings[siblings.indexOf(node) - 1];
+		const previous = this.#siblings(node.parentId)[this.#indexOf(node) - 1];
 		if (!previous) {
 			return false;
 		}
@@ -210,12 +214,11 @@ export class OutlineStore {
 		if (!node || node.parentId === null) {
 			return false;
 		}
-		const grandparentId = this.nodes.get(node.parentId)?.parentId ?? null;
-		const parentSiblings = this.#siblings(grandparentId);
-		const parentIndex = parentSiblings.findIndex(
-			(each) => each.id === node.parentId,
-		);
-		return this.move(id, grandparentId, parentIndex + 1);
+		const parent = this.nodes.get(node.parentId);
+		if (!parent) {
+			return false;
+		}
+		return this.move(id, parent.parentId, this.#indexOf(parent) + 1);
 	}
 
 	move(id: string, newParentId: string | null, index?: number): boolean {
@@ -232,12 +235,7 @@ export class OutlineStore {
 			return false;
 		}
 
-		const siblings = this.#siblings(newParentId).filter(
-			(each) => each.id !== id,
-		);
-		const at =
-			index === undefined ? siblings.length : clamp(index, 0, siblings.length);
-		node.order = orderBetween(siblings[at - 1]?.order, siblings[at]?.order);
+		node.order = this.#orderAt(newParentId, index, id);
 		node.parentId = newParentId;
 		node.updatedAt = Date.now();
 		this.#persist([node]);
@@ -283,31 +281,8 @@ export class OutlineStore {
 		return registered;
 	}
 
-	#siblings(parentId: string | null): Node[] {
-		const siblings: Node[] = [];
-		for (const node of this.nodes.values()) {
-			if (node.parentId === parentId) {
-				siblings.push(node);
-			}
-		}
-		return siblings.sort(byOrder);
-	}
-
-	#buildChildren(
-		parentId: string | null,
-		children: Map<string | null, Node[]>,
-	): OutlineNode[] {
-		return (children.get(parentId) ?? []).map((node) => ({
-			id: node.id,
-			text: node.content,
-			children: this.#buildChildren(node.id, children),
-			collapsed: node.collapsed,
-			task: node.task,
-		}));
-	}
-
-	#childrenByParent(): Map<string | null, Node[]> {
-		const groups = new Map<string | null, Node[]>();
+	#index(): Children {
+		const groups: Children = new Map();
 		for (const node of this.nodes.values()) {
 			const siblings = groups.get(node.parentId) ?? [];
 			siblings.push(node);
@@ -317,6 +292,41 @@ export class OutlineStore {
 			siblings.sort(byOrder);
 		}
 		return groups;
+	}
+
+	#siblings(parentId: string | null): Node[] {
+		return this.#children.get().get(parentId) ?? [];
+	}
+
+	#indexOf(node: Node): number {
+		return this.#siblings(node.parentId).indexOf(node);
+	}
+
+	/**
+	 * The order key that places a node at `index` among `parentId`'s children
+	 * (appended when omitted), ignoring `excluding` if it's already there.
+	 */
+	#orderAt(
+		parentId: string | null,
+		index?: number,
+		excluding?: string,
+	): string {
+		const siblings = this.#siblings(parentId).filter(
+			(each) => each.id !== excluding,
+		);
+		const at =
+			index === undefined ? siblings.length : clamp(index, 0, siblings.length);
+		return orderBetween(siblings[at - 1]?.order, siblings[at]?.order);
+	}
+
+	#buildChildren(parentId: string | null, children: Children): OutlineNode[] {
+		return (children.get(parentId) ?? []).map((node) => ({
+			id: node.id,
+			text: node.content,
+			children: this.#buildChildren(node.id, children),
+			collapsed: node.collapsed,
+			task: node.task,
+		}));
 	}
 
 	#isDescendant(id: string, ancestorId: string): boolean {
@@ -332,7 +342,7 @@ export class OutlineStore {
 
 	/** `id` plus every descendant. */
 	#subtree(id: string): string[] {
-		const children = this.#childrenByParent();
+		const children = this.#children.get();
 		const collected: string[] = [];
 		const stack = [id];
 		for (
