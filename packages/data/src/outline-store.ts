@@ -1,4 +1,4 @@
-import { generateKeyBetween, generateNKeysBetween } from "fractional-indexing";
+import { generateKeyBetween } from "fractional-indexing";
 import type { SerializedEditorState } from "lexical";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { emptyState } from "./empty-content.ts";
@@ -19,36 +19,6 @@ function clamp(value: number, min: number, max: number): number {
 
 function orderBetween(prev?: string, next?: string): string {
 	return generateKeyBetween(prev ?? null, next ?? null);
-}
-
-function backfillOrder(nodes: Node[]): Node[] {
-	const last = new Map<string | null, string>();
-	const missing = new Map<string | null, Node[]>();
-	for (const node of nodes) {
-		if (typeof node.order === "string") {
-			const current = last.get(node.parentId);
-			if (current === undefined || current < node.order) {
-				last.set(node.parentId, node.order);
-			}
-		} else {
-			const group = missing.get(node.parentId) ?? [];
-			group.push(node);
-			missing.set(node.parentId, group);
-		}
-	}
-	const backfilled: Node[] = [];
-	for (const [parentId, group] of missing) {
-		const keys = generateNKeysBetween(
-			last.get(parentId) ?? null,
-			null,
-			group.length,
-		);
-		group.forEach((node, position) => {
-			node.order = keys[position];
-			backfilled.push(node);
-		});
-	}
-	return backfilled;
 }
 
 /**
@@ -204,16 +174,12 @@ export class OutlineStore {
 		} catch (error) {
 			console.error("OutlineStore: load failed, starting empty", error);
 		}
-		const backfilled = backfillOrder(nodes);
 		runInAction(() => {
 			for (const node of nodes) {
 				this.#put(node);
 			}
 			this.status = "ready";
 		});
-		if (backfilled.length > 0) {
-			this.#persist(backfilled);
-		}
 	}
 
 	#put(node: Node): Node {

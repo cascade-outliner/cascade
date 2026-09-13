@@ -1,18 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { OutlineStore } from "./outline-store.ts";
-import type { Node, OutlinePersistence } from "./types.ts";
-
-function memory(initial: Node[] = []) {
-	const rows = new Map(initial.map((node) => [node.id, node]));
-	const persistence: OutlinePersistence = {
-		load: async () => [...rows.values()],
-		write: async ({ put, delete: removed }) => {
-			for (const node of put) rows.set(node.id, node);
-			for (const id of removed) rows.delete(id);
-		},
-	};
-	return { rows, persistence };
-}
 
 async function ready(store: OutlineStore) {
 	await new Promise((resolve) => setTimeout(resolve, 0));
@@ -104,46 +91,6 @@ describe("OutlineStore ordering", () => {
 			inserted.unshift(id);
 		}
 		expect(ids(store)).toEqual([first, ...inserted, last]);
-	});
-
-	it("backfills order for nodes persisted without one", async () => {
-		const legacy = (id: string): Node =>
-			({
-				id,
-				parentId: null,
-				content: { root: {} },
-				collapsed: false,
-				updatedAt: 0,
-			}) as unknown as Node;
-		const { rows, persistence } = memory([legacy("a"), legacy("b")]);
-		const store = new OutlineStore(persistence);
-		await ready(store);
-		expect(ids(store)).toEqual(["a", "b"]);
-		await new Promise((resolve) => setTimeout(resolve, 0));
-		const a = rows.get("a")?.order ?? "";
-		const b = rows.get("b")?.order ?? "";
-		expect(a).not.toBe("");
-		expect(a < b).toBe(true);
-	});
-
-	it("backfills after existing keys within the same parent", async () => {
-		const legacy = (id: string, order?: string): Node =>
-			({
-				id,
-				parentId: null,
-				order,
-				content: { root: {} },
-				collapsed: false,
-				updatedAt: 0,
-			}) as unknown as Node;
-		const { persistence } = memory([
-			legacy("keyed", "a0"),
-			legacy("old1"),
-			legacy("old2"),
-		]);
-		const store = new OutlineStore(persistence);
-		await ready(store);
-		expect(ids(store)).toEqual(["keyed", "old1", "old2"]);
 	});
 
 	it("keeps keys short under repeated appends", async () => {
