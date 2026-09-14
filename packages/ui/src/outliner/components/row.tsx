@@ -39,9 +39,25 @@ export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 	children: React.ReactNode;
 }
 
-export function Row({ active, children, ...props }: RowProps) {
+export function Row({
+	active,
+	children,
+	className,
+	style,
+	...props
+}: RowProps) {
+	const stylexProps = stylex.props(styles.row, active && styles.active);
 	return (
-		<div {...stylex.props(styles.row, active && styles.active)} {...props}>
+		<div
+			{...props}
+			{...stylexProps}
+			className={
+				className
+					? `${stylexProps.className} ${className}`
+					: stylexProps.className
+			}
+			style={style ? { ...stylexProps.style, ...style } : stylexProps.style}
+		>
 			{children}
 		</div>
 	);
