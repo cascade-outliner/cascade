@@ -1,0 +1,25 @@
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        app: [website, web-app]
+    env:
+      DATABASE_URL_WEBSITE: postgres://user:password@localhost:5432/db
+      PAYLOAD_SECRET: ci-build-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm ${{ matrix.app }}:build
