@@ -1,8 +1,7 @@
 import { colors, fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { lazy, Suspense } from "react";
 import { ThemeToggle } from "#/components/theme-toggle.tsx";
 import { ThemeProvider, themeInitScript } from "#/lib/theme.tsx";
 import appCss from "../styles.css?url";
@@ -59,6 +58,30 @@ export const Route = createRootRoute({
 	shellComponent: RootDocument,
 });
 
+const TanStackDevtoolsPanel = import.meta.env.DEV
+	? lazy(async () => {
+			const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] = await Promise.all([
+				import("@tanstack/react-devtools"),
+				import("@tanstack/react-router-devtools"),
+			]);
+			return {
+				default: () => (
+					<TanStackDevtools
+						config={{
+							position: "bottom-right",
+						}}
+						plugins={[
+							{
+								name: "Tanstack Router",
+								render: <TanStackRouterDevtoolsPanel />,
+							},
+						]}
+					/>
+				),
+			};
+		})
+	: null;
+
 const styles = stylex.create({
 	body: {
 		backgroundColor: colors.canvas,
@@ -81,17 +104,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					{children}
 					<ThemeToggle />
 				</ThemeProvider>
-				<TanStackDevtools
-					config={{
-						position: "bottom-right",
-					}}
-					plugins={[
-						{
-							name: "Tanstack Router",
-							render: <TanStackRouterDevtoolsPanel />,
-						},
-					]}
-				/>
+				{TanStackDevtoolsPanel && (
+					<Suspense fallback={null}>
+						<TanStackDevtoolsPanel />
+					</Suspense>
+				)}
 				<Scripts />
 			</body>
 		</html>
