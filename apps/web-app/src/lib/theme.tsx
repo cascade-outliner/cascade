@@ -27,6 +27,14 @@ function isThemeMode(value: string | null): value is ThemeMode {
 	return value === "system" || value === "light" || value === "dark";
 }
 
+function readStoredMode(): ThemeMode {
+	if (typeof window === "undefined") {
+		return "system";
+	}
+	const stored = localStorage.getItem(THEME_STORAGE_KEY);
+	return isThemeMode(stored) ? stored : "system";
+}
+
 function applyThemeClass(mode: ThemeMode): void {
 	const { classList } = document.documentElement;
 	classList.remove(...lightThemeClasses, ...darkThemeClasses);
@@ -43,14 +51,7 @@ const ThemeContext = createContext<{
 } | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-	const [mode, setModeState] = useState<ThemeMode>("system");
-
-	useEffect(() => {
-		const stored = localStorage.getItem(THEME_STORAGE_KEY);
-		if (isThemeMode(stored)) {
-			setModeState(stored);
-		}
-	}, []);
+	const [mode, setModeState] = useState<ThemeMode>(readStoredMode);
 
 	useEffect(() => {
 		applyThemeClass(mode);
