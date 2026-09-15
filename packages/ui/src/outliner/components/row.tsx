@@ -8,7 +8,7 @@ import {
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
-	row: {
+	row: (viewTransitionName: string = "none") => ({
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
@@ -27,32 +27,37 @@ const styles = stylex.create({
 			backgroundColor: colors.white,
 			boxShadow: shadow.focus,
 		},
-	},
+		viewTransitionName,
+	}),
 	active: {
 		backgroundColor: colors.white,
 		boxShadow: shadow.focus,
 	},
 });
 
-export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface RowProps
+	extends Omit<React.HTMLAttributes<HTMLDivElement>, "style"> {
 	active?: boolean;
 	children: React.ReactNode;
+	viewTransitionName?: string;
 }
 
 export function Row({
 	active,
 	children,
 	className,
-	style,
+	viewTransitionName,
 	...props
 }: RowProps) {
-	const stylexProps = stylex.props(styles.row, active && styles.active);
+	const stylexProps = stylex.props(
+		styles.row(viewTransitionName ?? "none"),
+		active && styles.active,
+	);
 	return (
 		<div
 			{...props}
 			{...stylexProps}
 			className={[stylexProps.className, className].filter(Boolean).join(" ")}
-			style={{ ...stylexProps.style, ...style }}
 		>
 			{children}
 		</div>

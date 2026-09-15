@@ -60,7 +60,7 @@ const OutlineRow = observer(function OutlineRow({
 		>
 			<RowShell
 				active={active}
-				style={{ viewTransitionName: zoomTransitionName(node.id) }}
+				viewTransitionName={zoomTransitionName(node.id)}
 			>
 				<Chevron
 					open={!node.collapsed}
