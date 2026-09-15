@@ -1,4 +1,5 @@
 import {
+	KeyboardCode,
 	type KeyboardCoordinateGetter,
 	KeyboardSensor,
 	PointerSensor,
@@ -28,7 +29,14 @@ export function useOutlineSensors(rowStep: number) {
 		[rowStep],
 	);
 	const keyboardSensorOptions = useMemo(
-		() => ({ coordinateGetter }),
+		() => ({
+			coordinateGetter,
+			keyboardCodes: {
+				start: [KeyboardCode.Space],
+				cancel: [KeyboardCode.Esc],
+				end: [KeyboardCode.Space],
+			},
+		}),
 		[coordinateGetter],
 	);
 
