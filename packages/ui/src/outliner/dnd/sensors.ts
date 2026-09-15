@@ -1,3 +1,4 @@
+import type { Row } from "@cascade/data";
 import {
 	KeyboardCode,
 	type KeyboardCoordinateGetter,
@@ -11,22 +12,41 @@ import { INDENT } from "../layout";
 
 const POINTER_SENSOR_OPTIONS = { activationConstraint: { distance: 4 } };
 
-export function useOutlineSensors(rowStep: number) {
+export function useOutlineSensors(rows: Row[]) {
+	const rowIds = useMemo(() => rows.map((row) => row.node.id), [rows]);
+
 	const coordinateGetter: KeyboardCoordinateGetter = useCallback(
-		(event, { currentCoordinates: { x, y } }) => {
+		(event, { active, currentCoordinates, context }) => {
 			switch (event.code) {
 				case "ArrowRight":
-					return { x: x + INDENT, y };
+					return { x: currentCoordinates.x + INDENT, y: currentCoordinates.y };
 				case "ArrowLeft":
-					return { x: x - INDENT, y };
+					return { x: currentCoordinates.x - INDENT, y: currentCoordinates.y };
 				case "ArrowDown":
-					return { x, y: y + rowStep };
-				case "ArrowUp":
-					return { x, y: y - rowStep };
+				case "ArrowUp": {
+					const { collisionRect, droppableRects } = context;
+					const activeIndex = rowIds.indexOf(String(active));
+					const step = event.code === "ArrowDown" ? 1 : -1;
+					const targetId =
+						activeIndex < 0 ? undefined : rowIds[activeIndex + step];
+					const targetRect =
+						targetId === undefined ? undefined : droppableRects.get(targetId);
+					if (!targetRect || !collisionRect) {
+						return undefined;
+					}
+					// Land on the adjacent row's real measured rect instead of a fixed
+					// row-height guess, so closestCenter resolves to it even when rows
+					// have non-uniform (e.g. wrapped) heights.
+					return {
+						x: currentCoordinates.x,
+						y:
+							targetRect.top + targetRect.height / 2 - collisionRect.height / 2,
+					};
+				}
 			}
 			return undefined;
 		},
-		[rowStep],
+		[rowIds],
 	);
 	const keyboardSensorOptions = useMemo(
 		() => ({
