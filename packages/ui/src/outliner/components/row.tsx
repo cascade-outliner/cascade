@@ -51,12 +51,8 @@ export function Row({
 		<div
 			{...props}
 			{...stylexProps}
-			className={
-				className
-					? `${stylexProps.className} ${className}`
-					: stylexProps.className
-			}
-			style={style ? { ...stylexProps.style, ...style } : stylexProps.style}
+			className={[stylexProps.className, className].filter(Boolean).join(" ")}
+			style={{ ...stylexProps.style, ...style }}
 		>
 			{children}
 		</div>
