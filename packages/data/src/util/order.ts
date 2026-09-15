@@ -1,5 +1,11 @@
-import { generateKeyBetween } from "fractional-indexing";
+import { generateKeyBetween, generateNKeysBetween } from "fractional-indexing";
 import type { Node } from "../outline/types.ts";
+
+/**
+ * Order keys longer than this are assumed to result from repeated inserts at
+ * the same boundary, and are due for a rebalance.
+ */
+export const REBALANCE_THRESHOLD = 50;
 
 /**
  * Sorts nodes by their fractional `order` key, ascending.
@@ -18,4 +24,19 @@ export function byOrder(a: Node, b: Node): number {
  */
 export function orderBetween(prev?: string, next?: string): string {
 	return generateKeyBetween(prev ?? null, next ?? null);
+}
+
+/** Whether any of `orders` has grown long enough to warrant a rebalance. */
+export function needsRebalance(orders: Iterable<string>): boolean {
+	for (const order of orders) {
+		if (order.length > REBALANCE_THRESHOLD) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/** `count` short, evenly spaced order keys, for reassigning a whole sibling group. */
+export function evenOrders(count: number): string[] {
+	return generateNKeysBetween(undefined, undefined, count);
 }

@@ -9,7 +9,7 @@ import {
 } from "mobx";
 import { MemoryPersistence } from "../persistence/memory.ts";
 import type { OutlinePersistence } from "../persistence/types.ts";
-import { orderBetween } from "../util/order.ts";
+import { evenOrders, needsRebalance, orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
 import {
 	type Children,
@@ -78,7 +78,7 @@ export class OutlineStore {
 			collapsed: false,
 			updatedAt: Date.now(),
 		});
-		this.#persist([node]);
+		this.#persist([node, ...this.#rebalance(parentId, node.id)]);
 		return node.id;
 	}
 
@@ -128,7 +128,7 @@ export class OutlineStore {
 			task: node.task ? { ...node.task } : undefined,
 			updatedAt: Date.now(),
 		});
-		this.#persist([copy]);
+		this.#persist([copy, ...this.#rebalance(node.parentId, copy.id)]);
 		return copy.id;
 	}
 
@@ -170,7 +170,7 @@ export class OutlineStore {
 			node.parentId,
 			orderAt(children, node.parentId, indexOf(children, node) + 1),
 		);
-		this.#persist(clones);
+		this.#persist([...clones, ...this.#rebalance(node.parentId, root.id)]);
 		return root.id;
 	}
 
@@ -229,7 +229,7 @@ export class OutlineStore {
 		node.order = orderAt(this.#tree, newParentId, index, id);
 		node.parentId = newParentId;
 		node.updatedAt = Date.now();
-		this.#persist([node]);
+		this.#persist([node, ...this.#rebalance(newParentId, id)]);
 		return true;
 	}
 
@@ -275,6 +275,31 @@ export class OutlineStore {
 	/** The current children index. Reads are tracked by MobX like any observable. */
 	get #tree(): Children {
 		return this.#children.get();
+	}
+
+	/**
+	 * Reassigns short, evenly spaced order keys across `parentId`'s children
+	 * once any has grown long enough, so keys don't grow unbounded under
+	 * repeated same-boundary inserts. Returns the touched nodes, excluding
+	 * `excluding` since its caller already persists it separately.
+	 */
+	#rebalance(parentId: string | null, excluding: string): Node[] {
+		const siblings = childrenOf(this.#tree, parentId);
+		if (!needsRebalance(siblings.map((node) => node.order))) {
+			return [];
+		}
+		const orders = evenOrders(siblings.length);
+		const touched: Node[] = [];
+		siblings.forEach((node, i) => {
+			if (node.order !== orders[i]) {
+				node.order = orders[i];
+				node.updatedAt = Date.now();
+				if (node.id !== excluding) {
+					touched.push(node);
+				}
+			}
+		});
+		return touched;
 	}
 
 	#persist(put: Node[], remove: string[] = []): void {
