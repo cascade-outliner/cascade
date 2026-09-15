@@ -1,8 +1,9 @@
 import { colors, fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { lazy, Suspense } from "react";
+import { ThemeToggle } from "#/components/theme-toggle.tsx";
+import { ThemeProvider, themeInitScript } from "#/lib/theme.tsx";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/bitter/index.css";
@@ -22,16 +23,64 @@ export const Route = createRootRoute({
 			{
 				title: "Cascade",
 			},
+			{
+				name: "theme-color",
+				content: "#ad4c4e",
+			},
 		],
 		links: [
 			{
 				rel: "stylesheet",
 				href: appCss,
 			},
+			{
+				rel: "manifest",
+				href: "/manifest.webmanifest",
+			},
+			{
+				rel: "icon",
+				type: "image/png",
+				sizes: "32x32",
+				href: "/favicon-32.png",
+			},
+			{
+				rel: "icon",
+				type: "image/png",
+				sizes: "16x16",
+				href: "/favicon-16.png",
+			},
+			{
+				rel: "apple-touch-icon",
+				href: "/apple-touch-icon.png",
+			},
 		],
 	}),
 	shellComponent: RootDocument,
 });
+
+const TanStackDevtoolsPanel = import.meta.env.DEV
+	? lazy(async () => {
+			const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] = await Promise.all([
+				import("@tanstack/react-devtools"),
+				import("@tanstack/react-router-devtools"),
+			]);
+			return {
+				default: () => (
+					<TanStackDevtools
+						config={{
+							position: "bottom-right",
+						}}
+						plugins={[
+							{
+								name: "Tanstack Router",
+								render: <TanStackRouterDevtoolsPanel />,
+							},
+						]}
+					/>
+				),
+			};
+		})
+	: null;
 
 const styles = stylex.create({
 	body: {
@@ -47,20 +96,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 		<html lang="en">
 			<head>
 				<HeadContent />
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, compiler-generated theme class names, no user input */}
+				<script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
 			</head>
 			<body {...stylex.props(styles.body)}>
-				{children}
-				<TanStackDevtools
-					config={{
-						position: "bottom-right",
-					}}
-					plugins={[
-						{
-							name: "Tanstack Router",
-							render: <TanStackRouterDevtoolsPanel />,
-						},
-					]}
-				/>
+				<ThemeProvider>
+					{children}
+					<ThemeToggle />
+				</ThemeProvider>
+				{TanStackDevtoolsPanel && (
+					<Suspense fallback={null}>
+						<TanStackDevtoolsPanel />
+					</Suspense>
+				)}
 				<Scripts />
 			</body>
 		</html>

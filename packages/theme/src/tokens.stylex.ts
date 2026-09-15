@@ -1,6 +1,49 @@
 import * as stylex from "@stylexjs/stylex";
 
+const DARK_MEDIA = "@media (prefers-color-scheme: dark)";
+
+// Light values are the defaults; dark values apply automatically when the OS
+// is in dark mode. `lightTheme`/`darkTheme` below force one or the other,
+// for the manual override toggle.
 export const colors = stylex.defineVars({
+	white: { default: "#ffffff", [DARK_MEDIA]: "#2a2420" },
+	canvas: { default: "#fcf5ee", [DARK_MEDIA]: "#1c1815" },
+	surface: { default: "#f9e4d6", [DARK_MEDIA]: "#342b25" },
+	danger: { default: "#ad4c4e", [DARK_MEDIA]: "#e2897e" },
+	muted: { default: "#62646b", [DARK_MEDIA]: "#a9a29b" },
+	accent: { default: "#e38b75", [DARK_MEDIA]: "#eab08f" },
+	ink: { default: "#2b2d33", [DARK_MEDIA]: "#f3ece4" },
+	primary: { default: "#ad4c4e", [DARK_MEDIA]: "#e2897e" },
+	placeholder: { default: "#a8a7ad", [DARK_MEDIA]: "#756e67" },
+	border: {
+		default: "rgba(43, 45, 51, 0.08)",
+		[DARK_MEDIA]: "rgba(243, 236, 228, 0.1)",
+	},
+	borderStrong: {
+		default: "rgba(43, 45, 51, 0.22)",
+		[DARK_MEDIA]: "rgba(243, 236, 228, 0.24)",
+	},
+	overlay: {
+		default: "rgba(43, 45, 51, 0.32)",
+		[DARK_MEDIA]: "rgba(0, 0, 0, 0.5)",
+	},
+	inkSubtle: {
+		default: "rgba(43, 45, 51, 0.1)",
+		[DARK_MEDIA]: "rgba(243, 236, 228, 0.08)",
+	},
+	inkSubtleHover: {
+		default: "rgba(43, 45, 51, 0.18)",
+		[DARK_MEDIA]: "rgba(243, 236, 228, 0.16)",
+	},
+	primaryMuted: {
+		default: "rgba(173, 76, 78, 0.08)",
+		[DARK_MEDIA]: "rgba(226, 137, 126, 0.16)",
+	},
+});
+
+// Forces light colors regardless of OS preference. Apply via
+// `stylex.props(lightTheme)` on the root element for a manual "light" choice.
+export const lightTheme = stylex.createTheme(colors, {
 	white: "#ffffff",
 	canvas: "#fcf5ee",
 	surface: "#f9e4d6",
@@ -16,6 +59,26 @@ export const colors = stylex.defineVars({
 	inkSubtle: "rgba(43, 45, 51, 0.1)",
 	inkSubtleHover: "rgba(43, 45, 51, 0.18)",
 	primaryMuted: "rgba(173, 76, 78, 0.08)",
+});
+
+// Forces dark colors regardless of OS preference. Apply via
+// `stylex.props(darkTheme)` on the root element for a manual "dark" choice.
+export const darkTheme = stylex.createTheme(colors, {
+	white: "#2a2420",
+	canvas: "#1c1815",
+	surface: "#342b25",
+	danger: "#e2897e",
+	muted: "#a9a29b",
+	accent: "#eab08f",
+	ink: "#f3ece4",
+	primary: "#e2897e",
+	placeholder: "#756e67",
+	border: "rgba(243, 236, 228, 0.1)",
+	borderStrong: "rgba(243, 236, 228, 0.24)",
+	overlay: "rgba(0, 0, 0, 0.5)",
+	inkSubtle: "rgba(243, 236, 228, 0.08)",
+	inkSubtleHover: "rgba(243, 236, 228, 0.16)",
+	primaryMuted: "rgba(226, 137, 126, 0.16)",
 });
 
 export const fonts = stylex.defineVars({
