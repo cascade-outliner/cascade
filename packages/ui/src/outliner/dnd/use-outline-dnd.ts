@@ -32,7 +32,6 @@ function withoutDescendants(rows: Row[], id: string | null): Row[] {
 
 export interface OutlineDndOptions {
 	rows: Row[];
-	rowStep: number;
 	/** Parent of the rows, e.g. the zoomed node. Defaults to the top-level root. */
 	rootId?: string | null;
 	onMove?: MoveHandler;
@@ -52,19 +51,18 @@ const measuring: DndContextProps["measuring"] = {
 
 export function useOutlineDnd({
 	rows: allRows,
-	rowStep,
 	rootId = null,
 	onMove,
 }: OutlineDndOptions): OutlineDnd {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [projection, setProjection] = useState<Projection | null>(null);
 	const projectionRef = useRef<Projection | null>(null);
-	const sensors = useOutlineSensors(rowStep);
 
 	const rows = useMemo(
 		() => withoutDescendants(allRows, activeId),
 		[allRows, activeId],
 	);
+	const sensors = useOutlineSensors(rows);
 	const dropRows = useMemo(
 		() => (activeId ? rows.filter((row) => row.node.id !== activeId) : rows),
 		[rows, activeId],
