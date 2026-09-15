@@ -7,7 +7,7 @@ import {
 	type DragStartEvent,
 	getClientRect,
 } from "@dnd-kit/core";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { type Projection, project, sameProjection } from "./projection";
 import { useOutlineSensors } from "./sensors";
 
@@ -73,53 +73,56 @@ export function useOutlineDnd({
 		? (rows.find((row) => row.node.id === activeId) ?? null)
 		: null;
 
-	const updateProjection = (next: Projection | null) => {
+	const updateProjection = useCallback((next: Projection | null) => {
 		if (!sameProjection(projectionRef.current, next)) {
 			projectionRef.current = next;
 			setProjection(next);
 		}
-	};
+	}, []);
 
-	const reset = () => {
+	const reset = useCallback(() => {
 		setActiveId(null);
 		updateProjection(null);
-	};
+	}, [updateProjection]);
 
-	const onDragStart = ({ active }: DragStartEvent) => {
+	const onDragStart = useCallback(({ active }: DragStartEvent) => {
 		setActiveId(String(active.id));
-	};
+	}, []);
 
-	const onDragMove = ({ active, over, delta }: DragMoveEvent) => {
-		const rect = active.rect.current.translated;
-		if (!over || !rect || !activeRow) {
-			updateProjection(null);
-			return;
-		}
-		updateProjection(
-			project({
-				rows: dropRows,
-				overId: String(over.id),
-				before:
-					rect.top + rect.height / 2 < over.rect.top + over.rect.height / 2,
-				activeDepth: activeRow.depth,
-				deltaX: delta.x,
-			}),
-		);
-	};
+	const onDragMove = useCallback(
+		({ active, over, delta }: DragMoveEvent) => {
+			const rect = active.rect.current.translated;
+			if (!over || !rect || !activeRow) {
+				updateProjection(null);
+				return;
+			}
+			updateProjection(
+				project({
+					rows: dropRows,
+					overId: String(over.id),
+					before:
+						rect.top + rect.height / 2 < over.rect.top + over.rect.height / 2,
+					activeDepth: activeRow.depth,
+					deltaX: delta.x,
+				}),
+			);
+		},
+		[dropRows, activeRow, updateProjection],
+	);
 
-	const onDragEnd = ({ active }: DragEndEvent) => {
-		const target = projectionRef.current;
-		reset();
-		if (target) {
-			onMove?.(String(active.id), target.parentId ?? rootId, target.index);
-		}
-	};
+	const onDragEnd = useCallback(
+		({ active }: DragEndEvent) => {
+			const target = projectionRef.current;
+			reset();
+			if (target) {
+				onMove?.(String(active.id), target.parentId ?? rootId, target.index);
+			}
+		},
+		[reset, onMove, rootId],
+	);
 
-	return {
-		rows,
-		activeRow,
-		projection,
-		contextProps: {
+	const contextProps = useMemo<DndContextProps>(
+		() => ({
 			id: "outliner-dnd",
 			sensors,
 			collisionDetection: closestCenter,
@@ -128,6 +131,14 @@ export function useOutlineDnd({
 			onDragMove,
 			onDragEnd,
 			onDragCancel: reset,
-		},
+		}),
+		[sensors, onDragStart, onDragMove, onDragEnd, reset],
+	);
+
+	return {
+		rows,
+		activeRow,
+		projection,
+		contextProps,
 	};
 }
