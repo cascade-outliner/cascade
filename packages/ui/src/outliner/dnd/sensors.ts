@@ -29,18 +29,18 @@ export function useOutlineSensors(rowStep: number) {
 		[rowStep],
 	);
 	const keyboardSensorOptions = useMemo(
-		() => ({ coordinateGetter },
-          keyboardCodes: {
-				    start: [KeyboardCode.Space],
-				    cancel: [KeyboardCode.Esc],
-				    end: [KeyboardCode.Space],
-			    },
-        ),
+		() => ({
+			coordinateGetter,
+			keyboardCodes: {
+				start: [KeyboardCode.Space],
+				cancel: [KeyboardCode.Esc],
+				end: [KeyboardCode.Space],
+			},
+		}),
 		[coordinateGetter],
 	);
 
 	return useSensors(
-		useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
 		useSensor(PointerSensor, POINTER_SENSOR_OPTIONS),
 		useSensor(KeyboardSensor, keyboardSensorOptions),
 	);

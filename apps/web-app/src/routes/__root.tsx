@@ -60,10 +60,11 @@ export const Route = createRootRoute({
 
 const TanStackDevtoolsPanel = import.meta.env.DEV
 	? lazy(async () => {
-			const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] = await Promise.all([
-				import("@tanstack/react-devtools"),
-				import("@tanstack/react-router-devtools"),
-			]);
+			const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] =
+				await Promise.all([
+					import("@tanstack/react-devtools"),
+					import("@tanstack/react-router-devtools"),
+				]);
 			return {
 				default: () => (
 					<TanStackDevtools
