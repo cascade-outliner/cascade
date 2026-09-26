@@ -1,6 +1,7 @@
 import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
+import { Button } from "../button/button.tsx";
 
 interface ChildrenProps {
 	children: ReactNode;
@@ -43,25 +44,6 @@ const styles = stylex.create({
 		fontSize: fontSize["300"],
 		lineHeight: 1.55,
 	},
-	action: {
-		display: "flex",
-		alignItems: "center",
-		gap: space["2"],
-		marginTop: space["0.5"],
-		paddingBlock: space["2"],
-		paddingInline: space["3"],
-		border: "none",
-		borderRadius: radius.md,
-		backgroundColor: {
-			default: colors.primaryMuted,
-			":hover": colors.inkSubtle,
-		},
-		color: colors.primary,
-		cursor: "pointer",
-		fontFamily: "inherit",
-		fontSize: fontSize["300"],
-		fontWeight: 500,
-	},
 });
 
 function Root({ children }: ChildrenProps) {
@@ -88,19 +70,17 @@ function Description({ children }: ChildrenProps) {
 type ActionProps = ChildrenProps &
 	(
 		| { onClick: () => void; htmlFor?: never }
-		/** Renders a label for this input id, so clicking it focuses the input. */
+		/** Focuses the input with this id when pressed. */
 		| { htmlFor: string; onClick?: never }
 	);
 
 function Action({ children, onClick, htmlFor }: ActionProps) {
-	return htmlFor ? (
-		<label htmlFor={htmlFor} {...stylex.props(styles.action)}>
+	return (
+		<Button
+			onClick={onClick ?? (() => document.getElementById(htmlFor)?.focus())}
+		>
 			{children}
-		</label>
-	) : (
-		<button type="button" {...stylex.props(styles.action)} onClick={onClick}>
-			{children}
-		</button>
+		</Button>
 	);
 }
 
