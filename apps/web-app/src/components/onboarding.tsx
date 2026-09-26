@@ -1,8 +1,10 @@
+import { isWorkspaceId } from "@cascade/data";
 import {
 	colors,
 	fontSize,
 	opacity,
 	radius,
+	shadow,
 	space,
 } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
@@ -331,13 +333,13 @@ const styles = stylex.create({
 	},
 	workspace: {
 		display: "flex",
+		flexDirection: "column",
+		gap: space["1.5"],
+	},
+	workspaceRow: {
+		display: "flex",
 		alignItems: "center",
-		gap: space["2.5"],
-		paddingBlock: space["2"],
-		paddingInline: space["2.5"],
-		borderRadius: radius.lg,
-		backgroundColor: colors.white,
-		boxShadow: `0 0 0 1px ${colors.border}`,
+		gap: space["2"],
 	},
 	workspaceLabel: {
 		color: colors.muted,
@@ -349,11 +351,36 @@ const styles = stylex.create({
 	workspaceId: {
 		flex: 1,
 		minWidth: 0,
-		overflow: "hidden",
+		paddingBlock: space["2"],
+		paddingInline: space["2.5"],
+		borderWidth: 0,
+		borderRadius: radius.lg,
+		outline: "none",
+		backgroundColor: colors.white,
+		boxShadow: {
+			default: `inset 0 0 0 1px ${colors.borderStrong}`,
+			":focus-visible": shadow.focusRing,
+		},
+		color: colors.ink,
 		textOverflow: "ellipsis",
-		whiteSpace: "nowrap",
 		fontFamily: "monospace",
 		fontSize: fontSize["300"],
+		transition: "box-shadow 120ms ease",
+	},
+	workspaceIdInvalid: {
+		boxShadow: {
+			default: `inset 0 0 0 1px ${colors.danger}`,
+			":focus-visible": `inset 0 0 0 1px ${colors.danger}, ${shadow.focusRing}`,
+		},
+	},
+	workspaceHint: {
+		margin: 0,
+		minHeight: "1lh",
+		color: colors.muted,
+		fontSize: fontSize["200"],
+	},
+	workspaceHintInvalid: {
+		color: colors.danger,
 	},
 	footer: {
 		display: "flex",
@@ -416,18 +443,25 @@ function Preview({ lines }: { lines: PreviewLine[] }) {
 	);
 }
 
-/** The anonymous id this browser syncs under, with a button to copy it. */
+/**
+ * The anonymous id this browser syncs under, with a button to copy it.
+ * Pasting another workspace's id switches to that workspace.
+ */
 function WorkspaceId() {
 	const sync = useSync();
 	const [id, setId] = useState<string | null>(null);
+	const [draft, setDraft] = useState("");
 	const [copied, setCopied] = useState(false);
+	const [switched, setSwitched] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
 		sync
 			.workspaceId()
 			.then((value) => {
-				if (!cancelled) setId(value);
+				if (cancelled) return;
+				setId(value);
+				setDraft(value);
 			})
 			.catch((error) =>
 				console.error("Onboarding: could not create a workspace id", error),
@@ -443,24 +477,79 @@ function WorkspaceId() {
 		return () => clearTimeout(timer);
 	}, [copied]);
 
+	function change(value: string) {
+		const next = value.trim();
+		setDraft(next);
+		if (next === id || !isWorkspaceId(next)) return;
+		setId(next);
+		setSwitched(true);
+		sync
+			.setWorkspaceId(next)
+			.catch((error) =>
+				console.error("Onboarding: could not switch workspace", error),
+			);
+	}
+
+	const invalid = draft !== "" && !isWorkspaceId(draft);
+	const hint = invalid
+		? "That's not a workspace id. It looks like 29636bee-4bf9-…"
+		: switched
+			? "Switched. This browser now syncs with that workspace."
+			: "Paste an id from another device to continue that workspace here.";
+
 	return (
 		<div {...stylex.props(styles.workspace)}>
-			<span {...stylex.props(styles.workspaceLabel)}>Workspace</span>
-			<code {...stylex.props(styles.workspaceId)} data-testid="workspace-id">
-				{id ?? "…"}
-			</code>
-			<Button
-				disabled={id === null}
-				onClick={() => {
-					if (id === null) return;
-					navigator.clipboard
-						?.writeText(id)
-						.then(() => setCopied(true))
-						.catch(() => {});
-				}}
+			<label
+				{...stylex.props(styles.workspaceLabel)}
+				htmlFor="onboarding-workspace-id"
 			>
-				<CopyIcon /> {copied ? "Copied" : "Copy"}
-			</Button>
+				Workspace id
+			</label>
+			<div {...stylex.props(styles.workspaceRow)}>
+				<input
+					id="onboarding-workspace-id"
+					{...stylex.props(
+						styles.workspaceId,
+						invalid && styles.workspaceIdInvalid,
+					)}
+					data-testid="workspace-id"
+					value={draft}
+					placeholder="Loading…"
+					disabled={id === null}
+					spellCheck={false}
+					autoComplete="off"
+					aria-invalid={invalid}
+					aria-describedby="onboarding-workspace-hint"
+					onFocus={(event) => event.target.select()}
+					onChange={(event) => change(event.target.value)}
+					onKeyDown={(event) => {
+						// Enter would submit onboarding; the id applies as soon as it's valid.
+						if (event.key === "Enter") event.preventDefault();
+					}}
+				/>
+				<Button
+					disabled={id === null}
+					onClick={() => {
+						if (id === null) return;
+						navigator.clipboard
+							?.writeText(id)
+							.then(() => setCopied(true))
+							.catch(() => {});
+					}}
+				>
+					{copied ? <CheckIcon /> : <CopyIcon />} {copied ? "Copied" : "Copy"}
+				</Button>
+			</div>
+			<p
+				id="onboarding-workspace-hint"
+				{...stylex.props(
+					styles.workspaceHint,
+					invalid && styles.workspaceHintInvalid,
+				)}
+				aria-live="polite"
+			>
+				{hint}
+			</p>
 		</div>
 	);
 }
@@ -600,8 +689,8 @@ export function Onboarding({ onDone }: OnboardingProps) {
 									to the server under the anonymous workspace id below.
 								</p>
 								<p {...stylex.props(styles.para)}>
-									There are no accounts yet. Keep the id if you want to link
-									this workspace to an account or another device later.
+									There are no accounts yet. Keep the id to open this workspace
+									on another device later, or paste an id you already have.
 								</p>
 								{syncStatus === "disabled" && (
 									<p {...stylex.props(styles.para)}>
