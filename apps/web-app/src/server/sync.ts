@@ -51,6 +51,12 @@ const pushSchema = z.object({
 	workspaceId,
 	put: z.array(nodeSchema).max(1_000),
 	delete: z.array(tombstoneSchema).max(1_000),
+	onboarding: z
+		.object({
+			template: z.string().min(1).max(64),
+			completedAt: z.number().int().nonnegative(),
+		})
+		.optional(),
 });
 
 const CURSOR =
@@ -93,10 +99,21 @@ export const pushChanges = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		const instance = requireDb();
 		await instance.transaction(async (tx) => {
-			await tx
+			const onboarding = data.onboarding
+				? {
+						template: data.onboarding.template,
+						onboardedAt: new Date(data.onboarding.completedAt),
+					}
+				: null;
+			const workspace = tx
 				.insert(workspaces)
-				.values({ id: data.workspaceId })
-				.onConflictDoNothing();
+				.values({ id: data.workspaceId, ...onboarding });
+			await (onboarding
+				? workspace.onConflictDoUpdate({
+						target: workspaces.id,
+						set: onboarding,
+					})
+				: workspace.onConflictDoNothing());
 
 			for (const node of data.put) {
 				await tx

@@ -10,6 +10,7 @@ export { IdbSyncState } from "./sync/state-idb.ts";
 export { MemorySyncState } from "./sync/state-memory.ts";
 export { SyncedPersistence } from "./sync/synced-persistence.ts";
 export type {
+	OnboardingRecord,
 	OutboxEntry,
 	PullRequest,
 	PullResponse,
@@ -20,4 +21,5 @@ export type {
 	SyncTransport,
 	Tombstone,
 } from "./sync/types.ts";
+export { getOrCreateWorkspaceId } from "./sync/workspace.ts";
 export type { Match, TextRange } from "./util/match.ts";

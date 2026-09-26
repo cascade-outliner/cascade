@@ -1,15 +1,16 @@
-import { OutlineStore, type SyncEngine } from "@cascade/data";
+import { OutlineStore, type SyncEngine, type SyncStatus } from "@cascade/data";
 import {
 	createContext,
 	type ReactNode,
 	useContext,
 	useEffect,
 	useState,
+	useSyncExternalStore,
 } from "react";
 import { createSync, type Sync } from "#/lib/sync.ts";
 
 const OutlineStoreContext = createContext<OutlineStore | null>(null);
-const SyncEngineContext = createContext<SyncEngine | null>(null);
+const SyncContext = createContext<Sync | null>(null);
 
 export function OutlineStoreProvider({ children }: { children: ReactNode }) {
 	const [{ store, sync }] = useState(() => {
@@ -24,9 +25,7 @@ export function OutlineStoreProvider({ children }: { children: ReactNode }) {
 
 	return (
 		<OutlineStoreContext.Provider value={store}>
-			<SyncEngineContext.Provider value={sync.engine}>
-				{children}
-			</SyncEngineContext.Provider>
+			<SyncContext.Provider value={sync}>{children}</SyncContext.Provider>
 		</OutlineStoreContext.Provider>
 	);
 }
@@ -41,12 +40,24 @@ export function useOutlineStore(): OutlineStore {
 	return store;
 }
 
-export function useSyncEngine(): SyncEngine {
-	const engine = useContext(SyncEngineContext);
-	if (!engine) {
-		throw new Error(
-			"useSyncEngine must be used within an OutlineStoreProvider",
-		);
+export function useSync(): Sync {
+	const sync = useContext(SyncContext);
+	if (!sync) {
+		throw new Error("useSync must be used within an OutlineStoreProvider");
 	}
-	return engine;
+	return sync;
+}
+
+export function useSyncEngine(): SyncEngine {
+	return useSync().engine;
+}
+
+/** The engine's current status, re-rendering on change. `"disabled"` on the server. */
+export function useSyncStatus(): SyncStatus {
+	const engine = useSyncEngine();
+	return useSyncExternalStore(
+		(listener) => engine.subscribeStatus(listener),
+		() => engine.status,
+		() => "disabled",
+	);
 }

@@ -2,13 +2,16 @@ import type { Node } from "../outline/types.ts";
 import type { OutlineChange } from "../persistence/types.ts";
 import type { SyncedPersistence } from "./synced-persistence.ts";
 import type {
+	OnboardingRecord,
 	OutboxEntry,
 	PullResponse,
+	PushRequest,
 	SyncState,
 	SyncStatus,
 	SyncTransport,
 	Tombstone,
 } from "./types.ts";
+import { getOrCreateWorkspaceId } from "./workspace.ts";
 
 export interface SyncEngineOptions {
 	persistence: SyncedPersistence;
@@ -54,6 +57,7 @@ export class SyncEngine {
 	#failures = 0;
 	#queue: Promise<void> = Promise.resolve();
 	#cleanup: (() => void)[] = [];
+	readonly #statusListeners = new Set<(status: SyncStatus) => void>();
 	lastSyncedAt: number | null = null;
 
 	constructor(options: SyncEngineOptions) {
@@ -75,6 +79,24 @@ export class SyncEngine {
 		return this.#workspaceId;
 	}
 
+	/** Calls `listener` whenever `status` changes. Returns an unsubscribe function. */
+	subscribeStatus(listener: (status: SyncStatus) => void): () => void {
+		this.#statusListeners.add(listener);
+		return () => this.#statusListeners.delete(listener);
+	}
+
+	/**
+	 * Remembers that onboarding finished with `template`, to be sent with the
+	 * next push. Safe to call while the engine is stopped: the record waits in
+	 * sync state until a later start.
+	 */
+	async recordOnboarding(template: string): Promise<void> {
+		await this.#state.setMeta({
+			onboarding: { template, completedAt: Date.now(), synced: false },
+		});
+		this.#schedulePush();
+	}
+
 	async start(): Promise<void> {
 		if (this.#running) {
 			return;
@@ -83,11 +105,7 @@ export class SyncEngine {
 		this.#setStatus("idle");
 		this.#persistence.onWrite = () => this.#schedulePush();
 
-		const meta = await this.#state.getMeta();
-		this.#workspaceId = meta.workspaceId ?? crypto.randomUUID();
-		if (!meta.workspaceId) {
-			await this.#state.setMeta({ workspaceId: this.#workspaceId });
-		}
+		this.#workspaceId = await getOrCreateWorkspaceId(this.#state);
 
 		if (typeof window !== "undefined") {
 			const onOnline = () => void this.sync();
@@ -170,10 +188,23 @@ export class SyncEngine {
 			return;
 		}
 		const entries = await this.#state.peek();
+		const onboarding = (await this.#state.getMeta()).onboarding;
+		const pending = onboarding && !onboarding.synced ? onboarding : null;
+		if (pending && entries.length === 0) {
+			await this.#transport.push({
+				workspaceId,
+				put: [],
+				delete: [],
+				onboarding: pick(pending),
+			});
+			await this.#state.setMeta({ onboarding: { ...pending, synced: true } });
+			return;
+		}
 		for (let at = 0; at < entries.length; at += PUSH_BATCH) {
 			const batch = entries.slice(at, at + PUSH_BATCH);
 			await this.#transport.push({
 				workspaceId,
+				onboarding: at === 0 && pending ? pick(pending) : undefined,
 				put: batch
 					.filter(
 						(entry): entry is OutboxEntry & { kind: "put" } =>
@@ -188,6 +219,9 @@ export class SyncEngine {
 					.map((entry) => ({ id: entry.id, deletedAt: entry.deletedAt })),
 			});
 			await this.#state.ack(batch);
+			if (at === 0 && pending) {
+				await this.#state.setMeta({ onboarding: { ...pending, synced: true } });
+			}
 		}
 	}
 
@@ -288,8 +322,15 @@ export class SyncEngine {
 		if (this.#status !== status) {
 			this.#status = status;
 			this.#onStatus?.(status);
+			for (const listener of this.#statusListeners) {
+				listener(status);
+			}
 		}
 	}
+}
+
+function pick(record: OnboardingRecord): PushRequest["onboarding"] {
+	return { template: record.template, completedAt: record.completedAt };
 }
 
 async function withLock(job: () => Promise<void>): Promise<void> {

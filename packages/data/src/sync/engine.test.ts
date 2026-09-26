@@ -132,6 +132,23 @@ describe("SyncEngine", () => {
 		engine.stop();
 	});
 
+	it("sends onboarding with the next push once, even while stopped when recorded", async () => {
+		const { engine, persistence, state, pushes } = setup();
+		await engine.recordOnboarding("blank");
+		expect((await state.getMeta()).onboarding?.synced).toBe(false);
+
+		await engine.start();
+		expect(pushes).toHaveLength(1);
+		expect(pushes[0]?.onboarding?.template).toBe("blank");
+		expect((await state.getMeta()).onboarding?.synced).toBe(true);
+
+		await persistence.write({ put: [node("a", 1)], delete: [] });
+		await engine.push();
+		expect(pushes).toHaveLength(2);
+		expect(pushes[1]?.onboarding).toBeUndefined();
+		engine.stop();
+	});
+
 	it("applies tombstones only when they are newer than the local edit", async () => {
 		const { engine, inner } = setup([
 			{

@@ -6,10 +6,18 @@ export interface Tombstone {
 	deletedAt: number;
 }
 
+/** What the user picked when finishing onboarding, and whether the server has it yet. */
+export interface OnboardingRecord {
+	template: string;
+	completedAt: number;
+	synced: boolean;
+}
+
 export interface PushRequest {
 	workspaceId: string;
 	put: Node[];
 	delete: Tombstone[];
+	onboarding?: Pick<OnboardingRecord, "template" | "completedAt">;
 }
 
 export interface PullRequest {
@@ -33,6 +41,7 @@ export interface SyncTransport {
 export interface SyncMeta {
 	workspaceId: string | null;
 	cursor: string | null;
+	onboarding: OnboardingRecord | null;
 }
 
 /** One pending local change per node id: the latest put, or a tombstone. */

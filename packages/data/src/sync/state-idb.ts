@@ -21,15 +21,18 @@ export class IdbSyncState implements SyncState {
 
 	async getMeta(): Promise<SyncMeta> {
 		const db = await this.#db;
-		const rows: { key: keyof SyncMeta; value: string | null }[] =
-			await db.getAll(META_STORE);
-		const meta: SyncMeta = { workspaceId: null, cursor: null };
+		const rows: { key: string; value: unknown }[] = await db.getAll(META_STORE);
+		const meta: Record<string, unknown> = {
+			workspaceId: null,
+			cursor: null,
+			onboarding: null,
+		};
 		for (const row of rows) {
 			if (row.key in meta) {
 				meta[row.key] = row.value;
 			}
 		}
-		return meta;
+		return meta as unknown as SyncMeta;
 	}
 
 	async setMeta(meta: Partial<SyncMeta>): Promise<void> {

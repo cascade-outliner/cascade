@@ -7,10 +7,11 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import { Kbd } from "@cascade/ui/kbd";
-import { CheckIcon } from "@phosphor-icons/react";
+import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
+import { useSync, useSyncStatus } from "#/lib/outline-store.tsx";
 
 const STORAGE_KEY = "cascade:onboarding";
 
@@ -23,7 +24,7 @@ export function isOnboarded(): boolean {
 	}
 }
 
-type TemplateId = "blank" | "project" | "journal";
+export type TemplateId = "blank" | "project" | "journal";
 
 /** Preview lines: indent level, task marker, bar width in %. */
 type PreviewLine = [depth: number, task: boolean, width: number];
@@ -328,6 +329,32 @@ const styles = stylex.create({
 	para: {
 		margin: 0,
 	},
+	workspace: {
+		display: "flex",
+		alignItems: "center",
+		gap: space["2.5"],
+		paddingBlock: space["2"],
+		paddingInline: space["2.5"],
+		borderRadius: radius.lg,
+		backgroundColor: colors.white,
+		boxShadow: `0 0 0 1px ${colors.border}`,
+	},
+	workspaceLabel: {
+		color: colors.muted,
+		fontSize: fontSize["200"],
+		fontWeight: 500,
+		textTransform: "uppercase",
+		letterSpacing: "0.04em",
+	},
+	workspaceId: {
+		flex: 1,
+		minWidth: 0,
+		overflow: "hidden",
+		textOverflow: "ellipsis",
+		whiteSpace: "nowrap",
+		fontFamily: "monospace",
+		fontSize: fontSize["300"],
+	},
 	footer: {
 		display: "flex",
 		alignItems: "center",
@@ -389,13 +416,63 @@ function Preview({ lines }: { lines: PreviewLine[] }) {
 	);
 }
 
+/** The anonymous id this browser syncs under, with a button to copy it. */
+function WorkspaceId() {
+	const sync = useSync();
+	const [id, setId] = useState<string | null>(null);
+	const [copied, setCopied] = useState(false);
+
+	useEffect(() => {
+		let cancelled = false;
+		sync
+			.workspaceId()
+			.then((value) => {
+				if (!cancelled) setId(value);
+			})
+			.catch((error) =>
+				console.error("Onboarding: could not create a workspace id", error),
+			);
+		return () => {
+			cancelled = true;
+		};
+	}, [sync]);
+
+	useEffect(() => {
+		if (!copied) return;
+		const timer = setTimeout(() => setCopied(false), 1500);
+		return () => clearTimeout(timer);
+	}, [copied]);
+
+	return (
+		<div {...stylex.props(styles.workspace)}>
+			<span {...stylex.props(styles.workspaceLabel)}>Workspace</span>
+			<code {...stylex.props(styles.workspaceId)} data-testid="workspace-id">
+				{id ?? "…"}
+			</code>
+			<Button
+				disabled={id === null}
+				onClick={() => {
+					if (id === null) return;
+					navigator.clipboard
+						?.writeText(id)
+						.then(() => setCopied(true))
+						.catch(() => {});
+				}}
+			>
+				<CopyIcon /> {copied ? "Copied" : "Copy"}
+			</Button>
+		</div>
+	);
+}
+
 export interface OnboardingProps {
-	onDone: () => void;
+	onDone: (template: TemplateId) => void;
 }
 
 export function Onboarding({ onDone }: OnboardingProps) {
 	const [step, setStep] = useState(0);
 	const [template, setTemplate] = useState<TemplateId>("blank");
+	const syncStatus = useSyncStatus();
 	const last = STEPS.length - 1;
 
 	function submit(event: FormEvent) {
@@ -407,7 +484,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify({ template }));
 		} catch {}
-		transition(onDone);
+		transition(() => onDone(template));
 	}
 
 	return (
@@ -518,13 +595,25 @@ export function Onboarding({ onDone }: OnboardingProps) {
 							</div>
 							<div {...stylex.props(styles.notice)}>
 								<p {...stylex.props(styles.para)}>
-									Your outline is saved in this browser only. There are no
-									accounts or sync yet, so clearing site data clears your notes.
+									Your outline is saved in this browser first: every edit lands
+									here before anything else. In the background, Cascade syncs it
+									to the server under the anonymous workspace id below.
 								</p>
+								<p {...stylex.props(styles.para)}>
+									There are no accounts yet. Keep the id if you want to link
+									this workspace to an account or another device later.
+								</p>
+								{syncStatus === "disabled" && (
+									<p {...stylex.props(styles.para)}>
+										Sync isn't configured on this server, so for now your notes
+										stay in this browser only.
+									</p>
+								)}
 								<p {...stylex.props(styles.para)}>
 									Templates, import and more are on the way.
 								</p>
 							</div>
+							<WorkspaceId />
 						</>
 					)}
 				</div>

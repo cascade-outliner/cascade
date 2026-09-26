@@ -15,7 +15,7 @@ import { useState } from "react";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
-import { useOutlineStore } from "#/lib/outline-store.tsx";
+import { useOutlineStore, useSync } from "#/lib/outline-store.tsx";
 
 const styles = stylex.create({
 	page: {
@@ -94,6 +94,7 @@ export interface OutlineProps {
 
 export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const store = useOutlineStore();
+	const sync = useSync();
 	const navigate = useNavigate();
 	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 	const [onboarded, setOnboarded] = useState(isOnboarded);
@@ -116,7 +117,8 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	if (!onboarded && store.size === 0) {
 		return (
 			<Onboarding
-				onDone={() => {
+				onDone={(template) => {
+					void sync.recordOnboarding(template);
 					setOnboarded(true);
 					requestAnimationFrame(() =>
 						document.getElementById(CAPTURE_INPUT_ID)?.focus(),
