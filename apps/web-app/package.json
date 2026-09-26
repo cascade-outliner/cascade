@@ -39,7 +39,6 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.5.13",
 		"@cascade/config": "workspace:*",
-		"@faker-js/faker": "^10.6.0",
 		"@tanstack/devtools-vite": "^0.8.5",
 		"@tanstack/react-devtools": "^0.10.12",
 		"@tanstack/react-router-devtools": "^1.167.2",

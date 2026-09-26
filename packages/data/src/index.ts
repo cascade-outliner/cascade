@@ -1,4 +1,5 @@
 export { emptyState, plainText, textState } from "./outline/content.ts";
+export type { SearchHit, SearchResult } from "./outline/search.ts";
 export { OutlineStore } from "./outline/store.ts";
 export type { Node, Row } from "./outline/types.ts";
 export { IdbPersistence, openCascadeDb } from "./persistence/idb.ts";
@@ -19,3 +20,4 @@ export type {
 	SyncTransport,
 	Tombstone,
 } from "./sync/types.ts";
+export type { Match, TextRange } from "./util/match.ts";

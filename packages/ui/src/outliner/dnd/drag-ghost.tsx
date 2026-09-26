@@ -28,7 +28,7 @@ const styles = stylex.create({
 		paddingInline: space["1.5"],
 		borderRadius: radius.full,
 		backgroundColor: colors.primary,
-		color: colors.white,
+		color: colors.onPrimary,
 		fontSize: fontSize["200"],
 		lineHeight: lineHeight.compact,
 		whiteSpace: "nowrap",
