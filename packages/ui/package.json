@@ -12,7 +12,8 @@
 		"./dialog": "./src/dialog/dialog.tsx",
 		"./command-palette": "./src/command-palette/command-palette.tsx",
 		"./kbd": "./src/kbd/kbd.tsx",
-		"./capture-bar": "./src/capture-bar/capture-bar.tsx"
+		"./capture-bar": "./src/capture-bar/capture-bar.tsx",
+		"./empty-state-card": "./src/empty-state/empty-state-card.tsx"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.7.0",
