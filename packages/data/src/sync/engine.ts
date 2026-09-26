@@ -11,7 +11,7 @@ import type {
 	SyncTransport,
 	Tombstone,
 } from "./types.ts";
-import { getOrCreateWorkspaceId } from "./workspace.ts";
+import { getOrCreateWorkspaceId, isWorkspaceId } from "./workspace.ts";
 
 export interface SyncEngineOptions {
 	persistence: SyncedPersistence;
@@ -95,6 +95,20 @@ export class SyncEngine {
 			onboarding: { template, completedAt: Date.now(), synced: false },
 		});
 		this.#schedulePush();
+	}
+
+	/**
+	 * Switches this browser to an existing workspace, e.g. one pasted from
+	 * another device. Resets the pull cursor so its nodes are pulled in full;
+	 * pending local changes are pushed to the new workspace.
+	 */
+	async setWorkspaceId(workspaceId: string): Promise<void> {
+		if (!isWorkspaceId(workspaceId)) {
+			throw new Error(`Not a workspace id: ${workspaceId}`);
+		}
+		await this.#state.setMeta({ workspaceId, cursor: null });
+		this.#workspaceId = workspaceId;
+		await this.sync();
 	}
 
 	async start(): Promise<void> {

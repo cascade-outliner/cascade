@@ -65,6 +65,24 @@ describe("SyncEngine", () => {
 		again.stop();
 	});
 
+	it("switches to a pasted workspace id and pulls it from the start", async () => {
+		const { engine, state, transport } = setup();
+		await engine.start();
+		await state.setMeta({ cursor: "old" });
+		const other = "29636bee-4bf9-4999-8369-dfe25f00bff2";
+
+		await engine.setWorkspaceId(other);
+
+		expect(engine.workspaceId).toBe(other);
+		expect((await state.getMeta()).workspaceId).toBe(other);
+		expect(transport.pull).toHaveBeenLastCalledWith({
+			workspaceId: other,
+			since: null,
+		});
+		await expect(engine.setWorkspaceId("nope")).rejects.toThrow();
+		engine.stop();
+	});
+
 	it("pushes queued writes and drains the outbox, collapsing per node", async () => {
 		const { engine, persistence, state, pushes } = setup();
 		await engine.start();

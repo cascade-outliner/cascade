@@ -14,6 +14,8 @@ export interface Sync {
 	engine: SyncEngine;
 	/** The anonymous id this browser syncs under, created on first call. */
 	workspaceId(): Promise<string>;
+	/** Syncs under `id` from now on, pulling that workspace's outline. */
+	setWorkspaceId(id: string): Promise<void>;
 	/** Records the finished onboarding; the background job sends it to the server. */
 	recordOnboarding(template: string): Promise<void>;
 	/** Starts the background job if the server has a database; otherwise stays disabled. */
@@ -42,6 +44,7 @@ export function createSync(): Sync {
 		persistence,
 		engine,
 		workspaceId: () => getOrCreateWorkspaceId(state),
+		setWorkspaceId: (id) => engine.setWorkspaceId(id),
 		recordOnboarding: (template) => engine.recordOnboarding(template),
 		async start() {
 			if (typeof window === "undefined") {
