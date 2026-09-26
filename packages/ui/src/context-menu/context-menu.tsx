@@ -11,7 +11,7 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { Kbd, KbdGroup } from "../kbd/kdb";
+import { Kbd, KbdGroup } from "../kbd/kbd";
 
 const styles = stylex.create({
 	trigger: {
