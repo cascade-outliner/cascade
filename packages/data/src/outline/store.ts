@@ -8,11 +8,15 @@ import {
 	toJS,
 } from "mobx";
 import { MemoryPersistence } from "../persistence/memory.ts";
-import type { OutlinePersistence } from "../persistence/types.ts";
+import type {
+	OutlineChange,
+	OutlinePersistence,
+} from "../persistence/types.ts";
 import { orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
 import {
 	ancestorsOf,
+	breakCycles,
 	type Children,
 	childrenOf,
 	descendantsOf,
@@ -42,6 +46,8 @@ export class OutlineStore {
 		});
 		makeAutoObservable(this, { nodes: false }, { autoBind: true });
 		this.ready = this.#load();
+
+		persistence.subscribe?.((change) => runInAction(() => this.#merge(change)));
 	}
 
 	get size(): number {
@@ -265,11 +271,32 @@ export class OutlineStore {
 			console.error("OutlineStore: load failed, starting empty", error);
 		}
 		runInAction(() => {
-			for (const node of nodes) {
-				this.#put(node);
-			}
+			this.#merge({ put: nodes, delete: [] });
 			this.status = "ready";
 		});
+	}
+
+	/**
+	 * Applies a change made elsewhere (loaded, or written by another tab).
+	 * The newer `updatedAt` wins per node; cycles the change forms are broken.
+	 */
+	#merge(change: OutlineChange): void {
+		for (const node of change.put) {
+			const current = this.nodes.get(node.id);
+			if (!current || current.updatedAt <= node.updatedAt) {
+				this.#put(node);
+			}
+		}
+		for (const id of change.delete) {
+			this.nodes.delete(id);
+		}
+		const fixed = breakCycles(this.nodes);
+		if (fixed.length > 0) {
+			for (const node of fixed) {
+				node.updatedAt = Date.now();
+			}
+			this.#persist(fixed);
+		}
 	}
 
 	#put(node: Node): Node {

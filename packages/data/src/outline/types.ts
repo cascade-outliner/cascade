@@ -18,7 +18,7 @@ export interface Node {
 	/**
 	 * Timestamp of the last modification, in milliseconds since the epoch.
 	 *
-	 * Reserved for future sync conflict resolution.
+	 * The newer write wins when another tab changes the same node.
 	 */
 	updatedAt: number;
 }

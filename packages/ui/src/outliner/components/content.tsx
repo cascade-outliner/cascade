@@ -1,3 +1,4 @@
+import type { Node } from "@cascade/data";
 import { fontSize } from "@cascade/theme/tokens.stylex";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -8,6 +9,7 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
+import { useEffect } from "react";
 import { useItem } from "../context";
 
 const styles = stylex.create({
@@ -41,6 +43,27 @@ function Editable({
 	);
 }
 
+/**
+ * Pushes `content` into the editor when it changes from outside, e.g. an edit
+ * in another tab. Its own edits round-trip unchanged and are skipped.
+ */
+function SyncContentPlugin({ content }: { content: Node["content"] }) {
+	const [editor] = useLexicalComposerContext();
+
+	useEffect(() => {
+		const current = editor.getEditorState().toJSON();
+		if (JSON.stringify(current) === JSON.stringify(content)) {
+			return;
+		}
+		// history-merge keeps OnChangePlugin from writing the remote edit back.
+		editor.setEditorState(editor.parseEditorState(content), {
+			tag: "history-merge",
+		});
+	}, [editor, content]);
+
+	return null;
+}
+
 export function Content({
 	style,
 	onChange,
@@ -68,6 +91,7 @@ export function Content({
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
 			<HistoryPlugin />
+			<SyncContentPlugin content={node.content} />
 			{onChange && (
 				<OnChangePlugin
 					onChange={onChange}

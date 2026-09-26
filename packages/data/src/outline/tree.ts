@@ -91,19 +91,23 @@ export function ancestorsOf(
 
 /** `id` plus every descendant, in no particular order. */
 export function descendantsOf(children: Children, id: string): string[] {
-	const collected: string[] = [];
+	const collected = new Set<string>();
 	const stack = [id];
 	for (
 		let current = stack.pop();
 		current !== undefined;
 		current = stack.pop()
 	) {
-		collected.push(current);
+		// Guards against a parent cycle that slipped past `breakCycles`.
+		if (collected.has(current)) {
+			continue;
+		}
+		collected.add(current);
 		for (const child of childrenOf(children, current)) {
 			stack.push(child.id);
 		}
 	}
-	return collected;
+	return [...collected];
 }
 
 /**
@@ -112,8 +116,14 @@ export function descendantsOf(children: Children, id: string): string[] {
  */
 export function rowsOf(children: Children, rootId: string | null): Row[] {
 	const rows: Row[] = [];
+	const seen = new Set(rootId === null ? [] : [rootId]);
 	const walk = (parentId: string | null, depth: number) => {
 		for (const node of childrenOf(children, parentId)) {
+			// Guards against a parent cycle that slipped past `breakCycles`.
+			if (seen.has(node.id)) {
+				continue;
+			}
+			seen.add(node.id);
 			const childCount = childrenOf(children, node.id).length;
 			rows.push({ node, depth, childCount });
 			if (childCount > 0 && !node.collapsed) {
@@ -123,4 +133,34 @@ export function rowsOf(children: Children, rootId: string | null): Row[] {
 	};
 	walk(rootId, 0);
 	return rows;
+}
+
+/**
+ * Reparents to the root any node whose parent chain loops back on itself, so
+ * tree walks terminate. Two tabs can each make a locally valid move that forms
+ * a cycle once both are persisted. Returns the nodes it changed.
+ */
+export function breakCycles(nodes: {
+	get(id: string): Node | undefined;
+	values(): Iterable<Node>;
+}): Node[] {
+	const fixed: Node[] = [];
+	const acyclic = new Set<string>();
+	for (const start of nodes.values()) {
+		const chain = new Set<string>();
+		let node: Node | undefined = start;
+		while (node && !acyclic.has(node.id)) {
+			if (chain.has(node.id)) {
+				node.parentId = null;
+				fixed.push(node);
+				break;
+			}
+			chain.add(node.id);
+			node = node.parentId === null ? undefined : nodes.get(node.parentId);
+		}
+		for (const id of chain) {
+			acyclic.add(id);
+		}
+	}
+	return fixed;
 }
