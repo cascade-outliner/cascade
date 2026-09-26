@@ -1,8 +1,5 @@
 import type { Node } from "@cascade/data";
-import type {
-	DraggableAttributes,
-	DraggableSyntheticListeners,
-} from "@dnd-kit/core";
+import type { DraggableSyntheticListeners } from "@dnd-kit/core";
 
 import { createContext, useContext } from "react";
 
@@ -23,7 +20,6 @@ export function useItem(): ItemContextValue {
 }
 
 export interface DragHandleContextValue {
-	attributes: DraggableAttributes;
 	listeners: DraggableSyntheticListeners;
 	setActivatorNodeRef: (element: HTMLElement | null) => void;
 	isDragging: boolean;

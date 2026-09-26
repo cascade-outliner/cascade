@@ -24,17 +24,11 @@ export function useRowDnd(id: string, depth: number): RowDnd {
 
 	const handle = useMemo<DragHandleContextValue>(
 		() => ({
-			attributes: draggable.attributes,
 			listeners: draggable.listeners,
 			setActivatorNodeRef: draggable.setActivatorNodeRef,
 			isDragging: draggable.isDragging,
 		}),
-		[
-			draggable.attributes,
-			draggable.listeners,
-			draggable.setActivatorNodeRef,
-			draggable.isDragging,
-		],
+		[draggable.listeners, draggable.setActivatorNodeRef, draggable.isDragging],
 	);
 
 	return { setNodeRef, isDragging: draggable.isDragging, handle };

@@ -114,7 +114,6 @@ export function VirtualList({
 	const parentRef = useRef<HTMLDivElement>(null);
 	const dnd = useOutlineDnd({
 		rows: allRows,
-		rowStep: estimateSize,
 		rootId,
 		onMove,
 	});

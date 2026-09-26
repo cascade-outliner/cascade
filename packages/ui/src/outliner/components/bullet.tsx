@@ -44,7 +44,6 @@ export function Bullet({ collapsed, ...props }: BulletProps) {
 			ref={drag?.setActivatorNodeRef}
 			type="button"
 			{...stylex.props(styles.bullet, drag?.isDragging && styles.dragging)}
-			{...drag?.attributes}
 			{...drag?.listeners}
 			{...props}
 		>

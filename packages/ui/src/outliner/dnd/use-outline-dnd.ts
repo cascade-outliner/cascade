@@ -6,10 +6,12 @@ import {
 	type DragMoveEvent,
 	type DragStartEvent,
 	getClientRect,
+	PointerSensor,
+	useSensor,
+	useSensors,
 } from "@dnd-kit/core";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { type Projection, project, sameProjection } from "./projection";
-import { useOutlineSensors } from "./sensors";
 
 export type MoveHandler = (
 	id: string,
@@ -32,7 +34,6 @@ function withoutDescendants(rows: Row[], id: string | null): Row[] {
 
 export interface OutlineDndOptions {
 	rows: Row[];
-	rowStep: number;
 	/** Parent of the rows, e.g. the zoomed node. Defaults to the top-level root. */
 	rootId?: string | null;
 	onMove?: MoveHandler;
@@ -45,6 +46,8 @@ export interface OutlineDnd {
 	contextProps: DndContextProps;
 }
 
+const pointerSensorOptions = { activationConstraint: { distance: 4 } };
+
 const measuring: DndContextProps["measuring"] = {
 	draggable: { measure: getClientRect },
 	droppable: { measure: getClientRect },
@@ -52,14 +55,13 @@ const measuring: DndContextProps["measuring"] = {
 
 export function useOutlineDnd({
 	rows: allRows,
-	rowStep,
 	rootId = null,
 	onMove,
 }: OutlineDndOptions): OutlineDnd {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [projection, setProjection] = useState<Projection | null>(null);
 	const projectionRef = useRef<Projection | null>(null);
-	const sensors = useOutlineSensors(rowStep);
+	const sensors = useSensors(useSensor(PointerSensor, pointerSensorOptions));
 
 	const rows = useMemo(
 		() => withoutDescendants(allRows, activeId),
