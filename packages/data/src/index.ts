@@ -3,4 +3,4 @@ export { OutlineStore } from "./outline/store.ts";
 export type { Node, Row } from "./outline/types.ts";
 export { IdbPersistence } from "./persistence/idb.ts";
 export { MemoryPersistence } from "./persistence/memory.ts";
-export type { OutlinePersistence } from "./persistence/types.ts";
+export type { OutlineChange, OutlinePersistence } from "./persistence/types.ts";
