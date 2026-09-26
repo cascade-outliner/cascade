@@ -1,0 +1,28 @@
+{
+	"name": "@cascade/db",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./schema": "./src/schema.ts"
+	},
+	"scripts": {
+		"generate": "drizzle-kit generate",
+		"migrate": "drizzle-kit migrate",
+		"studio": "drizzle-kit studio",
+		"typecheck": "tsc"
+	},
+	"dependencies": {
+		"@cascade/env": "workspace:*",
+		"drizzle-orm": "0.45.2",
+		"postgres": "3.4.9"
+	},
+	"devDependencies": {
+		"@cascade/config": "workspace:*",
+		"@types/node": "^24.12.3",
+		"drizzle-kit": "0.31.7",
+		"lexical": "^0.38.0",
+		"typescript": "^6.0.2"
+	}
+}

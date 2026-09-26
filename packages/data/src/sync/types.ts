@@ -1,0 +1,54 @@
+import type { Node } from "../outline/types.ts";
+
+/** A node removed at `deletedAt` (ms since the epoch); the tombstone's clock for conflict resolution. */
+export interface Tombstone {
+	id: string;
+	deletedAt: number;
+}
+
+export interface PushRequest {
+	workspaceId: string;
+	put: Node[];
+	delete: Tombstone[];
+}
+
+export interface PullRequest {
+	workspaceId: string;
+	/** Cursor returned by the previous pull, or `null` for everything. */
+	since: string | null;
+}
+
+export interface PullResponse {
+	put: Node[];
+	delete: Tombstone[];
+	cursor: string | null;
+}
+
+/** Talks to the server. Implemented by the app, so the engine stays framework-free. */
+export interface SyncTransport {
+	push(request: PushRequest): Promise<void>;
+	pull(request: PullRequest): Promise<PullResponse>;
+}
+
+export interface SyncMeta {
+	workspaceId: string | null;
+	cursor: string | null;
+}
+
+/** One pending local change per node id: the latest put, or a tombstone. */
+export type OutboxEntry =
+	| { id: string; kind: "put"; node: Node }
+	| { id: string; kind: "delete"; deletedAt: number };
+
+/** Durable sync bookkeeping: identity, pull cursor, and the outbox of unpushed changes. */
+export interface SyncState {
+	getMeta(): Promise<SyncMeta>;
+	setMeta(meta: Partial<SyncMeta>): Promise<void>;
+	/** Queues `entries`, replacing any pending entry with the same id. */
+	enqueue(entries: OutboxEntry[]): Promise<void>;
+	peek(): Promise<OutboxEntry[]>;
+	/** Removes `entries` from the outbox, unless a newer entry replaced one meanwhile. */
+	ack(entries: OutboxEntry[]): Promise<void>;
+}
+
+export type SyncStatus = "disabled" | "idle" | "syncing" | "error";
