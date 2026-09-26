@@ -10,6 +10,7 @@
 		"./outliner/*": "./src/outliner/components/*.tsx",
 		"./context-menu": "./src/context-menu/context-menu.tsx",
 		"./dialog": "./src/dialog/dialog.tsx",
+		"./command-palette": "./src/command-palette/command-palette.tsx",
 		"./kbd": "./src/kbd/kbd.tsx",
 		"./capture-bar": "./src/capture-bar/capture-bar.tsx"
 	},

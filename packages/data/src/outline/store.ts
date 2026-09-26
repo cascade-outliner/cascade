@@ -14,6 +14,7 @@ import type {
 } from "../persistence/types.ts";
 import { orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
+import { type SearchResult, searchNodes } from "./search.ts";
 import {
 	ancestorsOf,
 	breakCycles,
@@ -75,6 +76,30 @@ export class OutlineStore {
 	/** `id`'s ancestors, from the tree's root down to its immediate parent. Used for the zoom breadcrumb. */
 	ancestorsOf(id: string): Node[] {
 		return ancestorsOf(this.nodes, id);
+	}
+
+	/**
+	 * Nodes matching every term of `query`, collapsed or not, best first.
+	 * `within` keeps only `id`'s descendants; `excluding` drops them (and `id`).
+	 */
+	search(
+		query: string,
+		{
+			limit = 20,
+			within,
+			excluding,
+		}: { limit?: number; within?: string; excluding?: string } = {},
+	): SearchResult {
+		let nodes: Iterable<Node> = this.nodes.values();
+		if (within !== undefined) {
+			nodes = descendantsOf(this.#tree, within)
+				.filter((id) => id !== within)
+				.flatMap((id) => this.nodes.get(id) ?? []);
+		} else if (excluding !== undefined) {
+			const skip = new Set(descendantsOf(this.#tree, excluding));
+			nodes = [...nodes].filter((node) => !skip.has(node.id));
+		}
+		return searchNodes(nodes, query, limit);
 	}
 
 	create(parentId: string | null = null): string {
