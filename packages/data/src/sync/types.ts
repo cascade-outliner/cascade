@@ -6,9 +6,8 @@ export interface Tombstone {
 	deletedAt: number;
 }
 
-/** What the user picked when finishing onboarding, and whether the server has it yet. */
+/** When onboarding finished, and whether the server has it yet. */
 export interface OnboardingRecord {
-	template: string;
 	completedAt: number;
 	synced: boolean;
 }
@@ -17,7 +16,7 @@ export interface PushRequest {
 	workspaceId: string;
 	put: Node[];
 	delete: Tombstone[];
-	onboarding?: Pick<OnboardingRecord, "template" | "completedAt">;
+	onboarding?: Pick<OnboardingRecord, "completedAt">;
 }
 
 export interface PullRequest {

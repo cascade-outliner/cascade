@@ -134,12 +134,12 @@ describe("SyncEngine", () => {
 
 	it("sends onboarding with the next push once, even while stopped when recorded", async () => {
 		const { engine, persistence, state, pushes } = setup();
-		await engine.recordOnboarding("blank");
+		await engine.recordOnboarding();
 		expect((await state.getMeta()).onboarding?.synced).toBe(false);
 
 		await engine.start();
 		expect(pushes).toHaveLength(1);
-		expect(pushes[0]?.onboarding?.template).toBe("blank");
+		expect(pushes[0]?.onboarding?.completedAt).toBeTypeOf("number");
 		expect((await state.getMeta()).onboarding?.synced).toBe(true);
 
 		await persistence.write({ put: [node("a", 1)], delete: [] });

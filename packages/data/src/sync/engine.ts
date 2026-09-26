@@ -86,13 +86,13 @@ export class SyncEngine {
 	}
 
 	/**
-	 * Remembers that onboarding finished with `template`, to be sent with the
+	 * Remembers that onboarding finished, to be sent with the
 	 * next push. Safe to call while the engine is stopped: the record waits in
 	 * sync state until a later start.
 	 */
-	async recordOnboarding(template: string): Promise<void> {
+	async recordOnboarding(): Promise<void> {
 		await this.#state.setMeta({
-			onboarding: { template, completedAt: Date.now(), synced: false },
+			onboarding: { completedAt: Date.now(), synced: false },
 		});
 		this.#schedulePush();
 	}
@@ -330,7 +330,7 @@ export class SyncEngine {
 }
 
 function pick(record: OnboardingRecord): PushRequest["onboarding"] {
-	return { template: record.template, completedAt: record.completedAt };
+	return { completedAt: record.completedAt };
 }
 
 async function withLock(job: () => Promise<void>): Promise<void> {

@@ -15,7 +15,6 @@ export const workspaces = pgTable("workspaces", {
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.notNull()
 		.defaultNow(),
-	template: text("template"),
 	onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
 });
 

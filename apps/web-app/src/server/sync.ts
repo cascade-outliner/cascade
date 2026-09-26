@@ -52,10 +52,7 @@ const pushSchema = z.object({
 	put: z.array(nodeSchema).max(1_000),
 	delete: z.array(tombstoneSchema).max(1_000),
 	onboarding: z
-		.object({
-			template: z.string().min(1).max(64),
-			completedAt: z.number().int().nonnegative(),
-		})
+		.object({ completedAt: z.number().int().nonnegative() })
 		.optional(),
 });
 
@@ -100,10 +97,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 		const instance = requireDb();
 		await instance.transaction(async (tx) => {
 			const onboarding = data.onboarding
-				? {
-						template: data.onboarding.template,
-						onboardedAt: new Date(data.onboarding.completedAt),
-					}
+				? { onboardedAt: new Date(data.onboarding.completedAt) }
 				: null;
 			const workspace = tx
 				.insert(workspaces)

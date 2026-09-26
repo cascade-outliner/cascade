@@ -117,8 +117,8 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	if (!onboarded && store.size === 0) {
 		return (
 			<Onboarding
-				onDone={(template) => {
-					void sync.recordOnboarding(template);
+				onDone={() => {
+					void sync.recordOnboarding();
 					setOnboarded(true);
 					requestAnimationFrame(() =>
 						document.getElementById(CAPTURE_INPUT_ID)?.focus(),

@@ -15,7 +15,7 @@ export interface Sync {
 	/** The anonymous id this browser syncs under, created on first call. */
 	workspaceId(): Promise<string>;
 	/** Records the finished onboarding; the background job sends it to the server. */
-	recordOnboarding(template: string): Promise<void>;
+	recordOnboarding(): Promise<void>;
 	/** Starts the background job if the server has a database; otherwise stays disabled. */
 	start(): Promise<void>;
 	stop(): void;
@@ -42,7 +42,7 @@ export function createSync(): Sync {
 		persistence,
 		engine,
 		workspaceId: () => getOrCreateWorkspaceId(state),
-		recordOnboarding: (template) => engine.recordOnboarding(template),
+		recordOnboarding: () => engine.recordOnboarding(),
 		async start() {
 			if (typeof window === "undefined") {
 				return;

@@ -24,7 +24,7 @@ export function isOnboarded(): boolean {
 	}
 }
 
-export type TemplateId = "blank" | "project" | "journal";
+type TemplateId = "blank" | "project" | "journal";
 
 /** Preview lines: indent level, task marker, bar width in %. */
 type PreviewLine = [depth: number, task: boolean, width: number];
@@ -466,7 +466,7 @@ function WorkspaceId() {
 }
 
 export interface OnboardingProps {
-	onDone: (template: TemplateId) => void;
+	onDone: () => void;
 }
 
 export function Onboarding({ onDone }: OnboardingProps) {
@@ -484,7 +484,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify({ template }));
 		} catch {}
-		transition(() => onDone(template));
+		transition(onDone);
 	}
 
 	return (
