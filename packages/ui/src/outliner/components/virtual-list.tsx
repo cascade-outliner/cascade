@@ -122,6 +122,7 @@ export function VirtualList({
 	const virtualizer = useWindowVirtualizer({
 		count: rows.length,
 		estimateSize: () => estimateSize,
+		getItemKey: (index) => rows[index].node.id,
 		overscan,
 		scrollMargin: parentRef.current?.offsetTop ?? 0,
 	});

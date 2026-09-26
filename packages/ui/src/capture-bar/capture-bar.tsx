@@ -8,7 +8,7 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
-import { Kbd } from "../kbd/kdb.tsx";
+import { Kbd } from "../kbd/kbd.tsx";
 
 const styles = stylex.create({
 	bar: {
