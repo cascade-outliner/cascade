@@ -13,6 +13,8 @@ export const colors = stylex.defineVars({
 	accent: { default: "#e38b75", [DARK_MEDIA]: "#eab08f" },
 	ink: { default: "#2b2d33", [DARK_MEDIA]: "#f3ece4" },
 	primary: { default: "#ad4c4e", [DARK_MEDIA]: "#e2897e" },
+	/** Text and icons on a `primary` background. */
+	onPrimary: { default: "#ffffff", [DARK_MEDIA]: "#1c1815" },
 	placeholder: { default: "#a8a7ad", [DARK_MEDIA]: "#756e67" },
 	border: {
 		default: "rgba(43, 45, 51, 0.08)",

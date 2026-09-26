@@ -1,6 +1,6 @@
 import { type Row, textState } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
-import { CaptureBar } from "@cascade/ui/capture-bar";
+import { CAPTURE_INPUT_ID, CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
@@ -12,6 +12,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
@@ -95,6 +96,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const store = useOutlineStore();
 	const navigate = useNavigate();
 	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+	const [onboarded, setOnboarded] = useState(isOnboarded);
 
 	const zoomTo = (id: string | null) => {
 		navigate({
@@ -110,6 +112,19 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 
 	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
 	const rows = store.rows(zoomedId);
+
+	if (!onboarded && store.size === 0) {
+		return (
+			<Onboarding
+				onDone={() => {
+					setOnboarded(true);
+					requestAnimationFrame(() =>
+						document.getElementById(CAPTURE_INPUT_ID)?.focus(),
+					);
+				}}
+			/>
+		);
+	}
 
 	if (zoomedId && !zoomed) {
 		return (

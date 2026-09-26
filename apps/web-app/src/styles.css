@@ -2,3 +2,40 @@
 
 /* biome-ignore lint/suspicious/noUnknownAtRules: stylex supported */
 @stylex;
+
+/* Onboarding: header and footer glide to their new spot; the step slides in the direction of travel. */
+@layer onboarding {
+	@media (prefers-reduced-motion: no-preference) {
+		::view-transition-group(onboarding-header),
+		::view-transition-group(onboarding-footer) {
+			animation-duration: 280ms;
+			animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+		}
+
+		::view-transition-old(onboarding-content) {
+			animation: 180ms ease-in both onboarding-out;
+		}
+
+		::view-transition-new(onboarding-content) {
+			animation: 280ms cubic-bezier(0.2, 0, 0, 1) 60ms both onboarding-in;
+		}
+
+		html[data-onboarding-back="true"] {
+			--onboarding-shift: -24px;
+		}
+
+		@keyframes onboarding-out {
+			to {
+				opacity: 0;
+				transform: translateX(calc(var(--onboarding-shift, 24px) * -1));
+			}
+		}
+
+		@keyframes onboarding-in {
+			from {
+				opacity: 0;
+				transform: translateX(var(--onboarding-shift, 24px));
+			}
+		}
+	}
+}
