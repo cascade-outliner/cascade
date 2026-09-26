@@ -113,17 +113,13 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	return (
 		<div {...stylex.props(styles.page)}>
 			{zoomed && (
-				<div
-					{...stylex.props(styles.zoomHeader)}
-					style={{
-						viewTransitionName: zoomTransitionName(zoomed.id),
-					}}
-				>
+				<div {...stylex.props(styles.zoomHeader)}>
 					<ZoomHeader
 						node={zoomed}
 						ancestors={store.ancestorsOf(zoomed.id)}
 						onZoomTo={zoomTo}
 						onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
+						titleTransitionName={zoomTransitionName(zoomed.id)}
 					/>
 				</div>
 			)}

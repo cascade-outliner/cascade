@@ -52,7 +52,7 @@ const styles = stylex.create({
 		flexShrink: 0,
 	},
 	crumbButton: {
-		display: "flex",
+		display: "block",
 		alignItems: "center",
 		border: "none",
 		paddingBlock: space["0.5"],
@@ -86,6 +86,8 @@ export interface ZoomHeaderProps {
 	/** Zoom to another node, or `null` to zoom all the way out. */
 	onZoomTo: (id: string | null) => void;
 	onChange?: (state: EditorState) => void;
+	/** View transition name for the title, so it can morph from the zoomed row. */
+	titleTransitionName?: string;
 }
 
 export function ZoomHeader({
@@ -93,6 +95,7 @@ export function ZoomHeader({
 	ancestors,
 	onZoomTo,
 	onChange,
+	titleTransitionName,
 }: ZoomHeaderProps) {
 	const visible =
 		ancestors.length > MAX_VISIBLE_ANCESTORS
@@ -102,7 +105,10 @@ export function ZoomHeader({
 
 	return (
 		<div {...stylex.props(styles.header)}>
-			<div {...stylex.props(styles.trail)}>
+			<div
+				{...stylex.props(styles.trail)}
+				style={{ viewTransitionName: "zoom-trail" }}
+			>
 				<button
 					type="button"
 					{...stylex.props(styles.homeButton)}
@@ -137,7 +143,9 @@ export function ZoomHeader({
 				))}
 			</div>
 			<ItemContext.Provider value={{ node, depth: 0 }}>
-				<Content key={node.id} style={styles.title} onChange={onChange} />
+				<div style={{ viewTransitionName: titleTransitionName }}>
+					<Content key={node.id} style={styles.title} onChange={onChange} />
+				</div>
 			</ItemContext.Provider>
 		</div>
 	);
