@@ -43,6 +43,9 @@ const styles = stylex.create({
 	},
 });
 
+/** Id of the capture input; a `<label htmlFor>` with it focuses the bar. */
+export const CAPTURE_INPUT_ID = "capture-bar-input";
+
 export interface CaptureBarProps {
 	onSubmit: (text: string) => void;
 }
@@ -60,6 +63,7 @@ export function CaptureBar({ onSubmit }: CaptureBarProps) {
 	return (
 		<div {...stylex.props(styles.bar)}>
 			<Input
+				id={CAPTURE_INPUT_ID}
 				{...stylex.props(styles.input)}
 				value={value}
 				onValueChange={setValue}

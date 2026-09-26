@@ -12,6 +12,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
+import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
@@ -110,6 +111,14 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
 	const rows = store.rows(zoomedId);
 
+	if (zoomedId && !zoomed) {
+		return (
+			<div {...stylex.props(styles.page)}>
+				<NodeNotFound onBack={() => zoomTo(null)} />
+			</div>
+		);
+	}
+
 	return (
 		<div {...stylex.props(styles.page)}>
 			{zoomed && (
@@ -123,6 +132,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 					/>
 				</div>
 			)}
+			{rows.length === 0 && <OutlineEmpty zoomed={!!zoomed} />}
 			<VirtualList
 				rows={rows}
 				rootId={zoomedId}
