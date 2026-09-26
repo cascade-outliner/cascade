@@ -21,7 +21,7 @@
 		"typecheck": "pnpm -r run typecheck"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.3"
+		"@biomejs/biome": "2.5.13"
 	},
 	"engines": {
 		"node": ">=22.0.0"

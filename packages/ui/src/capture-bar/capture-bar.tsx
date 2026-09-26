@@ -67,6 +67,7 @@ export function CaptureBar({ onSubmit }: CaptureBarProps) {
 					if (event.key === "Enter") submit();
 				}}
 				placeholder="Type a node…"
+				aria-label="Add a node"
 			/>
 			<Kbd>⏎</Kbd>
 		</div>

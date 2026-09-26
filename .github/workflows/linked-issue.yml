@@ -10,20 +10,23 @@ jobs:
       - name: Check for linked issues
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+          REPOSITORY_OWNER: ${{ github.event.repository.owner.login }}
         run: |
-          QUERY='query ($prNumber: Int!, $repositoryName: String!, $repositoryOwner: String!) { 
-            repository(name: $repositoryName, owner: $repositoryOwner) { 
-              pullRequest(number: $prNumber) { 
-                closingIssuesReferences(first: 10) { 
-                  nodes { 
-                    number 
-                  } 
-                } 
-              } 
-            } 
+          QUERY='query ($prNumber: Int!, $repositoryName: String!, $repositoryOwner: String!) {
+            repository(name: $repositoryName, owner: $repositoryOwner) {
+              pullRequest(number: $prNumber) {
+                closingIssuesReferences(first: 10) {
+                  nodes {
+                    number
+                  }
+                }
+              }
+            }
           }'
-          
-          ISSUES=$(gh api graphql -f query="$QUERY" -F prNumber=${{ github.event.pull_request.number }} -F repositoryName=${{ github.event.repository.name }} -F repositoryOwner=${{ github.event.repository.owner.login }} -q '.data.repository.pullRequest.closingIssuesReferences.nodes[] | .number')
+
+          ISSUES=$(gh api graphql -f query="$QUERY" -F prNumber="$PR_NUMBER" -F repositoryName="$REPOSITORY_NAME" -F repositoryOwner="$REPOSITORY_OWNER" -q '.data.repository.pullRequest.closingIssuesReferences.nodes[] | .number')
 
           if [ -z "$ISSUES" ]
           then

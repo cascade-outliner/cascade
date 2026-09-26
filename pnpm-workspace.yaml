@@ -5,3 +5,7 @@ allowBuilds:
   esbuild: true
   lightningcss: true
   sharp: true
+minimumReleaseAgeExclude:
+  - '@tanstack/react-start-rsc@0.1.53'
+  - '@tanstack/react-start@1.168.54'
+  - '@tanstack/start-plugin-core@1.171.44'
