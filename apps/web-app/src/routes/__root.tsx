@@ -2,8 +2,6 @@ import { colors, fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
-import { ThemeToggle } from "#/components/theme-toggle.tsx";
-import { ThemeProvider, themeInitScript } from "#/lib/theme.tsx";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/bitter/index.css";
@@ -85,6 +83,8 @@ const TanStackDevtoolsPanel = import.meta.env.DEV
 
 const styles = stylex.create({
 	body: {
+		// Native controls and scrollbars follow the device too.
+		colorScheme: "light dark",
 		backgroundColor: colors.canvas,
 		color: colors.ink,
 		fontFamily: fonts.app,
@@ -97,14 +97,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 		<html lang="en">
 			<head>
 				<HeadContent />
-				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, compiler-generated theme class names, no user input */}
-				<script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
 			</head>
 			<body {...stylex.props(styles.body)}>
-				<ThemeProvider>
-					{children}
-					<ThemeToggle />
-				</ThemeProvider>
+				{children}
 				{TanStackDevtoolsPanel && (
 					<Suspense fallback={null}>
 						<TanStackDevtoolsPanel />
