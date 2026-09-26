@@ -1,4 +1,4 @@
-export { emptyState, textState } from "./outline/content.ts";
+export { emptyState, plainText, textState } from "./outline/content.ts";
 export { OutlineStore } from "./outline/store.ts";
 export type { Node, Row } from "./outline/types.ts";
 export { IdbPersistence } from "./persistence/idb.ts";

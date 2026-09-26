@@ -12,6 +12,7 @@ import type { OutlinePersistence } from "../persistence/types.ts";
 import { orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
 import {
+	ancestorsOf,
 	type Children,
 	childrenOf,
 	descendantsOf,
@@ -63,6 +64,11 @@ export class OutlineStore {
 	/** `id`'s parent, or `null` if it's a root node or unknown. Used to zoom back out. */
 	parentOf(id: string): string | null {
 		return this.nodes.get(id)?.parentId ?? null;
+	}
+
+	/** `id`'s ancestors, from the tree's root down to its immediate parent. Used for the zoom breadcrumb. */
+	ancestorsOf(id: string): Node[] {
+		return ancestorsOf(this.nodes, id);
 	}
 
 	create(parentId: string | null = null): string {

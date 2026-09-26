@@ -71,6 +71,24 @@ export function isDescendant(
 	return false;
 }
 
+/** `id`'s ancestors, from the tree's root down to its immediate parent. */
+export function ancestorsOf(
+	nodes: { get(id: string): Node | undefined },
+	id: string,
+): Node[] {
+	const chain: Node[] = [];
+	let current = nodes.get(id)?.parentId ?? null;
+	while (current !== null) {
+		const node = nodes.get(current);
+		if (!node) {
+			break;
+		}
+		chain.push(node);
+		current = node.parentId;
+	}
+	return chain.reverse();
+}
+
 /** `id` plus every descendant, in no particular order. */
 export function descendantsOf(children: Children, id: string): string[] {
 	const collected: string[] = [];
