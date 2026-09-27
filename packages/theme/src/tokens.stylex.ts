@@ -36,6 +36,12 @@ export const colors = stylex.defineVars({
 		default: "rgba(43, 45, 51, 0.18)",
 		[DARK_MEDIA]: "rgba(243, 236, 228, 0.16)",
 	},
+	/** Calm, informational accents: future due dates. */
+	info: { default: "#456089", [DARK_MEDIA]: "#a3b8d8" },
+	infoMuted: {
+		default: "#e3e9f2",
+		[DARK_MEDIA]: "rgba(163, 184, 216, 0.14)",
+	},
 	primaryMuted: {
 		default: "rgba(173, 76, 78, 0.08)",
 		[DARK_MEDIA]: "rgba(226, 137, 126, 0.16)",

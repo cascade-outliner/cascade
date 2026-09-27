@@ -3,12 +3,12 @@ import { expect, test } from "../fixtures.ts";
 // Day notes follow the browser's local date; pin both the instant and the zone.
 test.use({ timezoneId: "UTC" });
 
-test.describe("daily nodes", () => {
-	test.beforeEach(async ({ outlinePage, page }) => {
-		await page.clock.setFixedTime("2026-09-27T10:00:00Z");
-		await outlinePage.goto();
-	});
+test.beforeEach(async ({ outlinePage, page }) => {
+	await page.clock.setFixedTime("2026-09-27T10:00:00Z");
+	await outlinePage.goto();
+});
 
+test.describe("daily nodes", () => {
 	test("Today opens today's note", async ({
 		daySwitcher,
 		outlinePage,
@@ -117,5 +117,86 @@ test.describe("daily nodes", () => {
 			"Today",
 			"Loose thought",
 		]);
+	});
+});
+
+test.describe("due dates", () => {
+	test("quick picks set the pill, and Remove clears it", async ({
+		dueDateMenu,
+		outlinePage,
+	}) => {
+		await outlinePage.addNode("Call the landlord");
+
+		await dueDateMenu.open(outlinePage.row("Call the landlord"));
+		await dueDateMenu.item("Tomorrow").click();
+		await expect(outlinePage.duePill("Call the landlord")).toHaveText(
+			"Tomorrow",
+		);
+
+		await dueDateMenu.open(outlinePage.row("Call the landlord"));
+		await dueDateMenu.item("Remove due date").click();
+		await expect(outlinePage.duePill("Call the landlord")).toHaveCount(0);
+	});
+
+	test("today's note lists what's due today elsewhere, and tomorrow", async ({
+		daySwitcher,
+		dueDateMenu,
+		outlinePage,
+	}) => {
+		await outlinePage.addNode("Call the landlord");
+		await dueDateMenu.open(outlinePage.row("Call the landlord"));
+		await dueDateMenu.item("Today").click();
+		await outlinePage.addNode("Update the bank");
+		await dueDateMenu.open(outlinePage.row("Update the bank"));
+		await dueDateMenu.item("Tomorrow").click();
+
+		await daySwitcher.openToday();
+		await expect(outlinePage.title).toHaveText("Today");
+		// Already on the page, so not repeated under "elsewhere".
+		await outlinePage.addNode("Water the plants");
+		await dueDateMenu.open(outlinePage.row("Water the plants"));
+		await dueDateMenu.item("Today").click();
+
+		const dueToday = outlinePage.dueGroup("Due today, elsewhere");
+		await expect(dueToday).toContainText("Call the landlord");
+		await expect(dueToday).not.toContainText("Water the plants");
+		await expect(outlinePage.dueGroup("Tomorrow")).toContainText(
+			"Update the bank",
+		);
+	});
+
+	test("picking a calendar day sets it and closes the menu", async ({
+		dueDateMenu,
+		outlinePage,
+		page,
+	}) => {
+		await outlinePage.addNode("Cancel the storage unit");
+		await dueDateMenu.open(outlinePage.row("Cancel the storage unit"));
+
+		await dueDateMenu.day("September 30").click();
+
+		await expect(page.getByRole("menu")).toHaveCount(0);
+		await expect(outlinePage.duePill("Cancel the storage unit")).toHaveText(
+			"Sep 30",
+		);
+	});
+
+	test("the calendar keeps its keys inside the menu", async ({
+		dueDateMenu,
+		outlinePage,
+		page,
+	}) => {
+		await outlinePage.addNode("Book the movers");
+		await dueDateMenu.open(outlinePage.row("Book the movers"));
+		await dueDateMenu.day("September 27").focus();
+
+		// Arrows move through days; "t" would jump to the Today item if it leaked.
+		await page.keyboard.press("ArrowRight");
+		await page.keyboard.press("ArrowUp");
+		await page.keyboard.press("t");
+		await expect(dueDateMenu.day("September 21")).toBeFocused();
+		await page.keyboard.press("Enter");
+
+		await expect(outlinePage.duePill("Book the movers")).toHaveText("Sep 21");
 	});
 });

@@ -83,6 +83,9 @@ const styles = stylex.create({
 		display: "flex",
 		color: colors.muted,
 	},
+	custom: {
+		padding: space["1.5"],
+	},
 	radioIndicator: {
 		display: "flex",
 		color: colors.danger,
@@ -194,6 +197,31 @@ function RadioItem({ icon, value, disabled, children }: MenuRadioItemProps) {
 	);
 }
 
+export interface MenuCustomProps {
+	/** Names the group for assistive tech, e.g. "Calendar". */
+	label: string;
+	children: React.ReactNode;
+}
+
+/**
+ * Non-item content inside a menu, such as a calendar. Keys stay with the
+ * content, so arrows and typing don't move the menu's highlight; Escape
+ * still closes the menu.
+ */
+function Custom({ label, children }: MenuCustomProps) {
+	return (
+		<Base.Group
+			aria-label={label}
+			{...stylex.props(styles.custom)}
+			onKeyDown={(event) => {
+				if (event.key !== "Escape") event.stopPropagation();
+			}}
+		>
+			{children}
+		</Base.Group>
+	);
+}
+
 export const Menu = {
 	Root: Base.Root,
 	Trigger,
@@ -201,6 +229,7 @@ export const Menu = {
 	Item,
 	Separator,
 	Submenu,
+	Custom,
 	RadioGroup: Base.RadioGroup,
 	RadioItem,
 };

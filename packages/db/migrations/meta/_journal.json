@@ -15,6 +15,13 @@
       "when": 1790456736304,
       "tag": "0001_superb_sunset_bain",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790532476662,
+      "tag": "0002_military_loners",
+      "breakpoints": true
     }
   ]
 }

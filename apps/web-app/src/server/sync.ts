@@ -37,6 +37,10 @@ const nodeSchema = z.object({
 	),
 	collapsed: z.boolean(),
 	task: z.object({ done: z.boolean() }).optional(),
+	due: z
+		.string()
+		.regex(/^\d{4}-\d{2}-\d{2}$/)
+		.optional(),
 	updatedAt: z.number().int().nonnegative(),
 });
 
@@ -121,6 +125,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 						content: node.content,
 						collapsed: node.collapsed,
 						task: node.task ?? null,
+						due: node.due ?? null,
 						updatedAt: node.updatedAt,
 						deletedAt: null,
 					})
@@ -132,6 +137,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 							content: sql`excluded.content`,
 							collapsed: sql`excluded.collapsed`,
 							task: sql`excluded.task`,
+							due: sql`excluded.due`,
 							updatedAt: sql`excluded.updated_at`,
 							deletedAt: null,
 							syncedAt: sql`now()`,
@@ -210,6 +216,7 @@ function toNode(row: NodeRow): WireNode {
 		content: row.content as unknown as Json,
 		collapsed: row.collapsed,
 		task: row.task ?? undefined,
+		due: row.due ?? undefined,
 		updatedAt: row.updatedAt,
 	};
 }

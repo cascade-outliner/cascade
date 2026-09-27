@@ -14,9 +14,14 @@ const DAY = /^daily-\d{4}-\d{2}-\d{2}$/;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
+/** `YYYY-MM-DD` for `date`'s local calendar day, the format of `Node.due`. */
+export function isoDay(date: Date): string {
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 /** `daily-YYYY-MM-DD` for `date`'s local calendar day. */
 export function dayId(date: Date): string {
-	return `${PREFIX}${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+	return PREFIX + isoDay(date);
 }
 
 export function isDayId(id: string): boolean {
@@ -30,7 +35,12 @@ export function isDailyNode(id: string): boolean {
 
 /** The local date a day id stands for. */
 export function dayDate(id: string): Date {
-	const [y, m, d] = id.slice(PREFIX.length).split("-").map(Number);
+	return fromIsoDay(id.slice(PREFIX.length));
+}
+
+/** The local date a `YYYY-MM-DD` day stands for; the inverse of `isoDay`. */
+export function fromIsoDay(day: string): Date {
+	const [y, m, d] = day.split("-").map(Number);
 	return new Date(y, m - 1, d);
 }
 
@@ -126,4 +136,9 @@ export function shiftDay(
 ): Date {
 	const base = id && isDayId(id) ? dayDate(id) : now;
 	return new Date(base.getFullYear(), base.getMonth(), base.getDate() + by);
+}
+
+/** A due date's label: "Today", "Tomorrow", "Yesterday", else a short date ("Sep 30"). */
+export function dueLabel(due: string, now = new Date()): string {
+	return dayLabel(PREFIX + due, now) ?? due;
 }

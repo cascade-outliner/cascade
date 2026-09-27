@@ -62,4 +62,14 @@ export class OutlinePage {
 	row(text: string): Locator {
 		return this.rows.filter({ hasText: text });
 	}
+
+	/** The due date pill on the row containing `text`. */
+	duePill(text: string): Locator {
+		return this.row(text).getByTestId("due-pill");
+	}
+
+	/** A "due elsewhere" section under today's note, e.g. "Tomorrow". */
+	dueGroup(name: string): Locator {
+		return this.page.getByRole("region", { name, exact: true });
+	}
 }
