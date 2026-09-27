@@ -47,59 +47,12 @@ test.describe("onboarding", () => {
 			await onboardingPage.goToLastStep();
 		});
 
-		test("shows a workspace id and that sync is off", async ({
+		test("says that sync is off and offers no sign-in", async ({
 			onboardingPage,
 		}) => {
-			await expect(onboardingPage.step("workspace")).toBeVisible();
+			await expect(onboardingPage.step("account")).toBeVisible();
 			await expect(onboardingPage.syncDisabledNotice).toBeVisible();
-			await expect(onboardingPage.workspaceId).toHaveValue(
-				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-			);
-		});
-
-		test("rejects an invalid workspace id", async ({ onboardingPage }) => {
-			await onboardingPage.workspaceId.fill("not-an-id");
-
-			await expect(onboardingPage.workspaceId).toHaveAttribute(
-				"aria-invalid",
-				"true",
-			);
-			await expect(onboardingPage.workspaceHint).toHaveAttribute(
-				"data-state",
-				"invalid",
-			);
-		});
-
-		test("switches to a pasted workspace id", async ({
-			onboardingPage,
-			page,
-		}) => {
-			const id = "29636bee-4bf9-4c1e-9a3b-6f2d8e1c0a57";
-			await onboardingPage.workspaceId.fill(id);
-
-			await expect(onboardingPage.workspaceHint).toHaveAttribute(
-				"data-state",
-				"switched",
-			);
-			await page.reload();
-			await onboardingPage.goToLastStep();
-			await expect(onboardingPage.workspaceId).toHaveValue(id);
-		});
-
-		test("copies the workspace id", async ({
-			onboardingPage,
-			page,
-			context,
-		}) => {
-			await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-			await expect(onboardingPage.workspaceId).not.toHaveValue("");
-			const id = await onboardingPage.workspaceId.inputValue();
-
-			await onboardingPage.copyButton.click();
-
-			await expect
-				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
-				.toBe(id);
+			await expect(onboardingPage.account).toBeHidden();
 		});
 	});
 

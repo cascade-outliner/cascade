@@ -8,12 +8,13 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { Breadcrumbs } from "@cascade/ui/outliner/breadcrumbs";
 import { DaySwitcher } from "@cascade/ui/outliner/day-switcher";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, SignOutIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Link } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { openCommandMenu } from "#/components/command-menu.tsx";
-import { useOutlineStore } from "#/lib/outline-store.tsx";
+import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
+import { useOutlineStore, useSyncConfig } from "#/lib/outline-store.tsx";
 
 const MOBILE = "@media (max-width: 640px)";
 // Wide enough for the logo to sit left of the centered container without overlapping it.
@@ -100,7 +101,78 @@ const styles = stylex.create({
 		textAlign: "start",
 		display: { default: "block", [MOBILE]: "none" },
 	},
+	account: {
+		display: "flex",
+		alignItems: "center",
+		gap: space["2"],
+		height: 32,
+		paddingInline: space["2"],
+		borderWidth: borderWidth.thin,
+		borderStyle: "solid",
+		borderColor: {
+			default: colors.border,
+			":hover": colors.borderStrong,
+		},
+		borderRadius: radius.md,
+		backgroundColor: colors.white,
+		font: "inherit",
+		fontSize: fontSize["300"],
+		color: colors.ink,
+		cursor: "pointer",
+	},
+	avatar: {
+		width: 20,
+		height: 20,
+		borderRadius: radius.full,
+		backgroundColor: colors.canvas,
+	},
+	accountLabel: {
+		display: { default: "inline", [MOBILE]: "none" },
+	},
 });
+
+/** Sign in, or the signed-in user with a way out. Hidden when the server can't sync. */
+function AccountButton() {
+	const config = useSyncConfig();
+	if (!config?.enabled) {
+		return null;
+	}
+	if (!config.user) {
+		return (
+			<button
+				type="button"
+				data-testid="header-sign-in"
+				onClick={() => void signInWithGoogle()}
+				{...stylex.props(styles.account)}
+			>
+				Sign in
+			</button>
+		);
+	}
+	return (
+		<button
+			type="button"
+			data-testid="header-sign-out"
+			aria-label={`Sign out ${config.user.name}`}
+			title="Sign out"
+			onClick={() => void signOut()}
+			{...stylex.props(styles.account)}
+		>
+			{config.user.image ? (
+				<img
+					{...stylex.props(styles.avatar)}
+					src={config.user.image}
+					alt=""
+					referrerPolicy="no-referrer"
+				/>
+			) : (
+				<span {...stylex.props(styles.avatar)} aria-hidden />
+			)}
+			<span {...stylex.props(styles.accountLabel)}>{config.user.name}</span>
+			<SignOutIcon size={14} />
+		</button>
+	);
+}
 
 /** The app icon's three cascading bars, in theme colors so it follows dark mode. */
 function LogoMark() {
@@ -172,6 +244,7 @@ export const AppHeader = observer(function AppHeader({
 					<MagnifyingGlassIcon size={14} />
 					<span {...stylex.props(styles.searchLabel)}>Search…</span>
 				</button>
+				<AccountButton />
 			</div>
 		</header>
 	);

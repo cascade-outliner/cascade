@@ -1,6 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 
-export type StepId = "intro" | "template" | "workspace";
+export type StepId = "intro" | "template" | "account";
 export type TemplateId = "blank" | "project" | "journal";
 
 export class OnboardingPage {
@@ -8,9 +8,7 @@ export class OnboardingPage {
 	readonly continueButton: Locator;
 	readonly backButton: Locator;
 	readonly startButton: Locator;
-	readonly workspaceId: Locator;
-	readonly workspaceHint: Locator;
-	readonly copyButton: Locator;
+	readonly account: Locator;
 	readonly syncDisabledNotice: Locator;
 
 	constructor(readonly page: Page) {
@@ -18,9 +16,7 @@ export class OnboardingPage {
 		this.continueButton = page.getByTestId("onboarding-continue");
 		this.backButton = page.getByTestId("onboarding-back");
 		this.startButton = page.getByTestId("onboarding-start");
-		this.workspaceId = page.getByTestId("workspace-id");
-		this.workspaceHint = page.getByTestId("workspace-id-hint");
-		this.copyButton = page.getByTestId("workspace-id-copy");
+		this.account = page.getByTestId("account");
 		this.syncDisabledNotice = page.getByTestId("sync-disabled-notice");
 	}
 

@@ -1,7 +1,7 @@
 import type { OutboxEntry, SyncMeta, SyncState } from "./types.ts";
 
 export class MemorySyncState implements SyncState {
-	meta: SyncMeta = { workspaceId: null, cursor: null, onboarding: null };
+	meta: SyncMeta = { userId: null, cursor: null, onboarding: null };
 	readonly outbox = new Map<string, OutboxEntry>();
 
 	async getMeta(): Promise<SyncMeta> {
