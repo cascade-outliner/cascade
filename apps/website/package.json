@@ -1,0 +1,50 @@
+{
+	"name": "@cascade/website",
+	"description": "A blank template to get started with Payload",
+	"type": "module",
+	"scripts": {
+		"build": "node --no-deprecation --env-file-if-exists=../../.env --max-old-space-size=8000 node_modules/payload/bin.js build",
+		"dev": "node --no-deprecation --env-file-if-exists=../../.env node_modules/vite/bin/vite.js dev",
+		"devsafe": "rm -rf dist && pnpm dev",
+		"generate:importmap": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js generate:importmap",
+		"generate:types": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js generate:types",
+		"payload": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js",
+		"start": "node --no-deprecation --env-file-if-exists=../../.env node_modules/srvx/bin/srvx.mjs --prod --dir=. --static=dist/client --entry=dist/server/server.js",
+		"migrate": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate",
+		"migrate:create": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:create",
+		"migrate:status": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:status",
+		"typecheck": "tsc"
+	},
+	"dependencies": {
+		"@payloadcms/graphql": "4.0.0-canary.37",
+		"@payloadcms/plugin-mcp": "4.0.0-canary.37",
+		"@payloadcms/richtext-lexical": "4.0.0-canary.37",
+		"@payloadcms/tanstack-start": "4.0.0-canary.37",
+		"@payloadcms/ui": "4.0.0-canary.37",
+		"@tanstack/react-router": "^1.120.0",
+		"@tanstack/react-start": "^1.168.26",
+		"graphql": "^16.8.1",
+		"payload": "4.0.0-canary.37",
+		"react": "19.2.6",
+		"react-dom": "19.2.6",
+		"sharp": "0.35.4",
+		"srvx": "0.11.21",
+		"vite": "8.3.0",
+		"@payloadcms/db-postgres": "4.0.0-canary.37",
+		"@cascade/env": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "24.12.3",
+		"@types/react": "19.2.14",
+		"@types/react-dom": "19.2.3",
+		"@vitejs/plugin-react": "6.0.3",
+		"@vitejs/plugin-rsc": "^0.5.21",
+		"typescript": "6.0.3",
+		"vite-tsconfig-paths": "6.0.5"
+	},
+	"engines": {
+		"node": ">=24.15.0",
+		"pnpm": "^9 || ^10 || ^11"
+	},
+	"private": true
+}

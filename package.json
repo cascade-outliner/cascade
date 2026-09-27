@@ -11,6 +11,11 @@
 		"web-app:e2e": "pnpm --filter @cascade/web-app test:e2e",
 		"web-app:e2e:ui": "pnpm --filter @cascade/web-app test:e2e:ui",
 
+		"website:dev": "pnpm --filter @cascade/website dev",
+		"website:build": "pnpm --filter @cascade/website build",
+		"website:start": "pnpm --filter @cascade/website start",
+		"website:migrate": "pnpm --filter @cascade/website db:migrate",
+
 		"db:generate": "pnpm --filter @cascade/db generate",
 		"db:migrate": "pnpm --filter @cascade/db migrate",
 		"db:studio": "pnpm --filter @cascade/db studio",
@@ -25,6 +30,6 @@
 		"@biomejs/biome": "2.5.13"
 	},
 	"engines": {
-		"node": ">=22.0.0"
+		"node": ">=24.0.0"
 	}
 }
