@@ -16,11 +16,14 @@
 		"typecheck": "tsc"
 	},
 	"dependencies": {
+		"@cascade/env": "workspace:*",
+		"@payloadcms/db-postgres": "4.0.0-canary.37",
 		"@payloadcms/graphql": "4.0.0-canary.37",
 		"@payloadcms/plugin-mcp": "4.0.0-canary.37",
 		"@payloadcms/richtext-lexical": "4.0.0-canary.37",
 		"@payloadcms/tanstack-start": "4.0.0-canary.37",
 		"@payloadcms/ui": "4.0.0-canary.37",
+		"@t3-oss/env-core": "^0.13.11",
 		"@tanstack/react-router": "^1.120.0",
 		"@tanstack/react-start": "^1.168.26",
 		"graphql": "^16.8.1",
@@ -30,8 +33,7 @@
 		"sharp": "0.35.4",
 		"srvx": "0.11.21",
 		"vite": "8.3.0",
-		"@payloadcms/db-postgres": "4.0.0-canary.37",
-		"@cascade/env": "workspace:*"
+		"zod": "^4.6.2"
 	},
 	"devDependencies": {
 		"@types/node": "24.12.3",

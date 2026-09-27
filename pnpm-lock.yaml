@@ -138,6 +138,9 @@ importers:
       '@payloadcms/ui':
         specifier: 4.0.0-canary.37
         version: 4.0.0-canary.37(@types/react@19.2.14)(monaco-editor@0.57.0)(payload@4.0.0-canary.37(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
+      '@t3-oss/env-core':
+        specifier: ^0.13.11
+        version: 0.13.11(typescript@6.0.3)(zod@4.6.2)
       '@tanstack/react-router':
         specifier: ^1.120.0
         version: 1.170.36(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -165,6 +168,9 @@ importers:
       vite:
         specifier: 8.3.0
         version: 8.3.0(@types/node@24.12.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.22.4)
+      zod:
+        specifier: ^4.6.2
+        version: 4.6.2
     devDependencies:
       '@types/node':
         specifier: 24.12.3
@@ -4512,10 +4518,6 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@7.29.0:
-    resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
-    engines: {node: '>=20.18.1'}
-
   undici@7.29.1:
     resolution: {integrity: sha512-RYONW2MeafgYlkVOKYKkA/Ag7BmXqgIWCa8t1m0JcxrQg9pI9lEqRhAOruOBCbAohOa/gkCF+iPi9hrgvTzu6Q==}
     engines: {node: '>=20.18.1'}
@@ -6795,6 +6797,11 @@ snapshots:
       typescript: 6.0.3
       zod: 4.4.3
 
+  '@t3-oss/env-core@0.13.11(typescript@6.0.3)(zod@4.6.2)':
+    optionalDependencies:
+      typescript: 6.0.3
+      zod: 4.6.2
+
   '@tanstack/ai-anthropic@0.19.1(@tanstack/ai@0.61.0(zod@4.6.2))(zod@4.6.2)':
     dependencies:
       '@anthropic-ai/sdk': 0.97.1(zod@4.6.2)
@@ -8102,7 +8109,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.2
-      undici: 7.29.0
+      undici: 7.29.1
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -9273,9 +9280,6 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici-types@7.16.0: {}
-
-  undici@7.29.0:
-    optional: true
 
   undici@7.29.1: {}
 
