@@ -28,12 +28,9 @@ import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
-import {
-	CaptureSplit,
-	Marked,
-	SplitSheet,
-	sourceMark,
-} from "#/components/split-tasks.tsx";
+import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
+import { Marked } from "#/components/split-tasks/marked.tsx";
+import { SplitSheet } from "#/components/split-tasks/split-sheet.tsx";
 import { useOutlineStore, useSync } from "#/lib/outline-store.tsx";
 
 const appRoute = getRouteApi("/_app");
@@ -127,11 +124,7 @@ const OutlineRow = observer(function OutlineRow({
 				<Content
 					label={
 						highlight ? (
-							<Marked
-								text={plainText(node.content)}
-								phrases={highlight}
-								style={sourceMark}
-							/>
+							<Marked text={plainText(node.content)} phrases={highlight} />
 						) : (
 							(relativeDay(node.id) ?? undefined)
 						)
