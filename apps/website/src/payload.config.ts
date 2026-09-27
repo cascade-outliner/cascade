@@ -29,7 +29,6 @@ export default buildConfig({
 		outputFile: path.resolve(dirname, "payload-types.ts"),
 	},
 	db: postgresAdapter({
-		push: false,
 		prodMigrations: migrations,
 		migrationDir: path.resolve(dirname, "migrations"),
 		pool: {
