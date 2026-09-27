@@ -1,4 +1,10 @@
-import { fromIsoDay, isoDay, type Node, shiftDay } from "@cascade/data";
+import {
+	fromIsoDay,
+	isoDay,
+	type Node,
+	plainText,
+	shiftDay,
+} from "@cascade/data";
 import { Calendar } from "@cascade/ui/calendar";
 import { Menu } from "@cascade/ui/context-menu";
 import {
@@ -27,6 +33,8 @@ export interface OutlinerContextMenuProps {
 	children: ReactNode;
 	onOpenChange?: (open: boolean) => void;
 	onZoomIn?: (id: string) => void;
+	/** Opens the "Break into steps" review sheet for this node. Leave unset to disable it. */
+	onSplit?: (id: string) => void;
 }
 
 export const OutlinerContextMenu = observer(function OutlinerContextMenu({
@@ -35,6 +43,7 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 	children,
 	onOpenChange,
 	onZoomIn,
+	onSplit,
 }: OutlinerContextMenuProps) {
 	const store = useOutlineStore();
 	// Opened on a selected row, the actions apply to the whole selection.
@@ -176,7 +185,13 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 					Outdent{count}
 				</Menu.Item>
 				<Menu.Separator />
-				<Menu.Item icon={<SparkleIcon size={15} />} disabled>
+				<Menu.Item
+					icon={<SparkleIcon size={15} />}
+					disabled={
+						!onSplit || batch || locked || !plainText(node.content).trim()
+					}
+					onClick={() => onSplit?.(node.id)}
+				>
 					Break into steps
 				</Menu.Item>
 				<Menu.Item

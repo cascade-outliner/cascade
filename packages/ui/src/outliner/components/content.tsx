@@ -72,8 +72,8 @@ export function Content({
 	onCommit,
 }: {
 	style?: stylex.StyleXStyles;
-	/** Plain text shown instead of the node's content, read-only (e.g. "Today" for a daily note). */
-	label?: string;
+	/** Shown instead of the node's content, read-only (e.g. "Today" for a daily note). */
+	label?: React.ReactNode;
 	/** `false` shows the text without letting it be edited. */
 	editable?: boolean;
 	onChange?: (state: EditorState) => void;

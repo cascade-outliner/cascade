@@ -27,6 +27,11 @@ const styles = stylex.create({
 		fontWeight: 500,
 		whiteSpace: "nowrap",
 	},
+	small: {
+		paddingBlock: "2px",
+		paddingInline: space["2"],
+		fontSize: fontSize["200"],
+	},
 	secondary: {
 		backgroundColor: { default: colors.white, ":hover": colors.surface },
 		boxShadow: {
@@ -46,14 +51,23 @@ export interface ButtonProps
 	extends Omit<BaseButton.Props, "className" | "style"> {
 	ref?: Ref<HTMLButtonElement>;
 	variant?: "primary" | "secondary";
+	size?: "default" | "small";
 }
 
-export function Button({ variant = "secondary", ...props }: ButtonProps) {
+export function Button({
+	variant = "secondary",
+	size = "default",
+	...props
+}: ButtonProps) {
 	return (
 		<BaseButton
 			type="button"
 			{...props}
-			{...stylex.props(styles.base, styles[variant])}
+			{...stylex.props(
+				styles.base,
+				size === "small" && styles.small,
+				styles[variant],
+			)}
 		/>
 	);
 }
