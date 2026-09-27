@@ -104,7 +104,11 @@ function transition(update: () => void, back = false) {
 	document.startViewTransition(() => flushSync(update));
 }
 
-const STEPS = ["How it works", "Start with", "Heads up"];
+const STEPS = [
+	{ id: "intro", label: "How it works" },
+	{ id: "template", label: "Start with" },
+	{ id: "workspace", label: "Heads up" },
+];
 
 const styles = stylex.create({
 	page: {
@@ -396,10 +400,11 @@ const styles = stylex.create({
 
 function Stepper({ current }: { current: number }) {
 	return (
-		<ol {...stylex.props(styles.stepper)}>
-			{STEPS.map((label, i) => (
+		<ol {...stylex.props(styles.stepper)} data-testid="onboarding-stepper">
+			{STEPS.map(({ id, label }, i) => (
 				<li
-					key={label}
+					key={id}
+					data-testid={`onboarding-stepper-${id}`}
 					{...stylex.props(styles.step, i === current && styles.stepCurrent)}
 					aria-current={i === current ? "step" : undefined}
 				>
@@ -491,6 +496,7 @@ function WorkspaceId() {
 	}
 
 	const invalid = draft !== "" && !isWorkspaceId(draft);
+	const hintState = invalid ? "invalid" : switched ? "switched" : "idle";
 	const hint = invalid
 		? "That's not a workspace id. It looks like 29636bee-4bf9-…"
 		: switched
@@ -528,6 +534,7 @@ function WorkspaceId() {
 					}}
 				/>
 				<Button
+					data-testid="workspace-id-copy"
 					disabled={id === null}
 					onClick={() => {
 						if (id === null) return;
@@ -542,6 +549,8 @@ function WorkspaceId() {
 			</div>
 			<p
 				id="onboarding-workspace-hint"
+				data-testid="workspace-id-hint"
+				data-state={hintState}
 				{...stylex.props(
 					styles.workspaceHint,
 					invalid && styles.workspaceHintInvalid,
@@ -580,6 +589,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 		<div {...stylex.props(styles.page)}>
 			<form
 				{...stylex.props(styles.form)}
+				data-testid="onboarding"
 				onSubmit={submit}
 				onKeyDown={(event) => {
 					if (step !== 1) return;
@@ -599,6 +609,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 
 				<div
 					{...stylex.props(styles.content)}
+					data-testid={`onboarding-step-${STEPS[step].id}`}
 					style={{ viewTransitionName: "onboarding-content" }}
 				>
 					{step === 0 && (
@@ -652,6 +663,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 											type="radio"
 											name="template"
 											value={t.id}
+											data-testid={`onboarding-template-${t.id}`}
 											checked={template === t.id}
 											disabled={!t.enabled}
 											onChange={() => setTemplate(t.id)}
@@ -693,7 +705,10 @@ export function Onboarding({ onDone }: OnboardingProps) {
 									on another device later, or paste an id you already have.
 								</p>
 								{syncStatus === "disabled" && (
-									<p {...stylex.props(styles.para)}>
+									<p
+										{...stylex.props(styles.para)}
+										data-testid="sync-disabled-notice"
+									>
 										Sync isn't configured on this server, so for now your notes
 										stay in this browser only.
 									</p>
@@ -719,11 +734,20 @@ export function Onboarding({ onDone }: OnboardingProps) {
 						)}
 					</span>
 					{step > 0 && (
-						<Button onClick={() => transition(() => setStep(step - 1), true)}>
+						<Button
+							data-testid="onboarding-back"
+							onClick={() => transition(() => setStep(step - 1), true)}
+						>
 							Back
 						</Button>
 					)}
-					<Button type="submit" variant="primary">
+					<Button
+						type="submit"
+						variant="primary"
+						data-testid={
+							step < last ? "onboarding-continue" : "onboarding-start"
+						}
+					>
 						{step < last ? "Continue" : "Start writing"} ↵
 					</Button>
 				</div>

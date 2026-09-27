@@ -133,6 +133,7 @@ export function CaptureBar({
 			<Input
 				ref={inputRef}
 				id={inputId}
+				data-testid="capture-bar-input"
 				{...stylex.props(styles.input)}
 				value={value}
 				onValueChange={setValue}
@@ -149,7 +150,12 @@ export function CaptureBar({
 				aria-label="Add a node"
 				enterKeyHint="done"
 			/>
-			<Button variant="primary" disabled={!hasText} onClick={submit}>
+			<Button
+				variant="primary"
+				disabled={!hasText}
+				onClick={submit}
+				data-testid="capture-bar-submit"
+			>
 				<PlusIcon size={14} weight="bold" aria-hidden />
 				Add
 			</Button>

@@ -58,7 +58,7 @@ export function OutlineEmpty({ zoomed }: OutlineEmptyProps) {
 	}
 
 	return (
-		<div {...stylex.props(styles.grid)}>
+		<div {...stylex.props(styles.grid)} data-testid="outline-empty">
 			<Card.Root>
 				<Card.Icon>
 					<ListDashesIcon />

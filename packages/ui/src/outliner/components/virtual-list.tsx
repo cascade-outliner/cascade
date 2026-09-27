@@ -20,6 +20,9 @@ const styles = stylex.create({
 		position: "relative",
 		width: "100%",
 	},
+	list: {
+		listStyle: "none",
+	},
 	row: {
 		position: "absolute",
 		top: 0,
@@ -54,7 +57,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 	const dnd = useRowDnd(node.id, depth);
 	const setDndRef = dnd.setNodeRef;
 	const setRef = useCallback(
-		(element: HTMLDivElement | null) => {
+		(element: HTMLLIElement | null) => {
 			virtualizer.measureElement(element);
 			setDndRef(element);
 		},
@@ -62,8 +65,9 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 	);
 
 	return (
-		<div
+		<li
 			ref={setRef}
+			data-testid="outliner-row"
 			data-index={item.index}
 			{...stylex.props(styles.row, dnd.isDragging && styles.dragging)}
 			style={{
@@ -87,7 +91,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 					</DragHandleContext.Provider>
 				</ItemContext.Provider>
 			</div>
-		</div>
+		</li>
 	);
 }
 
@@ -101,6 +105,8 @@ export interface VirtualListProps {
 	/** Parent of the rows, e.g. the zoomed node. Defaults to the top-level root. */
 	rootId?: string | null;
 	onMove?: MoveHandler;
+	/** Accessible name of the list. */
+	"aria-label"?: string;
 }
 
 export function VirtualList({
@@ -110,6 +116,7 @@ export function VirtualList({
 	overscan = 8,
 	rootId = null,
 	onMove,
+	"aria-label": ariaLabel,
 }: VirtualListProps) {
 	const parentRef = useRef<HTMLDivElement>(null);
 	const dnd = useOutlineDnd({
@@ -141,16 +148,22 @@ export function VirtualList({
 				{...stylex.props(styles.viewport)}
 				style={{ height: virtualizer.getTotalSize() }}
 			>
-				{virtualItems.map((item) => (
-					<VirtualRow
-						key={rows[item.index].node.id}
-						item={item}
-						row={rows[item.index]}
-						virtualizer={virtualizer}
-					>
-						{children}
-					</VirtualRow>
-				))}
+				<ul
+					aria-label={ariaLabel}
+					data-testid="outliner-list"
+					{...stylex.props(styles.list)}
+				>
+					{virtualItems.map((item) => (
+						<VirtualRow
+							key={rows[item.index].node.id}
+							item={item}
+							row={rows[item.index]}
+							virtualizer={virtualizer}
+						>
+							{children}
+						</VirtualRow>
+					))}
+				</ul>
 				{projection && overItem && (
 					<DropIndicator
 						projection={projection}

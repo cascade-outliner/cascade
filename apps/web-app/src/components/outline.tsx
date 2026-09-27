@@ -157,6 +157,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 			<VirtualList
 				rows={rows}
 				rootId={zoomedId}
+				aria-label="Outline"
 				onMove={(id, parentId, index) => store.move(id, parentId, index)}
 			>
 				{(row) => (

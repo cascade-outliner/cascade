@@ -8,6 +8,8 @@
 		"web-app:dev": "pnpm --filter @cascade/web-app dev",
 		"web-app:build": "pnpm --filter @cascade/web-app build",
 		"web-app:start": "pnpm --filter @cascade/web-app start",
+		"web-app:e2e": "pnpm --filter @cascade/web-app test:e2e",
+		"web-app:e2e:ui": "pnpm --filter @cascade/web-app test:e2e:ui",
 
 		"db:generate": "pnpm --filter @cascade/db generate",
 		"db:migrate": "pnpm --filter @cascade/db migrate",
