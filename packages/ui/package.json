@@ -11,6 +11,7 @@
 		"./context-menu": "./src/context-menu/context-menu.tsx",
 		"./calendar": "./src/calendar/calendar.tsx",
 		"./dialog": "./src/dialog/dialog.tsx",
+		"./sheet": "./src/sheet/sheet.tsx",
 		"./command-palette": "./src/command-palette/command-palette.tsx",
 		"./kbd": "./src/kbd/kbd.tsx",
 		"./pill": "./src/pill/pill.tsx",
