@@ -15,7 +15,9 @@
 			"!**/payload-types.ts",
 			"!**/routeTree.gen.ts",
 			"!**/migrations/**/*",
-			"!**/.output/**/*"
+			"!**/.output/**/*",
+			"!**/test-results",
+			"!**/playwright-report"
 		]
 	},
 	"formatter": {
