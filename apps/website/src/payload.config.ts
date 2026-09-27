@@ -8,8 +8,11 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 import { Folders } from "./collections/Folders";
 import { Media } from "./collections/Media";
+import { Pages } from "./collections/Pages";
 import { Tags } from "./collections/Tags";
 import { Users } from "./collections/Users";
+import { Footer } from "./globals/Footer";
+import { Header } from "./globals/Header";
 import { migrations } from "./migrations";
 
 const filename = fileURLToPath(import.meta.url);
@@ -22,7 +25,8 @@ export default buildConfig({
 			baseDir: path.resolve(dirname),
 		},
 	},
-	collections: [Users, Media, Folders, Tags],
+	collections: [Users, Media, Folders, Tags, Pages],
+	globals: [Header, Footer],
 	editor: lexicalEditor(),
 	secret: websiteEnv.PAYLOAD_SECRET,
 	typescript: {
