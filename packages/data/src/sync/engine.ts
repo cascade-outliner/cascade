@@ -51,6 +51,7 @@ export class SyncEngine {
 	#status: SyncStatus = "disabled";
 	#workspaceId: string | null = null;
 	#running = false;
+	#started: Promise<void> = Promise.resolve();
 	#pushTimer: ReturnType<typeof setTimeout> | null = null;
 	#pullTimer: ReturnType<typeof setTimeout> | null = null;
 	#retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -111,11 +112,16 @@ export class SyncEngine {
 		await this.sync();
 	}
 
-	async start(): Promise<void> {
-		if (this.#running) {
-			return;
+	/** Starts syncing; resolves once the first sync settles, also for repeat callers. */
+	start(): Promise<void> {
+		if (!this.#running) {
+			this.#running = true;
+			this.#started = this.#start();
 		}
-		this.#running = true;
+		return this.#started;
+	}
+
+	async #start(): Promise<void> {
 		this.#setStatus("idle");
 		this.#persistence.onWrite = () => this.#schedulePush();
 
@@ -136,7 +142,11 @@ export class SyncEngine {
 			);
 		}
 
-		await this.sync();
+		// Full pull on start: the server decides which nodes still exist.
+		await this.#run(async () => {
+			await this.#pull(true);
+			await this.#push();
+		});
 		this.#schedulePull();
 	}
 
@@ -239,26 +249,69 @@ export class SyncEngine {
 		}
 	}
 
-	async #pull(): Promise<void> {
+	/**
+	 * Pulls changes since the cursor, or everything when `full`. A full pull
+	 * also drops local nodes the server no longer has, unless they have
+	 * unpushed changes.
+	 */
+	async #pull(full = false): Promise<void> {
 		const workspaceId = this.#workspaceId;
 		if (workspaceId === null) {
 			return;
 		}
-		let since = (await this.#state.getMeta()).cursor;
+		let since = full ? null : (await this.#state.getMeta()).cursor;
+		const serverIds = new Set<string>();
+		let known = true;
 		let response: PullResponse;
 		do {
 			response = await this.#transport.pull({ workspaceId, since });
+			if (response.known === false) {
+				known = false;
+			}
+			for (const node of response.put) {
+				serverIds.add(node.id);
+			}
 			const change = await this.#reconcile(response.put, response.delete);
 			if (change.put.length > 0 || change.delete.length > 0) {
 				await this.#persistence.inner.write(change);
 				this.#persistence.emit(change);
 			}
 			if (response.cursor === null || response.cursor === since) {
-				return;
+				break;
 			}
 			await this.#state.setMeta({ cursor: response.cursor });
 			since = response.cursor;
 		} while (response.put.length + response.delete.length > 0);
+
+		if (full) {
+			await this.#prune(serverIds, known);
+		}
+	}
+
+	/**
+	 * Removes local nodes missing from the server. If the server doesn't know
+	 * the workspace (e.g. its database was reset), nothing is removed and the
+	 * local outline is queued to seed it instead.
+	 */
+	async #prune(serverIds: Set<string>, known: boolean): Promise<void> {
+		const local = await this.#persistence.inner.load();
+		if (!known) {
+			await this.#state.enqueue(
+				local.map((node): OutboxEntry => ({ id: node.id, kind: "put", node })),
+			);
+			return;
+		}
+		const pending = new Set(
+			(await this.#state.peek()).map((entry) => entry.id),
+		);
+		const gone = local
+			.filter((node) => !serverIds.has(node.id) && !pending.has(node.id))
+			.map((node) => node.id);
+		if (gone.length > 0) {
+			const change: OutlineChange = { put: [], delete: gone };
+			await this.#persistence.inner.write(change);
+			this.#persistence.emit(change);
+		}
 	}
 
 	/** Keeps the parts of a server change that are newer than what is stored locally. */

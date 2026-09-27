@@ -29,6 +29,8 @@ export interface PullResponse {
 	put: Node[];
 	delete: Tombstone[];
 	cursor: string | null;
+	/** On a full pull (`since: null`): whether the server has this workspace at all. */
+	known?: boolean;
 }
 
 /** Talks to the server. Implemented by the app, so the engine stays framework-free. */

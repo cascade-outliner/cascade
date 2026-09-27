@@ -83,6 +83,28 @@ describe("SyncEngine", () => {
 		engine.stop();
 	});
 
+	it("resolves a repeat start only once the first sync settles", async () => {
+		const { engine, transport } = setup();
+		let release = () => {};
+		vi.mocked(transport.pull).mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					release = () => resolve({ put: [], delete: [], cursor: null });
+				}),
+		);
+		const first = engine.start();
+		let settled = false;
+		const again = engine.start().then(() => {
+			settled = true;
+		});
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(settled).toBe(false);
+		release();
+		await Promise.all([first, again]);
+		expect(settled).toBe(true);
+		engine.stop();
+	});
+
 	it("pushes queued writes and drains the outbox, collapsing per node", async () => {
 		const { engine, persistence, state, pushes } = setup();
 		await engine.start();
@@ -168,23 +190,48 @@ describe("SyncEngine", () => {
 	});
 
 	it("applies tombstones only when they are newer than the local edit", async () => {
-		const { engine, inner } = setup([
-			{
-				put: [],
-				delete: [
-					{ id: "old", deletedAt: 10 },
-					{ id: "edited", deletedAt: 10 },
-				],
-				cursor: "c1",
-			},
-		]);
+		const pulls: PullResponse[] = [];
+		const { engine, inner } = setup(pulls);
+		await engine.start();
 		await inner.write({
 			put: [node("old", 5), node("edited", 20)],
 			delete: [],
 		});
-		await engine.start();
+		pulls.push({
+			put: [],
+			delete: [
+				{ id: "old", deletedAt: 10 },
+				{ id: "edited", deletedAt: 10 },
+			],
+			cursor: "c1",
+		});
+		await engine.pull();
 		expect(await inner.get("old")).toBeUndefined();
 		expect((await inner.get("edited"))?.updatedAt).toBe(20);
+		engine.stop();
+	});
+
+	it("on start, drops local nodes the server no longer has unless unpushed", async () => {
+		const { engine, inner, persistence } = setup([
+			{ put: [node("kept", 1)], delete: [], cursor: "c1" },
+		]);
+		await inner.write({ put: [node("kept", 1), node("gone", 1)], delete: [] });
+		await persistence.write({ put: [node("new", 2)], delete: [] });
+		await engine.start();
+		expect(await inner.get("kept")).toBeDefined();
+		expect(await inner.get("gone")).toBeUndefined();
+		expect(await inner.get("new")).toBeDefined();
+		engine.stop();
+	});
+
+	it("on start, re-seeds a server that doesn't know the workspace", async () => {
+		const { engine, inner, pushes } = setup([
+			{ put: [], delete: [], cursor: null, known: false },
+		]);
+		await inner.write({ put: [node("local", 1)], delete: [] });
+		await engine.start();
+		expect(await inner.get("local")).toBeDefined();
+		expect(pushes.at(-1)?.put.map((n) => n.id)).toEqual(["local"]);
 		engine.stop();
 	});
 

@@ -8,7 +8,7 @@ import {
 } from "@cascade/db";
 import { dbEnv } from "@cascade/env/db";
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, eq, gt, or, sql } from "drizzle-orm";
+import { and, asc, eq, gt, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 let db: Db | null | undefined;
@@ -85,6 +85,7 @@ export interface WirePullResponse {
 	put: WireNode[];
 	delete: Tombstone[];
 	cursor: string | null;
+	known?: boolean;
 }
 
 export const getSyncConfig = createServerFn({ method: "GET" }).handler(
@@ -139,29 +140,18 @@ export const pushChanges = createServerFn({ method: "POST" })
 					});
 			}
 
+			// ponytail: hard delete, so other devices never pull the delete and keep
+			// their copy; add a tombstone table if multi-device deletes matter.
 			for (const tombstone of data.delete) {
 				await tx
-					.insert(nodes)
-					.values({
-						workspaceId: data.workspaceId,
-						id: tombstone.id,
-						parentId: null,
-						order: "",
-						content: {} as Node["content"],
-						collapsed: false,
-						task: null,
-						updatedAt: tombstone.deletedAt,
-						deletedAt: tombstone.deletedAt,
-					})
-					.onConflictDoUpdate({
-						target: [nodes.workspaceId, nodes.id],
-						set: {
-							updatedAt: sql`excluded.updated_at`,
-							deletedAt: sql`excluded.deleted_at`,
-							syncedAt: sql`now()`,
-						},
-						setWhere: sql`${nodes.updatedAt} <= excluded.updated_at`,
-					});
+					.delete(nodes)
+					.where(
+						and(
+							eq(nodes.workspaceId, data.workspaceId),
+							eq(nodes.id, tombstone.id),
+							lte(nodes.updatedAt, tombstone.deletedAt),
+						),
+					);
 			}
 		});
 	});
@@ -203,6 +193,13 @@ export const pullChanges = createServerFn({ method: "GET" })
 		const last = rows.at(-1);
 		if (last) {
 			response.cursor = encodeCursor(last);
+		}
+		if (data.since === null) {
+			const [workspace] = await instance
+				.select({ id: workspaces.id })
+				.from(workspaces)
+				.where(eq(workspaces.id, data.workspaceId));
+			response.known = workspace !== undefined;
 		}
 		return response;
 	});
