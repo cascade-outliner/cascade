@@ -17,7 +17,12 @@ const styles = stylex.create({
 	},
 });
 
-export function NodeNotFound() {
+export interface NodeNotFoundProps {
+	/** Navigates back to the top-level outline. */
+	onBack: () => void;
+}
+
+export function NodeNotFound({ onBack }: NodeNotFoundProps) {
 	return (
 		<Card.Root>
 			<Card.Icon>
@@ -28,7 +33,7 @@ export function NodeNotFound() {
 				This node was deleted or the link is out of date. Its children, if it
 				had any, went with it.
 			</Card.Description>
-			<Card.Action>Back to the outline</Card.Action>
+			<Card.Action onClick={onBack}>Back to the outline</Card.Action>
 		</Card.Root>
 	);
 }
@@ -36,9 +41,11 @@ export function NodeNotFound() {
 export interface OutlineEmptyProps {
 	/** Zoomed into a node with no children, rather than an empty outline. */
 	zoomed: boolean;
+	/** Focuses the capture bar so the user can start typing. */
+	onAddStep: () => void;
 }
 
-export function OutlineEmpty({ zoomed }: OutlineEmptyProps) {
+export function OutlineEmpty({ zoomed, onAddStep }: OutlineEmptyProps) {
 	if (zoomed) {
 		return (
 			<Card.Root>
@@ -50,7 +57,7 @@ export function OutlineEmpty({ zoomed }: OutlineEmptyProps) {
 					You have zoomed into a node with nothing inside it. Add steps, or zoom
 					back out.
 				</Card.Description>
-				<Card.Action>
+				<Card.Action onClick={onAddStep}>
 					Add a step <Card.Shortcut>↵</Card.Shortcut>
 				</Card.Action>
 			</Card.Root>
@@ -68,7 +75,7 @@ export function OutlineEmpty({ zoomed }: OutlineEmptyProps) {
 					Start typing to make the first node. Press Tab to nest it under
 					another.
 				</Card.Description>
-				<Card.Action>
+				<Card.Action onClick={onAddStep}>
 					Write the first line <Card.Shortcut>↵</Card.Shortcut>
 				</Card.Action>
 			</Card.Root>

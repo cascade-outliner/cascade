@@ -11,7 +11,7 @@ import { ZoomHeader } from "@cascade/ui/outliner/zoom-header";
 import * as stylex from "@stylexjs/stylex";
 import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
@@ -97,6 +97,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const navigate = useNavigate();
 	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 	const [onboarded, setOnboarded] = useState(isOnboarded);
+	const captureInputRef = useRef<HTMLInputElement>(null);
 
 	const zoomTo = (id: string | null) => {
 		navigate({
@@ -161,7 +162,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	if (zoomedId && !zoomed) {
 		return (
 			<div {...stylex.props(styles.page)}>
-				<NodeNotFound />
+				<NodeNotFound onBack={() => zoomTo(null)} />
 			</div>
 		);
 	}
@@ -179,7 +180,12 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 					/>
 				</div>
 			)}
-			{rows.length === 0 && <OutlineEmpty zoomed={!!zoomed} />}
+			{rows.length === 0 && (
+				<OutlineEmpty
+					zoomed={!!zoomed}
+					onAddStep={() => captureInputRef.current?.focus()}
+				/>
+			)}
 			<OutlinerContextMenu
 				rows={rows}
 				onOpenChange={setMenuOpenId}
@@ -204,6 +210,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 			</OutlinerContextMenu>
 			<div {...stylex.props(styles.captureBar)}>
 				<CaptureBar
+					ref={captureInputRef}
 					onSubmit={(text) => {
 						const id = store.create(zoomedId);
 						store.setContent(id, textState(text));
