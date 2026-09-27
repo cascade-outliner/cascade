@@ -10,6 +10,7 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { PlusIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
+import type { Ref } from "react";
 import { useId, useRef, useState } from "react";
 import { Button } from "../button/button.tsx";
 
@@ -95,11 +96,13 @@ const styles = stylex.create({
 export interface CaptureBarProps {
 	onSubmit: (text: string) => void;
 	placeholder?: string;
+	ref?: Ref<HTMLInputElement>;
 }
 
 export function CaptureBar({
 	onSubmit,
 	placeholder = "Capture a thought…",
+	ref,
 }: CaptureBarProps) {
 	const [value, setValue] = useState("");
 	const [added, setAdded] = useState(0);
@@ -114,6 +117,12 @@ export function CaptureBar({
 		setValue("");
 		setAdded((n) => n + 1);
 		inputRef.current?.focus();
+	}
+
+	function setInputRef(node: HTMLInputElement | null) {
+		inputRef.current = node;
+		if (typeof ref === "function") ref(node);
+		else if (ref) ref.current = node;
 	}
 
 	return (
@@ -131,7 +140,7 @@ export function CaptureBar({
 				<span {...stylex.props(styles.dot, hasText && styles.dotVisible)} />
 			</span>
 			<Input
-				ref={inputRef}
+				ref={setInputRef}
 				id={inputId}
 				data-testid="capture-bar-input"
 				{...stylex.props(styles.input)}

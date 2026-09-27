@@ -67,10 +67,12 @@ function Description({ children }: ChildrenProps) {
 	return <p {...stylex.props(styles.body)}>{children}</p>;
 }
 
-type ActionProps = ChildrenProps;
+interface ActionProps extends ChildrenProps {
+	onClick: () => void;
+}
 
-function Action({ children }: ActionProps) {
-	return <Button onClick={() => {}}>{children}</Button>;
+function Action({ children, onClick }: ActionProps) {
+	return <Button onClick={onClick}>{children}</Button>;
 }
 
 /** Keyboard hint inside an `Action`, e.g. "↵". */
