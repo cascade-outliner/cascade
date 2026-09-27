@@ -120,9 +120,6 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				onDone={() => {
 					void sync.recordOnboarding();
 					setOnboarded(true);
-					requestAnimationFrame(() =>
-						document.getElementById(CAPTURE_INPUT_ID)?.focus(),
-					);
 				}}
 			/>
 		);

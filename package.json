@@ -3,7 +3,7 @@
 	"private": true,
 	"packageManager": "pnpm@11.10.0",
 	"scripts": {
-		"dev": "pnpm @cascade/web-app dev",
+		"dev": "pnpm --filter @cascade/web-app dev",
 
 		"web-app:dev": "pnpm --filter @cascade/web-app dev",
 		"web-app:build": "pnpm --filter @cascade/web-app build",

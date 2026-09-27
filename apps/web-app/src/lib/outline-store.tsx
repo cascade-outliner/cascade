@@ -1,79 +1,46 @@
-import { OutlineStore, type SyncEngine, type SyncStatus } from "@cascade/data";
-import {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useState,
-	useSyncExternalStore,
-} from "react";
+import { OutlineStore, type SyncStatus } from "@cascade/data";
+import { useSyncExternalStore } from "react";
 import { createSync, type Sync } from "#/lib/sync.ts";
 
-const OutlineStoreContext = createContext<OutlineStore | null>(null);
-const SyncContext = createContext<Sync | null>(null);
+let instance: { store: OutlineStore; sync: Sync } | undefined;
+let loading: Promise<void> | undefined;
 
-export function OutlineStoreProvider({ children }: { children: ReactNode }) {
-	// IndexedDB only exists in the browser.
-	const [instance] = useState(() => {
-		if (typeof window === "undefined") return null;
-		const sync: Sync = createSync();
-		return { store: new OutlineStore(sync.persistence), sync };
-	});
-	const [loaded, setLoaded] = useState(false);
-
-	useEffect(() => {
-		if (!instance) return;
-		const { store, sync } = instance;
-		// Show the outline once the local copy is loaded and the first pull
-		// settled (or failed), so it doesn't jump when server changes arrive.
-		// ponytail: a hung request only delays the outline by the timeout.
-		const timeout = new Promise((resolve) => setTimeout(resolve, 5_000));
-		Promise.race([Promise.all([store.ready, sync.start()]), timeout])
-			.catch((error) => console.error("Outline: loading failed", error))
-			.finally(() => setLoaded(true));
-		return () => sync.stop();
-	}, [instance]);
-
-	if (!instance || !loaded) {
-		return null;
+function outline() {
+	if (!instance) {
+		const sync = createSync();
+		instance = { store: new OutlineStore(sync.persistence), sync };
 	}
-	return (
-		<OutlineStoreContext.Provider value={instance.store}>
-			<SyncContext.Provider value={instance.sync}>
-				{children}
-			</SyncContext.Provider>
-		</OutlineStoreContext.Provider>
-	);
+	return instance;
+}
+
+/**
+ * Resolves once the local copy is loaded and the first pull settled (or failed),
+ * so the outline doesn't jump when server changes arrive. Memoized: the `_app`
+ * loader re-runs on navigation.
+ */
+export function loadOutline(): Promise<void> {
+	if (!loading) {
+		const { store, sync } = outline();
+		const timeout = new Promise((resolve) => setTimeout(resolve, 5_000));
+		loading = Promise.race([Promise.all([store.ready, sync.start()]), timeout])
+			.then(() => {})
+			.catch((error) => console.error("Outline: loading failed", error));
+	}
+	return loading;
 }
 
 export function useOutlineStore(): OutlineStore {
-	const store = useContext(OutlineStoreContext);
-	if (!store) {
-		throw new Error(
-			"useOutlineStore must be used within an OutlineStoreProvider",
-		);
-	}
-	return store;
+	return outline().store;
 }
 
 export function useSync(): Sync {
-	const sync = useContext(SyncContext);
-	if (!sync) {
-		throw new Error("useSync must be used within an OutlineStoreProvider");
-	}
-	return sync;
+	return outline().sync;
 }
 
-export function useSyncEngine(): SyncEngine {
-	return useSync().engine;
-}
-
-/** The engine's current status, re-rendering on change. `"disabled"` on the server. */
 export function useSyncStatus(): SyncStatus {
-	const engine = useSyncEngine();
+	const { engine } = useSync();
 	return useSyncExternalStore(
 		(listener) => engine.subscribeStatus(listener),
 		() => engine.status,
-		() => "disabled",
 	);
 }
