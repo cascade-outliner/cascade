@@ -1,4 +1,6 @@
 import { test as base } from "@playwright/test";
+import { AppHeader } from "./pages/app-header.ts";
+import { CommandPalette } from "./pages/command-palette.ts";
 import { DaySwitcher } from "./pages/day-switcher.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
@@ -9,6 +11,8 @@ interface Options {
 }
 
 interface Fixtures {
+	appHeader: AppHeader;
+	commandPalette: CommandPalette;
 	daySwitcher: DaySwitcher;
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
@@ -30,6 +34,12 @@ export const test = base.extend<Options & Fixtures>({
 			});
 		}
 		await use(page);
+	},
+	appHeader: async ({ page }, use) => {
+		await use(new AppHeader(page));
+	},
+	commandPalette: async ({ page }, use) => {
+		await use(new CommandPalette(page));
 	},
 	daySwitcher: async ({ page }, use) => {
 		await use(new DaySwitcher(page));
