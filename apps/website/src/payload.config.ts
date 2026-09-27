@@ -10,6 +10,7 @@ import { Folders } from "./collections/Folders";
 import { Media } from "./collections/Media";
 import { Tags } from "./collections/Tags";
 import { Users } from "./collections/Users";
+import { migrations } from "./migrations";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -28,6 +29,9 @@ export default buildConfig({
 		outputFile: path.resolve(dirname, "payload-types.ts"),
 	},
 	db: postgresAdapter({
+		push: false,
+		prodMigrations: migrations,
+		migrationDir: path.resolve(dirname, "migrations"),
 		pool: {
 			connectionString: websiteEnv.DATABASE_URL_WEBSITE,
 		},

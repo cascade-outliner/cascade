@@ -9,7 +9,10 @@
     "generate:importmap": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js generate:importmap",
     "generate:types": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js generate:types",
     "payload": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js",
-    "start": "node --no-deprecation --env-file-if-exists=../../.env node_modules/srvx/bin/srvx.mjs --prod --dir=. --static=dist/client --entry=dist/server/server.js"
+    "start": "node --no-deprecation --env-file-if-exists=../../.env node_modules/srvx/bin/srvx.mjs --prod --dir=. --static=dist/client --entry=dist/server/server.js",
+    "migrate": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate",
+    "migrate:create": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:create",
+    "migrate:status": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:status"
   },
   "dependencies": {
     "@payloadcms/graphql": "4.0.0-canary.37",
