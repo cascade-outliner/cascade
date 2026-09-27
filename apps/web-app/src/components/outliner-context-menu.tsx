@@ -39,6 +39,8 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 	const batch = store.selection.has(node.id) && store.selection.size > 1;
 	const ids = batch ? [...store.selection] : [node.id];
 	const count = batch ? ` ${ids.length} nodes` : "";
+	// Daily nodes can't be converted or copied.
+	const locked = ids.every(store.isLocked);
 
 	return (
 		<Menu.Root onOpenChange={onOpenChange}>
@@ -57,11 +59,16 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 					>
 						<Menu.RadioItem
 							value="text"
+							disabled={locked}
 							icon={<CircleIcon size={6} weight="fill" />}
 						>
 							Text
 						</Menu.RadioItem>
-						<Menu.RadioItem value="task" icon={<CircleIcon size={14} />}>
+						<Menu.RadioItem
+							value="task"
+							icon={<CircleIcon size={14} />}
+							disabled={locked}
+						>
 							Task
 						</Menu.RadioItem>
 						<Menu.RadioItem
@@ -95,11 +102,11 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 				</Menu.Item>
 				<Menu.Separator />
 				<Menu.Submenu icon={<CopyIcon size={15} />} label="Duplicate">
-					<Menu.Item onClick={() => store.duplicateMany(ids)}>
+					<Menu.Item disabled={locked} onClick={() => store.duplicateMany(ids)}>
 						Duplicate selected
 					</Menu.Item>
 					<Menu.Item
-						disabled={!batch && childCount === 0}
+						disabled={locked || (!batch && childCount === 0)}
 						onClick={() => store.duplicateMany(ids, true)}
 					>
 						Duplicate with children

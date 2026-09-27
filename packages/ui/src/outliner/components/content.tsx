@@ -66,20 +66,35 @@ function SyncContentPlugin({ content }: { content: Node["content"] }) {
 
 export function Content({
 	style,
+	label,
+	editable = true,
 	onChange,
 	onCommit,
 }: {
 	style?: stylex.StyleXStyles;
+	/** Plain text shown instead of the node's content, read-only (e.g. "Today" for a daily note). */
+	label?: string;
+	/** `false` shows the text without letting it be edited. */
+	editable?: boolean;
 	onChange?: (state: EditorState) => void;
 	onCommit?: (state: EditorState) => void;
 }) {
 	const { node } = useItem();
+
+	if (label !== undefined) {
+		return (
+			<div {...stylex.props(styles.wrapper)}>
+				<div {...stylex.props(styles.content, style)}>{label}</div>
+			</div>
+		);
+	}
 
 	return (
 		<LexicalComposer
 			initialConfig={{
 				namespace: `outliner-node-${node.id}`,
 				editorState: JSON.stringify(node.content),
+				editable,
 				onError: (error) => {
 					throw error;
 				},

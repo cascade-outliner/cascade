@@ -1,10 +1,17 @@
-import { type Node, plainText, type SearchHit, textState } from "@cascade/data";
+import {
+	type Node,
+	openDay,
+	plainText,
+	type SearchHit,
+	textState,
+} from "@cascade/data";
 import {
 	CommandPalette,
 	type PaletteGroup,
 	type PaletteItem,
 } from "@cascade/ui/command-palette";
 import {
+	CalendarBlankIcon,
 	CheckCircleIcon,
 	CircleIcon,
 	HouseSimpleIcon,
@@ -65,8 +72,7 @@ export const CommandMenu = observer(function CommandMenu() {
 	const create = () => {
 		const text = query.trim();
 		if (!text) return;
-		const id = store.create(zoomedId);
-		store.setContent(id, textState(text));
+		store.create(zoomedId, { content: textState(text) });
 	};
 
 	const groups: PaletteGroup[] = [];
@@ -129,19 +135,28 @@ export const CommandMenu = observer(function CommandMenu() {
 			});
 		}
 
+		const navigation: PaletteItem[] = [
+			{
+				id: "today",
+				label: "Today's note",
+				icon: <CalendarBlankIcon size={13} />,
+				onSelect: () =>
+					navigate({
+						to: "/node/$id",
+						params: { id: openDay(store, new Date()) },
+						viewTransition: true,
+					}),
+			},
+		];
 		if (zoomedId) {
-			groups.push({
-				label: "Navigation",
-				items: [
-					{
-						id: "home",
-						label: "Go back home",
-						icon: <HouseSimpleIcon size={13} />,
-						onSelect: () => navigate({ to: "/", viewTransition: true }),
-					},
-				],
+			navigation.push({
+				id: "home",
+				label: "Go back home",
+				icon: <HouseSimpleIcon size={13} />,
+				onSelect: () => navigate({ to: "/", viewTransition: true }),
 			});
 		}
+		groups.push({ label: "Navigation", items: navigation });
 	}
 
 	return (

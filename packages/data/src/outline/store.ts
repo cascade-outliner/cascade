@@ -14,6 +14,7 @@ import type {
 } from "../persistence/types.ts";
 import { orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
+import { isDailyNode } from "./daily.ts";
 import { type SearchResult, searchNodes } from "./search.ts";
 import {
 	ancestorsOf,
@@ -108,16 +109,32 @@ export class OutlineStore {
 		return searchNodes(nodes, query, limit);
 	}
 
-	create(parentId: string | null = null): string {
+	/**
+	 * Whether `id` is a daily note (or the root, a year or a month above them). Those are fixed: their text,
+	 * place and kind can't change (deleting is fine); add children instead.
+	 */
+	isLocked(id: string): boolean {
+		return isDailyNode(id);
+	}
+
+	/** Adds a node under `parentId`, at `index` among its children (default: last). Returns its id. */
+	create(
+		parentId: string | null = null,
+		{
+			id = crypto.randomUUID(),
+			index,
+			content = emptyState(),
+		}: { id?: string; index?: number; content?: SerializedEditorState } = {},
+	): string {
 		if (parentId !== null && !this.nodes.has(parentId)) {
 			throw new Error(`create: unknown parent ${parentId}`);
 		}
 
 		const node = this.#put({
-			id: crypto.randomUUID(),
+			id,
 			parentId,
-			order: orderAt(this.#tree, parentId),
-			content: emptyState(),
+			order: orderAt(this.#tree, parentId, index),
+			content,
 			collapsed: false,
 			updatedAt: Date.now(),
 		});
@@ -127,7 +144,7 @@ export class OutlineStore {
 
 	setContent(id: string, content: SerializedEditorState): void {
 		const node = this.nodes.get(id);
-		if (!node) {
+		if (!node || this.isLocked(id)) {
 			return;
 		}
 		node.content = content;
@@ -148,7 +165,7 @@ export class OutlineStore {
 
 	setTask(id: string, task: { done: boolean } | null): void {
 		const node = this.nodes.get(id);
-		if (!node) {
+		if (!node || this.isLocked(id)) {
 			return;
 		}
 		node.task = task ?? undefined;
@@ -159,7 +176,7 @@ export class OutlineStore {
 	/** Copies a node (not its descendants) as a new sibling. Returns the new id, or `null` if `id` is unknown. */
 	duplicate(id: string): string | null {
 		const node = this.nodes.get(id);
-		if (!node) {
+		if (!node || this.isLocked(id)) {
 			return null;
 		}
 		const copy = this.#put({
@@ -178,7 +195,7 @@ export class OutlineStore {
 	/** Copies a node and all its descendants as a new sibling subtree. Returns the new root id, or `null` if `id` is unknown. */
 	duplicateWithChildren(id: string): string | null {
 		const node = this.nodes.get(id);
-		if (!node) {
+		if (!node || this.isLocked(id)) {
 			return null;
 		}
 		// Snapshot: clones are put while walking, and must not be walked themselves.
@@ -220,7 +237,9 @@ export class OutlineStore {
 	/** Whether `id` has a previous sibling it could be nested under. */
 	canIndent(id: string): boolean {
 		const node = this.nodes.get(id);
-		return node !== undefined && indexOf(this.#tree, node) > 0;
+		return (
+			node !== undefined && !this.isLocked(id) && indexOf(this.#tree, node) > 0
+		);
 	}
 
 	/** Makes `id` a child of its previous sibling. No-op if it has none. */
@@ -239,7 +258,9 @@ export class OutlineStore {
 
 	/** Whether `id` has a parent it could be moved out of. */
 	canOutdent(id: string): boolean {
-		return (this.nodes.get(id)?.parentId ?? null) !== null;
+		return (
+			!this.isLocked(id) && (this.nodes.get(id)?.parentId ?? null) !== null
+		);
 	}
 
 	/** Moves `id` out to its parent's level, right after its former parent. No-op for a root node. */
@@ -257,7 +278,8 @@ export class OutlineStore {
 
 	move(id: string, newParentId: string | null, index?: number): boolean {
 		const node = this.nodes.get(id);
-		if (!node) {
+		// Daily nodes stay put.
+		if (!node || this.isLocked(id)) {
 			return false;
 		}
 		if (

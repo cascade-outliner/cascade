@@ -6,6 +6,8 @@ export class OutlinePage {
 	readonly captureInput: Locator;
 	readonly addButton: Locator;
 	readonly emptyState: Locator;
+	/** The zoomed-in node's title; only there when zoomed in. */
+	readonly title: Locator;
 
 	constructor(readonly page: Page) {
 		this.outline = page.getByTestId("outliner-list");
@@ -13,6 +15,7 @@ export class OutlinePage {
 		this.captureInput = page.getByTestId("capture-bar-input");
 		this.addButton = page.getByTestId("capture-bar-submit");
 		this.emptyState = page.getByTestId("outline-empty");
+		this.title = page.getByRole("heading", { level: 1 });
 	}
 
 	async goto(path = "/") {
