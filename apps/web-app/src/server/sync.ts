@@ -92,7 +92,7 @@ export const getSyncConfig = createServerFn({ method: "GET" }).handler(
 );
 
 export const pushChanges = createServerFn({ method: "POST" })
-	.inputValidator(pushSchema)
+	.validator(pushSchema)
 	.handler(async ({ data }) => {
 		const instance = requireDb();
 		await instance.transaction(async (tx) => {
@@ -167,7 +167,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 	});
 
 export const pullChanges = createServerFn({ method: "GET" })
-	.inputValidator(pullSchema)
+	.validator(pullSchema)
 	.handler(async ({ data }): Promise<WirePullResponse> => {
 		const instance = requireDb();
 		const since = data.since ? decodeCursor(data.since) : null;
