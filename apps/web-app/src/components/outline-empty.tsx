@@ -1,5 +1,4 @@
 import { space } from "@cascade/theme/tokens.stylex";
-import { CAPTURE_INPUT_ID } from "@cascade/ui/capture-bar";
 import { EmptyStateCard as Card } from "@cascade/ui/empty-state-card";
 import {
 	CursorClickIcon,
@@ -18,7 +17,7 @@ const styles = stylex.create({
 	},
 });
 
-export function NodeNotFound({ onBack }: { onBack: () => void }) {
+export function NodeNotFound() {
 	return (
 		<Card.Root>
 			<Card.Icon>
@@ -29,7 +28,7 @@ export function NodeNotFound({ onBack }: { onBack: () => void }) {
 				This node was deleted or the link is out of date. Its children, if it
 				had any, went with it.
 			</Card.Description>
-			<Card.Action onClick={onBack}>Back to the outline</Card.Action>
+			<Card.Action>Back to the outline</Card.Action>
 		</Card.Root>
 	);
 }
@@ -51,7 +50,7 @@ export function OutlineEmpty({ zoomed }: OutlineEmptyProps) {
 					You have zoomed into a node with nothing inside it. Add steps, or zoom
 					back out.
 				</Card.Description>
-				<Card.Action htmlFor={CAPTURE_INPUT_ID}>
+				<Card.Action>
 					Add a step <Card.Shortcut>↵</Card.Shortcut>
 				</Card.Action>
 			</Card.Root>
@@ -69,7 +68,7 @@ export function OutlineEmpty({ zoomed }: OutlineEmptyProps) {
 					Start typing to make the first node. Press Tab to nest it under
 					another.
 				</Card.Description>
-				<Card.Action htmlFor={CAPTURE_INPUT_ID}>
+				<Card.Action>
 					Write the first line <Card.Shortcut>↵</Card.Shortcut>
 				</Card.Action>
 			</Card.Root>

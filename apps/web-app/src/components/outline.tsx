@@ -1,6 +1,6 @@
 import { type Row, textState } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
-import { CAPTURE_INPUT_ID, CaptureBar } from "@cascade/ui/capture-bar";
+import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
@@ -128,7 +128,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	if (zoomedId && !zoomed) {
 		return (
 			<div {...stylex.props(styles.page)}>
-				<NodeNotFound onBack={() => zoomTo(null)} />
+				<NodeNotFound />
 			</div>
 		);
 	}
