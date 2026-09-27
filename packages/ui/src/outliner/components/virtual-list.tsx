@@ -93,6 +93,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 			ref={setRef}
 			data-testid="outliner-row"
 			data-index={item.index}
+			data-node-id={node.id}
 			{...stylex.props(styles.row, dnd.isDragging && styles.dragging)}
 			style={{
 				transform: `translateY(${

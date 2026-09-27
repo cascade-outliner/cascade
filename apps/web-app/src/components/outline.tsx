@@ -47,7 +47,6 @@ function zoomTransitionName(id: string): string {
 interface OutlineRowProps {
 	row: Row;
 	active: boolean;
-	onOpenChange: (open: boolean) => void;
 	onZoomTo: (id: string | null) => void;
 }
 
@@ -55,43 +54,35 @@ interface OutlineRowProps {
 const OutlineRow = observer(function OutlineRow({
 	row: { node, childCount },
 	active,
-	onOpenChange,
 	onZoomTo,
 }: OutlineRowProps) {
 	const store = useOutlineStore();
 
 	return (
-		<OutlinerContextMenu
-			node={node}
-			childCount={childCount}
-			onOpenChange={onOpenChange}
-			onZoomIn={onZoomTo}
+		<RowShell
+			active={active}
+			selected={store.selection.has(node.id)}
+			style={{ viewTransitionName: zoomTransitionName(node.id) }}
 		>
-			<RowShell
-				active={active}
-				selected={store.selection.has(node.id)}
-				style={{ viewTransitionName: zoomTransitionName(node.id) }}
-			>
-				<Chevron
-					open={!node.collapsed}
-					hidden={childCount === 0}
-					onClick={() => store.setCollapsed(node.id, !node.collapsed)}
+			<Chevron
+				open={!node.collapsed}
+				hidden={childCount === 0}
+				onClick={() => store.setCollapsed(node.id, !node.collapsed)}
+			/>
+			<Bullet
+				collapsed={node.collapsed && childCount > 0}
+				onClick={() => onZoomTo(node.id)}
+			/>
+			{node.task && (
+				<TaskMarker
+					variant={node.task.done ? "done" : "todo"}
+					onClick={() => store.setTask(node.id, { done: !node.task?.done })}
 				/>
-				<Bullet
-					collapsed={node.collapsed && childCount > 0}
-					onClick={() => onZoomTo(node.id)}
-				/>
-				{node.task && (
-					<TaskMarker
-						variant={node.task.done ? "done" : "todo"}
-						onClick={() => store.setTask(node.id, { done: !node.task?.done })}
-					/>
-				)}
-				<Content
-					onChange={(state) => store.setContent(node.id, state.toJSON())}
-				/>
-			</RowShell>
-		</OutlinerContextMenu>
+			)}
+			<Content
+				onChange={(state) => store.setContent(node.id, state.toJSON())}
+			/>
+		</RowShell>
 	);
 });
 
@@ -189,23 +180,28 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				</div>
 			)}
 			{rows.length === 0 && <OutlineEmpty zoomed={!!zoomed} />}
-			<VirtualList
+			<OutlinerContextMenu
 				rows={rows}
-				rootId={zoomedId}
-				aria-label="Outline"
-				onMove={(id, parentId, index) => store.move(id, parentId, index)}
-				selected={store.selection}
-				onSelect={store.select}
+				onOpenChange={setMenuOpenId}
+				onZoomIn={zoomTo}
 			>
-				{(row) => (
-					<OutlineRow
-						row={row}
-						active={menuOpenId === row.node.id}
-						onOpenChange={(open) => setMenuOpenId(open ? row.node.id : null)}
-						onZoomTo={zoomTo}
-					/>
-				)}
-			</VirtualList>
+				<VirtualList
+					rows={rows}
+					rootId={zoomedId}
+					aria-label="Outline"
+					onMove={(id, parentId, index) => store.move(id, parentId, index)}
+					selected={store.selection}
+					onSelect={store.select}
+				>
+					{(row) => (
+						<OutlineRow
+							row={row}
+							active={menuOpenId === row.node.id}
+							onZoomTo={zoomTo}
+						/>
+					)}
+				</VirtualList>
+			</OutlinerContextMenu>
 			<div {...stylex.props(styles.captureBar)}>
 				<CaptureBar
 					onSubmit={(text) => {
