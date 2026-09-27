@@ -113,3 +113,16 @@ export function matchTerms(queryTerms: string[], text: Folded): Match | null {
 	}
 	return { score, ranges: merge(ranges) };
 }
+
+/** Where each of `phrases` sits in `text` (case- and accent-insensitive), for highlighting. Missing phrases are skipped. */
+export function phraseRanges(text: string, phrases: string[]): TextRange[] {
+	const folded = fold(text);
+	return merge(
+		phrases
+			.filter((phrase) => phrase.trim())
+			.flatMap(
+				(phrase) =>
+					matchTerms([fold(phrase.trim()).text], folded)?.ranges ?? [],
+			),
+	);
+}

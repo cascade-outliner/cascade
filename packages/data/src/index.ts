@@ -38,3 +38,4 @@ export type {
 } from "./sync/types.ts";
 export { getOrCreateWorkspaceId, isWorkspaceId } from "./sync/workspace.ts";
 export type { Match, TextRange } from "./util/match.ts";
+export { phraseRanges } from "./util/match.ts";

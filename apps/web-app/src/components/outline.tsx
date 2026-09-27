@@ -2,6 +2,8 @@ import {
 	dayId,
 	dueLabel,
 	isoDay,
+	type Node,
+	plainText,
 	type Row,
 	relativeDay,
 	shiftDay,
@@ -18,7 +20,7 @@ import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import { ZoomHeader } from "@cascade/ui/outliner/zoom-header";
 import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
-import { useNavigate } from "@tanstack/react-router";
+import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
@@ -26,7 +28,15 @@ import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
+import {
+	CaptureSplit,
+	Marked,
+	SplitSheet,
+	sourceMark,
+} from "#/components/split-tasks.tsx";
 import { useOutlineStore, useSync } from "#/lib/outline-store.tsx";
+
+const appRoute = getRouteApi("/_app");
 
 const styles = stylex.create({
 	page: {
@@ -60,6 +70,17 @@ interface OutlineRowProps {
 	active: boolean;
 	onOpenChange: (open: boolean) => void;
 	onZoomTo: (id: string | null) => void;
+	/** Opens the split sheet (3b). Unset when AI is off (no API key on the server). */
+	onSplit?: (split: Split) => void;
+	/** Phrases to highlight while this row is being split, read-only. */
+	highlight?: string[];
+}
+
+/** A note being split in the review sheet (3b). */
+interface Split {
+	id: string;
+	/** The note's text when asked, so highlights line up with it. */
+	text: string;
 }
 
 /** One row. Its own observer, so a task or collapse toggle re-renders only this row. */
@@ -68,6 +89,8 @@ const OutlineRow = observer(function OutlineRow({
 	active,
 	onOpenChange,
 	onZoomTo,
+	onSplit,
+	highlight,
 }: OutlineRowProps) {
 	const store = useOutlineStore();
 
@@ -77,9 +100,12 @@ const OutlineRow = observer(function OutlineRow({
 			childCount={childCount}
 			onOpenChange={onOpenChange}
 			onZoomIn={onZoomTo}
+			onSplit={
+				onSplit && ((id) => onSplit({ id, text: plainText(node.content) }))
+			}
 		>
 			<RowShell
-				active={active}
+				active={active || !!highlight}
 				selected={store.selection.has(node.id)}
 				style={{ viewTransitionName: zoomTransitionName(node.id) }}
 			>
@@ -99,7 +125,17 @@ const OutlineRow = observer(function OutlineRow({
 					/>
 				)}
 				<Content
-					label={relativeDay(node.id) ?? undefined}
+					label={
+						highlight ? (
+							<Marked
+								text={plainText(node.content)}
+								phrases={highlight}
+								style={sourceMark}
+							/>
+						) : (
+							(relativeDay(node.id) ?? undefined)
+						)
+					}
 					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
 				/>
@@ -126,6 +162,10 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const sync = useSync();
 	const navigate = useNavigate();
 	const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+	const [split, setSplit] = useState<Split | null>(null);
+	const [sources, setSources] = useState<string[]>([]);
+	const [captured, setCaptured] = useState<string | null>(null);
+	const { aiEnabled } = appRoute.useLoaderData();
 	const [onboarded, setOnboarded] = useState(isOnboarded);
 	const captureInputRef = useRef<HTMLInputElement>(null);
 
@@ -237,6 +277,8 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 							active={menuOpenId === row.node.id}
 							onOpenChange={(open) => setMenuOpenId(open ? row.node.id : null)}
 							onZoomTo={zoomTo}
+							onSplit={aiEnabled ? setSplit : undefined}
+							highlight={split?.id === row.node.id ? sources : undefined}
 						/>
 					)}
 				</VirtualList>
@@ -253,9 +295,35 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 						onZoomTo={zoomTo}
 					/>
 				)}
+				{split && store.get(split.id) && (
+					<SplitSheet
+						key={split.id}
+						node={store.get(split.id) as Node}
+						text={split.text}
+						onSources={setSources}
+						onClose={() => {
+							setSplit(null);
+							setSources([]);
+						}}
+					/>
+				)}
 				<div {...stylex.props(styles.captureBar)}>
 					<CaptureBar
 						ref={captureInputRef}
+						onSplit={aiEnabled ? setCaptured : undefined}
+						panel={
+							captured !== null && (
+								<CaptureSplit
+									key={captured}
+									text={captured}
+									parentId={zoomedId}
+									onClose={() => {
+										setCaptured(null);
+										captureInputRef.current?.focus();
+									}}
+								/>
+							)
+						}
 						onSubmit={(text) => {
 							store.create(zoomedId, {
 								content: textState(text),
