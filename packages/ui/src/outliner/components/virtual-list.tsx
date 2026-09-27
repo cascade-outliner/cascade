@@ -1,11 +1,6 @@
 import { type Box, useSelectionContainer } from "@air/react-drag-to-select";
 import type { Row } from "@cascade/data";
-import {
-	colors,
-	duration,
-	radius,
-	space,
-} from "@cascade/theme/tokens.stylex";
+import { colors, duration, radius, space } from "@cascade/theme/tokens.stylex";
 import { DndContext } from "@dnd-kit/core";
 import * as stylex from "@stylexjs/stylex";
 import {
