@@ -209,6 +209,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@air/react-drag-to-select':
+        specifier: ^5.0.11
+        version: 5.0.11(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@base-ui/react':
         specifier: ^1.7.0
         version: 1.7.0(@date-fns/tz@1.2.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -263,6 +266,12 @@ packages:
 
   '@acemir/cssom@0.9.31':
     resolution: {integrity: sha512-ZnR3GSaH+/vJ0YlHau21FjfLYjMpYVIzTD8M8vIEQvIGxeOXyXdzCI140rrCY862p/C/BbzWsjc1dgnM9mkoTA==}
+
+  '@air/react-drag-to-select@5.0.11':
+    resolution: {integrity: sha512-y45tfrYnbInjpWv6cOVWy2XWy+kfZBuYd3aoS+CVjQSbM6FM7j/J7I4cWThJhQ3XmZ6KULJXeB8Mg0yLgQxH2A==}
+    peerDependencies:
+      react: 16 - 19
+      react-dom: 16 - 19
 
   '@asamuzakjp/css-color@4.1.2':
     resolution: {integrity: sha512-NfBUvBaYgKIuq6E/RBLY1m0IohzNHAYyaJGuTK79Z23uNwmz2jl1mPsC5ZxCCxylinKhT1Amn5oNTlx1wN8cQg==}
@@ -2803,6 +2812,9 @@ packages:
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
 
+  react-style-object-to-css@1.1.2:
+    resolution: {integrity: sha512-+5MFULqCCj7wwJJ/ISKFP91ZlHVF1Rv8o0neiTKvt21XDTU5e34tc8hy+XPLeYWYOupdHt25HxxwocvYm3HM6A==}
+
   react@19.2.6:
     resolution: {integrity: sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q==}
     engines: {node: '>=0.10.0'}
@@ -3354,6 +3366,12 @@ snapshots:
 
   '@acemir/cssom@0.9.31':
     optional: true
+
+  '@air/react-drag-to-select@5.0.11(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+      react-style-object-to-css: 1.1.2
 
   '@asamuzakjp/css-color@4.1.2':
     dependencies:
@@ -5662,6 +5680,8 @@ snapshots:
   react-error-boundary@6.1.1(react@19.2.6):
     dependencies:
       react: 19.2.6
+
+  react-style-object-to-css@1.1.2: {}
 
   react@19.2.6: {}
 
