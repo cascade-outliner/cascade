@@ -34,6 +34,8 @@ import type { Node, Row } from "./types.ts";
  */
 export class OutlineStore {
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
+	/** Selected node ids. UI state only, never persisted. */
+	readonly selection = observable.set<string>();
 	readonly #persistence: OutlinePersistence;
 	readonly #children: IComputedValue<Children>;
 	readonly ready: Promise<void>;
@@ -45,7 +47,11 @@ export class OutlineStore {
 		this.#children = computed(() => indexChildren(this.nodes.values()), {
 			keepAlive: true,
 		});
-		makeAutoObservable(this, { nodes: false }, { autoBind: true });
+		makeAutoObservable(
+			this,
+			{ nodes: false, selection: false },
+			{ autoBind: true },
+		);
 		this.ready = this.#load();
 
 		persistence.subscribe?.((change) => runInAction(() => this.#merge(change)));
@@ -270,15 +276,79 @@ export class OutlineStore {
 		return true;
 	}
 
+	/** Replaces the selection with `ids`. */
+	select(ids: Iterable<string>): void {
+		this.selection.replace([...ids]);
+	}
+
+	clearSelection(): void {
+		this.selection.clear();
+	}
+
+	setTaskMany(ids: Iterable<string>, task: { done: boolean } | null): void {
+		for (const id of ids) {
+			this.setTask(id, task);
+		}
+	}
+
+	/**
+	 * Duplicates each node in `ids` next to itself. With `withChildren`, nodes
+	 * whose ancestor is also in `ids` are skipped: the ancestor's copy already holds them.
+	 */
+	duplicateMany(ids: Iterable<string>, withChildren = false): void {
+		const wanted = new Set(ids);
+		for (const id of this.#documentOrder(wanted)) {
+			if (
+				withChildren &&
+				this.ancestorsOf(id).some((ancestor) => wanted.has(ancestor.id))
+			) {
+				continue;
+			}
+			if (withChildren) {
+				this.duplicateWithChildren(id);
+			} else {
+				this.duplicate(id);
+			}
+		}
+	}
+
+	/** Indents each node in `ids`, top to bottom, so selected siblings end up nested together in order. */
+	indentMany(ids: Iterable<string>): void {
+		for (const id of this.#documentOrder(new Set(ids))) {
+			this.indent(id);
+		}
+	}
+
+	/** Outdents each node in `ids`, bottom to top, so they keep their order after the former parent. */
+	outdentMany(ids: Iterable<string>): void {
+		for (const id of this.#documentOrder(new Set(ids)).reverse()) {
+			this.outdent(id);
+		}
+	}
+
 	remove(id: string): void {
-		if (!this.nodes.has(id)) {
+		this.removeMany([id]);
+	}
+
+	/** Removes every node in `ids` and their descendants, in one write. */
+	removeMany(ids: Iterable<string>): void {
+		// A Set: a selected parent and its selected child share descendants.
+		const all = new Set<string>();
+		for (const id of ids) {
+			if (this.nodes.has(id)) {
+				for (const each of descendantsOf(this.#tree, id)) {
+					all.add(each);
+				}
+			}
+		}
+		if (all.size === 0) {
 			return;
 		}
-		const ids = descendantsOf(this.#tree, id);
-		for (const each of ids) {
-			this.nodes.delete(each);
+		for (const id of all) {
+			this.nodes.delete(id);
+			this.selection.delete(id);
 		}
-		this.#persist([], ids);
+		this.#persist([], [...all]);
 	}
 
 	/** Removes every node in the outline. */
@@ -314,6 +384,7 @@ export class OutlineStore {
 		}
 		for (const id of change.delete) {
 			this.nodes.delete(id);
+			this.selection.delete(id);
 		}
 		const fixed = breakCycles(this.nodes);
 		if (fixed.length > 0) {
@@ -328,6 +399,21 @@ export class OutlineStore {
 		const registered = observable.object(node, { content: observable.ref });
 		this.nodes.set(node.id, registered);
 		return registered;
+	}
+
+	/** `ids` in outline order (depth-first, collapsed or not). Unknown ids are dropped. */
+	#documentOrder(ids: ReadonlySet<string>): string[] {
+		const ordered: string[] = [];
+		const walk = (parentId: string | null) => {
+			for (const child of childrenOf(this.#tree, parentId)) {
+				if (ids.has(child.id)) {
+					ordered.push(child.id);
+				}
+				walk(child.id);
+			}
+		};
+		walk(null);
+		return ordered;
 	}
 
 	/** The current children index. Reads are tracked by MobX like any observable. */

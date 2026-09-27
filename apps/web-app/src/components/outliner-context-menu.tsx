@@ -15,6 +15,7 @@ import {
 	SparkleIcon,
 	TrashIcon,
 } from "@phosphor-icons/react";
+import { observer } from "mobx-react-lite";
 import type { ReactNode } from "react";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
@@ -26,7 +27,7 @@ export interface OutlinerContextMenuProps {
 	onZoomIn?: (id: string) => void;
 }
 
-export function OutlinerContextMenu({
+export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 	node,
 	childCount,
 	children,
@@ -34,6 +35,10 @@ export function OutlinerContextMenu({
 	onZoomIn,
 }: OutlinerContextMenuProps) {
 	const store = useOutlineStore();
+	// Opened on a selected row, the actions apply to the whole selection.
+	const batch = store.selection.has(node.id) && store.selection.size > 1;
+	const ids = batch ? [...store.selection] : [node.id];
+	const count = batch ? ` ${ids.length} nodes` : "";
 
 	return (
 		<Menu.Root onOpenChange={onOpenChange}>
@@ -46,8 +51,8 @@ export function OutlinerContextMenu({
 					<Menu.RadioGroup
 						value={node.task ? "task" : "text"}
 						onValueChange={(value) => {
-							if (value === "task") store.setTask(node.id, { done: false });
-							if (value === "text") store.setTask(node.id, null);
+							if (value === "task") store.setTaskMany(ids, { done: false });
+							if (value === "text") store.setTaskMany(ids, null);
 						}}
 					>
 						<Menu.RadioItem
@@ -80,7 +85,7 @@ export function OutlinerContextMenu({
 				</Menu.Submenu>
 				<Menu.Item
 					icon={<MagnifyingGlassPlusIcon size={15} />}
-					shortcut="⌥↓"
+					disabled={batch}
 					onClick={() => onZoomIn?.(node.id)}
 				>
 					Zoom in
@@ -90,38 +95,37 @@ export function OutlinerContextMenu({
 				</Menu.Item>
 				<Menu.Separator />
 				<Menu.Submenu icon={<CopyIcon size={15} />} label="Duplicate">
-					<Menu.Item shortcut="⌘D" onClick={() => store.duplicate(node.id)}>
+					<Menu.Item onClick={() => store.duplicateMany(ids)}>
 						Duplicate selected
 					</Menu.Item>
 					<Menu.Item
-						disabled={childCount === 0}
-						onClick={() => store.duplicateWithChildren(node.id)}
+						disabled={!batch && childCount === 0}
+						onClick={() => store.duplicateMany(ids, true)}
 					>
 						Duplicate with children
 					</Menu.Item>
 				</Menu.Submenu>
 				<Menu.Item
 					icon={<ArrowLineRightIcon size={15} />}
-					shortcut="⇥"
-					disabled={!store.canIndent(node.id)}
-					onClick={() => store.indent(node.id)}
+					disabled={!ids.some(store.canIndent)}
+					onClick={() => store.indentMany(ids)}
 				>
-					Indent
+					Indent{count}
 				</Menu.Item>
 				<Menu.Item
 					icon={<ArrowLineLeftIcon size={15} />}
-					shortcut="⇧⇥"
-					disabled={!store.canOutdent(node.id)}
-					onClick={() => store.outdent(node.id)}
+					disabled={!ids.some(store.canOutdent)}
+					onClick={() => store.outdentMany(ids)}
 				>
-					Outdent
+					Outdent{count}
 				</Menu.Item>
 				<Menu.Separator />
-				<Menu.Item icon={<SparkleIcon size={15} />} shortcut="⌘⏎" disabled>
+				<Menu.Item icon={<SparkleIcon size={15} />} disabled>
 					Break into steps
 				</Menu.Item>
 				<Menu.Item
 					icon={<LinkSimpleIcon size={15} />}
+					disabled={batch}
 					onClick={() => {
 						const url = new URL(`/node/${node.id}`, window.location.origin);
 						navigator.clipboard.writeText(url.toString());
@@ -132,13 +136,12 @@ export function OutlinerContextMenu({
 				<Menu.Separator />
 				<Menu.Item
 					icon={<TrashIcon size={15} />}
-					shortcut="⌘⌫"
 					danger
-					onClick={() => store.remove(node.id)}
+					onClick={() => store.removeMany(ids)}
 				>
-					Delete
+					Delete{count}
 				</Menu.Item>
 			</Menu.Popup>
 		</Menu.Root>
 	);
-}
+});
