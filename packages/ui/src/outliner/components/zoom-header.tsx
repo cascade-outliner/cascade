@@ -71,6 +71,10 @@ const styles = stylex.create({
 			color: colors.ink,
 		},
 	},
+	heading: {
+		margin: 0,
+		font: "inherit",
+	},
 	title: {
 		fontSize: fontSize["800"],
 		fontWeight: 600,
@@ -86,6 +90,10 @@ export interface ZoomHeaderProps {
 	/** Zoom to another node, or `null` to zoom all the way out. */
 	onZoomTo: (id: string | null) => void;
 	onChange?: (state: EditorState) => void;
+	/** Show the title without letting it be edited. */
+	readOnly?: boolean;
+	/** Display text for a node in place of its content (title and breadcrumbs), or `undefined` to show the content. */
+	labelOf?: (node: Node) => string | undefined;
 	/** View transition name for the title, so it can morph from the zoomed row. */
 	titleTransitionName?: string;
 }
@@ -95,6 +103,8 @@ export function ZoomHeader({
 	ancestors,
 	onZoomTo,
 	onChange,
+	readOnly,
+	labelOf,
 	titleTransitionName,
 }: ZoomHeaderProps) {
 	const visible =
@@ -137,15 +147,25 @@ export function ZoomHeader({
 							{...stylex.props(styles.crumbButton)}
 							onClick={() => onZoomTo(ancestor.id)}
 						>
-							{plainText(ancestor.content) || "Untitled"}
+							{labelOf?.(ancestor) ??
+								(plainText(ancestor.content) || "Untitled")}
 						</button>
 					</Fragment>
 				))}
 			</div>
 			<ItemContext.Provider value={{ node, depth: 0 }}>
-				<div style={{ viewTransitionName: titleTransitionName }}>
-					<Content key={node.id} style={styles.title} onChange={onChange} />
-				</div>
+				<h1
+					{...stylex.props(styles.heading)}
+					style={{ viewTransitionName: titleTransitionName }}
+				>
+					<Content
+						key={node.id}
+						style={styles.title}
+						label={labelOf?.(node)}
+						editable={!readOnly}
+						onChange={onChange}
+					/>
+				</h1>
 			</ItemContext.Provider>
 		</div>
 	);

@@ -1,9 +1,18 @@
-import { type Row, textState } from "@cascade/data";
+import {
+	dayId,
+	dayLabel,
+	openDay,
+	type Row,
+	relativeDay,
+	shiftDay,
+	textState,
+} from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
+import { DaySwitcher } from "@cascade/ui/outliner/day-switcher";
 import { Row as RowShell } from "@cascade/ui/outliner/row";
 import { TaskMarker } from "@cascade/ui/outliner/task-marker";
 import { VirtualList } from "@cascade/ui/outliner/virtual-list";
@@ -27,6 +36,11 @@ const styles = stylex.create({
 		display: "flex",
 		flexDirection: "column",
 		gap: space["1"],
+	},
+	toolbar: {
+		display: "flex",
+		justifyContent: "flex-end",
+		marginBottom: space["4"],
 	},
 	zoomHeader: {
 		marginBottom: space["6"],
@@ -88,6 +102,8 @@ const OutlineRow = observer(function OutlineRow({
 					/>
 				)}
 				<Content
+					label={relativeDay(node.id) ?? undefined}
+					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
 				/>
 			</RowShell>
@@ -156,6 +172,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 
 	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
 	const rows = store.rows(zoomedId);
+	const onToday = zoomedId === dayId(new Date());
 
 	if (!onboarded && store.size === 0) {
 		return (
@@ -178,12 +195,23 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 
 	return (
 		<div {...stylex.props(styles.page)}>
+			<div {...stylex.props(styles.toolbar)}>
+				<DaySwitcher
+					label={(zoomedId && dayLabel(zoomedId)) || "Today"}
+					active={onToday}
+					onToday={() => zoomTo(openDay(store, new Date()))}
+					onOlder={() => zoomTo(openDay(store, shiftDay(zoomedId, -1)))}
+					onNewer={() => zoomTo(openDay(store, shiftDay(zoomedId, 1)))}
+				/>
+			</div>
 			{zoomed && (
 				<div {...stylex.props(styles.zoomHeader)}>
 					<ZoomHeader
 						node={zoomed}
 						ancestors={store.ancestorsOf(zoomed.id)}
 						onZoomTo={zoomTo}
+						readOnly={store.isLocked(zoomed.id)}
+						labelOf={(node) => relativeDay(node.id) ?? undefined}
 						onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
 						titleTransitionName={zoomTransitionName(zoomed.id)}
 					/>
@@ -216,8 +244,9 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				<CaptureBar
 					ref={captureInputRef}
 					onSubmit={(text) => {
-						const id = store.create(zoomedId);
-						store.setContent(id, textState(text));
+						store.create(zoomedId, {
+							content: textState(text),
+						});
 					}}
 				/>
 			</div>

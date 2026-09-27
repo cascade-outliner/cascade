@@ -1,4 +1,5 @@
 import { test as base } from "@playwright/test";
+import { DaySwitcher } from "./pages/day-switcher.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
 
@@ -8,6 +9,7 @@ interface Options {
 }
 
 interface Fixtures {
+	daySwitcher: DaySwitcher;
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
 }
@@ -28,6 +30,9 @@ export const test = base.extend<Options & Fixtures>({
 			});
 		}
 		await use(page);
+	},
+	daySwitcher: async ({ page }, use) => {
+		await use(new DaySwitcher(page));
 	},
 	onboardingPage: async ({ page }, use) => {
 		await use(new OnboardingPage(page));

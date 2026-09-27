@@ -1,4 +1,16 @@
 export { emptyState, plainText, textState } from "./outline/content.ts";
+export {
+	DAILY_ROOT,
+	dayDate,
+	dayId,
+	dayLabel,
+	dayTitle,
+	isDailyNode,
+	isDayId,
+	openDay,
+	relativeDay,
+	shiftDay,
+} from "./outline/daily.ts";
 export type { SearchHit, SearchResult } from "./outline/search.ts";
 export { OutlineStore } from "./outline/store.ts";
 export type { Node, Row } from "./outline/types.ts";
