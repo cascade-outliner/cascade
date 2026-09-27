@@ -13,20 +13,16 @@ import { RecentlyViewedCollectionsField as RecentlyViewedCollectionsField_3817bf
 
 /** @type import('payload').ImportMap */
 export const importMap = {
-  '@payloadcms/ui#NullField': NullField_3817bf644402e67bfe6577f60ef982de,
-  '@payloadcms/ui/rsc#HierarchyField': HierarchyField_ab83ff7e88da8d3530831f296ec4756a,
-  '@payloadcms/ui/rsc#HierarchyButton': HierarchyButton_ab83ff7e88da8d3530831f296ec4756a,
-  '@payloadcms/ui#FolderIcon': FolderIcon_3817bf644402e67bfe6577f60ef982de,
-  '@payloadcms/ui/rsc#HierarchySidebarTabServer':
-    HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
-  '@payloadcms/ui#TagIcon': TagIcon_3817bf644402e67bfe6577f60ef982de,
-  '@payloadcms/ui/rsc#CollectionCards': CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
-  '@payloadcms/ui/rsc#CollectionQueryWidget':
-    CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a,
-  '@payloadcms/ui#QueryPresetsWhereField': QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de,
-  '@payloadcms/ui#CollectionQuerySortField':
-    CollectionQuerySortField_3817bf644402e67bfe6577f60ef982de,
-  '@payloadcms/ui/rsc#RecentlyViewedWidget': RecentlyViewedWidget_ab83ff7e88da8d3530831f296ec4756a,
-  '@payloadcms/ui#RecentlyViewedCollectionsField':
-    RecentlyViewedCollectionsField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui#NullField": NullField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#HierarchyField": HierarchyField_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui/rsc#HierarchyButton": HierarchyButton_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#TagIcon": TagIcon_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui/rsc#CollectionQueryWidget": CollectionQueryWidget_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#QueryPresetsWhereField": QueryPresetsWhereField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui#CollectionQuerySortField": CollectionQuerySortField_3817bf644402e67bfe6577f60ef982de,
+  "@payloadcms/ui/rsc#RecentlyViewedWidget": RecentlyViewedWidget_ab83ff7e88da8d3530831f296ec4756a,
+  "@payloadcms/ui#RecentlyViewedCollectionsField": RecentlyViewedCollectionsField_3817bf644402e67bfe6577f60ef982de
 }
