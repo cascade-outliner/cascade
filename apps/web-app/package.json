@@ -16,7 +16,8 @@
 		"check": "biome check",
 		"typecheck": "tsc",
 		"test:e2e": "playwright test",
-		"test:e2e:ui": "playwright test --ui"
+		"test:e2e:ui": "playwright test --ui",
+		"test:perf": "playwright test -c playwright.perf.config.ts"
 	},
 	"dependencies": {
 		"@cascade/data": "workspace:*",

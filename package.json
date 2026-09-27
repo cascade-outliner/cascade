@@ -10,6 +10,7 @@
 		"web-app:start": "pnpm --filter @cascade/web-app start",
 		"web-app:e2e": "pnpm --filter @cascade/web-app test:e2e",
 		"web-app:e2e:ui": "pnpm --filter @cascade/web-app test:e2e:ui",
+		"web-app:test:perf": "pnpm --filter @cascade/web-app test:perf",
 
 		"db:generate": "pnpm --filter @cascade/db generate",
 		"db:migrate": "pnpm --filter @cascade/db migrate",

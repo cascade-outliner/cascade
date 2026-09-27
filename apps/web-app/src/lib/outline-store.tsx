@@ -21,6 +21,8 @@ function outline() {
 export function loadOutline(): Promise<void> {
 	if (!loading) {
 		const { store, sync } = outline();
+		// Read by the e2e-perf suite.
+		void store.ready.then(() => performance.mark("outline:ready"));
 		const timeout = new Promise((resolve) => setTimeout(resolve, 5_000));
 		loading = Promise.race([Promise.all([store.ready, sync.start()]), timeout])
 			.then(() => {})
