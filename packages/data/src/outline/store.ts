@@ -173,6 +173,35 @@ export class OutlineStore {
 		this.#persist([node]);
 	}
 
+	/** Sets or clears (`null`) `id`'s due date, a `YYYY-MM-DD` day. */
+	setDue(id: string, due: string | null): void {
+		const node = this.nodes.get(id);
+		if (!node || this.isLocked(id)) {
+			return;
+		}
+		node.due = due ?? undefined;
+		node.updatedAt = Date.now();
+		this.#persist([node]);
+	}
+
+	/**
+	 * Nodes due on `day` (`YYYY-MM-DD`), in outline order. `excluding` drops
+	 * `id` and its descendants, e.g. the day's own note.
+	 */
+	dueOn(day: string, { excluding }: { excluding?: string } = {}): Node[] {
+		const skip = new Set(
+			excluding === undefined ? [] : descendantsOf(this.#tree, excluding),
+		);
+		const due = new Set<string>();
+		for (const node of this.nodes.values()) {
+			if (node.due === day && !skip.has(node.id)) {
+				due.add(node.id);
+			}
+		}
+		// ponytail: scans every node per call; index nodes by due date if outlines get huge.
+		return this.#documentOrder(due).flatMap((id) => this.nodes.get(id) ?? []);
+	}
+
 	/** Copies a node (not its descendants) as a new sibling. Returns the new id, or `null` if `id` is unknown. */
 	duplicate(id: string): string | null {
 		const node = this.nodes.get(id);
@@ -186,6 +215,7 @@ export class OutlineStore {
 			content: node.content,
 			collapsed: false,
 			task: node.task ? { ...node.task } : undefined,
+			due: node.due,
 			updatedAt: Date.now(),
 		});
 		this.#persist([copy]);
@@ -214,6 +244,7 @@ export class OutlineStore {
 				content: source.content,
 				collapsed: source.collapsed,
 				task: source.task ? { ...source.task } : undefined,
+				due: source.due,
 				updatedAt: Date.now(),
 			});
 			clones.push(copy);
@@ -310,6 +341,12 @@ export class OutlineStore {
 	setTaskMany(ids: Iterable<string>, task: { done: boolean } | null): void {
 		for (const id of ids) {
 			this.setTask(id, task);
+		}
+	}
+
+	setDueMany(ids: Iterable<string>, due: string | null): void {
+		for (const id of ids) {
+			this.setDue(id, due);
 		}
 	}
 

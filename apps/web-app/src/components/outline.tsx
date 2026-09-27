@@ -1,4 +1,12 @@
-import { type Row, relativeDay, textState } from "@cascade/data";
+import {
+	dayId,
+	dueLabel,
+	isoDay,
+	type Row,
+	relativeDay,
+	shiftDay,
+	textState,
+} from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
@@ -8,11 +16,13 @@ import { Row as RowShell } from "@cascade/ui/outliner/row";
 import { TaskMarker } from "@cascade/ui/outliner/task-marker";
 import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import { ZoomHeader } from "@cascade/ui/outliner/zoom-header";
+import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
 import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
+import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
@@ -93,6 +103,14 @@ const OutlineRow = observer(function OutlineRow({
 					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
 				/>
+				{node.due && (
+					<Pill
+						tone={node.due <= isoDay(new Date()) ? "primary" : "info"}
+						data-testid="due-pill"
+					>
+						{dueLabel(node.due)}
+					</Pill>
+				)}
 			</RowShell>
 		</OutlinerContextMenu>
 	);
@@ -222,6 +240,19 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 						/>
 					)}
 				</VirtualList>
+				{zoomedId === dayId(new Date()) && (
+					<DueElsewhere
+						groups={[
+							{
+								label: "Due today, elsewhere",
+								day: isoDay(new Date()),
+							},
+							{ label: "Tomorrow", day: isoDay(shiftDay(null, 1)) },
+						]}
+						excluding={zoomedId}
+						onZoomTo={zoomTo}
+					/>
+				)}
 				<div {...stylex.props(styles.captureBar)}>
 					<CaptureBar
 						ref={captureInputRef}

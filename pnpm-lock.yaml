@@ -217,7 +217,7 @@ importers:
         version: 5.0.11(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@base-ui/react':
         specifier: ^1.7.0
-        version: 1.7.0(@date-fns/tz@1.2.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 1.7.0(@date-fns/tz@1.5.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@cascade/data':
         specifier: workspace:*
         version: link:../data
@@ -248,6 +248,9 @@ importers:
       react:
         specifier: ^19.2.0
         version: 19.2.6
+      react-day-picker:
+        specifier: ^10.0.1
+        version: 10.0.1(@types/react@19.2.14)(react@19.2.6)
       react-dom:
         specifier: ^19.2.0
         version: 19.2.6(react@19.2.6)
@@ -476,8 +479,8 @@ packages:
     resolution: {integrity: sha512-QxULHAm7cNu72w97JUNCBFODFaXpbDg+dP8b/oWFAZ2MTRppA3U00Y2L1HqaS4J6yBqxwa/Y3nMBaxVKbB/NsA==}
     engines: {node: '>=20.19.0'}
 
-  '@date-fns/tz@1.2.0':
-    resolution: {integrity: sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==}
+  '@date-fns/tz@1.5.0':
+    resolution: {integrity: sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg==}
 
   '@dnd-kit/accessibility@3.1.1':
     resolution: {integrity: sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==}
@@ -2820,6 +2823,16 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  react-day-picker@10.0.1:
+    resolution: {integrity: sha512-eNh6BlwcYInWaJtRv18mXQ06Ys/H6rdTZAnTaSdOYJuTpwP1JMCHNd1FDRadA+gbeinq+psdULN5Xnowy9mV8w==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/react': '>=16.8.0'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   react-dom@19.2.6:
     resolution: {integrity: sha512-0prMI+hvBbPjsWnxDLxlCGyM8PN6UuWjEUCYmZhO67xIV9Xasa/r/vDnq+Xyq4Lo27g8QSbO5YzARu0D1Sps3g==}
     peerDependencies:
@@ -3514,7 +3527,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@base-ui/react@1.7.0(@date-fns/tz@1.2.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@base-ui/react@1.7.0(@date-fns/tz@1.5.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@base-ui/utils': 0.3.2(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -3524,7 +3537,7 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
       use-sync-external-store: 1.6.0(react@19.2.6)
     optionalDependencies:
-      '@date-fns/tz': 1.2.0
+      '@date-fns/tz': 1.5.0
       '@types/react': 19.2.14
       date-fns: 4.1.0
 
@@ -3604,8 +3617,7 @@ snapshots:
   '@csstools/css-tokenizer@4.0.0':
     optional: true
 
-  '@date-fns/tz@1.2.0':
-    optional: true
+  '@date-fns/tz@1.5.0': {}
 
   '@dnd-kit/accessibility@3.1.1(react@19.2.6)':
     dependencies:
@@ -5076,8 +5088,7 @@ snapshots:
       - '@noble/hashes'
     optional: true
 
-  date-fns@4.1.0:
-    optional: true
+  date-fns@4.1.0: {}
 
   dayjs@1.11.23: {}
 
@@ -5699,6 +5710,14 @@ snapshots:
     optional: true
 
   queue-microtask@1.2.3: {}
+
+  react-day-picker@10.0.1(@types/react@19.2.14)(react@19.2.6):
+    dependencies:
+      '@date-fns/tz': 1.5.0
+      date-fns: 4.1.0
+      react: 19.2.6
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   react-dom@19.2.6(react@19.2.6):
     dependencies:

@@ -1,4 +1,5 @@
-import type { Node } from "@cascade/data";
+import { fromIsoDay, isoDay, type Node, shiftDay } from "@cascade/data";
+import { Calendar } from "@cascade/ui/calendar";
 import { Menu } from "@cascade/ui/context-menu";
 import {
 	ArrowLineLeftIcon,
@@ -6,6 +7,7 @@ import {
 	ArrowSquareOutIcon,
 	ArrowsLeftRightIcon,
 	CalendarBlankIcon,
+	CalendarXIcon,
 	CircleIcon,
 	CopyIcon,
 	LinkSimpleIcon,
@@ -16,7 +18,7 @@ import {
 	TrashIcon,
 } from "@phosphor-icons/react";
 import { observer } from "mobx-react-lite";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
 export interface OutlinerContextMenuProps {
@@ -41,9 +43,21 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 	const count = batch ? ` ${ids.length} nodes` : "";
 	// Daily nodes can't be converted or copied.
 	const locked = ids.every(store.isLocked);
+	// Controlled, so picking a day in the calendar can close the menu.
+	const [open, setOpen] = useState(false);
+	const setDue = (date: Date | undefined | null) => {
+		store.setDueMany(ids, date ? isoDay(date) : null);
+		setOpen(false);
+	};
 
 	return (
-		<Menu.Root onOpenChange={onOpenChange}>
+		<Menu.Root
+			open={open}
+			onOpenChange={(next) => {
+				setOpen(next);
+				onOpenChange?.(next);
+			}}
+		>
 			<Menu.Trigger>{children}</Menu.Trigger>
 			<Menu.Popup>
 				<Menu.Submenu
@@ -89,6 +103,41 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 							Note
 						</Menu.RadioItem>
 					</Menu.RadioGroup>
+				</Menu.Submenu>
+				<Menu.Submenu icon={<CalendarBlankIcon size={15} />} label="Due date">
+					<Menu.Item disabled={locked} onClick={() => setDue(new Date())}>
+						Today
+					</Menu.Item>
+					<Menu.Item
+						disabled={locked}
+						onClick={() => setDue(shiftDay(null, 1))}
+					>
+						Tomorrow
+					</Menu.Item>
+					<Menu.Item
+						disabled={locked}
+						onClick={() => setDue(shiftDay(null, 7))}
+					>
+						Next week
+					</Menu.Item>
+					<Menu.Item
+						icon={<CalendarXIcon size={15} />}
+						disabled={locked || !ids.some((id) => store.get(id)?.due)}
+						onClick={() => setDue(null)}
+					>
+						Remove due date
+					</Menu.Item>
+					{!locked && (
+						<>
+							<Menu.Separator />
+							<Menu.Custom label="Calendar">
+								<Calendar
+									value={node.due ? fromIsoDay(node.due) : undefined}
+									onChange={setDue}
+								/>
+							</Menu.Custom>
+						</>
+					)}
 				</Menu.Submenu>
 				<Menu.Item
 					icon={<MagnifyingGlassPlusIcon size={15} />}

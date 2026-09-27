@@ -15,6 +15,8 @@ export interface Node {
 	collapsed: boolean;
 	/** Task state, or `undefined` if this node is plain text. */
 	task?: { done: boolean };
+	/** Due date as a local calendar day, `YYYY-MM-DD`, or `undefined` if none. */
+	due?: string;
 	/**
 	 * Timestamp of the last modification, in milliseconds since the epoch.
 	 *

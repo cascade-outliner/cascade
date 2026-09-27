@@ -2,6 +2,7 @@ import { test as base } from "@playwright/test";
 import { AppHeader } from "./pages/app-header.ts";
 import { CommandPalette } from "./pages/command-palette.ts";
 import { DaySwitcher } from "./pages/day-switcher.ts";
+import { DueDateMenu } from "./pages/due-date-menu.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
 
@@ -14,6 +15,7 @@ interface Fixtures {
 	appHeader: AppHeader;
 	commandPalette: CommandPalette;
 	daySwitcher: DaySwitcher;
+	dueDateMenu: DueDateMenu;
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
 }
@@ -43,6 +45,9 @@ export const test = base.extend<Options & Fixtures>({
 	},
 	daySwitcher: async ({ page }, use) => {
 		await use(new DaySwitcher(page));
+	},
+	dueDateMenu: async ({ page }, use) => {
+		await use(new DueDateMenu(page));
 	},
 	onboardingPage: async ({ page }, use) => {
 		await use(new OnboardingPage(page));

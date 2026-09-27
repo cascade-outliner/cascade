@@ -30,6 +30,7 @@ export const nodes = pgTable(
 		content: jsonb("content").$type<SerializedEditorState>().notNull(),
 		collapsed: boolean("collapsed").notNull().default(false),
 		task: jsonb("task").$type<{ done: boolean }>(),
+		due: text("due"),
 		updatedAt: bigint("updated_at", { mode: "number" }).notNull(),
 		deletedAt: bigint("deleted_at", { mode: "number" }),
 		syncedAt: timestamp("synced_at", { withTimezone: true, mode: "string" })
