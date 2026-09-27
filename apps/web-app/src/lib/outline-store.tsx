@@ -4,11 +4,9 @@ import {
 	type ReactNode,
 	useContext,
 	useEffect,
-	useLayoutEffect,
 	useState,
 	useSyncExternalStore,
 } from "react";
-import { setAppLoading } from "#/components/loading-screen.tsx";
 import { createSync, type Sync } from "#/lib/sync.ts";
 
 const OutlineStoreContext = createContext<OutlineStore | null>(null);
@@ -35,10 +33,6 @@ export function OutlineStoreProvider({ children }: { children: ReactNode }) {
 			.finally(() => setLoaded(true));
 		return () => sync.stop();
 	}, [instance]);
-
-	useLayoutEffect(() => {
-		if (loaded) setAppLoading(false);
-	}, [loaded]);
 
 	if (!instance || !loaded) {
 		return null;

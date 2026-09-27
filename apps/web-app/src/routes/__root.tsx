@@ -1,12 +1,7 @@
 import { colors, fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-import { lazy, Suspense, useLayoutEffect } from "react";
-import {
-	LoadingScreen,
-	setAppLoading,
-	useAppLoading,
-} from "#/components/loading-screen.tsx";
+import { lazy, Suspense } from "react";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/bitter/index.css";
@@ -63,7 +58,6 @@ export const Route = createRootRoute({
 });
 
 function NotFound() {
-	useLayoutEffect(() => setAppLoading(false), []);
 	return <p>Page not found.</p>;
 }
 
@@ -94,7 +88,6 @@ const TanStackDevtoolsPanel = import.meta.env.DEV
 
 const styles = stylex.create({
 	body: {
-		// Native controls and scrollbars follow the device too.
 		colorScheme: "light dark",
 		backgroundColor: colors.canvas,
 		color: colors.ink,
@@ -104,17 +97,12 @@ const styles = stylex.create({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-	// SPA mode: the server only renders this shell, loader included; the page
-	// clears it once loaded (see setAppLoading).
-	const appLoading = useAppLoading();
-
 	return (
 		<html lang="en">
 			<head>
 				<HeadContent />
 			</head>
 			<body {...stylex.props(styles.body)}>
-				{appLoading && <LoadingScreen />}
 				{children}
 				{TanStackDevtoolsPanel && (
 					<Suspense fallback={null}>
