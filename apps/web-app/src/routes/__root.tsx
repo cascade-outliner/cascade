@@ -54,7 +54,12 @@ export const Route = createRootRoute({
 		],
 	}),
 	shellComponent: RootDocument,
+	notFoundComponent: NotFound,
 });
+
+function NotFound() {
+	return <p>Page not found.</p>;
+}
 
 const TanStackDevtoolsPanel = import.meta.env.DEV
 	? lazy(async () => {
@@ -83,7 +88,6 @@ const TanStackDevtoolsPanel = import.meta.env.DEV
 
 const styles = stylex.create({
 	body: {
-		// Native controls and scrollbars follow the device too.
 		colorScheme: "light dark",
 		backgroundColor: colors.canvas,
 		color: colors.ink,

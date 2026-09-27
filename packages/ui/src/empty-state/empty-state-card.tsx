@@ -67,21 +67,10 @@ function Description({ children }: ChildrenProps) {
 	return <p {...stylex.props(styles.body)}>{children}</p>;
 }
 
-type ActionProps = ChildrenProps &
-	(
-		| { onClick: () => void; htmlFor?: never }
-		/** Focuses the input with this id when pressed. */
-		| { htmlFor: string; onClick?: never }
-	);
+type ActionProps = ChildrenProps;
 
-function Action({ children, onClick, htmlFor }: ActionProps) {
-	return (
-		<Button
-			onClick={onClick ?? (() => document.getElementById(htmlFor)?.focus())}
-		>
-			{children}
-		</Button>
-	);
+function Action({ children }: ActionProps) {
+	return <Button onClick={() => {}}>{children}</Button>;
 }
 
 /** Keyboard hint inside an `Action`, e.g. "↵". */

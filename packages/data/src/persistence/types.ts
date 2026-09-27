@@ -10,6 +10,8 @@ export interface OutlinePersistence {
 	 * Called once when the store is initialized.
 	 */
 	load(): Promise<Node[]>;
+	/** Return the stored node with `id`, if any. Optional: used by sync for per-node conflict checks. */
+	get?(id: string): Promise<Node | undefined>;
 	/**
 	 * Apply a set of changes atomically.
 	 *

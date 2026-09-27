@@ -7,7 +7,8 @@
 		"typecheck": "tsc"
 	},
 	"exports": {
-		"./website": "./src/website.ts"
+		"./website": "./src/website.ts",
+		"./db": "./src/db.ts"
 	},
 	"dependencies": {
 		"@t3-oss/env-core": "^0.13.11",

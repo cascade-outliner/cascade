@@ -9,6 +9,10 @@ export class MemoryPersistence implements OutlinePersistence {
 		return [...this.nodes.values()];
 	}
 
+	async get(id: string): Promise<Node | undefined> {
+		return this.nodes.get(id);
+	}
+
 	async write(change: { put: Node[]; delete: string[] }): Promise<void> {
 		for (const node of change.put) {
 			this.nodes.set(node.id, node);
