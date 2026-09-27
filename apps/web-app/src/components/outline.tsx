@@ -31,6 +31,13 @@ const styles = stylex.create({
 	zoomHeader: {
 		marginBottom: space["6"],
 	},
+	// Keeps the capture bar in reach at the bottom of long outlines.
+	captureBar: {
+		position: "sticky",
+		bottom: `max(${space["4"]}, env(safe-area-inset-bottom))`,
+		zIndex: 1,
+		viewTransitionName: "capture-bar",
+	},
 });
 
 function zoomTransitionName(id: string): string {
@@ -161,7 +168,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 					/>
 				)}
 			</VirtualList>
-			<div style={{ viewTransitionName: "capture-bar" }}>
+			<div {...stylex.props(styles.captureBar)}>
 				<CaptureBar
 					onSubmit={(text) => {
 						const id = store.create(zoomedId);
