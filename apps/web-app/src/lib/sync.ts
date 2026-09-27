@@ -47,9 +47,6 @@ export function createSync(): Sync {
 		setWorkspaceId: (id) => engine.setWorkspaceId(id),
 		recordOnboarding: () => engine.recordOnboarding(),
 		async start() {
-			if (typeof window === "undefined") {
-				return;
-			}
 			try {
 				const { enabled } = await getSyncConfig();
 				if (enabled) {

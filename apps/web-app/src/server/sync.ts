@@ -140,8 +140,6 @@ export const pushChanges = createServerFn({ method: "POST" })
 					});
 			}
 
-			// ponytail: hard delete, so other devices never pull the delete and keep
-			// their copy; add a tombstone table if multi-device deletes matter.
 			for (const tombstone of data.delete) {
 				await tx
 					.delete(nodes)
