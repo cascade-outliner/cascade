@@ -98,8 +98,8 @@ export const verification = pgTable(
 
 export const workspaces = pgTable("workspaces", {
 	id: text("id").primaryKey(),
-	// TODO: make NOT NULL once the anonymous workspaces from before accounts are dropped.
 	userId: text("user_id")
+		.notNull()
 		.unique()
 		.references(() => user.id, { onDelete: "cascade" }),
 	createdAt: timestamp("created_at", { withTimezone: true })
