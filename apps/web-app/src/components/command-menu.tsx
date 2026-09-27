@@ -18,12 +18,28 @@ import {
 	PlusIcon,
 } from "@phosphor-icons/react";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { observable, runInAction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { useDeferredValue, useEffect, useState } from "react";
+import { useDeferredValue, useEffect } from "react";
 import { flushSync } from "react-dom";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
 const NODE_LIMIT = 8;
+
+const menu = observable({ open: false, query: "" });
+
+const setOpen = (open: boolean) => runInAction(() => (menu.open = open));
+const setQuery = (query: string) => runInAction(() => (menu.query = query));
+
+/** Opens the menu with an empty query, synchronously so the input can take focus right away. */
+export function openCommandMenu() {
+	flushSync(() =>
+		runInAction(() => {
+			menu.query = "";
+			menu.open = true;
+		}),
+	);
+}
 
 function nodeIcon(node: Node) {
 	if (!node.task) return <CircleIcon size={6} weight="fill" />;
@@ -39,8 +55,7 @@ export const CommandMenu = observer(function CommandMenu() {
 	const store = useOutlineStore();
 	const navigate = useNavigate();
 	const zoomedId = useParams({ strict: false }).id ?? null;
-	const [open, setOpen] = useState(false);
-	const [query, setQuery] = useState("");
+	const { open, query } = menu;
 	const deferredQuery = useDeferredValue(query);
 
 	useEffect(() => {
@@ -54,20 +69,16 @@ export const CommandMenu = observer(function CommandMenu() {
 				return;
 			}
 			event.preventDefault();
-			if (open) {
+			if (menu.open) {
 				setOpen(false);
-				return;
+			} else {
+				openCommandMenu();
 			}
-
-			flushSync(() => {
-				setQuery("");
-				setOpen(true);
-			});
 		};
 		window.addEventListener("keydown", onKeyDown, { capture: true });
 		return () =>
 			window.removeEventListener("keydown", onKeyDown, { capture: true });
-	}, [open]);
+	}, []);
 
 	const create = () => {
 		const text = query.trim();

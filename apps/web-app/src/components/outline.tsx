@@ -1,18 +1,9 @@
-import {
-	dayId,
-	dayLabel,
-	openDay,
-	type Row,
-	relativeDay,
-	shiftDay,
-	textState,
-} from "@cascade/data";
+import { type Row, relativeDay, textState } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
-import { DaySwitcher } from "@cascade/ui/outliner/day-switcher";
 import { Row as RowShell } from "@cascade/ui/outliner/row";
 import { TaskMarker } from "@cascade/ui/outliner/task-marker";
 import { VirtualList } from "@cascade/ui/outliner/virtual-list";
@@ -21,6 +12,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
+import { AppHeader } from "#/components/app-header.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
@@ -36,11 +28,6 @@ const styles = stylex.create({
 		display: "flex",
 		flexDirection: "column",
 		gap: space["1"],
-	},
-	toolbar: {
-		display: "flex",
-		justifyContent: "flex-end",
-		marginBottom: space["4"],
 	},
 	zoomHeader: {
 		marginBottom: space["6"],
@@ -172,7 +159,6 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 
 	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
 	const rows = store.rows(zoomedId);
-	const onToday = zoomedId === dayId(new Date());
 
 	if (!onboarded && store.size === 0) {
 		return (
@@ -185,71 +171,68 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		);
 	}
 
+	const header = <AppHeader zoomedId={zoomedId} onZoomTo={zoomTo} />;
+
 	if (zoomedId && !zoomed) {
 		return (
-			<div {...stylex.props(styles.page)}>
-				<NodeNotFound onBack={() => zoomTo(null)} />
-			</div>
+			<>
+				{header}
+				<div {...stylex.props(styles.page)}>
+					<NodeNotFound onBack={() => zoomTo(null)} />
+				</div>
+			</>
 		);
 	}
 
 	return (
-		<div {...stylex.props(styles.page)}>
-			<div {...stylex.props(styles.toolbar)}>
-				<DaySwitcher
-					label={(zoomedId && dayLabel(zoomedId)) || "Today"}
-					active={onToday}
-					onToday={() => zoomTo(openDay(store, new Date()))}
-					onOlder={() => zoomTo(openDay(store, shiftDay(zoomedId, -1)))}
-					onNewer={() => zoomTo(openDay(store, shiftDay(zoomedId, 1)))}
-				/>
-			</div>
-			{zoomed && (
-				<div {...stylex.props(styles.zoomHeader)}>
-					<ZoomHeader
-						node={zoomed}
-						ancestors={store.ancestorsOf(zoomed.id)}
-						onZoomTo={zoomTo}
-						readOnly={store.isLocked(zoomed.id)}
-						labelOf={(node) => relativeDay(node.id) ?? undefined}
-						onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
-						titleTransitionName={zoomTransitionName(zoomed.id)}
-					/>
-				</div>
-			)}
-			{rows.length === 0 && (
-				<OutlineEmpty
-					zoomed={!!zoomed}
-					onAddStep={() => captureInputRef.current?.focus()}
-				/>
-			)}
-			<VirtualList
-				rows={rows}
-				rootId={zoomedId}
-				aria-label="Outline"
-				onMove={(id, parentId, index) => store.move(id, parentId, index)}
-				selected={store.selection}
-				onSelect={store.select}
-			>
-				{(row) => (
-					<OutlineRow
-						row={row}
-						active={menuOpenId === row.node.id}
-						onOpenChange={(open) => setMenuOpenId(open ? row.node.id : null)}
-						onZoomTo={zoomTo}
+		<>
+			{header}
+			<div {...stylex.props(styles.page)}>
+				{zoomed && (
+					<div {...stylex.props(styles.zoomHeader)}>
+						<ZoomHeader
+							node={zoomed}
+							readOnly={store.isLocked(zoomed.id)}
+							labelOf={(node) => relativeDay(node.id) ?? undefined}
+							onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
+							titleTransitionName={zoomTransitionName(zoomed.id)}
+						/>
+					</div>
+				)}
+				{rows.length === 0 && (
+					<OutlineEmpty
+						zoomed={!!zoomed}
+						onAddStep={() => captureInputRef.current?.focus()}
 					/>
 				)}
-			</VirtualList>
-			<div {...stylex.props(styles.captureBar)}>
-				<CaptureBar
-					ref={captureInputRef}
-					onSubmit={(text) => {
-						store.create(zoomedId, {
-							content: textState(text),
-						});
-					}}
-				/>
+				<VirtualList
+					rows={rows}
+					rootId={zoomedId}
+					aria-label="Outline"
+					onMove={(id, parentId, index) => store.move(id, parentId, index)}
+					selected={store.selection}
+					onSelect={store.select}
+				>
+					{(row) => (
+						<OutlineRow
+							row={row}
+							active={menuOpenId === row.node.id}
+							onOpenChange={(open) => setMenuOpenId(open ? row.node.id : null)}
+							onZoomTo={zoomTo}
+						/>
+					)}
+				</VirtualList>
+				<div {...stylex.props(styles.captureBar)}>
+					<CaptureBar
+						ref={captureInputRef}
+						onSubmit={(text) => {
+							store.create(zoomedId, {
+								content: textState(text),
+							});
+						}}
+					/>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 });
