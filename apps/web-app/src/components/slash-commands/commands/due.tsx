@@ -7,6 +7,7 @@ const GROUP = "Due date";
 export const dueCommands: SlashCommand[] = [
 	{
 		id: "due-today",
+		capture: true,
 		group: GROUP,
 		label: "Due today",
 		keywords: ["date", "deadline"],
@@ -15,6 +16,7 @@ export const dueCommands: SlashCommand[] = [
 	},
 	{
 		id: "due-tomorrow",
+		capture: true,
 		group: GROUP,
 		label: "Due tomorrow",
 		keywords: ["date", "deadline"],
@@ -23,6 +25,7 @@ export const dueCommands: SlashCommand[] = [
 	},
 	{
 		id: "due-next-week",
+		capture: true,
 		group: GROUP,
 		label: "Due next week",
 		keywords: ["date", "deadline"],

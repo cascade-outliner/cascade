@@ -15,6 +15,9 @@ import {
 	type SlashMenuItem,
 } from "./filter.ts";
 
+/** The popup's tallest, for callers that pick a side by the room they have. */
+export const SLASH_MENU_MAX_HEIGHT = 320;
+
 const styles = stylex.create({
 	popup: {
 		position: "absolute",
@@ -23,7 +26,7 @@ const styles = stylex.create({
 		zIndex: zIndex.popup,
 		width: 280,
 		maxWidth: "calc(100vw - 32px)",
-		maxHeight: 320,
+		maxHeight: SLASH_MENU_MAX_HEIGHT,
 		overflowY: "auto",
 		overscrollBehavior: "contain",
 		padding: space["1.5"],
@@ -136,6 +139,8 @@ export interface SlashMenuProps<T extends SlashMenuItem> {
 	onSelect: (item: T) => void;
 	/** Lets the keyboard scroll the highlighted item into view. */
 	itemRef?: (item: T, element: HTMLElement | null) => void;
+	/** Where the popup sits; by default the top-left of its positioned parent. */
+	style?: stylex.StyleXStyles;
 }
 
 /**
@@ -149,6 +154,7 @@ export function SlashMenu<T extends SlashMenuItem>({
 	onHighlight,
 	onSelect,
 	itemRef,
+	style,
 }: SlashMenuProps<T>) {
 	const groups: SlashMenuGroup<T>[] = groupSlashMenuItems(items);
 	let index = -1;
@@ -156,7 +162,7 @@ export function SlashMenu<T extends SlashMenuItem>({
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: not a control; only keeps focus (and the caret) in the editor while picking with the mouse.
 		<div
-			{...stylex.props(styles.popup)}
+			{...stylex.props(styles.popup, style)}
 			data-testid="slash-menu"
 			onMouseDown={(event) => event.preventDefault()}
 		>

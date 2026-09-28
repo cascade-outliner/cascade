@@ -10,9 +10,6 @@ import { createPortal } from "react-dom";
 import { filterSlashMenuItems, type SlashMenuItem } from "./filter.ts";
 import { SlashMenu } from "./slash-menu.tsx";
 
-export type { SlashMenuGroup, SlashMenuItem } from "./filter.ts";
-export { filterSlashMenuItems, groupSlashMenuItems } from "./filter.ts";
-
 /** Wraps an item so Lexical can track it (by `key`) and scroll it into view (by ref). */
 class SlashMenuOption<T extends SlashMenuItem> extends MenuOption {
 	constructor(readonly item: T) {

@@ -6,6 +6,7 @@ const GROUP = "Convert";
 export const convertCommands: SlashCommand[] = [
 	{
 		id: "turn-into-task",
+		capture: true,
 		group: GROUP,
 		label: "Turn into task",
 		keywords: ["todo", "checkbox"],

@@ -12,8 +12,8 @@ export interface SlashCommandContext {
 	node: Node;
 	/** Direct children of `node`, visible or not. */
 	childCount: number;
-	/** The node's editor, for commands that change its text. */
-	editor: LexicalEditor;
+	/** The node's editor, for commands that change its text. Unset from the capture bar. */
+	editor?: LexicalEditor;
 	zoomTo: (id: string | null) => void;
 	/** Opens the "Break into steps" sheet for a node. Unset when AI is off. */
 	split?: (id: string) => void;
@@ -26,9 +26,15 @@ export interface SlashCommandContext {
  * (or start a new file and list it in `./registry.ts`). The menu shows the
  * commands in registry order, filters them by label and `keywords`, and hides
  * the ones whose `available` says no.
+ *
+ * Commands live in two places: a row's editor, where they act on that node,
+ * and (with `capture`) the capture bar, where "Buy milk /task" creates the
+ * node from the text first and then runs the command on it.
  */
 export interface SlashCommand extends SlashMenuItem {
 	/** Whether to offer the command for this node right now. Left out: always. */
 	available?: (context: SlashCommandContext) => boolean;
 	run: (context: SlashCommandContext) => void;
+	/** Also offer it in the capture bar. `available` isn't asked there: the node is new. */
+	capture?: boolean;
 }

@@ -12,6 +12,7 @@ const GROUP = "Node";
 export const nodeCommands: SlashCommand[] = [
 	{
 		id: "zoom-in",
+		capture: true,
 		group: GROUP,
 		label: "Zoom in",
 		keywords: ["open", "focus"],

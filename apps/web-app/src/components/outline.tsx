@@ -28,6 +28,7 @@ import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
+import { useCaptureSlashCommands } from "#/components/slash-commands/capture.ts";
 import { SlashCommandsPlugin } from "#/components/slash-commands/slash-commands-plugin.tsx";
 import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
@@ -177,6 +178,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 			viewTransition: true,
 		});
 	};
+	const captureSlashMenu = useCaptureSlashCommands(zoomedId, zoomTo);
 
 	// Zooming changes which rows are visible; a hidden selection would surprise on Backspace.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on every zoom change on purpose
@@ -311,6 +313,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				<div {...stylex.props(styles.captureBar)}>
 					<CaptureBar
 						ref={captureInputRef}
+						slashMenu={captureSlashMenu}
 						onSplit={aiEnabled ? setCaptured : undefined}
 						panel={
 							captured !== null && (

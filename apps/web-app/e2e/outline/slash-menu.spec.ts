@@ -115,3 +115,70 @@ test.describe("slash menu", () => {
 		);
 	});
 });
+
+test.describe("slash menu in the capture bar", () => {
+	test.beforeEach(async ({ outlinePage }) => {
+		await outlinePage.goto();
+	});
+
+	test("opens once there is text before the slash", async ({
+		outlinePage,
+		slashMenu,
+	}) => {
+		await outlinePage.captureInput.fill("/");
+		await expect(slashMenu.menu).toBeHidden();
+
+		await outlinePage.captureInput.fill("Buy milk /");
+
+		await expect(slashMenu.menu).toBeVisible();
+		await expect(slashMenu.highlighted).toHaveText(/Turn into task/);
+	});
+
+	test("Enter creates the node from the text and runs the command", async ({
+		outlinePage,
+		slashMenu,
+	}) => {
+		await outlinePage.captureInput.fill("Buy milk /task");
+		await expect(slashMenu.highlighted).toHaveText(/Turn into task/);
+		await outlinePage.captureInput.press("Enter");
+
+		await expect(slashMenu.menu).toBeHidden();
+		await expect(outlinePage.rows).toHaveText(["Buy milk"]);
+		await expect(
+			outlinePage.row("Buy milk").getByRole("checkbox"),
+		).toBeVisible();
+		await expect(outlinePage.captureInput).toHaveValue("");
+		await expect(outlinePage.captureInput).toBeFocused();
+	});
+
+	test("clicking a command runs it", async ({ outlinePage, slashMenu }) => {
+		await outlinePage.captureInput.fill("Call mom /tom");
+		await slashMenu.option("Due tomorrow").click();
+
+		await expect(outlinePage.duePill("Call mom")).toHaveText("Tomorrow");
+		await expect(outlinePage.captureInput).toHaveValue("");
+	});
+
+	test("Escape hides the menu and keeps the text", async ({
+		outlinePage,
+		slashMenu,
+	}) => {
+		await outlinePage.captureInput.fill("Buy milk /ta");
+		await expect(slashMenu.menu).toBeVisible();
+		await outlinePage.captureInput.press("Escape");
+
+		await expect(slashMenu.menu).toBeHidden();
+		await expect(outlinePage.captureInput).toHaveValue("Buy milk /ta");
+	});
+
+	test("only offers the capture commands", async ({
+		outlinePage,
+		slashMenu,
+	}) => {
+		await outlinePage.captureInput.fill("Buy milk /");
+
+		await expect(slashMenu.option("Turn into task")).toBeVisible();
+		await expect(slashMenu.option("Delete")).toBeHidden();
+		await expect(slashMenu.option("Indent")).toBeHidden();
+	});
+});

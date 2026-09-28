@@ -11,8 +11,18 @@ import {
 import { PlusIcon, SparkleIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
-import { useEffect, useId, useReducer, useRef, useState } from "react";
+import {
+	useEffect,
+	useId,
+	useLayoutEffect,
+	useReducer,
+	useRef,
+	useState,
+} from "react";
 import { Button } from "../button/button.tsx";
+import type { SlashMenuItem } from "../slash-menu/filter.ts";
+import { SLASH_MENU_MAX_HEIGHT, SlashMenu } from "../slash-menu/slash-menu.tsx";
+import { useInputSlashMenu } from "../slash-menu/use-input-slash-menu.ts";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
@@ -24,6 +34,7 @@ const pop = stylex.keyframes({
 
 const styles = stylex.create({
 	bar: {
+		position: "relative",
 		display: "flex",
 		flexDirection: "column",
 		marginTop: {
@@ -140,6 +151,16 @@ const styles = stylex.create({
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
 	},
+	// The bar is sticky at the bottom of long outlines, and just under the rows of short ones.
+	slashMenuAbove: {
+		top: "auto",
+		bottom: `calc(100% + ${space["2"]})`,
+		left: space["3"],
+	},
+	slashMenuBelow: {
+		top: `calc(100% + ${space["2"]})`,
+		left: space["3"],
+	},
 	input: {
 		flexGrow: 1,
 		minWidth: 0,
@@ -157,8 +178,16 @@ const styles = stylex.create({
 	},
 });
 
-export interface CaptureBarProps {
+export interface CaptureBarSlashMenu<T extends SlashMenuItem = SlashMenuItem> {
+	items: readonly T[];
+	/** Gets the picked item and the text before the "/", which the bar then clears. */
+	onSelect: (item: T, text: string) => void;
+}
+
+export interface CaptureBarProps<T extends SlashMenuItem = SlashMenuItem> {
 	onSubmit: (text: string) => void;
+	/** Offers these on "/" after the text, e.g. "Buy milk /task". Leave unset to disable. */
+	slashMenu?: CaptureBarSlashMenu<T>;
 	/** Offers to split the text into tasks (⌘⇧↵). Leave unset to hide it. */
 	onSplit?: (text: string) => void;
 	/** Shown inside the bar, above the input (e.g. a split preview). It animates open and closed. */
@@ -167,18 +196,36 @@ export interface CaptureBarProps {
 	ref?: Ref<HTMLInputElement>;
 }
 
-export function CaptureBar({
+export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	onSubmit,
+	slashMenu,
 	onSplit,
 	panel,
 	placeholder = "Capture a thought…",
 	ref,
-}: CaptureBarProps) {
+}: CaptureBarProps<T>) {
 	const [value, setValue] = useState("");
 	const [added, setAdded] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const barRef = useRef<HTMLDivElement>(null);
 	const inputId = useId();
 	const hasText = value.trim() !== "";
+	const slash = useInputSlashMenu<T>({
+		value,
+		items: slashMenu?.items ?? [],
+		onSelect: (item, text) => {
+			slashMenu?.onSelect(item, text);
+			setValue("");
+			setAdded((n) => n + 1);
+		},
+	});
+	const [slashSide, setSlashSide] = useState<"above" | "below">("above");
+	useLayoutEffect(() => {
+		const bar = barRef.current;
+		if (!slash.open || !bar) return;
+		const room = window.innerHeight - bar.getBoundingClientRect().bottom;
+		setSlashSide(room >= SLASH_MENU_MAX_HEIGHT + 16 ? "below" : "above");
+	}, [slash.open]);
 	// Keeps the last panel on screen while it collapses.
 	const lastPanel = useRef<ReactNode>(null);
 	const [, rerender] = useReducer((n: number) => n + 1, 0);
@@ -217,7 +264,7 @@ export function CaptureBar({
 	}
 
 	return (
-		<div {...stylex.props(styles.bar)}>
+		<div ref={barRef} {...stylex.props(styles.bar)}>
 			<div {...stylex.props(styles.panel, open && styles.panelOpen)}>
 				<div
 					inert={!open}
@@ -247,6 +294,7 @@ export function CaptureBar({
 					value={value}
 					onValueChange={setValue}
 					onKeyDown={(event) => {
+						if (slash.onKeyDown(event)) return;
 						if (
 							event.key === "Enter" &&
 							event.shiftKey &&
@@ -285,6 +333,19 @@ export function CaptureBar({
 					Add
 				</Button>
 			</label>
+			{slash.open && (
+				<SlashMenu
+					items={slash.items}
+					highlightedIndex={slash.highlightedIndex}
+					onHighlight={slash.highlight}
+					onSelect={slash.select}
+					style={
+						slashSide === "above"
+							? styles.slashMenuAbove
+							: styles.slashMenuBelow
+					}
+				/>
+			)}
 		</div>
 	);
 }
