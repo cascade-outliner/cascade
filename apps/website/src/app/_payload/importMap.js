@@ -1,6 +1,11 @@
 import { NullField as NullField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchyField as HierarchyField_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { HierarchyButton as HierarchyButton_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
+import { TitleRowLabel as TitleRowLabel_adf589f891faf4423540a2b6e69cf5e0 } from '@/blocks/row-labels'
+import { TextRowLabel as TextRowLabel_adf589f891faf4423540a2b6e69cf5e0 } from '@/blocks/row-labels'
+import { NameRowLabel as NameRowLabel_adf589f891faf4423540a2b6e69cf5e0 } from '@/blocks/row-labels'
+import { QuestionRowLabel as QuestionRowLabel_adf589f891faf4423540a2b6e69cf5e0 } from '@/blocks/row-labels'
+import { LabelRowLabel as LabelRowLabel_adf589f891faf4423540a2b6e69cf5e0 } from '@/blocks/row-labels'
 import { FolderIcon as FolderIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { HierarchySidebarTabServer as HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a } from '@payloadcms/ui/rsc'
 import { TagIcon as TagIcon_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -16,6 +21,11 @@ export const importMap = {
   "@payloadcms/ui#NullField": NullField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchyField": HierarchyField_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui/rsc#HierarchyButton": HierarchyButton_ab83ff7e88da8d3530831f296ec4756a,
+  "@/blocks/row-labels#TitleRowLabel": TitleRowLabel_adf589f891faf4423540a2b6e69cf5e0,
+  "@/blocks/row-labels#TextRowLabel": TextRowLabel_adf589f891faf4423540a2b6e69cf5e0,
+  "@/blocks/row-labels#NameRowLabel": NameRowLabel_adf589f891faf4423540a2b6e69cf5e0,
+  "@/blocks/row-labels#QuestionRowLabel": QuestionRowLabel_adf589f891faf4423540a2b6e69cf5e0,
+  "@/blocks/row-labels#LabelRowLabel": LabelRowLabel_adf589f891faf4423540a2b6e69cf5e0,
   "@payloadcms/ui#FolderIcon": FolderIcon_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui/rsc#HierarchySidebarTabServer": HierarchySidebarTabServer_ab83ff7e88da8d3530831f296ec4756a,
   "@payloadcms/ui#TagIcon": TagIcon_3817bf644402e67bfe6577f60ef982de,

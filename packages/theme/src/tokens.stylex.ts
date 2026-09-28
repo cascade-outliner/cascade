@@ -50,6 +50,7 @@ export const colors = stylex.defineVars({
 
 export const fonts = stylex.defineVars({
 	app: '"Bitter Variable", serif',
+	mono: '"IBM Plex Mono", ui-monospace, monospace',
 });
 
 export const fontSize = stylex.defineVars({

@@ -5,7 +5,7 @@ import stylexPostcssPlugin from "@stylexjs/postcss-plugin";
 const IMPORT_SOURCE = "@stylexjs/stylex";
 const SCRIPT_RE = /\.[cm]?[jt]sx?$/;
 
-function babelConfig({ rootDir, dev }) {
+function babelConfig({ rootDir, aliases, dev }) {
 	return {
 		babelrc: false,
 		configFile: false,
@@ -21,6 +21,7 @@ function babelConfig({ rootDir, dev }) {
 				stylexBabelPlugin,
 				{
 					dev,
+					aliases,
 					runtimeInjection: false,
 					unstable_moduleResolution: { type: "commonJS", rootDir },
 				},
@@ -29,7 +30,7 @@ function babelConfig({ rootDir, dev }) {
 	};
 }
 
-export function stylex({ rootDir, include }) {
+export function stylex({ rootDir, include, aliases }) {
 	let dev = false;
 
 	return {
@@ -43,7 +44,11 @@ export function stylex({ rootDir, include }) {
 							stylexPostcssPlugin({
 								cwd: rootDir,
 								include,
-								babelConfig: babelConfig({ rootDir, dev: command === "serve" }),
+								babelConfig: babelConfig({
+									rootDir,
+									aliases,
+									dev: command === "serve",
+								}),
 							}),
 						],
 					},
@@ -64,7 +69,7 @@ export function stylex({ rootDir, include }) {
 			}
 
 			const result = await babel.transformAsync(code, {
-				...babelConfig({ rootDir, dev }),
+				...babelConfig({ rootDir, aliases, dev }),
 				filename,
 				sourceMaps: true,
 				sourceFileName: filename,

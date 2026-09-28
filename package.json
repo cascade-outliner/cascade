@@ -14,6 +14,7 @@
 		"website:dev": "pnpm --filter @cascade/website dev",
 		"website:build": "pnpm --filter @cascade/website build",
 		"website:start": "pnpm --filter @cascade/website start",
+		"website:seed": "pnpm --filter @cascade/website seed",
 		"website:migrate": "pnpm --filter @cascade/website migrate",
 		"website:migrate:create": "pnpm --filter @cascade/website migrate:create",
 		"website:migrate:status": "pnpm --filter @cascade/website migrate:status",

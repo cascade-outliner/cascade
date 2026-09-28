@@ -8,6 +8,18 @@ The outline lives in the browser (IndexedDB) and works fully offline. Optionally
 
 Sync is tied to an account. Users sign in with Google ([better-auth](https://www.better-auth.com)); each user gets one workspace on first push, recorded with its onboarding time in the `workspaces` table. A browser keeps syncing the account that first synced its outline: signing in as someone else on the same browser starts from that account's server copy instead.
 
+## Website
+
+`apps/website` is the marketing site: a TanStack Start app with Payload as its CMS. Pages are built from blocks (hero, feature grid, daily notes, pricing, FAQ, call to action) in the admin at `/admin`; the header and footer are globals. It needs `DATABASE_URL_WEBSITE` and `PAYLOAD_SECRET` (see `.env.example`).
+
+```sh
+pnpm website:migrate                          # apply schema migrations
+pnpm --filter @cascade/website seed           # header, footer and the home page (add --force to overwrite)
+pnpm website:dev                              # http://localhost:3000
+```
+
+After changing a collection, block or global: `pnpm --filter @cascade/website generate:types`, then `pnpm website:migrate:create <name>`.
+
 ## AI usage
 
 Use AI to accelerate implementation when the problem and solution are already understood. Do not use AI as a substitute for your own knowledge.
