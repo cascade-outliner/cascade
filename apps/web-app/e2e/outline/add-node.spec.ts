@@ -14,7 +14,7 @@ test.describe("adding a node", () => {
 
 		await expect(outlinePage.row("Buy milk")).toBeVisible();
 		await expect(outlinePage.emptyState).toBeHidden();
-		await expect(outlinePage.captureInput).toHaveValue("");
+		await expect(outlinePage.captureInput).toHaveText("");
 		await expect(outlinePage.captureInput).toBeFocused();
 	});
 

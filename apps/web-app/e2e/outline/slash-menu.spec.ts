@@ -147,7 +147,7 @@ test.describe("slash menu in the capture bar", () => {
 		await expect(
 			outlinePage.row("Buy milk").getByRole("checkbox"),
 		).toBeVisible();
-		await expect(outlinePage.captureInput).toHaveValue("");
+		await expect(outlinePage.captureInput).toHaveText("");
 		await expect(outlinePage.captureInput).toBeFocused();
 	});
 
@@ -156,7 +156,7 @@ test.describe("slash menu in the capture bar", () => {
 		await slashMenu.option("Due tomorrow").click();
 
 		await expect(outlinePage.duePill("Call mom")).toHaveText("Tomorrow");
-		await expect(outlinePage.captureInput).toHaveValue("");
+		await expect(outlinePage.captureInput).toHaveText("");
 	});
 
 	test("Escape hides the menu and keeps the text", async ({
@@ -168,7 +168,7 @@ test.describe("slash menu in the capture bar", () => {
 		await outlinePage.captureInput.press("Escape");
 
 		await expect(slashMenu.menu).toBeHidden();
-		await expect(outlinePage.captureInput).toHaveValue("Buy milk /ta");
+		await expect(outlinePage.captureInput).toHaveText("Buy milk /ta");
 	});
 
 	test("only offers the capture commands", async ({

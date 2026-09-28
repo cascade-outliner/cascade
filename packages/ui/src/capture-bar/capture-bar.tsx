@@ -1,4 +1,3 @@
-import { Input } from "@base-ui/react/input";
 import {
 	borderWidth,
 	colors,
@@ -8,21 +7,35 @@ import {
 	shadow,
 	space,
 } from "@cascade/theme/tokens.stylex";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { PlusIcon, SparkleIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
+import {
+	$createTextNode,
+	$getRoot,
+	COMMAND_PRIORITY_LOW,
+	KEY_ENTER_COMMAND,
+	KEY_ESCAPE_COMMAND,
+	LineBreakNode,
+} from "lexical";
 import type { ReactNode, Ref } from "react";
 import {
 	useEffect,
-	useId,
-	useLayoutEffect,
+	useImperativeHandle,
 	useReducer,
 	useRef,
 	useState,
 } from "react";
 import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
-import { SLASH_MENU_MAX_HEIGHT, SlashMenu } from "../slash-menu/slash-menu.tsx";
-import { useInputSlashMenu } from "../slash-menu/use-input-slash-menu.ts";
+import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
+import { matchSlashTrigger } from "../slash-menu/trigger.ts";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
@@ -34,7 +47,6 @@ const pop = stylex.keyframes({
 
 const styles = stylex.create({
 	bar: {
-		position: "relative",
 		display: "flex",
 		flexDirection: "column",
 		marginTop: {
@@ -151,30 +163,32 @@ const styles = stylex.create({
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
 	},
-	// The bar is sticky at the bottom of long outlines, and just under the rows of short ones.
-	slashMenuAbove: {
-		top: "auto",
-		bottom: `calc(100% + ${space["2"]})`,
-		left: space["3"],
-	},
-	slashMenuBelow: {
-		top: `calc(100% + ${space["2"]})`,
-		left: space["3"],
-	},
-	input: {
+	editor: {
+		position: "relative",
 		flexGrow: 1,
 		minWidth: 0,
-		border: "none",
-		backgroundColor: "transparent",
+	},
+	editable: {
 		outline: "none",
 		color: colors.ink,
 		fontSize: {
 			default: fontSize["400"],
 			"@media (hover: none)": fontSize["600"],
 		},
-		"::placeholder": {
-			color: colors.placeholder,
+		whiteSpace: "nowrap",
+		overflow: "hidden",
+	},
+	placeholder: {
+		position: "absolute",
+		top: 0,
+		left: 0,
+		pointerEvents: "none",
+		color: colors.placeholder,
+		fontSize: {
+			default: fontSize["400"],
+			"@media (hover: none)": fontSize["600"],
 		},
+		whiteSpace: "nowrap",
 	},
 });
 
@@ -182,6 +196,10 @@ export interface CaptureBarSlashMenu<T extends SlashMenuItem = SlashMenuItem> {
 	items: readonly T[];
 	/** Gets the picked item and the text before the "/", which the bar then clears. */
 	onSelect: (item: T, text: string) => void;
+}
+
+export interface CaptureBarHandle {
+	focus: () => void;
 }
 
 export interface CaptureBarProps<T extends SlashMenuItem = SlashMenuItem> {
@@ -193,7 +211,145 @@ export interface CaptureBarProps<T extends SlashMenuItem = SlashMenuItem> {
 	/** Shown inside the bar, above the input (e.g. a split preview). It animates open and closed. */
 	panel?: ReactNode;
 	placeholder?: string;
-	ref?: Ref<HTMLInputElement>;
+	ref?: Ref<CaptureBarHandle>;
+}
+
+/** Keeps the editor to one line: pasted or inserted line breaks become spaces. */
+function SingleLinePlugin() {
+	const [editor] = useLexicalComposerContext();
+	useEffect(
+		() =>
+			editor.registerNodeTransform(LineBreakNode, (node) =>
+				node.replace($createTextNode(" ")),
+			),
+		[editor],
+	);
+	return null;
+}
+
+interface KeysPluginProps {
+	onEnter: (event: KeyboardEvent) => void;
+	onEscape: () => void;
+}
+
+/**
+ * Enter and Escape, below the slash menu's priority so it takes them while
+ * open. Enter never inserts a line: the bar submits instead.
+ */
+function KeysPlugin({ onEnter, onEscape }: KeysPluginProps) {
+	const [editor] = useLexicalComposerContext();
+	useEffect(() => {
+		const offEnter = editor.registerCommand(
+			KEY_ENTER_COMMAND,
+			(event) => {
+				event?.preventDefault();
+				if (event) onEnter(event);
+				return true;
+			},
+			COMMAND_PRIORITY_LOW,
+		);
+		const offEscape = editor.registerCommand(
+			KEY_ESCAPE_COMMAND,
+			() => {
+				onEscape();
+				return true;
+			},
+			COMMAND_PRIORITY_LOW,
+		);
+		return () => {
+			offEnter();
+			offEscape();
+		};
+	}, [editor, onEnter, onEscape]);
+	return null;
+}
+
+interface EditorHandle {
+	focus: () => void;
+	clear: () => void;
+}
+
+interface EditorProps<T extends SlashMenuItem> {
+	ref: Ref<EditorHandle>;
+	placeholder: string;
+	/** Offered on "/"; nothing when there is no text to act on. */
+	items: readonly T[];
+	/** Gets the picked item and the text left once the "/query" is gone. */
+	onSelect: (item: T, text: string) => void;
+	onTextChange: (text: string) => void;
+	onSubmit: () => void;
+	onSplit: () => void;
+	onEscape: () => void;
+}
+
+/** The one-line Lexical editor inside the bar, with its plugins. */
+function Editor<T extends SlashMenuItem>({
+	ref,
+	placeholder,
+	items,
+	onSelect,
+	onTextChange,
+	onSubmit,
+	onSplit,
+	onEscape,
+}: EditorProps<T>) {
+	const [editor] = useLexicalComposerContext();
+	useImperativeHandle(
+		ref,
+		() => ({
+			focus: () => editor.focus(),
+			clear: () => editor.update(() => $getRoot().clear()),
+		}),
+		[editor],
+	);
+
+	return (
+		<>
+			<PlainTextPlugin
+				contentEditable={
+					<div {...stylex.props(styles.editor)}>
+						<ContentEditable
+							{...stylex.props(styles.editable)}
+							data-testid="capture-bar-input"
+							aria-label="Add a node"
+							aria-placeholder={placeholder}
+							enterKeyHint="done"
+							placeholder={
+								<div {...stylex.props(styles.placeholder)} aria-hidden>
+									{placeholder}
+								</div>
+							}
+						/>
+					</div>
+				}
+				ErrorBoundary={LexicalErrorBoundary}
+			/>
+			<HistoryPlugin />
+			<SingleLinePlugin />
+			<OnChangePlugin
+				ignoreSelectionChange
+				onChange={(state) =>
+					onTextChange(state.read(() => $getRoot().getTextContent()))
+				}
+			/>
+			<KeysPlugin
+				onEnter={(event) => {
+					if (event.shiftKey && (event.metaKey || event.ctrlKey)) onSplit();
+					else onSubmit();
+				}}
+				onEscape={onEscape}
+			/>
+			<SlashMenuPlugin<T>
+				items={items}
+				onSelect={(item) =>
+					onSelect(
+						item,
+						editor.getEditorState().read(() => $getRoot().getTextContent()),
+					)
+				}
+			/>
+		</>
+	);
 }
 
 export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
@@ -204,28 +360,17 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	placeholder = "Capture a thought…",
 	ref,
 }: CaptureBarProps<T>) {
-	const [value, setValue] = useState("");
+	const [text, setText] = useState("");
 	const [added, setAdded] = useState(0);
-	const inputRef = useRef<HTMLInputElement>(null);
-	const barRef = useRef<HTMLDivElement>(null);
-	const inputId = useId();
-	const hasText = value.trim() !== "";
-	const slash = useInputSlashMenu<T>({
-		value,
-		items: slashMenu?.items ?? [],
-		onSelect: (item, text) => {
-			slashMenu?.onSelect(item, text);
-			setValue("");
-			setAdded((n) => n + 1);
-		},
-	});
-	const [slashSide, setSlashSide] = useState<"above" | "below">("above");
-	useLayoutEffect(() => {
-		const bar = barRef.current;
-		if (!slash.open || !bar) return;
-		const room = window.innerHeight - bar.getBoundingClientRect().bottom;
-		setSlashSide(room >= SLASH_MENU_MAX_HEIGHT + 16 ? "below" : "above");
-	}, [slash.open]);
+	const editorRef = useRef<EditorHandle>(null);
+	const hasText = text.trim() !== "";
+	useImperativeHandle(ref, () => ({
+		focus: () => editorRef.current?.focus(),
+	}));
+	// Commands act on what's being captured, so there is nothing to offer without text.
+	const match = matchSlashTrigger(text);
+	const beforeSlash = match ? text.slice(0, match.index) : text;
+	const items = slashMenu && beforeSlash.trim() ? slashMenu.items : [];
 	// Keeps the last panel on screen while it collapses.
 	const lastPanel = useRef<ReactNode>(null);
 	const [, rerender] = useReducer((n: number) => n + 1, 0);
@@ -242,29 +387,28 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	}, [open]);
 
 	function submit() {
-		const text = value.trim();
-		if (!text) return;
-		onSubmit(text);
-		setValue("");
+		const trimmed = text.trim();
+		if (!trimmed) return;
+		onSubmit(trimmed);
+		editorRef.current?.clear();
 		setAdded((n) => n + 1);
-		inputRef.current?.focus();
+		editorRef.current?.focus();
 	}
 
 	function split() {
-		const text = value.trim();
-		if (!text || !onSplit) return;
-		onSplit(text);
-		setValue("");
+		const trimmed = text.trim();
+		if (!trimmed || !onSplit) return;
+		onSplit(trimmed);
+		editorRef.current?.clear();
 	}
 
-	function setInputRef(node: HTMLInputElement | null) {
-		inputRef.current = node;
-		if (typeof ref === "function") ref(node);
-		else if (ref) ref.current = node;
+	function dismiss() {
+		if (hasText) editorRef.current?.clear();
+		else (document.activeElement as HTMLElement | null)?.blur();
 	}
 
 	return (
-		<div ref={barRef} {...stylex.props(styles.bar)}>
+		<div {...stylex.props(styles.bar)}>
 			<div {...stylex.props(styles.panel, open && styles.panelOpen)}>
 				<div
 					inert={!open}
@@ -273,8 +417,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					{panel ?? lastPanel.current}
 				</div>
 			</div>
-			{/* Clicking anywhere on the row focuses the input. */}
-			<label htmlFor={inputId} {...stylex.props(styles.row)}>
+			<div {...stylex.props(styles.row)}>
 				<span
 					key={added}
 					aria-hidden
@@ -286,34 +429,29 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				>
 					<span {...stylex.props(styles.dot, hasText && styles.dotVisible)} />
 				</span>
-				<Input
-					ref={setInputRef}
-					id={inputId}
-					data-testid="capture-bar-input"
-					{...stylex.props(styles.input)}
-					value={value}
-					onValueChange={setValue}
-					onKeyDown={(event) => {
-						if (slash.onKeyDown(event)) return;
-						if (
-							event.key === "Enter" &&
-							event.shiftKey &&
-							(event.metaKey || event.ctrlKey)
-						) {
-							event.preventDefault();
-							split();
-						} else if (event.key === "Enter") {
-							event.preventDefault();
-							submit();
-						} else if (event.key === "Escape") {
-							if (value) setValue("");
-							else event.currentTarget.blur();
-						}
+				<LexicalComposer
+					initialConfig={{
+						namespace: "capture-bar",
+						onError: (error) => {
+							throw error;
+						},
 					}}
-					placeholder={placeholder}
-					aria-label="Add a node"
-					enterKeyHint="done"
-				/>
+				>
+					<Editor<T>
+						ref={editorRef}
+						placeholder={placeholder}
+						items={items}
+						onSelect={(item, rest) => {
+							slashMenu?.onSelect(item, rest.trim());
+							editorRef.current?.clear();
+							setAdded((n) => n + 1);
+						}}
+						onTextChange={setText}
+						onSubmit={submit}
+						onSplit={split}
+						onEscape={dismiss}
+					/>
+				</LexicalComposer>
 				{onSplit && hasText && (
 					<button type="button" onClick={split} {...stylex.props(styles.split)}>
 						<SparkleIcon size={13} aria-hidden />
@@ -332,20 +470,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					<PlusIcon size={14} weight="bold" aria-hidden />
 					Add
 				</Button>
-			</label>
-			{slash.open && (
-				<SlashMenu
-					items={slash.items}
-					highlightedIndex={slash.highlightedIndex}
-					onHighlight={slash.highlight}
-					onSelect={slash.select}
-					style={
-						slashSide === "above"
-							? styles.slashMenuAbove
-							: styles.slashMenuBelow
-					}
-				/>
-			)}
+			</div>
 		</div>
 	);
 }

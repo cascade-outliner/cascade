@@ -10,7 +10,7 @@ import {
 	textState,
 } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
-import { CaptureBar } from "@cascade/ui/capture-bar";
+import { CaptureBar, type CaptureBarHandle } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
@@ -169,7 +169,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const [captured, setCaptured] = useState<string | null>(null);
 	const { aiEnabled } = appRoute.useLoaderData();
 	const [onboarded, setOnboarded] = useState(isOnboarded);
-	const captureInputRef = useRef<HTMLInputElement>(null);
+	const captureInputRef = useRef<CaptureBarHandle>(null);
 
 	const zoomTo = (id: string | null) => {
 		navigate({

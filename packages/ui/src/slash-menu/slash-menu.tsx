@@ -9,14 +9,12 @@ import {
 	zIndex,
 } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
 	groupSlashMenuItems,
 	type SlashMenuGroup,
 	type SlashMenuItem,
 } from "./filter.ts";
-
-/** The popup's tallest, for callers that pick a side by the room they have. */
-export const SLASH_MENU_MAX_HEIGHT = 320;
 
 const styles = stylex.create({
 	popup: {
@@ -26,7 +24,7 @@ const styles = stylex.create({
 		zIndex: zIndex.popup,
 		width: 280,
 		maxWidth: "calc(100vw - 32px)",
-		maxHeight: SLASH_MENU_MAX_HEIGHT,
+		maxHeight: 320,
 		overflowY: "auto",
 		overscrollBehavior: "contain",
 		padding: space["1.5"],
@@ -139,14 +137,31 @@ export interface SlashMenuProps<T extends SlashMenuItem> {
 	onSelect: (item: T) => void;
 	/** Lets the keyboard scroll the highlighted item into view. */
 	itemRef?: (item: T, element: HTMLElement | null) => void;
-	/** Where the popup sits; by default the top-left of its positioned parent. */
-	style?: stylex.StyleXStyles;
+}
+
+/** Space to keep from the window's edge and from the caret's line. */
+const MARGIN = 8;
+
+/**
+ * How far to raise the popup so it opens above the caret instead of below:
+ * `0` when it fits below. `anchor` is Lexical's typeahead anchor, a box one
+ * line high sitting just under the caret, which Lexical only flips for
+ * multi-line editors.
+ */
+function liftToFit(popup: HTMLElement, anchor: HTMLElement): number {
+	const box = anchor.getBoundingClientRect();
+	const height = popup.offsetHeight;
+	const fitsBelow = box.top + height + MARGIN <= window.innerHeight;
+	const lift = height + box.height + MARGIN;
+	const fitsAbove = box.top - lift >= MARGIN;
+	return !fitsBelow && fitsAbove ? lift : 0;
 }
 
 /**
  * The list a slash command menu shows: grouped items with one highlighted.
  * Keys are the caller's; this only renders and reports hovers and clicks.
- * Rendered inside Lexical's listbox anchor, so it holds groups, not another listbox.
+ * Rendered inside Lexical's listbox anchor, so it holds groups, not another
+ * listbox, and it flips above the caret when it would run off the window.
  */
 export function SlashMenu<T extends SlashMenuItem>({
 	items,
@@ -154,15 +169,24 @@ export function SlashMenu<T extends SlashMenuItem>({
 	onHighlight,
 	onSelect,
 	itemRef,
-	style,
 }: SlashMenuProps<T>) {
 	const groups: SlashMenuGroup<T>[] = groupSlashMenuItems(items);
+	const popupRef = useRef<HTMLDivElement>(null);
+	const [lift, setLift] = useState(0);
 	let index = -1;
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: the height changes with the items
+	useLayoutEffect(() => {
+		const popup = popupRef.current;
+		if (popup?.parentElement) setLift(liftToFit(popup, popup.parentElement));
+	}, [items]);
 
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: not a control; only keeps focus (and the caret) in the editor while picking with the mouse.
 		<div
-			{...stylex.props(styles.popup, style)}
+			ref={popupRef}
+			{...stylex.props(styles.popup)}
+			style={lift ? { top: -lift } : undefined}
 			data-testid="slash-menu"
 			onMouseDown={(event) => event.preventDefault()}
 		>

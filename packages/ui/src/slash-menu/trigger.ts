@@ -8,7 +8,7 @@ export interface SlashTriggerMatch {
 /**
  * Finds a trigger at the end of `text`, at the start or after a space, with
  * no spaces after it: "Buy milk /ta" matches, "a/b" and "/due tomorrow" don't.
- * The same shape Lexical's basic typeahead match uses, for plain inputs.
+ * The same rules Lexical's basic typeahead match uses, for reading plain text.
  */
 export function matchSlashTrigger(
 	text: string,

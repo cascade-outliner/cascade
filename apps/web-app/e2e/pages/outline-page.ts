@@ -23,7 +23,7 @@ export class OutlinePage {
 		await this.captureInput.waitFor();
 	}
 
-	/** Adds a node through the capture bar, submitting with Enter. */
+	/** Adds a node through the capture bar (a one-line editor), submitting with Enter. */
 	async addNode(text: string) {
 		await this.captureInput.fill(text);
 		await this.captureInput.press("Enter");

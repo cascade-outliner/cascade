@@ -4,11 +4,37 @@ import {
 	MenuOption,
 	useBasicTypeaheadTriggerMatch,
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
-import { COMMAND_PRIORITY_HIGH, type TextNode } from "lexical";
+import {
+	$getSelection,
+	$isRangeSelection,
+	$isTextNode,
+	COMMAND_PRIORITY_HIGH,
+	type TextNode,
+} from "lexical";
 import { useCallback, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { filterSlashMenuItems, type SlashMenuItem } from "./filter.ts";
 import { SlashMenu } from "./slash-menu.tsx";
+import { matchSlashTrigger } from "./trigger.ts";
+
+/**
+ * Removes a trigger and query still sitting before the caret. Lexical hands
+ * over the query's node from a match it resolves in a transition, so a pick
+ * right after a keystroke can split one character short and leave "/" (or
+ * more) behind. Call it after removing that node, inside the same update.
+ */
+function $removeTriggerBeforeCaret(trigger: string) {
+	const selection = $getSelection();
+	if (!$isRangeSelection(selection) || !selection.isCollapsed()) return;
+	const { offset } = selection.anchor;
+	const node = selection.anchor.getNode();
+	if (!$isTextNode(node)) return;
+	const text = node.getTextContent();
+	const match = matchSlashTrigger(text.slice(0, offset), trigger);
+	if (!match) return;
+	node.setTextContent(text.slice(0, match.index) + text.slice(offset));
+	node.select(match.index, match.index);
+}
 
 /** Wraps an item so Lexical can track it (by `key`) and scroll it into view (by ref). */
 class SlashMenuOption<T extends SlashMenuItem> extends MenuOption {
@@ -58,12 +84,13 @@ export function SlashMenuPlugin<T extends SlashMenuItem>({
 			closeMenu: () => void,
 		) => {
 			queryNode?.remove();
+			$removeTriggerBeforeCaret(trigger);
 			closeMenu();
 			editor.update(() => {}, {
 				onUpdate: () => onSelect(option.item),
 			});
 		},
-		[editor, onSelect],
+		[editor, onSelect, trigger],
 	);
 
 	return (
