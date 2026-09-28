@@ -1,10 +1,12 @@
 import { test as base } from "@playwright/test";
 import { AppHeader } from "./pages/app-header.ts";
 import { CommandPalette } from "./pages/command-palette.ts";
+import { ContextMenu } from "./pages/context-menu.ts";
 import { DaySwitcher } from "./pages/day-switcher.ts";
 import { DueDateMenu } from "./pages/due-date-menu.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
+import { SplitApi } from "./pages/split-api.ts";
 
 interface Options {
 	/** Skip onboarding by marking it finished before the app boots. Default `true`. */
@@ -14,10 +16,12 @@ interface Options {
 interface Fixtures {
 	appHeader: AppHeader;
 	commandPalette: CommandPalette;
+	contextMenu: ContextMenu;
 	daySwitcher: DaySwitcher;
 	dueDateMenu: DueDateMenu;
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
+	splitApi: SplitApi;
 }
 
 /**
@@ -43,6 +47,9 @@ export const test = base.extend<Options & Fixtures>({
 	commandPalette: async ({ page }, use) => {
 		await use(new CommandPalette(page));
 	},
+	contextMenu: async ({ page }, use) => {
+		await use(new ContextMenu(page));
+	},
 	daySwitcher: async ({ page }, use) => {
 		await use(new DaySwitcher(page));
 	},
@@ -54,6 +61,9 @@ export const test = base.extend<Options & Fixtures>({
 	},
 	outlinePage: async ({ page }, use) => {
 		await use(new OutlinePage(page));
+	},
+	splitApi: async ({ page }, use) => {
+		await use(new SplitApi(page));
 	},
 });
 
