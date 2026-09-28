@@ -2,7 +2,7 @@ import { fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import type { FeatureIllustration } from "@/blocks/FeatureGrid";
-import { site } from "@/theme/site.stylex";
+import { site, siteFont } from "@/theme/site.stylex";
 
 const styles = stylex.create({
 	stage: {
@@ -10,7 +10,7 @@ const styles = stylex.create({
 		borderRadius: "12px",
 		backgroundColor: site.tint,
 		overflow: "hidden",
-		fontFamily: fonts.app,
+		fontFamily: siteFont.sans,
 		color: site.ink,
 	},
 	label: {
@@ -19,7 +19,6 @@ const styles = stylex.create({
 		fontWeight: 500,
 		color: site.muted,
 		textTransform: "uppercase",
-		letterSpacing: "0.02em",
 	},
 	// Board
 	board: {

@@ -275,6 +275,10 @@ export interface FeatureGridBlock {
         illustration: 'board' | 'table' | 'links' | 'mirrors' | 'split' | 'history';
         title: string;
         description: string;
+        /**
+         * Show a coming soon badge; for features not shipped yet.
+         */
+        comingSoon?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -599,6 +603,7 @@ export interface FeatureGridBlockSelect<T extends boolean = true> {
         illustration?: T;
         title?: T;
         description?: T;
+        comingSoon?: T;
         id?: T;
       };
   id?: T;

@@ -61,6 +61,15 @@ export const FeatureGrid: Block = {
 					type: "textarea",
 					required: true,
 				},
+				{
+					name: "comingSoon",
+					type: "checkbox",
+					defaultValue: false,
+					admin: {
+						description:
+							"Show a coming soon badge; for features not shipped yet.",
+					},
+				},
 			],
 		},
 	],

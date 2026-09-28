@@ -9,7 +9,6 @@ const styles = stylex.create({
 		fontFamily: fonts.mono,
 		fontSize: siteFontSize.eyebrow,
 		fontWeight: 500,
-		letterSpacing: "0.04em",
 		textTransform: "uppercase",
 		lineHeight: 1.4,
 	},

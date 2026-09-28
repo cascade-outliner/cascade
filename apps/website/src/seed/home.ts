@@ -50,36 +50,42 @@ export const homeSeed: Seed<Page> = {
 				{
 					illustration: "board",
 					title: "Board",
+					comingSoon: true,
 					description:
 						"Children become columns. Drag a card, and you've just moved a bullet.",
 				},
 				{
 					illustration: "table",
 					title: "Table",
+					comingSoon: true,
 					description:
 						"Add fields, get columns. It's still a tree, so rows fold like everything else.",
 				},
 				{
 					illustration: "links",
 					title: "[[Links]] & backlinks",
+					comingSoon: true,
 					description:
 						"Type two brackets, pick a bullet. Every page knows who's talking about it.",
 				},
 				{
 					illustration: "mirrors",
 					title: "Mirrors",
+					comingSoon: true,
 					description:
 						"One bullet, many homes. Check it off in one place and it's done everywhere.",
 				},
 				{
 					illustration: "split",
 					title: "Split pane",
+					comingSoon: true,
 					description:
 						"Research on the left, draft on the right. Drag bullets across like a pickpocket.",
 				},
 				{
 					illustration: "history",
 					title: "History",
+					comingSoon: true,
 					description:
 						"Scrub back to Tuesday. Rescue the sentence you deleted in a fit of confidence.",
 				},
@@ -129,6 +135,7 @@ export const homeSeed: Seed<Page> = {
 						{ text: "Everything in Free" },
 						{ text: "Mirrors, embeds & sharing" },
 						{ text: "Unlimited history & file uploads" },
+						{ text: "AI splits a messy line into dated, assigned tasks" },
 					],
 					cta: {
 						label: "Try Pro for 30 days",

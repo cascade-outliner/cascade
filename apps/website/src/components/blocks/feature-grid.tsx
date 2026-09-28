@@ -1,12 +1,19 @@
+import { fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
 import type { FeatureGridBlock } from "@/payload-types";
 import { media } from "@/theme/breakpoints.stylex";
+import { site, siteShadow } from "@/theme/site.stylex";
 import { FeatureIllustrationView } from "../illustrations/feature-illustrations";
 import { Card } from "../ui/card";
 import { Heading } from "../ui/heading";
 import { Section } from "../ui/section";
 import { Text } from "../ui/text";
+
+const pulse = stylex.keyframes({
+	"0%, 100%": { opacity: 1 },
+	"50%": { opacity: 0.3 },
+});
 
 const styles = stylex.create({
 	intro: {
@@ -38,6 +45,52 @@ const styles = stylex.create({
 	card: {
 		gap: "1.125rem",
 	},
+	// Not built yet: a dashed "blueprint" outline instead of the solid hairline.
+	cardSoon: {
+		boxShadow: "none",
+		outlineWidth: 1.5,
+		outlineStyle: "dashed",
+		outlineColor: site.rule,
+		outlineOffset: -1.5,
+	},
+	art: {
+		position: "relative",
+	},
+	artSoon: {
+		opacity: 0.55,
+		filter: "grayscale(0.6)",
+	},
+	badge: {
+		position: "absolute",
+		top: 10,
+		insetInlineEnd: 10,
+		display: "inline-flex",
+		alignItems: "center",
+		gap: 6,
+		paddingBlock: 4,
+		paddingInline: 9,
+		borderRadius: "6px",
+		backgroundColor: site.card,
+		boxShadow: siteShadow.pop,
+		color: site.primary,
+		fontFamily: fonts.mono,
+		fontSize: "0.66rem",
+		fontWeight: 500,
+		textTransform: "uppercase",
+		whiteSpace: "nowrap",
+		transform: "rotate(3deg)",
+	},
+	dot: {
+		width: 6,
+		height: 6,
+		borderRadius: "50%",
+		backgroundColor: site.primary,
+		animationName: pulse,
+		animationDuration: "1.8s",
+		animationIterationCount: "infinite",
+		animationTimingFunction: "ease-in-out",
+		"@media (prefers-reduced-motion: reduce)": { animationName: "none" },
+	},
 	cardTitle: {
 		marginBlockEnd: "0.375rem",
 	},
@@ -61,8 +114,22 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 			</div>
 			<ul {...stylex.props(styles.grid)}>
 				{features.map((feature) => (
-					<Card key={feature.id ?? feature.title} as="li" style={styles.card}>
-						<FeatureIllustrationView kind={feature.illustration} />
+					<Card
+						key={feature.id ?? feature.title}
+						as="li"
+						style={[styles.card, feature.comingSoon && styles.cardSoon]}
+					>
+						<div {...stylex.props(styles.art)}>
+							<div {...stylex.props(feature.comingSoon && styles.artSoon)}>
+								<FeatureIllustrationView kind={feature.illustration} />
+							</div>
+							{feature.comingSoon && (
+								<span {...stylex.props(styles.badge)}>
+									<span aria-hidden="true" {...stylex.props(styles.dot)} />
+									Coming soon
+								</span>
+							)}
+						</div>
 						<div>
 							<Heading as="h3" style={styles.cardTitle}>
 								{feature.title}

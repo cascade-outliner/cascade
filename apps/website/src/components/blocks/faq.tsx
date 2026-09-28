@@ -40,7 +40,7 @@ const styles = stylex.create({
 		cursor: "pointer",
 		fontSize: "1.1875rem",
 		fontWeight: 600,
-		lineHeight: 1.3,
+		lineHeight: 1.4,
 		borderRadius: "8px",
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },

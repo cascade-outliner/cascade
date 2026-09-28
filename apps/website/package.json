@@ -20,7 +20,7 @@
 		"@cascade/config": "workspace:*",
 		"@cascade/env": "workspace:*",
 		"@cascade/theme": "workspace:*",
-		"@fontsource-variable/bitter": "^5.3.0",
+		"@fontsource-variable/dm-sans": "^5.3.0",
 		"@fontsource/ibm-plex-mono": "^5.3.0",
 		"@payloadcms/db-postgres": "4.0.0-canary.37",
 		"@payloadcms/graphql": "4.0.0-canary.37",

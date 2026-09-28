@@ -6,7 +6,7 @@ import {
 import * as stylex from "@stylexjs/stylex";
 import type { KeyboardEvent } from "react";
 import { media } from "@/theme/breakpoints.stylex";
-import { site, siteFontSize, siteShadow } from "@/theme/site.stylex";
+import { site, siteFont, siteFontSize, siteShadow } from "@/theme/site.stylex";
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { type OutlineSeed, useOutline } from "./use-outline";
 
@@ -33,7 +33,7 @@ const styles = stylex.create({
 		boxShadow: siteShadow.outline,
 		color: site.ink,
 		overflow: "hidden",
-		fontFamily: fonts.app,
+		fontFamily: siteFont.sans,
 	},
 	titleBar: {
 		display: "flex",
@@ -163,7 +163,7 @@ const styles = stylex.create({
 		border: 0,
 		outline: "none",
 		backgroundColor: "transparent",
-		fontFamily: fonts.app,
+		fontFamily: siteFont.sans,
 		fontSize: "0.9375rem",
 		lineHeight: 1.5,
 		paddingBlock: 5,

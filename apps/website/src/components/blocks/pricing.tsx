@@ -55,7 +55,6 @@ const styles = stylex.create({
 		fontSize: "0.66rem",
 		fontWeight: 500,
 		textTransform: "uppercase",
-		letterSpacing: "0.02em",
 	},
 	name: {
 		fontSize: siteFontSize.large,
@@ -71,7 +70,6 @@ const styles = stylex.create({
 	price: {
 		fontSize: siteFontSize.price,
 		fontWeight: 700,
-		letterSpacing: "-0.03em",
 		lineHeight: 1,
 	},
 	period: {

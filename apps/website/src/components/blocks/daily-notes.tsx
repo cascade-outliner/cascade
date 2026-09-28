@@ -72,7 +72,6 @@ const styles = stylex.create({
 	date: {
 		fontSize: "1.5rem",
 		fontWeight: 700,
-		letterSpacing: "-0.02em",
 	},
 	entries: {
 		listStyle: "none",

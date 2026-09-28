@@ -23,6 +23,11 @@ export const site = stylex.defineVars({
 	success: "rgba(120, 150, 90, 0.18)",
 });
 
+// The site's own face; the app itself still uses fonts.app from @cascade/theme.
+export const siteFont = stylex.defineVars({
+	sans: '"DM Sans Variable", ui-sans-serif, system-ui, sans-serif',
+});
+
 export const siteFontSize = stylex.defineVars({
 	eyebrow: "0.75rem",
 	small: "0.906rem",

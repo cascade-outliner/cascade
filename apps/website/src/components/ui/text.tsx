@@ -9,15 +9,15 @@ const styles = stylex.create({
 	},
 	lead: {
 		fontSize: siteFontSize.large,
-		lineHeight: 1.55,
+		lineHeight: 1.6,
 	},
 	body: {
 		fontSize: siteFontSize.lead,
-		lineHeight: 1.6,
+		lineHeight: 1.7,
 	},
 	small: {
 		fontSize: siteFontSize.small,
-		lineHeight: 1.55,
+		lineHeight: 1.65,
 	},
 	soft: { color: site.inkSoft },
 	muted: { color: site.muted },

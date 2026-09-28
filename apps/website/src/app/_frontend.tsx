@@ -1,11 +1,10 @@
 /// <reference types="vite/client" />
 
-import { fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { site, siteShadow } from "@/theme/site.stylex";
+import { site, siteFont, siteShadow } from "@/theme/site.stylex";
 import { getSiteChrome } from "./_frontend/page.functions";
 import styles from "./_frontend/styles.css?url";
 
@@ -33,7 +32,7 @@ const shell = stylex.create({
 		flexDirection: "column",
 		backgroundColor: site.canvas,
 		color: site.ink,
-		fontFamily: fonts.app,
+		fontFamily: siteFont.sans,
 		colorScheme: "light",
 		WebkitFontSmoothing: "antialiased",
 	},

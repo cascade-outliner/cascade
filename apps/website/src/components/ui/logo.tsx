@@ -33,7 +33,6 @@ const styles = stylex.create({
 	wordmark: {
 		fontSize: "1.1875rem",
 		fontWeight: 700,
-		letterSpacing: "-0.02em",
 	},
 	small: {
 		width: 20,

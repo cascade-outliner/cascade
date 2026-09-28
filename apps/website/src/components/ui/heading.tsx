@@ -11,24 +11,20 @@ const styles = stylex.create({
 	},
 	h1: {
 		fontSize: siteFontSize.h1,
-		lineHeight: 0.98,
-		letterSpacing: "-0.04em",
+		lineHeight: 1.08,
 	},
 	h2: {
 		fontSize: siteFontSize.h2,
-		lineHeight: 1.05,
-		letterSpacing: "-0.03em",
+		lineHeight: 1.12,
 	},
 	display: {
 		fontSize: siteFontSize.display,
-		lineHeight: 1,
-		letterSpacing: "-0.04em",
+		lineHeight: 1.08,
 	},
 	h3: {
 		fontSize: siteFontSize.h3,
-		lineHeight: 1.2,
+		lineHeight: 1.3,
 		fontWeight: 600,
-		letterSpacing: "-0.01em",
 	},
 });
 
