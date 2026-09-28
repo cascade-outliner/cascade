@@ -5,6 +5,7 @@ import { DaySwitcher } from "./pages/day-switcher.ts";
 import { DueDateMenu } from "./pages/due-date-menu.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
+import { SlashMenu } from "./pages/slash-menu.ts";
 
 interface Options {
 	/** Skip onboarding by marking it finished before the app boots. Default `true`. */
@@ -18,6 +19,7 @@ interface Fixtures {
 	dueDateMenu: DueDateMenu;
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
+	slashMenu: SlashMenu;
 }
 
 /**
@@ -54,6 +56,9 @@ export const test = base.extend<Options & Fixtures>({
 	},
 	outlinePage: async ({ page }, use) => {
 		await use(new OutlinePage(page));
+	},
+	slashMenu: async ({ page }, use) => {
+		await use(new SlashMenu(page));
 	},
 });
 

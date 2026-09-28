@@ -28,6 +28,7 @@ import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
+import { SlashCommandsPlugin } from "#/components/slash-commands/slash-commands-plugin.tsx";
 import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
 import { SplitSheet } from "#/components/split-tasks/split-sheet.tsx";
@@ -90,6 +91,8 @@ const OutlineRow = observer(function OutlineRow({
 	highlight,
 }: OutlineRowProps) {
 	const store = useOutlineStore();
+	const split =
+		onSplit && ((id: string) => onSplit({ id, text: plainText(node.content) }));
 
 	return (
 		<OutlinerContextMenu
@@ -97,9 +100,7 @@ const OutlineRow = observer(function OutlineRow({
 			childCount={childCount}
 			onOpenChange={onOpenChange}
 			onZoomIn={onZoomTo}
-			onSplit={
-				onSplit && ((id) => onSplit({ id, text: plainText(node.content) }))
-			}
+			onSplit={split}
 		>
 			<RowShell
 				active={active || !!highlight}
@@ -131,7 +132,14 @@ const OutlineRow = observer(function OutlineRow({
 					}
 					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
-				/>
+				>
+					<SlashCommandsPlugin
+						node={node}
+						childCount={childCount}
+						onZoomTo={onZoomTo}
+						onSplit={split}
+					/>
+				</Content>
 				{node.due && (
 					<Pill
 						tone={node.due <= isoDay(new Date()) ? "primary" : "info"}

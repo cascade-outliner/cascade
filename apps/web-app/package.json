@@ -25,6 +25,7 @@
 		"@cascade/theme": "workspace:*",
 		"@cascade/ui": "workspace:*",
 		"@fontsource-variable/dm-sans": "^5.3.0",
+		"@lexical/react": "^0.38.0",
 		"@phosphor-icons/react": "^2.1.10",
 		"@stylexjs/stylex": "0.19.0",
 		"@tanstack/ai": "^0.61.0",

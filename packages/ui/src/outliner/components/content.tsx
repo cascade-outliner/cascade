@@ -9,7 +9,7 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { useItem } from "../context";
 
 const styles = stylex.create({
@@ -37,6 +37,7 @@ function Editable({
 		<div {...stylex.props(styles.wrapper)}>
 			<ContentEditable
 				{...stylex.props(styles.content, style)}
+				data-testid="outliner-content"
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
 			/>
 		</div>
@@ -70,6 +71,7 @@ export function Content({
 	editable = true,
 	onChange,
 	onCommit,
+	children,
 }: {
 	style?: stylex.StyleXStyles;
 	/** Shown instead of the node's content, read-only (e.g. "Today" for a daily note). */
@@ -78,6 +80,8 @@ export function Content({
 	editable?: boolean;
 	onChange?: (state: EditorState) => void;
 	onCommit?: (state: EditorState) => void;
+	/** Extra Lexical plugins, e.g. a slash menu. Not rendered with a `label`. */
+	children?: ReactNode;
 }) {
 	const { node } = useItem();
 
@@ -114,6 +118,7 @@ export function Content({
 					ignoreSelectionChange
 				/>
 			)}
+			{children}
 		</LexicalComposer>
 	);
 }
