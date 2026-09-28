@@ -13,14 +13,12 @@ export interface OnboardingRecord {
 }
 
 export interface PushRequest {
-	workspaceId: string;
 	put: Node[];
 	delete: Tombstone[];
 	onboarding?: Pick<OnboardingRecord, "completedAt">;
 }
 
 export interface PullRequest {
-	workspaceId: string;
 	/** Cursor returned by the previous pull, or `null` for everything. */
 	since: string | null;
 }
@@ -40,7 +38,8 @@ export interface SyncTransport {
 }
 
 export interface SyncMeta {
-	workspaceId: string | null;
+	/** The signed-in user the local outline belongs to, or `null` before the first sign-in. */
+	userId: string | null;
 	cursor: string | null;
 	onboarding: OnboardingRecord | null;
 }
