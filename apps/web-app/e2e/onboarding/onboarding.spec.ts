@@ -26,6 +26,10 @@ test.describe("onboarding", () => {
 
 		await onboardingPage.backButton.click();
 		await expect(onboardingPage.step("intro")).toBeVisible();
+		await expect(onboardingPage.stepperItem("intro")).toHaveAttribute(
+			"aria-current",
+			"step",
+		);
 	});
 
 	test("Enter advances the form", async ({ onboardingPage, page }) => {
@@ -42,18 +46,14 @@ test.describe("onboarding", () => {
 		await expect(onboardingPage.template("journal")).toBeDisabled();
 	});
 
-	test.describe("last step", () => {
-		test.beforeEach(async ({ onboardingPage }) => {
-			await onboardingPage.goToLastStep();
-		});
+	test("the last step says that sync is off and offers no sign-in", async ({
+		onboardingPage,
+	}) => {
+		await onboardingPage.goToLastStep();
 
-		test("says that sync is off and offers no sign-in", async ({
-			onboardingPage,
-		}) => {
-			await expect(onboardingPage.step("account")).toBeVisible();
-			await expect(onboardingPage.syncDisabledNotice).toBeVisible();
-			await expect(onboardingPage.account).toBeHidden();
-		});
+		await expect(onboardingPage.step("account")).toBeVisible();
+		await expect(onboardingPage.syncDisabledNotice).toBeVisible();
+		await expect(onboardingPage.account).toBeHidden();
 	});
 
 	test("finishing opens the empty outline and does not return", async ({
@@ -87,4 +87,19 @@ test.describe("onboarding", () => {
 		await expect(outlinePage.row("Existing work")).toBeVisible();
 		await expect(onboardingPage.form).toBeHidden();
 	});
+});
+
+// Outside the describe: its beforeEach would load "/" first and waste a navigation.
+test("returning from sign-in opens the account step and drops the param", async ({
+	onboardingPage,
+	page,
+}) => {
+	await page.goto("/?onboarding=account");
+
+	await expect(onboardingPage.step("account")).toBeVisible();
+	await expect(onboardingPage.stepperItem("account")).toHaveAttribute(
+		"aria-current",
+		"step",
+	);
+	await expect(page).toHaveURL("/");
 });
