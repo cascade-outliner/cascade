@@ -16,44 +16,32 @@ const styles = stylex.create({
 		},
 	},
 	mark: {
-		width: 26,
-		height: 26,
 		flexShrink: 0,
-		borderRadius: "8px",
-		backgroundColor: site.primary,
-		display: "grid",
-		placeItems: "center",
-	},
-	dot: {
-		width: 7,
-		height: 7,
-		borderRadius: "50%",
-		backgroundColor: "#ffffff",
 	},
 	wordmark: {
 		fontSize: "1.1875rem",
 		fontWeight: 700,
 	},
-	small: {
-		width: 20,
-		height: 20,
-		borderRadius: "6px",
-	},
-	smallDot: {
-		width: 6,
-		height: 6,
-	},
 });
 
-/** The terracotta square with a bullet: the app icon. */
+/** The app icon's three cascading bars, matching the web app's header mark. */
 export function LogoMark({ size = "md" }: { size?: "sm" | "md" }) {
+	const px = size === "sm" ? 20 : 26;
 	return (
-		<span
+		<svg
+			width={px}
+			height={px}
+			viewBox="0 0 24 24"
 			aria-hidden="true"
-			{...stylex.props(styles.mark, size === "sm" && styles.small)}
+			{...stylex.props(styles.mark)}
 		>
-			<span {...stylex.props(styles.dot, size === "sm" && styles.smallDot)} />
-		</span>
+			<rect width={24} height={24} rx={6} style={{ fill: site.primary }} />
+			<g style={{ fill: site.canvas }}>
+				<rect x={4.75} y={6.75} width={12.5} height={2} rx={1} />
+				<rect x={7.25} y={11} width={9.25} height={2} rx={1} />
+				<rect x={9.5} y={15.25} width={6.75} height={2} rx={1} />
+			</g>
+		</svg>
 	);
 }
 
