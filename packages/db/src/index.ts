@@ -9,5 +9,18 @@ export function createDb(url: string) {
 
 export type Db = ReturnType<typeof createDb>;
 
-export type { NewNodeRow, NodeRow, WorkspaceRow } from "./schema.ts";
-export { nodes, workspaces } from "./schema.ts";
+export type {
+	NewNodeRow,
+	NodeRow,
+	UserRow,
+	WorkspaceRow,
+} from "./schema.ts";
+export {
+	account,
+	nodes,
+	session,
+	user,
+	verification,
+	workspaces,
+} from "./schema.ts";
+export { schema };

@@ -1,6 +1,7 @@
 import { OutlineStore, type SyncStatus } from "@cascade/data";
 import { useSyncExternalStore } from "react";
 import { createSync, type Sync } from "#/lib/sync.ts";
+import type { SyncConfig } from "#/server/sync.ts";
 
 let instance: { store: OutlineStore; sync: Sync } | undefined;
 let loading: Promise<void> | undefined;
@@ -42,5 +43,14 @@ export function useSyncStatus(): SyncStatus {
 	return useSyncExternalStore(
 		(listener) => engine.subscribeStatus(listener),
 		() => engine.status,
+	);
+}
+
+/** The server's sync config, or `null` until the first request answered. */
+export function useSyncConfig(): SyncConfig | null {
+	const sync = useSync();
+	return useSyncExternalStore(
+		(listener) => sync.subscribeConfig(listener),
+		() => sync.config,
 	);
 }

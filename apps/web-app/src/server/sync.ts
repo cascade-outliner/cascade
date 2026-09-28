@@ -1,24 +1,15 @@
 import type { Node, Tombstone } from "@cascade/data";
-import {
-	createDb,
-	type Db,
-	type NodeRow,
-	nodes,
-	workspaces,
-} from "@cascade/db";
-import { dbEnv } from "@cascade/env/db";
+import { type Db, type NodeRow, nodes, workspaces } from "@cascade/db";
 import { createServerFn } from "@tanstack/react-start";
 import { and, asc, eq, gt, lte, or, sql } from "drizzle-orm";
 import { z } from "zod";
-
-let db: Db | null | undefined;
-
-function getDb(): Db | null {
-	if (db === undefined) {
-		db = dbEnv.DATABASE_URL ? createDb(dbEnv.DATABASE_URL) : null;
-	}
-	return db;
-}
+import {
+	getAuth,
+	getSessionUser,
+	requireUser,
+	type SessionUser,
+} from "./auth.ts";
+import { getDb } from "./db.ts";
 
 function requireDb(): Db {
 	const instance = getDb();
@@ -26,6 +17,53 @@ function requireDb(): Db {
 		throw new Error("Sync is disabled: DATABASE_URL is not set");
 	}
 	return instance;
+}
+
+async function findWorkspace(db: Db, userId: string): Promise<string | null> {
+	const [workspace] = await db
+		.select({ id: workspaces.id })
+		.from(workspaces)
+		.where(eq(workspaces.userId, userId));
+	return workspace?.id ?? null;
+}
+
+/** The signed-in user's workspace, created on their first push. */
+async function requireWorkspace(
+	db: Db,
+	onboarding: { onboardedAt: Date } | null,
+): Promise<string> {
+	const user = await requireUser();
+	return db.transaction(async (tx) => {
+		const [existing] = await tx
+			.select({ id: workspaces.id })
+			.from(workspaces)
+			.where(eq(workspaces.userId, user.id));
+		if (existing) {
+			if (onboarding) {
+				await tx
+					.update(workspaces)
+					.set(onboarding)
+					.where(eq(workspaces.id, existing.id));
+			}
+			return existing.id;
+		}
+		const [created] = await tx
+			.insert(workspaces)
+			.values({ id: crypto.randomUUID(), userId: user.id, ...onboarding })
+			.onConflictDoNothing({ target: workspaces.userId })
+			.returning({ id: workspaces.id });
+		if (created) {
+			return created.id;
+		}
+		const [raced] = await tx
+			.select({ id: workspaces.id })
+			.from(workspaces)
+			.where(eq(workspaces.userId, user.id));
+		if (!raced) {
+			throw new Error("Could not create a workspace");
+		}
+		return raced.id;
+	});
 }
 
 const nodeSchema = z.object({
@@ -49,10 +87,7 @@ const tombstoneSchema = z.object({
 	deletedAt: z.number().int().nonnegative(),
 });
 
-const workspaceId = z.string().uuid();
-
 const pushSchema = z.object({
-	workspaceId,
 	put: z.array(nodeSchema).max(1_000),
 	delete: z.array(tombstoneSchema).max(1_000),
 	onboarding: z
@@ -64,7 +99,6 @@ const CURSOR =
 	/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}(:?\d{2})?)\|[^|]+$/;
 
 const pullSchema = z.object({
-	workspaceId,
 	since: z.string().regex(CURSOR).nullable(),
 });
 
@@ -92,33 +126,35 @@ export interface WirePullResponse {
 	known?: boolean;
 }
 
+export interface SyncConfig {
+	/** Whether this server can sync: it has a database and Google sign-in. */
+	enabled: boolean;
+	user: SessionUser | null;
+}
+
 export const getSyncConfig = createServerFn({ method: "GET" }).handler(
-	async () => ({ enabled: getDb() !== null }),
+	async (): Promise<SyncConfig> => {
+		const enabled = getAuth() !== null;
+		return { enabled, user: enabled ? await getSessionUser() : null };
+	},
 );
 
 export const pushChanges = createServerFn({ method: "POST" })
 	.validator(pushSchema)
 	.handler(async ({ data }) => {
 		const instance = requireDb();
-		await instance.transaction(async (tx) => {
-			const onboarding = data.onboarding
+		const workspaceId = await requireWorkspace(
+			instance,
+			data.onboarding
 				? { onboardedAt: new Date(data.onboarding.completedAt) }
-				: null;
-			const workspace = tx
-				.insert(workspaces)
-				.values({ id: data.workspaceId, ...onboarding });
-			await (onboarding
-				? workspace.onConflictDoUpdate({
-						target: workspaces.id,
-						set: onboarding,
-					})
-				: workspace.onConflictDoNothing());
-
+				: null,
+		);
+		await instance.transaction(async (tx) => {
 			for (const node of data.put) {
 				await tx
 					.insert(nodes)
 					.values({
-						workspaceId: data.workspaceId,
+						workspaceId,
 						id: node.id,
 						parentId: node.parentId,
 						order: node.order,
@@ -151,7 +187,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 					.delete(nodes)
 					.where(
 						and(
-							eq(nodes.workspaceId, data.workspaceId),
+							eq(nodes.workspaceId, workspaceId),
 							eq(nodes.id, tombstone.id),
 							lte(nodes.updatedAt, tombstone.deletedAt),
 						),
@@ -164,13 +200,18 @@ export const pullChanges = createServerFn({ method: "GET" })
 	.validator(pullSchema)
 	.handler(async ({ data }): Promise<WirePullResponse> => {
 		const instance = requireDb();
+		const user = await requireUser();
+		const workspaceId = await findWorkspace(instance, user.id);
 		const since = data.since ? decodeCursor(data.since) : null;
+		if (workspaceId === null) {
+			return { put: [], delete: [], cursor: data.since, known: false };
+		}
 		const rows = await instance
 			.select()
 			.from(nodes)
 			.where(
 				and(
-					eq(nodes.workspaceId, data.workspaceId),
+					eq(nodes.workspaceId, workspaceId),
 					since
 						? or(
 								gt(nodes.syncedAt, since.syncedAt),
@@ -199,11 +240,7 @@ export const pullChanges = createServerFn({ method: "GET" })
 			response.cursor = encodeCursor(last);
 		}
 		if (data.since === null) {
-			const [workspace] = await instance
-				.select({ id: workspaces.id })
-				.from(workspaces)
-				.where(eq(workspaces.id, data.workspaceId));
-			response.known = workspace !== undefined;
+			response.known = true;
 		}
 		return response;
 	});

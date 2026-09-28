@@ -26,6 +26,10 @@ test.describe("onboarding", () => {
 
 		await onboardingPage.backButton.click();
 		await expect(onboardingPage.step("intro")).toBeVisible();
+		await expect(onboardingPage.stepperItem("intro")).toHaveAttribute(
+			"aria-current",
+			"step",
+		);
 	});
 
 	test("Enter advances the form", async ({ onboardingPage, page }) => {
@@ -42,65 +46,14 @@ test.describe("onboarding", () => {
 		await expect(onboardingPage.template("journal")).toBeDisabled();
 	});
 
-	test.describe("last step", () => {
-		test.beforeEach(async ({ onboardingPage }) => {
-			await onboardingPage.goToLastStep();
-		});
+	test("the last step says that sync is off and offers no sign-in", async ({
+		onboardingPage,
+	}) => {
+		await onboardingPage.goToLastStep();
 
-		test("shows a workspace id and that sync is off", async ({
-			onboardingPage,
-		}) => {
-			await expect(onboardingPage.step("workspace")).toBeVisible();
-			await expect(onboardingPage.syncDisabledNotice).toBeVisible();
-			await expect(onboardingPage.workspaceId).toHaveValue(
-				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-			);
-		});
-
-		test("rejects an invalid workspace id", async ({ onboardingPage }) => {
-			await onboardingPage.workspaceId.fill("not-an-id");
-
-			await expect(onboardingPage.workspaceId).toHaveAttribute(
-				"aria-invalid",
-				"true",
-			);
-			await expect(onboardingPage.workspaceHint).toHaveAttribute(
-				"data-state",
-				"invalid",
-			);
-		});
-
-		test("switches to a pasted workspace id", async ({
-			onboardingPage,
-			page,
-		}) => {
-			const id = "29636bee-4bf9-4c1e-9a3b-6f2d8e1c0a57";
-			await onboardingPage.workspaceId.fill(id);
-
-			await expect(onboardingPage.workspaceHint).toHaveAttribute(
-				"data-state",
-				"switched",
-			);
-			await page.reload();
-			await onboardingPage.goToLastStep();
-			await expect(onboardingPage.workspaceId).toHaveValue(id);
-		});
-
-		test("copies the workspace id", async ({
-			onboardingPage,
-			page,
-			context,
-		}) => {
-			await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-			await expect(onboardingPage.workspaceId).not.toHaveValue("");
-			const id = await onboardingPage.workspaceId.inputValue();
-
-			await onboardingPage.copyButton.click();
-
-			await expect
-				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
-				.toBe(id);
-		});
+		await expect(onboardingPage.step("account")).toBeVisible();
+		await expect(onboardingPage.syncDisabledNotice).toBeVisible();
+		await expect(onboardingPage.account).toBeHidden();
 	});
 
 	test("finishing opens the empty outline and does not return", async ({
@@ -134,4 +87,19 @@ test.describe("onboarding", () => {
 		await expect(outlinePage.row("Existing work")).toBeVisible();
 		await expect(onboardingPage.form).toBeHidden();
 	});
+});
+
+// Outside the describe: its beforeEach would load "/" first and waste a navigation.
+test("returning from sign-in opens the account step and drops the param", async ({
+	onboardingPage,
+	page,
+}) => {
+	await page.goto("/?onboarding=account");
+
+	await expect(onboardingPage.step("account")).toBeVisible();
+	await expect(onboardingPage.stepperItem("account")).toHaveAttribute(
+		"aria-current",
+		"step",
+	);
+	await expect(page).toHaveURL("/");
 });

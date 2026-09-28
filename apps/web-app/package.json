@@ -31,6 +31,7 @@
 		"@tanstack/ai-anthropic": "^0.19.1",
 		"@tanstack/react-router": "^1.170.36",
 		"@tanstack/react-start": "^1.168.54",
+		"better-auth": "1.7.6",
 		"drizzle-orm": "0.45.2",
 		"lexical": "^0.38.0",
 		"mobx": "^6.15.0",

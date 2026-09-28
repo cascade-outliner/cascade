@@ -23,7 +23,7 @@ export class IdbSyncState implements SyncState {
 		const db = await this.#db;
 		const rows: { key: string; value: unknown }[] = await db.getAll(META_STORE);
 		const meta: Record<string, unknown> = {
-			workspaceId: null,
+			userId: null,
 			cursor: null,
 			onboarding: null,
 		};

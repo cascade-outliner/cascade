@@ -1,5 +1,4 @@
 import {
-	getOrCreateWorkspaceId,
 	IdbPersistence,
 	IdbSyncState,
 	openCascadeDb,
@@ -7,18 +6,22 @@ import {
 	SyncEngine,
 	SyncedPersistence,
 } from "@cascade/data";
-import { getSyncConfig, pullChanges, pushChanges } from "#/server/sync.ts";
+import {
+	getSyncConfig,
+	pullChanges,
+	pushChanges,
+	type SyncConfig,
+} from "#/server/sync.ts";
 
 export interface Sync {
 	persistence: SyncedPersistence;
 	engine: SyncEngine;
-	/** The anonymous id this browser syncs under, created on first call. */
-	workspaceId(): Promise<string>;
-	/** Syncs under `id` from now on, pulling that workspace's outline. */
-	setWorkspaceId(id: string): Promise<void>;
+	/** What the server answered on `start`, or `null` until it did. */
+	readonly config: SyncConfig | null;
+	subscribeConfig(listener: () => void): () => void;
 	/** Records the finished onboarding; the background job sends it to the server. */
 	recordOnboarding(): Promise<void>;
-	/** Starts the background job if the server has a database; otherwise stays disabled. */
+	/** Starts the background job when the server can sync and the user is signed in; otherwise stays disabled. */
 	start(): Promise<void>;
 	stop(): void;
 }
@@ -39,18 +42,28 @@ export function createSync(): Sync {
 				(await pullChanges({ data })) as unknown as PullResponse,
 		},
 	});
+	let config: SyncConfig | null = null;
+	const listeners = new Set<() => void>();
 
 	return {
 		persistence,
 		engine,
-		workspaceId: () => getOrCreateWorkspaceId(state),
-		setWorkspaceId: (id) => engine.setWorkspaceId(id),
+		get config() {
+			return config;
+		},
+		subscribeConfig(listener) {
+			listeners.add(listener);
+			return () => listeners.delete(listener);
+		},
 		recordOnboarding: () => engine.recordOnboarding(),
 		async start() {
 			try {
-				const { enabled } = await getSyncConfig();
-				if (enabled) {
-					await engine.start();
+				config = await getSyncConfig();
+				for (const listener of listeners) {
+					listener();
+				}
+				if (config.user) {
+					await engine.start(config.user.id);
 				}
 			} catch (error) {
 				console.error("Sync: could not reach the server, staying local", error);

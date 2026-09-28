@@ -1,21 +1,22 @@
-import { isWorkspaceId } from "@cascade/data";
 import {
 	colors,
 	fontSize,
 	opacity,
 	radius,
-	shadow,
 	space,
 } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import { Kbd } from "@cascade/ui/kbd";
-import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
+import { CheckIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { type FormEvent, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { useSync, useSyncStatus } from "#/lib/outline-store.tsx";
+import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
+import { useSyncConfig } from "#/lib/outline-store.tsx";
 
 const STORAGE_KEY = "cascade:onboarding";
+/** Query param the Google sign-in callback lands on, to reopen the account step. */
+const RETURN_PARAM = "onboarding";
 
 /** Whether onboarding was finished in this browser. */
 export function isOnboarded(): boolean {
@@ -107,7 +108,7 @@ function transition(update: () => void, back = false) {
 const STEPS = [
 	{ id: "intro", label: "How it works" },
 	{ id: "template", label: "Start with" },
-	{ id: "workspace", label: "Heads up" },
+	{ id: "account", label: "Heads up" },
 ];
 
 const styles = stylex.create({
@@ -335,56 +336,39 @@ const styles = stylex.create({
 	para: {
 		margin: 0,
 	},
-	workspace: {
-		display: "flex",
-		flexDirection: "column",
-		gap: space["1.5"],
-	},
-	workspaceRow: {
+	account: {
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
+		gap: space["3"],
+		padding: space["4"],
+		borderRadius: radius.xl,
+		backgroundColor: colors.white,
+		boxShadow: `0 0 0 1px ${colors.border}`,
 	},
-	workspaceLabel: {
-		color: colors.muted,
-		fontSize: fontSize["200"],
-		fontWeight: 500,
-		textTransform: "uppercase",
-		letterSpacing: "0.04em",
-	},
-	workspaceId: {
+	accountText: {
+		display: "flex",
+		flexDirection: "column",
+		gap: space["0.5"],
 		flex: 1,
 		minWidth: 0,
-		paddingBlock: space["2"],
-		paddingInline: space["2.5"],
-		borderWidth: 0,
-		borderRadius: radius.lg,
-		outline: "none",
-		backgroundColor: colors.white,
-		boxShadow: {
-			default: `inset 0 0 0 1px ${colors.borderStrong}`,
-			":focus-visible": shadow.focusRing,
-		},
-		color: colors.ink,
-		textOverflow: "ellipsis",
-		fontFamily: "monospace",
-		fontSize: fontSize["300"],
-		transition: "box-shadow 120ms ease",
 	},
-	workspaceIdInvalid: {
-		boxShadow: {
-			default: `inset 0 0 0 1px ${colors.danger}`,
-			":focus-visible": `inset 0 0 0 1px ${colors.danger}, ${shadow.focusRing}`,
-		},
+	accountName: {
+		display: "-webkit-box",
+		overflow: "hidden",
+		WebkitBoxOrient: "vertical",
+		WebkitLineClamp: 1,
+		fontWeight: 600,
 	},
-	workspaceHint: {
-		margin: 0,
-		minHeight: "1lh",
+	accountHint: {
 		color: colors.muted,
-		fontSize: fontSize["200"],
+		fontSize: fontSize["300"],
 	},
-	workspaceHintInvalid: {
-		color: colors.danger,
+	avatar: {
+		flexShrink: 0,
+		width: "36px",
+		height: "36px",
+		borderRadius: radius.full,
+		backgroundColor: colors.canvas,
 	},
 	footer: {
 		display: "flex",
@@ -448,117 +432,74 @@ function Preview({ lines }: { lines: PreviewLine[] }) {
 	);
 }
 
-/**
- * The anonymous id this browser syncs under, with a button to copy it.
- * Pasting another workspace's id switches to that workspace.
- */
-function WorkspaceId() {
-	const sync = useSync();
-	const [id, setId] = useState<string | null>(null);
-	const [draft, setDraft] = useState("");
-	const [copied, setCopied] = useState(false);
-	const [switched, setSwitched] = useState(false);
+/** Sign in with Google to sync, or who is signed in already. */
+function Account() {
+	const config = useSyncConfig();
+	const [busy, setBusy] = useState(false);
 
-	useEffect(() => {
-		let cancelled = false;
-		sync
-			.workspaceId()
-			.then((value) => {
-				if (cancelled) return;
-				setId(value);
-				setDraft(value);
-			})
-			.catch((error) =>
-				console.error("Onboarding: could not create a workspace id", error),
-			);
-		return () => {
-			cancelled = true;
-		};
-	}, [sync]);
-
-	useEffect(() => {
-		if (!copied) return;
-		const timer = setTimeout(() => setCopied(false), 1500);
-		return () => clearTimeout(timer);
-	}, [copied]);
-
-	function change(value: string) {
-		const next = value.trim();
-		setDraft(next);
-		if (next === id || !isWorkspaceId(next)) return;
-		setId(next);
-		setSwitched(true);
-		sync
-			.setWorkspaceId(next)
-			.catch((error) =>
-				console.error("Onboarding: could not switch workspace", error),
-			);
+	if (!config?.enabled) {
+		return null;
 	}
 
-	const invalid = draft !== "" && !isWorkspaceId(draft);
-	const hintState = invalid ? "invalid" : switched ? "switched" : "idle";
-	const hint = invalid
-		? "That's not a workspace id. It looks like 29636bee-4bf9-…"
-		: switched
-			? "Switched. This browser now syncs with that workspace."
-			: "Paste an id from another device to continue that workspace here.";
+	function run(action: () => Promise<unknown>) {
+		setBusy(true);
+		action().catch((error) => {
+			console.error("Onboarding: sign-in failed", error);
+			setBusy(false);
+		});
+	}
 
-	return (
-		<div {...stylex.props(styles.workspace)}>
-			<label
-				{...stylex.props(styles.workspaceLabel)}
-				htmlFor="onboarding-workspace-id"
-			>
-				Workspace id
-			</label>
-			<div {...stylex.props(styles.workspaceRow)}>
-				<input
-					id="onboarding-workspace-id"
-					{...stylex.props(
-						styles.workspaceId,
-						invalid && styles.workspaceIdInvalid,
-					)}
-					data-testid="workspace-id"
-					value={draft}
-					placeholder="Loading…"
-					disabled={id === null}
-					spellCheck={false}
-					autoComplete="off"
-					aria-invalid={invalid}
-					aria-describedby="onboarding-workspace-hint"
-					onFocus={(event) => event.target.select()}
-					onChange={(event) => change(event.target.value)}
-					onKeyDown={(event) => {
-						// Enter would submit onboarding; the id applies as soon as it's valid.
-						if (event.key === "Enter") event.preventDefault();
-					}}
-				/>
+	if (config.user) {
+		return (
+			<div {...stylex.props(styles.account)} data-testid="account">
+				{config.user.image ? (
+					<img
+						{...stylex.props(styles.avatar)}
+						src={config.user.image}
+						alt=""
+						referrerPolicy="no-referrer"
+					/>
+				) : (
+					<div {...stylex.props(styles.avatar)} aria-hidden />
+				)}
+				<div {...stylex.props(styles.accountText)}>
+					<span {...stylex.props(styles.accountName)}>{config.user.name}</span>
+					<span {...stylex.props(styles.accountHint)}>
+						Signed in as {config.user.email}. Your outline syncs to this
+						account.
+					</span>
+				</div>
 				<Button
-					data-testid="workspace-id-copy"
-					disabled={id === null}
-					onClick={() => {
-						if (id === null) return;
-						navigator.clipboard
-							?.writeText(id)
-							.then(() => setCopied(true))
-							.catch(() => {});
-					}}
+					data-testid="sign-out"
+					disabled={busy}
+					onClick={() => run(signOut)}
 				>
-					{copied ? <CheckIcon /> : <CopyIcon />} {copied ? "Copied" : "Copy"}
+					Sign out
 				</Button>
 			</div>
-			<p
-				id="onboarding-workspace-hint"
-				data-testid="workspace-id-hint"
-				data-state={hintState}
-				{...stylex.props(
-					styles.workspaceHint,
-					invalid && styles.workspaceHintInvalid,
-				)}
-				aria-live="polite"
+		);
+	}
+
+	return (
+		<div {...stylex.props(styles.account)} data-testid="account">
+			<div {...stylex.props(styles.accountText)}>
+				<span {...stylex.props(styles.accountName)}>Sync across devices</span>
+				<span {...stylex.props(styles.accountHint)}>
+					Sign in to keep this outline on the server and open it anywhere.
+					Without an account it stays in this browser.
+				</span>
+			</div>
+			<Button
+				data-testid="sign-in-google"
+				disabled={busy}
+				onClick={() =>
+					run(() =>
+						signInWithGoogle(`${location.pathname}?${RETURN_PARAM}=account`),
+					)
+				}
 			>
-				{hint}
-			</p>
+				<GoogleLogoIcon weight="bold" /> Sign in with Google
+			</Button>
 		</div>
 	);
 }
@@ -568,10 +509,21 @@ export interface OnboardingProps {
 }
 
 export function Onboarding({ onDone }: OnboardingProps) {
-	const [step, setStep] = useState(0);
+	const [step, setStep] = useState(() =>
+		new URLSearchParams(location.search).get(RETURN_PARAM) === "account"
+			? STEPS.length - 1
+			: 0,
+	);
 	const [template, setTemplate] = useState<TemplateId>("blank");
-	const syncStatus = useSyncStatus();
+	const config = useSyncConfig();
 	const last = STEPS.length - 1;
+
+	useEffect(() => {
+		const url = new URL(location.href);
+		if (!url.searchParams.has(RETURN_PARAM)) return;
+		url.searchParams.delete(RETURN_PARAM);
+		history.replaceState(history.state, "", url);
+	}, []);
 
 	function submit(event: FormEvent) {
 		event.preventDefault();
@@ -697,14 +649,10 @@ export function Onboarding({ onDone }: OnboardingProps) {
 							<div {...stylex.props(styles.notice)}>
 								<p {...stylex.props(styles.para)}>
 									Your outline is saved in this browser first: every edit lands
-									here before anything else. In the background, Cascade syncs it
-									to the server under the anonymous workspace id below.
+									here before anything else. Sign in with Google and Cascade
+									syncs it to the server in the background.
 								</p>
-								<p {...stylex.props(styles.para)}>
-									There are no accounts yet. Keep the id to open this workspace
-									on another device later, or paste an id you already have.
-								</p>
-								{syncStatus === "disabled" && (
+								{config !== null && !config.enabled && (
 									<p
 										{...stylex.props(styles.para)}
 										data-testid="sync-disabled-notice"
@@ -717,7 +665,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 									Templates, import and more are on the way.
 								</p>
 							</div>
-							<WorkspaceId />
+							<Account />
 						</>
 					)}
 				</div>

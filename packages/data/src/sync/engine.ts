@@ -11,7 +11,6 @@ import type {
 	SyncTransport,
 	Tombstone,
 } from "./types.ts";
-import { getOrCreateWorkspaceId, isWorkspaceId } from "./workspace.ts";
 
 export interface SyncEngineOptions {
 	persistence: SyncedPersistence;
@@ -49,7 +48,7 @@ export class SyncEngine {
 	readonly #onStatus?: (status: SyncStatus) => void;
 
 	#status: SyncStatus = "disabled";
-	#workspaceId: string | null = null;
+	#userId: string | null = null;
 	#running = false;
 	#started: Promise<void> = Promise.resolve();
 	#pushTimer: ReturnType<typeof setTimeout> | null = null;
@@ -76,8 +75,8 @@ export class SyncEngine {
 		return this.#status;
 	}
 
-	get workspaceId(): string | null {
-		return this.#workspaceId;
+	get userId(): string | null {
+		return this.#userId;
 	}
 
 	/** Calls `listener` whenever `status` changes. Returns an unsubscribe function. */
@@ -99,33 +98,25 @@ export class SyncEngine {
 	}
 
 	/**
-	 * Switches this browser to an existing workspace, e.g. one pasted from
-	 * another device. Resets the pull cursor so its nodes are pulled in full;
-	 * pending local changes are pushed to the new workspace.
+	 * Starts syncing as `userId`; resolves once the first sync settles, also
+	 * for repeat callers. The local outline follows the first user who syncs
+	 * it: a different user signing in on this browser starts from that user's
+	 * server copy instead.
 	 */
-	async setWorkspaceId(workspaceId: string): Promise<void> {
-		if (!isWorkspaceId(workspaceId)) {
-			throw new Error(`Not a workspace id: ${workspaceId}`);
-		}
-		await this.#state.setMeta({ workspaceId, cursor: null });
-		this.#workspaceId = workspaceId;
-		await this.sync();
-	}
-
-	/** Starts syncing; resolves once the first sync settles, also for repeat callers. */
-	start(): Promise<void> {
+	start(userId: string): Promise<void> {
 		if (!this.#running) {
 			this.#running = true;
-			this.#started = this.#start();
+			this.#started = this.#start(userId);
 		}
 		return this.#started;
 	}
 
-	async #start(): Promise<void> {
+	async #start(userId: string): Promise<void> {
 		this.#setStatus("idle");
 		this.#persistence.onWrite = () => this.#schedulePush();
 
-		this.#workspaceId = await getOrCreateWorkspaceId(this.#state);
+		await this.#adopt(userId);
+		this.#userId = userId;
 
 		if (typeof window !== "undefined") {
 			const onOnline = () => void this.sync();
@@ -182,12 +173,38 @@ export class SyncEngine {
 		return this.#run(() => this.#pull());
 	}
 
+	/**
+	 * Binds the local outline to `userId`. When another user synced it before,
+	 * their nodes, unpushed changes and cursor are dropped first so nothing
+	 * crosses between accounts.
+	 */
+	async #adopt(userId: string): Promise<void> {
+		const meta = await this.#state.getMeta();
+		if (meta.userId === userId) {
+			return;
+		}
+		if (meta.userId !== null) {
+			const local = await this.#persistence.inner.load();
+			const change: OutlineChange = {
+				put: [],
+				delete: local.map((node) => node.id),
+			};
+			if (change.delete.length > 0) {
+				await this.#persistence.inner.write(change);
+				this.#persistence.emit(change);
+			}
+			await this.#state.ack(await this.#state.peek());
+			await this.#state.setMeta({ onboarding: null });
+		}
+		await this.#state.setMeta({ userId, cursor: null });
+	}
+
 	#run(job: () => Promise<void>): Promise<void> {
 		if (!this.#running) {
 			return Promise.resolve();
 		}
 		const attempt = async () => {
-			if (!this.#running || this.#workspaceId === null) {
+			if (!this.#running || this.#userId === null) {
 				return;
 			}
 			this.#setStatus("syncing");
@@ -207,8 +224,7 @@ export class SyncEngine {
 	}
 
 	async #push(): Promise<void> {
-		const workspaceId = this.#workspaceId;
-		if (workspaceId === null) {
+		if (this.#userId === null) {
 			return;
 		}
 		const entries = await this.#state.peek();
@@ -216,7 +232,6 @@ export class SyncEngine {
 		const pending = onboarding && !onboarding.synced ? onboarding : null;
 		if (pending && entries.length === 0) {
 			await this.#transport.push({
-				workspaceId,
 				put: [],
 				delete: [],
 				onboarding: pick(pending),
@@ -227,7 +242,6 @@ export class SyncEngine {
 		for (let at = 0; at < entries.length; at += PUSH_BATCH) {
 			const batch = entries.slice(at, at + PUSH_BATCH);
 			await this.#transport.push({
-				workspaceId,
 				onboarding: at === 0 && pending ? pick(pending) : undefined,
 				put: batch
 					.filter(
@@ -255,8 +269,7 @@ export class SyncEngine {
 	 * unpushed changes.
 	 */
 	async #pull(full = false): Promise<void> {
-		const workspaceId = this.#workspaceId;
-		if (workspaceId === null) {
+		if (this.#userId === null) {
 			return;
 		}
 		let since = full ? null : (await this.#state.getMeta()).cursor;
@@ -264,7 +277,7 @@ export class SyncEngine {
 		let known = true;
 		let response: PullResponse;
 		do {
-			response = await this.#transport.pull({ workspaceId, since });
+			response = await this.#transport.pull({ since });
 			if (response.known === false) {
 				known = false;
 			}
