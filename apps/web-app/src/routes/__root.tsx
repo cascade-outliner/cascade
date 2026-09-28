@@ -4,9 +4,8 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import appCss from "../styles.css?url";
 
-import "@fontsource-variable/bitter/index.css";
-import "@fontsource-variable/bitter/wght.css";
-import "@fontsource-variable/bitter/wght-italic.css";
+import "@fontsource-variable/dm-sans/opsz.css";
+import "@fontsource-variable/dm-sans/opsz-italic.css";
 
 export const Route = createRootRoute({
 	head: () => ({

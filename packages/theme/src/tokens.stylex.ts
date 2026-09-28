@@ -49,7 +49,7 @@ export const colors = stylex.defineVars({
 });
 
 export const fonts = stylex.defineVars({
-	app: '"Bitter Variable", serif',
+	app: '"DM Sans Variable", ui-sans-serif, system-ui, sans-serif',
 	mono: '"IBM Plex Mono", ui-monospace, monospace',
 });
 
