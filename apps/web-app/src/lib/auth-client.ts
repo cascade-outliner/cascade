@@ -2,11 +2,10 @@ import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient();
 
-export function signInWithGoogle(): Promise<unknown> {
-	return authClient.signIn.social({
-		provider: "google",
-		callbackURL: window.location.pathname,
-	});
+export function signInWithGoogle(
+	callbackURL = window.location.pathname,
+): Promise<unknown> {
+	return authClient.signIn.social({ provider: "google", callbackURL });
 }
 
 /** Ends the session and reloads so the outline restarts without sync. */

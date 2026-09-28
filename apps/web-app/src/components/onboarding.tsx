@@ -9,12 +9,14 @@ import { Button } from "@cascade/ui/button";
 import { Kbd } from "@cascade/ui/kbd";
 import { CheckIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
 import { useSyncConfig } from "#/lib/outline-store.tsx";
 
 const STORAGE_KEY = "cascade:onboarding";
+/** Query param the Google sign-in callback lands on, to reopen the account step. */
+const RETURN_PARAM = "onboarding";
 
 /** Whether onboarding was finished in this browser. */
 export function isOnboarded(): boolean {
@@ -351,6 +353,10 @@ const styles = stylex.create({
 		minWidth: 0,
 	},
 	accountName: {
+		display: "-webkit-box",
+		overflow: "hidden",
+		WebkitBoxOrient: "vertical",
+		WebkitLineClamp: 1,
 		fontWeight: 600,
 	},
 	accountHint: {
@@ -486,7 +492,11 @@ function Account() {
 			<Button
 				data-testid="sign-in-google"
 				disabled={busy}
-				onClick={() => run(signInWithGoogle)}
+				onClick={() =>
+					run(() =>
+						signInWithGoogle(`${location.pathname}?${RETURN_PARAM}=account`),
+					)
+				}
 			>
 				<GoogleLogoIcon weight="bold" /> Sign in with Google
 			</Button>
@@ -499,10 +509,21 @@ export interface OnboardingProps {
 }
 
 export function Onboarding({ onDone }: OnboardingProps) {
-	const [step, setStep] = useState(0);
+	const [step, setStep] = useState(() =>
+		new URLSearchParams(location.search).get(RETURN_PARAM) === "account"
+			? STEPS.length - 1
+			: 0,
+	);
 	const [template, setTemplate] = useState<TemplateId>("blank");
 	const config = useSyncConfig();
 	const last = STEPS.length - 1;
+
+	useEffect(() => {
+		const url = new URL(location.href);
+		if (!url.searchParams.has(RETURN_PARAM)) return;
+		url.searchParams.delete(RETURN_PARAM);
+		history.replaceState(history.state, "", url);
+	}, []);
 
 	function submit(event: FormEvent) {
 		event.preventDefault();

@@ -106,6 +106,11 @@ const styles = stylex.create({
 		alignItems: "center",
 		gap: space["2"],
 		height: 32,
+		// Mirrors the logo: pinned to the screen's right edge when there's room.
+		position: { default: "static", [WIDE]: "absolute" },
+		right: space["4"],
+		top: "50%",
+		transform: { default: null, [WIDE]: "translateY(-50%)" },
 		paddingInline: space["2"],
 		borderWidth: borderWidth.thin,
 		borderStyle: "solid",
@@ -127,7 +132,11 @@ const styles = stylex.create({
 		backgroundColor: colors.canvas,
 	},
 	accountLabel: {
-		display: { default: "inline", [MOBILE]: "none" },
+		display: { default: "-webkit-box", [MOBILE]: "none" },
+		maxWidth: 160,
+		overflow: "hidden",
+		WebkitBoxOrient: "vertical",
+		WebkitLineClamp: 1,
 	},
 });
 
