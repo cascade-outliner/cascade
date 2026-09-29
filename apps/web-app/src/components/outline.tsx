@@ -1,12 +1,16 @@
 import {
+	dayDate,
 	dayId,
+	dayTitle,
 	dueLabel,
+	isDayId,
 	isoDay,
 	type Node,
 	plainText,
 	type Row,
 	relativeDay,
 	shiftDay,
+	textState,
 } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar, type CaptureBarHandle } from "@cascade/ui/capture-bar";
@@ -161,6 +165,15 @@ export interface OutlineProps {
 	zoomedId: string | null;
 }
 
+const virtualDay = (id: string): Node => ({
+	id,
+	parentId: null,
+	order: "",
+	content: textState(dayTitle(dayDate(id))),
+	collapsed: false,
+	updatedAt: 0,
+});
+
 export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const store = useOutlineStore();
 	const sync = useSync();
@@ -220,7 +233,11 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		return null;
 	}
 
-	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
+	// A day nobody wrote in yet has no node; show it as empty until the first child creates it.
+	const zoomed =
+		zoomedId &&
+		(store.get(zoomedId) ??
+			(isDayId(zoomedId) ? virtualDay(zoomedId) : undefined));
 	const rows = store.rows(zoomedId);
 
 	if (!onboarded && store.size === 0) {

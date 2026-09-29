@@ -1,6 +1,6 @@
 import {
+	dayId,
 	type Node,
-	openDay,
 	plainText,
 	type SearchHit,
 	textState,
@@ -154,7 +154,7 @@ export const CommandMenu = observer(function CommandMenu() {
 				onSelect: () =>
 					navigate({
 						to: "/node/$id",
-						params: { id: openDay(store, new Date()) },
+						params: { id: dayId(new Date()) },
 						viewTransition: true,
 					}),
 			},

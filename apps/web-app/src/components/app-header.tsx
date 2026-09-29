@@ -3,7 +3,6 @@ import {
 	dayId,
 	dayLabel,
 	monthId,
-	openDay,
 	openMonth,
 	openYear,
 	relativeDay,
@@ -64,11 +63,12 @@ const styles = stylex.create({
 		alignItems: "center",
 		gap: space["2"],
 		flexShrink: 0,
+		height: 32,
 		marginInlineEnd: { default: space["3"], [MOBILE]: "auto", [WIDE]: 0 },
 		position: { default: "static", [WIDE]: "absolute" },
 		left: space["4"],
-		top: "50%",
-		transform: { default: null, [WIDE]: "translateY(-50%)" },
+		// The header also holds the period strip, so 50% would drift down; pin to the top row.
+		top: space["2.5"],
 		borderRadius: radius.sm,
 		color: colors.ink,
 		fontSize: fontSize["700"],
@@ -125,8 +125,8 @@ const styles = stylex.create({
 		// Mirrors the logo: pinned to the screen's right edge when there's room.
 		position: { default: "static", [WIDE]: "absolute" },
 		right: space["4"],
-		top: "50%",
-		transform: { default: null, [WIDE]: "translateY(-50%)" },
+		// The header also holds the period strip, so 50% would drift down; pin to the top row.
+		top: space["2.5"],
 		paddingInline: space["2"],
 		borderWidth: borderWidth.thin,
 		borderStyle: "solid",
@@ -254,7 +254,7 @@ export const AppHeader = observer(function AppHeader({
 			strip = {
 				kind: "day",
 				selected: index,
-				onShift: (by) => onZoomTo(openDay(store, shiftDay(zoomedId, 7 * by))),
+				onShift: (by) => onZoomTo(dayId(shiftDay(zoomedId, 7 * by))),
 				items: Array.from({ length: 7 }, (_, i): StripItem => {
 					const day = new Date(
 						year,
@@ -265,7 +265,7 @@ export const AppHeader = observer(function AppHeader({
 						name: day.toLocaleDateString("en-US", { weekday: "short" }),
 						label: String(day.getDate()),
 						marked: has(dayId(day)),
-						onPick: () => onZoomTo(openDay(store, day)),
+						onPick: () => onZoomTo(dayId(day)),
 					};
 				}),
 			};
@@ -328,12 +328,12 @@ export const AppHeader = observer(function AppHeader({
 				<DaySwitcher
 					label={(zoomedId && dayLabel(zoomedId)) || "Today"}
 					active={zoomedId === dayId(new Date())}
-					onToday={() => onZoomTo(openDay(store, new Date()))}
-					onOlder={() => onZoomTo(openDay(store, shiftDay(zoomedId, -1)))}
-					onNewer={() => onZoomTo(openDay(store, shiftDay(zoomedId, 1)))}
 					date={zoomedId && dayLabel(zoomedId) ? dayDate(zoomedId) : new Date()}
-					onPick={(date) => onZoomTo(openDay(store, date))}
+					onPick={(date) => onZoomTo(dayId(date))}
 					marked={marked}
+					onToday={() => onZoomTo(dayId(new Date()))}
+					onOlder={() => onZoomTo(dayId(shiftDay(zoomedId, -1)))}
+					onNewer={() => onZoomTo(dayId(shiftDay(zoomedId, 1)))}
 				/>
 				<button
 					type="button"
