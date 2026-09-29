@@ -9,6 +9,7 @@
 	"exports": {
 		"./outliner/*": "./src/outliner/components/*.tsx",
 		"./context-menu": "./src/context-menu/context-menu.tsx",
+		"./dropdown-menu": "./src/dropdown-menu/dropdown-menu.tsx",
 		"./calendar": "./src/calendar/calendar.tsx",
 		"./dialog": "./src/dialog/dialog.tsx",
 		"./sheet": "./src/sheet/sheet.tsx",
