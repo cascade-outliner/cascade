@@ -47,7 +47,6 @@ export function addTasks(
 	tasks: SplitTask[],
 ): void {
 	for (const task of tasks) {
-		// ponytail: nodes have no owner field yet, so an owner rides along as an @mention.
 		const text =
 			task.owner && !task.text.includes(task.owner)
 				? `${task.text} @${task.owner}`

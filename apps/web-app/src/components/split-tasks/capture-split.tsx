@@ -53,6 +53,7 @@ const styles = stylex.create({
 		gap: space["2"],
 		paddingTop: space["2.5"],
 		paddingLeft: space["8"],
+		paddingRight: space["3"],
 		minHeight: 24,
 		fontSize: fontSize["200"],
 		color: colors.muted,
@@ -60,6 +61,13 @@ const styles = stylex.create({
 	notice: {
 		fontSize: fontSize["300"],
 		color: colors.muted,
+		borderWidth: 4,
+		borderTopWidth: 0,
+		borderBottomWidth: 0,
+		borderRightWidth: 0,
+		borderStyle: "solid",
+		borderColor: colors.primary,
+		paddingLeft: space["3"],
 	},
 	loading: {
 		display: "flex",
