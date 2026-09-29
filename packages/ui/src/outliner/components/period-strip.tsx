@@ -4,20 +4,24 @@ import * as stylex from "@stylexjs/stylex";
 
 const DAY_WIDTH = 64;
 const GAP = 6;
+const NARROW = "@media (max-width: 480px)";
 
 const styles = stylex.create({
 	strip: {
 		display: "flex",
 		justifyContent: "center",
-		gap: GAP,
+		alignItems: "stretch",
+		gap: { default: space["1"], [NARROW]: 0 },
 		paddingBlock: space["2"],
+		paddingInline: { default: 0, [NARROW]: space["1"] },
 	},
 	day: {
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
 		gap: space["0.5"],
-		width: DAY_WIDTH,
+		flex: 1,
+		minWidth: 0,
 		paddingBlock: space["2"],
 		borderWidth: 0,
 		borderRadius: radius.lg,
@@ -34,7 +38,8 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		alignSelf: "center",
-		padding: space["2"],
+		flexShrink: 0,
+		padding: { default: space["2"], [NARROW]: space["3"] },
 		borderWidth: 0,
 		borderRadius: radius.md,
 		backgroundColor: { default: "transparent", ":hover": colors.primaryMuted },
@@ -49,27 +54,33 @@ const styles = stylex.create({
 		position: "absolute",
 		top: 0,
 		left: 0,
-		width: DAY_WIDTH,
 		height: "100%",
-		borderRadius: radius.lg,
-		backgroundColor: colors.primary,
+		boxSizing: "border-box",
+		paddingInline: GAP / 2,
 		transition: {
 			default: "transform 260ms cubic-bezier(0.2, 0, 0, 1)",
 			"@media (prefers-reduced-motion: reduce)": "none",
 		},
 	},
+	pillFill: {
+		width: "100%",
+		height: "100%",
+		borderRadius: radius.lg,
+		backgroundColor: colors.primary,
+	},
 	days: {
 		position: "relative",
-		display: "flex",
-		gap: GAP,
+		display: "grid",
+		flex: 1,
+		minWidth: 0,
 	},
 	name: {
-		fontSize: fontSize["100"],
+		fontSize: { default: fontSize["100"], [NARROW]: 10 },
 		fontWeight: 500,
 		opacity: 0.7,
 	},
 	num: {
-		fontSize: fontSize["500"],
+		fontSize: { default: fontSize["500"], [NARROW]: fontSize["300"] },
 		fontWeight: 600,
 	},
 	dot: {
@@ -126,12 +137,23 @@ export function PeriodStrip({
 			>
 				<CaretLeftIcon size={14} />
 			</button>
-			<div {...stylex.props(styles.days)}>
+			<div
+				{...stylex.props(styles.days)}
+				style={{
+					gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
+					maxWidth: items.length * DAY_WIDTH,
+				}}
+			>
 				<span
 					aria-hidden="true"
 					{...stylex.props(styles.pill)}
-					style={{ transform: `translateX(${selected * (DAY_WIDTH + GAP)}px)` }}
-				/>
+					style={{
+						width: `${100 / items.length}%`,
+						transform: `translateX(${selected * 100}%)`,
+					}}
+				>
+					<span {...stylex.props(styles.pillFill)} />
+				</span>
 				{items.map((item, i) => (
 					<button
 						// biome-ignore lint/suspicious/noArrayIndexKey: stable slots, so the colour can transition
