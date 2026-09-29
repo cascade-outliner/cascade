@@ -15,7 +15,8 @@ export const Route = createRootRoute({
 			},
 			{
 				name: "viewport",
-				content: "width=device-width, initial-scale=1, viewport-fit=cover",
+				content:
+					"width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
 			},
 			{
 				title: "Cascade",
@@ -92,6 +93,8 @@ const styles = stylex.create({
 		color: colors.ink,
 		fontFamily: fonts.app,
 		touchAction: "manipulation",
+		minHeight: "100dvh",
+		overscrollBehaviorY: "none",
 	},
 });
 
