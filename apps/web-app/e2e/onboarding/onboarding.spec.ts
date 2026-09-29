@@ -81,7 +81,7 @@ test.describe("onboarding", () => {
 		await expect(outlinePage.row("Existing work")).toBeVisible();
 		await expect.poll(() => outlinePage.isSaved("Existing work")).toBe(true);
 
-		await page.evaluate(() => localStorage.removeItem("cascade:onboarding"));
+		await onboardingPage.forgetOnboarding();
 		await page.reload();
 
 		await expect(outlinePage.row("Existing work")).toBeVisible();

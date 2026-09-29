@@ -14,7 +14,7 @@ import type {
 } from "../persistence/types.ts";
 import { orderBetween } from "../util/order.ts";
 import { emptyState } from "./content.ts";
-import { isDailyNode } from "./daily.ts";
+import { dayDate, isDailyNode, isDayId, openDay } from "./daily.ts";
 import { type SearchResult, searchNodes } from "./search.ts";
 import {
 	ancestorsOf,
@@ -120,6 +120,10 @@ export class OutlineStore {
 			content = emptyState(),
 		}: { id?: string; index?: number; content?: SerializedEditorState } = {},
 	): string {
+		// A day note only exists once something is added under it.
+		if (parentId !== null && !this.nodes.has(parentId) && isDayId(parentId)) {
+			openDay(this, dayDate(parentId));
+		}
 		if (parentId !== null && !this.nodes.has(parentId)) {
 			throw new Error(`create: unknown parent ${parentId}`);
 		}

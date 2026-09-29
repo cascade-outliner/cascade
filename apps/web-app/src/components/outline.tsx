@@ -1,12 +1,16 @@
 import {
+	dayDate,
 	dayId,
+	dayTitle,
 	dueLabel,
+	isDayId,
 	isoDay,
 	type Node,
 	plainText,
 	type Row,
 	relativeDay,
 	shiftDay,
+	textState,
 } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar, type CaptureBarHandle } from "@cascade/ui/capture-bar";
@@ -21,10 +25,10 @@ import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
 import { DueElsewhere } from "#/components/due-elsewhere.tsx";
-import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
+import { Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import {
@@ -160,6 +164,15 @@ export interface OutlineProps {
 	zoomedId: string | null;
 }
 
+const virtualDay = (id: string): Node => ({
+	id,
+	parentId: null,
+	order: "",
+	content: textState(dayTitle(dayDate(id))),
+	collapsed: false,
+	updatedAt: 0,
+});
+
 export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const store = useOutlineStore();
 	const sync = useSync();
@@ -169,7 +182,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const [sources, setSources] = useState<string[]>([]);
 	const [captured, setCaptured] = useState<string | null>(null);
 	const { aiEnabled } = appRoute.useLoaderData();
-	const [onboarded, setOnboarded] = useState(isOnboarded);
+	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 	const captureInputRef = useRef<CaptureBarHandle>(null);
 
 	const zoomTo = (id: string | null) => {
@@ -181,11 +194,19 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	};
 	const capture = useCapture(zoomedId, zoomTo);
 
-	if (store.status !== "ready") {
+	useEffect(() => {
+		void sync.isOnboarded().then(setOnboarded);
+	}, [sync]);
+
+	if (store.status !== "ready" || onboarded === null) {
 		return null;
 	}
 
-	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
+	// A day nobody wrote in yet has no node; show it as empty until the first child creates it.
+	const zoomed =
+		zoomedId &&
+		(store.get(zoomedId) ??
+			(isDayId(zoomedId) ? virtualDay(zoomedId) : undefined));
 	const rows = store.rows(zoomedId);
 
 	if (!onboarded && store.size === 0) {

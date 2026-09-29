@@ -50,6 +50,8 @@ test.describe("daily nodes", () => {
 	}) => {
 		await daySwitcher.openToday();
 		await expect(outlinePage.title).toHaveText("Today");
+		await outlinePage.addNode("Something");
+		await expect.poll(() => outlinePage.isSaved("Something")).toBe(true);
 		await outlinePage.goto("/");
 
 		await page.keyboard.press("ControlOrMeta+k");
@@ -57,10 +59,15 @@ test.describe("daily nodes", () => {
 
 		await expect(page).toHaveURL(/\/node\/daily-2026-09-27$/);
 		await outlinePage.goto("/node/daily");
-		await expect(outlinePage.rows).toHaveText(["2026", "September", "Today"]);
+		await expect(outlinePage.rows).toHaveText([
+			"2026",
+			"September",
+			"Today",
+			"Something",
+		]);
 	});
 
-	test("the arrows step a day at a time, creating notes as needed", async ({
+	test("the arrows step a day at a time, without creating notes", async ({
 		daySwitcher,
 		outlinePage,
 		page,
@@ -80,13 +87,11 @@ test.describe("daily nodes", () => {
 		await expect(outlinePage.title).toHaveText("Tuesday, 29th");
 		await expect(daySwitcher.dayButton("Sep 29")).toBeVisible();
 
+		// Only a node added under a date creates it.
+		await outlinePage.addNode("Plan");
+		await expect.poll(() => outlinePage.isSaved("Plan")).toBe(true);
 		await outlinePage.goto("/node/daily-2026-09");
-		await expect(outlinePage.rows).toHaveText([
-			"Yesterday",
-			"Today",
-			"Tomorrow",
-			"Tuesday, 29th",
-		]);
+		await expect(outlinePage.rows).toHaveText(["Tuesday, 29th", "Plan"]);
 	});
 
 	test("day titles can't be edited", async ({ daySwitcher, outlinePage }) => {
@@ -107,6 +112,7 @@ test.describe("daily nodes", () => {
 	}) => {
 		await daySwitcher.openToday();
 		await expect(outlinePage.title).toHaveText("Today");
+		await outlinePage.addNode("Day thought");
 
 		await outlinePage.goto("/node/daily");
 		await outlinePage.addNode("Loose thought");
@@ -115,6 +121,7 @@ test.describe("daily nodes", () => {
 			"2026",
 			"September",
 			"Today",
+			"Day thought",
 			"Loose thought",
 		]);
 	});

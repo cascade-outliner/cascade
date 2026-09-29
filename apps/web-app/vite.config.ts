@@ -28,6 +28,16 @@ const config = defineConfig({
 		tanstackStart({ spa: { enabled: true } }),
 		viteReact(),
 	],
+	build: {
+		rolldownOptions: {
+			// Deps like react-router and react-error-boundary ship "use client"; meaningless outside RSC.
+			onLog(level, log, defaultHandler) {
+				if (log.code !== "MODULE_LEVEL_DIRECTIVE") {
+					defaultHandler(level, log);
+				}
+			},
+		},
+	},
 	server: {
 		port: 3001,
 	},
