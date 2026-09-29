@@ -7,10 +7,9 @@ import {
 	type Row,
 	relativeDay,
 	shiftDay,
-	textState,
 } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
-import { CaptureBar } from "@cascade/ui/capture-bar";
+import { CaptureBar, type CaptureBarHandle } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
 import { Content } from "@cascade/ui/outliner/content";
@@ -28,6 +27,11 @@ import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
+import {
+	captureSlashCommands,
+	useCapture,
+} from "#/components/slash-commands/capture.ts";
+import { SlashCommandsPlugin } from "#/components/slash-commands/slash-commands-plugin.tsx";
 import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
 import { SplitSheet } from "#/components/split-tasks/split-sheet.tsx";
@@ -90,6 +94,8 @@ const OutlineRow = observer(function OutlineRow({
 	highlight,
 }: OutlineRowProps) {
 	const store = useOutlineStore();
+	const split =
+		onSplit && ((id: string) => onSplit({ id, text: plainText(node.content) }));
 
 	return (
 		<OutlinerContextMenu
@@ -97,9 +103,7 @@ const OutlineRow = observer(function OutlineRow({
 			childCount={childCount}
 			onOpenChange={onOpenChange}
 			onZoomIn={onZoomTo}
-			onSplit={
-				onSplit && ((id) => onSplit({ id, text: plainText(node.content) }))
-			}
+			onSplit={split}
 		>
 			<RowShell
 				active={active || !!highlight}
@@ -131,7 +135,14 @@ const OutlineRow = observer(function OutlineRow({
 					}
 					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
-				/>
+				>
+					<SlashCommandsPlugin
+						node={node}
+						childCount={childCount}
+						onZoomTo={onZoomTo}
+						onSplit={split}
+					/>
+				</Content>
 				{node.due && (
 					<Pill
 						tone={node.due <= isoDay(new Date()) ? "primary" : "info"}
@@ -160,7 +171,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const [captured, setCaptured] = useState<string | null>(null);
 	const { aiEnabled } = appRoute.useLoaderData();
 	const [onboarded, setOnboarded] = useState(isOnboarded);
-	const captureInputRef = useRef<HTMLInputElement>(null);
+	const captureInputRef = useRef<CaptureBarHandle>(null);
 
 	const zoomTo = (id: string | null) => {
 		navigate({
@@ -169,6 +180,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 			viewTransition: true,
 		});
 	};
+	const capture = useCapture(zoomedId, zoomTo);
 
 	// Zooming changes which rows are visible; a hidden selection would surprise on Backspace.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on every zoom change on purpose
@@ -303,6 +315,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				<div {...stylex.props(styles.captureBar)}>
 					<CaptureBar
 						ref={captureInputRef}
+						slashItems={captureSlashCommands}
 						onSplit={aiEnabled ? setCaptured : undefined}
 						panel={
 							captured !== null && (
@@ -317,11 +330,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 								/>
 							)
 						}
-						onSubmit={(text) => {
-							store.create(zoomedId, {
-								content: textState(text),
-							});
-						}}
+						onSubmit={capture}
 					/>
 				</div>
 			</div>

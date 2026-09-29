@@ -7,6 +7,7 @@ import { DueDateMenu } from "./pages/due-date-menu.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
 import { SplitApi } from "./pages/split-api.ts";
+import { SlashMenu } from "./pages/slash-menu.ts";
 
 interface Options {
 	/** Skip onboarding by marking it finished before the app boots. Default `true`. */
@@ -22,6 +23,7 @@ interface Fixtures {
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
 	splitApi: SplitApi;
+	slashMenu: SlashMenu;
 }
 
 /**
@@ -64,6 +66,9 @@ export const test = base.extend<Options & Fixtures>({
 	},
 	splitApi: async ({ page }, use) => {
 		await use(new SplitApi(page));
+  },
+	slashMenu: async ({ page }, use) => {
+		await use(new SlashMenu(page));
 	},
 });
 

@@ -13,6 +13,7 @@
 		"./dialog": "./src/dialog/dialog.tsx",
 		"./sheet": "./src/sheet/sheet.tsx",
 		"./command-palette": "./src/command-palette/command-palette.tsx",
+		"./slash-menu": "./src/slash-menu/index.ts",
 		"./kbd": "./src/kbd/kbd.tsx",
 		"./pill": "./src/pill/pill.tsx",
 		"./button": "./src/button/button.tsx",
@@ -40,6 +41,7 @@
 	"devDependencies": {
 		"@cascade/config": "workspace:*",
 		"@types/react": "^19.2.0",
+		"@types/react-dom": "^19.2.3",
 		"typescript": "^6.0.2",
 		"vitest": "^3.2.7"
 	}

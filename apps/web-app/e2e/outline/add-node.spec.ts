@@ -14,7 +14,7 @@ test.describe("adding a node", () => {
 
 		await expect(outlinePage.row("Buy milk")).toBeVisible();
 		await expect(outlinePage.emptyState).toBeHidden();
-		await expect(outlinePage.captureInput).toHaveValue("");
+		await expect(outlinePage.captureInput).toHaveText("");
 		await expect(outlinePage.captureInput).toBeFocused();
 	});
 
@@ -41,6 +41,22 @@ test.describe("adding a node", () => {
 
 		await outlinePage.addNode("  Padded  ");
 		await expect(outlinePage.rows).toHaveText(["Padded"]);
+	});
+
+	test("Shift+Enter adds a line; Enter submits them all", async ({
+		outlinePage,
+	}) => {
+		await outlinePage.captureInput.pressSequentially("Line one");
+		await outlinePage.captureInput.press("Shift+Enter");
+		await outlinePage.captureInput.pressSequentially("Line two");
+		await expect(outlinePage.rows).toHaveCount(0);
+
+		await outlinePage.captureInput.press("Enter");
+
+		await expect(outlinePage.rows).toHaveCount(1);
+		await expect(outlinePage.rows.first()).toHaveText("Line one\nLine two", {
+			useInnerText: true,
+		});
 	});
 
 	test("the node survives a reload", async ({ outlinePage, page }) => {
