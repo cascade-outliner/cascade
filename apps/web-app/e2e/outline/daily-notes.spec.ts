@@ -51,6 +51,7 @@ test.describe("daily nodes", () => {
 		await daySwitcher.openToday();
 		await expect(outlinePage.title).toHaveText("Today");
 		await outlinePage.addNode("Something");
+		await expect.poll(() => outlinePage.isSaved("Something")).toBe(true);
 		await outlinePage.goto("/");
 
 		await page.keyboard.press("ControlOrMeta+k");
@@ -88,6 +89,7 @@ test.describe("daily nodes", () => {
 
 		// Only a node added under a date creates it.
 		await outlinePage.addNode("Plan");
+		await expect.poll(() => outlinePage.isSaved("Plan")).toBe(true);
 		await outlinePage.goto("/node/daily-2026-09");
 		await expect(outlinePage.rows).toHaveText(["Tuesday, 29th", "Plan"]);
 	});
