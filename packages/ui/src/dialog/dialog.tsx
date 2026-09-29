@@ -132,7 +132,7 @@ function Popup({
 							</Base.Description>
 						)}
 					</div>
-					<Base.Close {...stylex.props(styles.close)}>
+					<Base.Close aria-label="Close" {...stylex.props(styles.close)}>
 						<XIcon size={13} weight="bold" />
 					</Base.Close>
 				</div>
