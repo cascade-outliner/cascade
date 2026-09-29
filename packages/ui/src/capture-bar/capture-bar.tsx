@@ -22,6 +22,7 @@ import {
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
 	KEY_ESCAPE_COMMAND,
+	SKIP_DOM_SELECTION_TAG,
 } from "lexical";
 import type { ReactNode, Ref } from "react";
 import {
@@ -320,7 +321,8 @@ function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 
 interface EditorHandle {
 	focus: () => void;
-	clear: () => void;
+	/** Empties the editor; `keepFocus: false` stops Lexical pulling focus back into it. */
+	clear: (keepFocus?: boolean) => void;
 }
 
 interface EditorProps<T extends SlashMenuItem> {
@@ -352,7 +354,10 @@ function Editor<T extends SlashMenuItem>({
 		ref,
 		() => ({
 			focus: () => editor.focus(),
-			clear: () => editor.update(() => $getRoot().clear()),
+			clear: (keepFocus = true) =>
+				editor.update(() => $getRoot().clear(), {
+					tag: keepFocus ? undefined : SKIP_DOM_SELECTION_TAG,
+				}),
 		}),
 		[editor],
 	);
@@ -445,7 +450,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		if (!trimmed || !onSplit) return;
 		onSplit(trimmed);
 		setPicked([]);
-		editorRef.current?.clear();
+		// The split panel takes focus; don't let the editor grab it back.
+		editorRef.current?.clear(false);
 	}
 
 	function pick(item: T) {

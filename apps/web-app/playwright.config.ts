@@ -23,6 +23,6 @@ export default defineConfig({
 		reuseExistingServer: !process.env.CI,
 		timeout: 180_000,
 		// Empty wins over .env: tests stay local-only and never touch a real database.
-		env: { DATABASE_URL: "", PORT: String(PORT) },
+		env: { ANTHROPIC_API_KEY: "", DATABASE_URL: "", PORT: String(PORT) },
 	},
 });
