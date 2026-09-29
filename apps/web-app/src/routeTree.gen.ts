@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppNodeIdRouteImport } from './routes/_app.node.$id'
+import { Route as AppTagTagRouteImport } from './routes/_app.tag.$tag'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const AppRoute = AppRouteImport.update({
@@ -28,6 +29,11 @@ const AppNodeIdRoute = AppNodeIdRouteImport.update({
   path: '/node/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppTagTagRoute = AppTagTagRouteImport.update({
+  id: '/tag/$tag',
+  path: '/tag/$tag',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -37,11 +43,13 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/node/$id': typeof AppNodeIdRoute
+  '/tag/$tag': typeof AppTagTagRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/node/$id': typeof AppNodeIdRoute
+  '/tag/$tag': typeof AppTagTagRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -49,14 +57,21 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/': typeof AppIndexRoute
   '/_app/node/$id': typeof AppNodeIdRoute
+  '/_app/tag/$tag': typeof AppTagTagRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/node/$id' | '/api/auth/$'
+  fullPaths: '/' | '/node/$id' | '/tag/$tag' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/node/$id' | '/api/auth/$'
-  id: '__root__' | '/_app' | '/_app/' | '/_app/node/$id' | '/api/auth/$'
+  to: '/' | '/node/$id' | '/tag/$tag' | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/'
+    | '/_app/node/$id'
+    | '/_app/tag/$tag'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNodeIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/tag/$tag': {
+      id: '/_app/tag/$tag'
+      path: '/tag/$tag'
+      fullPath: '/tag/$tag'
+      preLoaderRoute: typeof AppTagTagRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -100,11 +122,13 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppNodeIdRoute: typeof AppNodeIdRoute
+  AppTagTagRoute: typeof AppTagTagRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppNodeIdRoute: AppNodeIdRoute,
+  AppTagTagRoute: AppTagTagRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

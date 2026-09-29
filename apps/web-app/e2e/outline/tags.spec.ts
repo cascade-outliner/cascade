@@ -21,4 +21,18 @@ test.describe("tags", () => {
 		await expect(commandPalette.input).toHaveValue("#work");
 		await expect(commandPalette.option("Ship it #work")).toBeVisible();
 	});
+
+	test("clicking a chip opens that tag's nodes; picking one zooms in", async ({
+		outlinePage,
+		page,
+	}) => {
+		await outlinePage.tag("work").click();
+
+		await expect(page).toHaveURL(/\/tag\/work$/);
+		await expect(page.getByTestId("tag-title")).toHaveText("#work");
+		await page.getByTestId("tag-result").filter({ hasText: "Ship it" }).click();
+
+		await expect(page).toHaveURL(/\/node\/[^/]+$/);
+		await expect(outlinePage.title).toHaveText("Ship it #work");
+	});
 });

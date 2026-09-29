@@ -1,6 +1,6 @@
 import type { Node } from "@cascade/data";
 import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
-import { HashtagNode } from "@lexical/hashtag";
+import { $isHashtagNode, HashtagNode } from "@lexical/hashtag";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -10,7 +10,12 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import * as stylex from "@stylexjs/stylex";
-import { $nodesOfType, type EditorState, TextNode } from "lexical";
+import {
+	$getNearestNodeFromDOMNode,
+	$nodesOfType,
+	type EditorState,
+	TextNode,
+} from "lexical";
 import { type ReactNode, useEffect } from "react";
 import { useItem } from "../context";
 
@@ -35,9 +40,11 @@ const styles = stylex.create({
 function Editable({
 	style,
 	onCommit,
+	onTagClick,
 }: {
 	style?: stylex.StyleXStyles;
 	onCommit?: (state: EditorState) => void;
+	onTagClick?: (tag: string) => void;
 }) {
 	const [editor] = useLexicalComposerContext();
 
@@ -47,6 +54,18 @@ function Editable({
 				{...stylex.props(styles.content, style)}
 				data-testid="outliner-content"
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
+				onClick={
+					onTagClick &&
+					((event) => {
+						const tag = editor.read(() => {
+							const node = $getNearestNodeFromDOMNode(event.target as Element);
+							return $isHashtagNode(node)
+								? node.getTextContent().slice(1)
+								: null;
+						});
+						if (tag) onTagClick(tag);
+					})
+				}
 			/>
 		</div>
 	);
@@ -100,6 +119,7 @@ export function Content({
 	editable = true,
 	onChange,
 	onCommit,
+	onTagClick,
 	children,
 }: {
 	style?: stylex.StyleXStyles;
@@ -109,6 +129,8 @@ export function Content({
 	editable?: boolean;
 	onChange?: (state: EditorState) => void;
 	onCommit?: (state: EditorState) => void;
+	/** Called with the tag (no `#`) when a `#tag` chip is clicked. */
+	onTagClick?: (tag: string) => void;
 	/** Extra Lexical plugins, e.g. a slash menu. Not rendered with a `label`. */
 	children?: ReactNode;
 }) {
@@ -136,7 +158,9 @@ export function Content({
 			}}
 		>
 			<RichTextPlugin
-				contentEditable={<Editable style={style} onCommit={onCommit} />}
+				contentEditable={
+					<Editable style={style} onCommit={onCommit} onTagClick={onTagClick} />
+				}
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>

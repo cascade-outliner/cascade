@@ -94,6 +94,7 @@ const OutlineRow = observer(function OutlineRow({
 	highlight,
 }: OutlineRowProps) {
 	const store = useOutlineStore();
+	const navigate = useNavigate();
 	const split =
 		onSplit && ((id: string) => onSplit({ id, text: plainText(node.content) }));
 
@@ -135,6 +136,13 @@ const OutlineRow = observer(function OutlineRow({
 					}
 					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
+					onTagClick={(tag) =>
+						navigate({
+							to: "/tag/$tag",
+							params: { tag },
+							viewTransition: true,
+						})
+					}
 				>
 					<SlashCommandsPlugin
 						node={node}

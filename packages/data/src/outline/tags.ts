@@ -20,3 +20,11 @@ export function tagCounts(
 	}
 	return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
+
+/** The nodes in `nodes` tagged `tag` (case-insensitive, without the `#`). */
+export function nodesWithTag(nodes: Iterable<Node>, tag: string): Node[] {
+	const wanted = tag.toLowerCase();
+	return [...nodes].filter((node) =>
+		extractTags(plainText(node.content)).includes(wanted),
+	);
+}
