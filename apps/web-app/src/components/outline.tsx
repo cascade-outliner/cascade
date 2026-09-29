@@ -25,7 +25,7 @@ import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
 import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { Onboarding } from "#/components/onboarding.tsx";
@@ -73,7 +73,7 @@ function zoomTransitionName(id: string): string {
 interface OutlineRowProps {
 	row: Row;
 	active: boolean;
-	onOpenChange: (open: boolean) => void;
+	onMenuOpen: (id: string | null) => void;
 	onZoomTo: (id: string | null) => void;
 	/** Opens the split sheet (3b). Unset when AI is off (no API key on the server). */
 	onSplit?: (split: Split) => void;
@@ -92,7 +92,7 @@ interface Split {
 const OutlineRow = observer(function OutlineRow({
 	row: { node, childCount },
 	active,
-	onOpenChange,
+	onMenuOpen,
 	onZoomTo,
 	onSplit,
 	highlight,
@@ -105,7 +105,7 @@ const OutlineRow = observer(function OutlineRow({
 		<OutlinerContextMenu
 			node={node}
 			childCount={childCount}
-			onOpenChange={onOpenChange}
+			onOpenChange={(open) => onMenuOpen(open ? node.id : null)}
 			onZoomIn={onZoomTo}
 			onSplit={split}
 		>
@@ -185,13 +185,17 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 	const captureInputRef = useRef<CaptureBarHandle>(null);
 
-	const zoomTo = (id: string | null) => {
-		navigate({
-			to: id ? "/node/$id" : "/",
-			params: id ? { id } : undefined,
-			viewTransition: true,
-		});
-	};
+	// Stable, so opening a menu (which sets state here) doesn't re-render every row.
+	const zoomTo = useCallback(
+		(id: string | null) => {
+			navigate({
+				to: id ? "/node/$id" : "/",
+				params: id ? { id } : undefined,
+				viewTransition: true,
+			});
+		},
+		[navigate],
+	);
 	const capture = useCapture(zoomedId, zoomTo);
 
 	useEffect(() => {
@@ -264,7 +268,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 						<OutlineRow
 							row={row}
 							active={menuOpenId === row.node.id}
-							onOpenChange={(open) => setMenuOpenId(open ? row.node.id : null)}
+							onMenuOpen={setMenuOpenId}
 							onZoomTo={zoomTo}
 							onSplit={aiEnabled ? setSplit : undefined}
 							highlight={split?.id === row.node.id ? sources : undefined}

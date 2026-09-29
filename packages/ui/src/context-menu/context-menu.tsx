@@ -47,6 +47,9 @@ const styles = stylex.create({
 		"[data-highlighted]": {
 			backgroundColor: colors.surface,
 		},
+		":hover:not([data-disabled])": {
+			backgroundColor: colors.surface,
+		},
 		"[data-checked]": {
 			backgroundColor: colors.primaryMuted,
 			fontWeight: 500,
@@ -96,6 +99,10 @@ function Trigger({ children }: { children: React.ReactNode }) {
 	return (
 		<Base.Trigger {...stylex.props(styles.trigger)}>{children}</Base.Trigger>
 	);
+}
+
+function Root(props: React.ComponentProps<typeof Base.Root>) {
+	return <Base.Root highlightItemOnHover={false} {...props} />;
 }
 
 function Popup({ children }: { children: React.ReactNode }) {
@@ -161,7 +168,7 @@ export interface MenuSubmenuProps {
 
 function Submenu({ icon, label, children }: MenuSubmenuProps) {
 	return (
-		<Base.SubmenuRoot>
+		<Base.SubmenuRoot highlightItemOnHover={false}>
 			<Base.SubmenuTrigger {...stylex.props(styles.item)}>
 				{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
 				<span {...stylex.props(styles.label)}>{label}</span>
@@ -223,7 +230,7 @@ function Custom({ label, children }: MenuCustomProps) {
 }
 
 export const Menu = {
-	Root: Base.Root,
+	Root,
 	Trigger,
 	Popup,
 	Item,
