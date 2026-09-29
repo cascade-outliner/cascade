@@ -88,7 +88,7 @@ const styles = stylex.create({
 	},
 	radioIndicator: {
 		display: "flex",
-		color: colors.danger,
+		color: colors.primary,
 	},
 });
 
