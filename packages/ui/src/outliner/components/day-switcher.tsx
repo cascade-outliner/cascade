@@ -1,9 +1,12 @@
+import { Popover } from "@base-ui/react/popover";
 import {
 	borderWidth,
 	colors,
 	fontSize,
 	radius,
+	shadow,
 	space,
+	zIndex,
 } from "@cascade/theme/tokens.stylex";
 import {
 	CalendarBlankIcon,
@@ -11,6 +14,8 @@ import {
 	CaretRightIcon,
 } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
+import { useState } from "react";
+import { Calendar } from "../../calendar/calendar";
 
 const styles = stylex.create({
 	group: {
@@ -55,6 +60,19 @@ const styles = stylex.create({
 		whiteSpace: "nowrap",
 		cursor: "pointer",
 	},
+	positioner: {
+		zIndex: zIndex.overlay,
+	},
+	popup: {
+		padding: space["3"],
+		borderRadius: radius.lg,
+		borderWidth: borderWidth.thin,
+		borderStyle: "solid",
+		borderColor: colors.border,
+		backgroundColor: colors.white,
+		boxShadow: shadow.popup,
+		outline: "none",
+	},
 	active: {
 		backgroundColor: {
 			default: colors.primaryMuted,
@@ -73,6 +91,12 @@ export interface DaySwitcherProps {
 	/** Step to the previous / next day. */
 	onOlder: () => void;
 	onNewer: () => void;
+	/** The day shown, for the calendar to open on. */
+	date?: Date;
+	/** Jump to a day picked in the calendar. */
+	onPick: (date: Date) => void;
+	/** Days to dot in the calendar. */
+	marked?: (date: Date) => boolean;
 }
 
 /** `‹ Today ›`: jump to today's note, or step a day back or forward. */
@@ -82,7 +106,11 @@ export function DaySwitcher({
 	onToday,
 	onOlder,
 	onNewer,
+	date,
+	onPick,
+	marked,
 }: DaySwitcherProps) {
+	const [open, setOpen] = useState(false);
 	return (
 		<nav aria-label="Daily nodes" {...stylex.props(styles.group)}>
 			<button
@@ -99,7 +127,6 @@ export function DaySwitcher({
 				onClick={onToday}
 				{...stylex.props(styles.today, active && styles.active)}
 			>
-				<CalendarBlankIcon size={13} />
 				{label}
 			</button>
 			<button
@@ -110,6 +137,30 @@ export function DaySwitcher({
 			>
 				<CaretRightIcon size={12} />
 			</button>
+			<Popover.Root open={open} onOpenChange={setOpen}>
+				<Popover.Trigger aria-label="Pick a day" {...stylex.props(styles.step)}>
+					<CalendarBlankIcon size={13} />
+				</Popover.Trigger>
+				<Popover.Portal>
+					<Popover.Positioner
+						sideOffset={8}
+						{...stylex.props(styles.positioner)}
+					>
+						<Popover.Popup {...stylex.props(styles.popup)}>
+							<Calendar
+								value={date}
+								marked={marked}
+								onChange={(picked) => {
+									if (picked) {
+										onPick(picked);
+										setOpen(false);
+									}
+								}}
+							/>
+						</Popover.Popup>
+					</Popover.Positioner>
+				</Popover.Portal>
+			</Popover.Root>
 		</nav>
 	);
 }

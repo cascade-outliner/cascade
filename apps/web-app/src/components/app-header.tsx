@@ -1,4 +1,15 @@
-import { dayId, dayLabel, openDay, relativeDay, shiftDay } from "@cascade/data";
+import {
+	dayDate,
+	dayId,
+	dayLabel,
+	monthId,
+	openDay,
+	openMonth,
+	openYear,
+	relativeDay,
+	shiftDay,
+	yearId,
+} from "@cascade/data";
 import {
 	borderWidth,
 	colors,
@@ -8,6 +19,11 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { Breadcrumbs } from "@cascade/ui/outliner/breadcrumbs";
 import { DaySwitcher } from "@cascade/ui/outliner/day-switcher";
+import {
+	PeriodStrip,
+	type PeriodStripProps,
+	type StripItem,
+} from "@cascade/ui/outliner/period-strip";
 import { MagnifyingGlassIcon, SignOutIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Link } from "@tanstack/react-router";
@@ -215,6 +231,78 @@ export const AppHeader = observer(function AppHeader({
 }: AppHeaderProps) {
 	const store = useOutlineStore();
 	const zoomed = zoomedId ? store.get(zoomedId) : undefined;
+	// ponytail: one scan per render; a dot means the day has children.
+	let parents: Set<string | null> | undefined;
+	const marked = (date: Date) => {
+		parents ??= new Set([...store.nodes.values()].map((n) => n.parentId));
+		return parents.has(dayId(date));
+	};
+
+	const has = (id: string) => {
+		parents ??= new Set([...store.nodes.values()].map((n) => n.parentId));
+		return parents.has(id);
+	};
+	// A day shows its week, a month its year's months, a year its neighbouring years.
+	let strip: Omit<PeriodStripProps, "label"> | null = null;
+	const period = zoomedId?.match(/^daily-(\d{4})(?:-(\d{2}))?(-\d{2})?$/);
+	if (period) {
+		const [, y, m, d] = period;
+		const year = Number(y);
+		if (d && zoomedId) {
+			const date = dayDate(zoomedId);
+			const index = (date.getDay() + 6) % 7;
+			strip = {
+				kind: "day",
+				selected: index,
+				onShift: (by) => onZoomTo(openDay(store, shiftDay(zoomedId, 7 * by))),
+				items: Array.from({ length: 7 }, (_, i): StripItem => {
+					const day = new Date(
+						year,
+						date.getMonth(),
+						date.getDate() - index + i,
+					);
+					return {
+						name: day.toLocaleDateString("en-US", { weekday: "short" }),
+						label: String(day.getDate()),
+						marked: has(dayId(day)),
+						onPick: () => onZoomTo(openDay(store, day)),
+					};
+				}),
+			};
+		} else if (m) {
+			strip = {
+				kind: "month",
+				selected: Number(m) - 1,
+				onShift: (by) => onZoomTo(openMonth(store, year + by, Number(m) - 1)),
+				items: Array.from(
+					{ length: 12 },
+					(_, i): StripItem => ({
+						name: String(year),
+						label: new Date(year, i).toLocaleDateString("en-US", {
+							month: "short",
+						}),
+						marked: has(monthId(year, i)),
+						onPick: () => onZoomTo(openMonth(store, year, i)),
+					}),
+				),
+			};
+		} else {
+			strip = {
+				kind: "year",
+				selected: 3,
+				onShift: (by) => onZoomTo(openYear(store, year + 7 * by)),
+				items: Array.from(
+					{ length: 7 },
+					(_, i): StripItem => ({
+						name: "Year",
+						label: String(year - 3 + i),
+						marked: has(yearId(year - 3 + i)),
+						onPick: () => onZoomTo(openYear(store, year - 3 + i)),
+					}),
+				),
+			};
+		}
+	}
 
 	return (
 		<header {...stylex.props(styles.header)}>
@@ -243,6 +331,9 @@ export const AppHeader = observer(function AppHeader({
 					onToday={() => onZoomTo(openDay(store, new Date()))}
 					onOlder={() => onZoomTo(openDay(store, shiftDay(zoomedId, -1)))}
 					onNewer={() => onZoomTo(openDay(store, shiftDay(zoomedId, 1)))}
+					date={zoomedId && dayLabel(zoomedId) ? dayDate(zoomedId) : new Date()}
+					onPick={(date) => onZoomTo(openDay(store, date))}
+					marked={marked}
 				/>
 				<button
 					type="button"
@@ -255,6 +346,7 @@ export const AppHeader = observer(function AppHeader({
 				</button>
 				<AccountButton />
 			</div>
+			{strip && <PeriodStrip {...strip} />}
 		</header>
 	);
 });
