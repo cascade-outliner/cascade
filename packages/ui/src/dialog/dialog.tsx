@@ -90,9 +90,13 @@ const styles = stylex.create({
 		border: "none",
 		backgroundColor: "transparent",
 		color: colors.muted,
-		cursor: "default",
+		cursor: "pointer",
+		outline: "none",
 		"[data-highlighted]": {
 			backgroundColor: colors.surface,
+		},
+		":focus-visible": {
+			boxShadow: shadow.focusRing,
 		},
 	},
 	body: {
