@@ -48,6 +48,10 @@ const styles = stylex.create({
 		maxWidth: 980,
 		margin: "0 auto",
 		padding: { default: space["8"], "@media (max-width: 640px)": space["4"] },
+		paddingBottom: {
+			default: null,
+			"@media (max-width: 640px)": `calc(6rem + env(safe-area-inset-bottom, 0px))`,
+		},
 	},
 	outline: {
 		display: "flex",
@@ -59,11 +63,13 @@ const styles = stylex.create({
 	},
 	// Keeps the capture bar in reach at the bottom of long outlines.
 	captureBar: {
-		position: "sticky",
+		position: { default: "sticky", "@media (max-width: 640px)": "fixed" },
 		bottom: {
 			default: `max(${space["4"]}, env(safe-area-inset-bottom))`,
 			"@media (max-width: 640px)": "env(safe-area-inset-bottom, 0px)",
 		},
+		left: { default: null, "@media (max-width: 640px)": space["4"] },
+		right: { default: null, "@media (max-width: 640px)": space["4"] },
 		zIndex: 1,
 		viewTransitionName: "capture-bar",
 	},
