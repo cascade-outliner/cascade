@@ -23,13 +23,19 @@ export function emptyState(): SerializedEditorState {
 	} as unknown as SerializedEditorState;
 }
 
-/** Flattens a node's rich content to plain text, for places that can't render a Lexical editor (e.g. the zoom breadcrumb). */
+/**
+ * Flattens a node's rich content to plain text, for places that can't render a
+ * Lexical editor (e.g. the zoom breadcrumb). Line breaks come out as "\n".
+ */
 export function plainText(content: SerializedEditorState): string {
 	const walk = (node: SerializedLexicalNode): string => {
 		const { text, children } = node as SerializedLexicalNode & {
 			text?: string;
 			children?: SerializedLexicalNode[];
 		};
+		if (node.type === "linebreak") {
+			return "\n";
+		}
 		if (typeof text === "string") {
 			return text;
 		}
@@ -38,23 +44,32 @@ export function plainText(content: SerializedEditorState): string {
 	return walk(content.root as unknown as SerializedLexicalNode);
 }
 
-/** The serialized Lexical state of a node containing a single line of plain text. */
+function textNode(text: string): SerializedLexicalNode {
+	return {
+		detail: 0,
+		format: 0,
+		mode: "normal",
+		style: "",
+		text,
+		type: "text",
+		version: 1,
+	} as SerializedLexicalNode;
+}
+
+/** The serialized Lexical state of a node holding `text` as one paragraph; "\n" becomes a line break. */
 export function textState(text: string): SerializedEditorState {
+	const children = text
+		.split("\n")
+		.flatMap((line, index) =>
+			index === 0
+				? [textNode(line)]
+				: [{ type: "linebreak", version: 1 }, textNode(line)],
+		);
 	return {
 		root: {
 			children: [
 				{
-					children: [
-						{
-							detail: 0,
-							format: 0,
-							mode: "normal",
-							style: "",
-							text,
-							type: "text",
-							version: 1,
-						},
-					],
+					children,
 					direction: null,
 					format: "",
 					indent: 0,

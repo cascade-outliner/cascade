@@ -17,13 +17,11 @@ import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { PlusIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import {
-	$createTextNode,
 	$getRoot,
 	COMMAND_PRIORITY_LOW,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
 	KEY_ESCAPE_COMMAND,
-	LineBreakNode,
 } from "lexical";
 import type { ReactNode, Ref } from "react";
 import {
@@ -38,6 +36,8 @@ import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+/** The editor's line box; the dot, chips and buttons line up with the first one. */
+const LINE = 24;
 
 const pop = stylex.keyframes({
 	"0%": { transform: "scale(1)" },
@@ -90,7 +90,7 @@ const styles = stylex.create({
 	},
 	row: {
 		display: "flex",
-		alignItems: "center",
+		alignItems: "flex-start",
 		gap: space["2.5"],
 		paddingBlock: space["2.5"],
 		paddingInline: `${space["3"]} ${space["2.5"]}`,
@@ -99,6 +99,7 @@ const styles = stylex.create({
 	ghost: {
 		width: 18,
 		height: 18,
+		marginTop: (LINE - 18) / 2,
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
@@ -135,7 +136,8 @@ const styles = stylex.create({
 		alignItems: "center",
 		gap: space["1.5"],
 		flexShrink: 0,
-		paddingBlock: space["1"],
+		height: LINE,
+		paddingBlock: 0,
 		paddingInline: space["2"],
 		border: "none",
 		borderRadius: radius.md,
@@ -168,7 +170,7 @@ const styles = stylex.create({
 		alignItems: "center",
 		gap: space["1"],
 		flexShrink: 0,
-		paddingBlock: space["0.5"],
+		height: LINE,
 		paddingLeft: space["2"],
 		paddingRight: space["1"],
 		borderRadius: radius.md,
@@ -209,6 +211,8 @@ const styles = stylex.create({
 		position: "relative",
 		flexGrow: 1,
 		minWidth: 0,
+		maxHeight: "40vh",
+		overflowY: "auto",
 	},
 	editable: {
 		outline: "none",
@@ -217,8 +221,9 @@ const styles = stylex.create({
 			default: fontSize["400"],
 			"@media (hover: none)": fontSize["600"],
 		},
-		whiteSpace: "nowrap",
-		overflow: "hidden",
+		lineHeight: `${LINE}px`,
+		whiteSpace: "pre-wrap",
+		overflowWrap: "anywhere",
 	},
 	placeholder: {
 		position: "absolute",
@@ -230,7 +235,14 @@ const styles = stylex.create({
 			default: fontSize["400"],
 			"@media (hover: none)": fontSize["600"],
 		},
+		lineHeight: `${LINE}px`,
 		whiteSpace: "nowrap",
+	},
+	// The Add button is a little taller than a line; this centres it on the first.
+	add: {
+		display: "flex",
+		flexShrink: 0,
+		marginTop: -2,
 	},
 });
 
@@ -254,19 +266,6 @@ export interface CaptureBarProps<T extends SlashMenuItem = SlashMenuItem> {
 	ref?: Ref<CaptureBarHandle>;
 }
 
-/** Keeps the editor to one line: pasted or inserted line breaks become spaces. */
-function SingleLinePlugin() {
-	const [editor] = useLexicalComposerContext();
-	useEffect(
-		() =>
-			editor.registerNodeTransform(LineBreakNode, (node) =>
-				node.replace($createTextNode(" ")),
-			),
-		[editor],
-	);
-	return null;
-}
-
 interface KeysPluginProps {
 	onEnter: (event: KeyboardEvent) => void;
 	onEscape: () => void;
@@ -276,7 +275,8 @@ interface KeysPluginProps {
 
 /**
  * Enter, Escape and Backspace, below the slash menu's priority so it takes
- * them while open. Enter never inserts a line: the bar submits instead.
+ * them while open. Enter submits; Shift+Enter falls through to the editor,
+ * which inserts a line break.
  */
 function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 	const [editor] = useLexicalComposerContext();
@@ -293,8 +293,10 @@ function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 		const offEnter = editor.registerCommand(
 			KEY_ENTER_COMMAND,
 			(event) => {
-				event?.preventDefault();
-				if (event) onEnter(event);
+				if (!event) return false;
+				if (event.shiftKey && !(event.metaKey || event.ctrlKey)) return false;
+				event.preventDefault();
+				onEnter(event);
 				return true;
 			},
 			COMMAND_PRIORITY_LOW,
@@ -377,7 +379,6 @@ function Editor<T extends SlashMenuItem>({
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
 			<HistoryPlugin />
-			<SingleLinePlugin />
 			<OnChangePlugin
 				ignoreSelectionChange
 				onChange={(state) =>
@@ -386,7 +387,7 @@ function Editor<T extends SlashMenuItem>({
 			/>
 			<KeysPlugin
 				onEnter={(event) => {
-					if (event.shiftKey && (event.metaKey || event.ctrlKey)) onSplit();
+					if (event.shiftKey) onSplit();
 					else onSubmit();
 				}}
 				onEscape={onEscape}
@@ -536,15 +537,17 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						</span>
 					</button>
 				)}
-				<Button
-					variant="primary"
-					disabled={!hasText}
-					onClick={submit}
-					data-testid="capture-bar-submit"
-				>
-					<PlusIcon size={14} weight="bold" aria-hidden />
-					Add
-				</Button>
+				<span {...stylex.props(styles.add)}>
+					<Button
+						variant="primary"
+						disabled={!hasText}
+						onClick={submit}
+						data-testid="capture-bar-submit"
+					>
+						<PlusIcon size={14} weight="bold" aria-hidden />
+						Add
+					</Button>
+				</span>
 			</div>
 		</div>
 	);
