@@ -10,9 +10,13 @@ export {
 	isDailyNode,
 	isDayId,
 	isoDay,
+	monthId,
 	openDay,
+	openMonth,
+	openYear,
 	relativeDay,
 	shiftDay,
+	yearId,
 } from "./outline/daily.ts";
 export type { SearchHit, SearchResult } from "./outline/search.ts";
 export { OutlineStore } from "./outline/store.ts";

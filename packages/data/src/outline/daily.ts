@@ -92,6 +92,34 @@ export function openDay(store: OutlineStore, date: Date): string {
 	return ensure(store, dayId(date), month, dayTitle(date));
 }
 
+/** `daily-YYYY` for a year's node. */
+export const yearId = (year: number) => `${PREFIX}${year}`;
+
+/** `daily-YYYY-MM` for a month's node; `month` is 0-based like `Date`. */
+export const monthId = (year: number, month: number) =>
+	`${yearId(year)}-${pad(month + 1)}`;
+
+/** A year's node, created (with the root) if missing. Returns its id. */
+export function openYear(store: OutlineStore, year: number): string {
+	ensure(store, DAILY_ROOT, null, "Daily nodes");
+	return ensure(store, yearId(year), DAILY_ROOT, String(year));
+}
+
+/** A month's node, created (with its year and the root) if missing. Returns its id. */
+export function openMonth(
+	store: OutlineStore,
+	year: number,
+	month: number,
+): string {
+	openYear(store, year);
+	return ensure(
+		store,
+		monthId(year, month),
+		yearId(year),
+		new Date(year, month).toLocaleDateString("en-US", { month: "long" }),
+	);
+}
+
 const SUFFIX: Record<string, string> = { one: "st", two: "nd", few: "rd" };
 const ordinals = new Intl.PluralRules("en-US", { type: "ordinal" });
 

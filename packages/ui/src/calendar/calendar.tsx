@@ -101,6 +101,20 @@ const styles = stylex.create({
 	outside: {
 		color: colors.placeholder,
 	},
+	marked: {
+		position: "relative",
+		"::after": {
+			content: '""',
+			position: "absolute",
+			bottom: 3,
+			left: "50%",
+			width: 3,
+			height: 3,
+			marginLeft: -1.5,
+			borderRadius: radius.full,
+			backgroundColor: "currentColor",
+		},
+	},
 	selected: {
 		backgroundColor: {
 			default: colors.primary,
@@ -123,6 +137,7 @@ function DayButton({ modifiers, ...props }: DayButtonProps) {
 				styles.dayButton,
 				modifiers.today && styles.today,
 				modifiers.outside && styles.outside,
+				modifiers.marked && styles.marked,
 				modifiers.selected && styles.selected,
 			)}
 		/>
@@ -133,10 +148,12 @@ export interface CalendarProps {
 	value?: Date;
 	/** Called with the picked day, or `undefined` when the selected day is clicked again. */
 	onChange: (date: Date | undefined) => void;
+	/** Days to put a dot under, e.g. those with notes. */
+	marked?: (date: Date) => boolean;
 }
 
 /** A month calendar for picking a single day, opening on `value`'s month. */
-export function Calendar({ value, onChange }: CalendarProps) {
+export function Calendar({ value, onChange, marked }: CalendarProps) {
 	return (
 		<DayPicker
 			mode="single"
@@ -144,6 +161,7 @@ export function Calendar({ value, onChange }: CalendarProps) {
 			defaultMonth={value}
 			onSelect={onChange}
 			showOutsideDays
+			modifiers={marked && { marked }}
 			classNames={{
 				months: cls(styles.months),
 				nav: cls(styles.nav),
