@@ -1,6 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 
-/** The menu that opens on "/" inside a row: commands for that node, narrowed by what's typed after it. */
+/** The menu that opens on "/" in a row or the capture bar: commands, narrowed by what's typed after the slash. */
 export class SlashMenu {
 	readonly menu: Locator;
 	readonly options: Locator;

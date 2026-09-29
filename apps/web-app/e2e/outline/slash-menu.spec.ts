@@ -192,7 +192,8 @@ test.describe("slash menu in the capture bar", () => {
 		await outlinePage.captureInput.press("Backspace");
 		await expect(outlinePage.captureChips).toHaveText(["Turn into task"]);
 
-		await outlinePage.page
+		await outlinePage.captureChips
+			.filter({ hasText: "Turn into task" })
 			.getByRole("button", { name: "Remove Turn into task" })
 			.click();
 		await expect(outlinePage.captureChips).toHaveCount(0);
