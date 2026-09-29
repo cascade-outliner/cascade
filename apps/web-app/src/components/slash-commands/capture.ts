@@ -1,5 +1,4 @@
 import { textState } from "@cascade/data";
-import type { CaptureBarSlashMenu } from "@cascade/ui/capture-bar";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 import { slashCommands } from "./registry.ts";
 import type { SlashCommand } from "./types.ts";
@@ -9,20 +8,19 @@ export const captureSlashCommands: readonly SlashCommand[] =
 	slashCommands.filter((command) => command.capture);
 
 /**
- * The capture bar's slash menu: picking a command creates a node from the
- * text under `parentId`, then runs the command on that node.
+ * What the capture bar submits: a node created from its text under
+ * `parentId`, with the slash commands picked alongside run on it, in order.
  */
-export function useCaptureSlashCommands(
+export function useCapture(
 	parentId: string | null,
 	zoomTo: (id: string | null) => void,
-): CaptureBarSlashMenu<SlashCommand> {
+): (text: string, picked: readonly SlashCommand[]) => void {
 	const store = useOutlineStore();
-	return {
-		items: captureSlashCommands,
-		onSelect: (command, text) => {
-			const id = store.create(parentId, { content: textState(text) });
+	return (text, picked) => {
+		const id = store.create(parentId, { content: textState(text) });
+		for (const command of picked) {
 			const node = store.get(id);
 			if (node) command.run({ store, node, childCount: 0, zoomTo });
-		},
+		}
 	};
 }

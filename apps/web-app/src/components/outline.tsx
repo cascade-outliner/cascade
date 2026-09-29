@@ -7,7 +7,6 @@ import {
 	type Row,
 	relativeDay,
 	shiftDay,
-	textState,
 } from "@cascade/data";
 import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar, type CaptureBarHandle } from "@cascade/ui/capture-bar";
@@ -28,7 +27,10 @@ import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
-import { useCaptureSlashCommands } from "#/components/slash-commands/capture.ts";
+import {
+	captureSlashCommands,
+	useCapture,
+} from "#/components/slash-commands/capture.ts";
 import { SlashCommandsPlugin } from "#/components/slash-commands/slash-commands-plugin.tsx";
 import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
@@ -178,7 +180,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 			viewTransition: true,
 		});
 	};
-	const captureSlashMenu = useCaptureSlashCommands(zoomedId, zoomTo);
+	const capture = useCapture(zoomedId, zoomTo);
 
 	// Zooming changes which rows are visible; a hidden selection would surprise on Backspace.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on every zoom change on purpose
@@ -313,7 +315,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				<div {...stylex.props(styles.captureBar)}>
 					<CaptureBar
 						ref={captureInputRef}
-						slashMenu={captureSlashMenu}
+						slashItems={captureSlashCommands}
 						onSplit={aiEnabled ? setCaptured : undefined}
 						panel={
 							captured !== null && (
@@ -328,11 +330,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 								/>
 							)
 						}
-						onSubmit={(text) => {
-							store.create(zoomedId, {
-								content: textState(text),
-							});
-						}}
+						onSubmit={capture}
 					/>
 				</div>
 			</div>

@@ -14,12 +14,13 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
-import { PlusIcon, SparkleIcon } from "@phosphor-icons/react";
+import { PlusIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import {
 	$createTextNode,
 	$getRoot,
 	COMMAND_PRIORITY_LOW,
+	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
 	KEY_ESCAPE_COMMAND,
 	LineBreakNode,
@@ -35,7 +36,6 @@ import {
 import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
-import { matchSlashTrigger } from "../slash-menu/trigger.ts";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
@@ -163,6 +163,48 @@ const styles = stylex.create({
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
 	},
+	chip: {
+		display: "flex",
+		alignItems: "center",
+		gap: space["1"],
+		flexShrink: 0,
+		paddingBlock: space["0.5"],
+		paddingLeft: space["2"],
+		paddingRight: space["1"],
+		borderRadius: radius.md,
+		backgroundColor: colors.primaryMuted,
+		color: colors.primary,
+		fontSize: fontSize["300"],
+		fontWeight: 500,
+		whiteSpace: "nowrap",
+		"@starting-style": {
+			opacity: 0,
+			transform: "scale(0.94)",
+		},
+		transition: {
+			default: "opacity 150ms ease, transform 150ms ease",
+			[REDUCED_MOTION]: "none",
+		},
+	},
+	chipIcon: {
+		display: "flex",
+	},
+	chipRemove: {
+		display: "flex",
+		padding: space["0.5"],
+		border: "none",
+		borderRadius: radius.sm,
+		backgroundColor: "transparent",
+		color: "inherit",
+		cursor: "pointer",
+		":hover": {
+			backgroundColor: colors.white,
+		},
+		":focus-visible": {
+			outline: "none",
+			boxShadow: shadow.focusRing,
+		},
+	},
 	editor: {
 		position: "relative",
 		flexGrow: 1,
@@ -192,20 +234,18 @@ const styles = stylex.create({
 	},
 });
 
-export interface CaptureBarSlashMenu<T extends SlashMenuItem = SlashMenuItem> {
-	items: readonly T[];
-	/** Gets the picked item and the text before the "/", which the bar then clears. */
-	onSelect: (item: T, text: string) => void;
-}
-
 export interface CaptureBarHandle {
 	focus: () => void;
 }
 
 export interface CaptureBarProps<T extends SlashMenuItem = SlashMenuItem> {
-	onSubmit: (text: string) => void;
-	/** Offers these on "/" after the text, e.g. "Buy milk /task". Leave unset to disable. */
-	slashMenu?: CaptureBarSlashMenu<T>;
+	/** Gets the text and the slash commands picked while typing it, in order. */
+	onSubmit: (text: string, picked: T[]) => void;
+	/**
+	 * Offered on "/". A pick stays on the bar as a chip until the text is
+	 * submitted, so "/task Buy milk" and "Buy milk /task" both work.
+	 */
+	slashItems?: readonly T[];
 	/** Offers to split the text into tasks (⌘⇧↵). Leave unset to hide it. */
 	onSplit?: (text: string) => void;
 	/** Shown inside the bar, above the input (e.g. a split preview). It animates open and closed. */
@@ -230,15 +270,26 @@ function SingleLinePlugin() {
 interface KeysPluginProps {
 	onEnter: (event: KeyboardEvent) => void;
 	onEscape: () => void;
+	/** Backspace with nothing to delete, e.g. to drop the last chip. */
+	onBackspaceEmpty: () => void;
 }
 
 /**
- * Enter and Escape, below the slash menu's priority so it takes them while
- * open. Enter never inserts a line: the bar submits instead.
+ * Enter, Escape and Backspace, below the slash menu's priority so it takes
+ * them while open. Enter never inserts a line: the bar submits instead.
  */
-function KeysPlugin({ onEnter, onEscape }: KeysPluginProps) {
+function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 	const [editor] = useLexicalComposerContext();
 	useEffect(() => {
+		const offBackspace = editor.registerCommand(
+			KEY_BACKSPACE_COMMAND,
+			() => {
+				if ($getRoot().getTextContentSize() > 0) return false;
+				onBackspaceEmpty();
+				return true;
+			},
+			COMMAND_PRIORITY_LOW,
+		);
 		const offEnter = editor.registerCommand(
 			KEY_ENTER_COMMAND,
 			(event) => {
@@ -257,10 +308,11 @@ function KeysPlugin({ onEnter, onEscape }: KeysPluginProps) {
 			COMMAND_PRIORITY_LOW,
 		);
 		return () => {
+			offBackspace();
 			offEnter();
 			offEscape();
 		};
-	}, [editor, onEnter, onEscape]);
+	}, [editor, onEnter, onEscape, onBackspaceEmpty]);
 	return null;
 }
 
@@ -272,14 +324,13 @@ interface EditorHandle {
 interface EditorProps<T extends SlashMenuItem> {
 	ref: Ref<EditorHandle>;
 	placeholder: string;
-	/** Offered on "/"; nothing when there is no text to act on. */
 	items: readonly T[];
-	/** Gets the picked item and the text left once the "/query" is gone. */
-	onSelect: (item: T, text: string) => void;
+	onSelect: (item: T) => void;
 	onTextChange: (text: string) => void;
 	onSubmit: () => void;
 	onSplit: () => void;
 	onEscape: () => void;
+	onBackspaceEmpty: () => void;
 }
 
 /** The one-line Lexical editor inside the bar, with its plugins. */
@@ -292,6 +343,7 @@ function Editor<T extends SlashMenuItem>({
 	onSubmit,
 	onSplit,
 	onEscape,
+	onBackspaceEmpty,
 }: EditorProps<T>) {
 	const [editor] = useLexicalComposerContext();
 	useImperativeHandle(
@@ -338,39 +390,30 @@ function Editor<T extends SlashMenuItem>({
 					else onSubmit();
 				}}
 				onEscape={onEscape}
+				onBackspaceEmpty={onBackspaceEmpty}
 			/>
-			<SlashMenuPlugin<T>
-				items={items}
-				onSelect={(item) =>
-					onSelect(
-						item,
-						editor.getEditorState().read(() => $getRoot().getTextContent()),
-					)
-				}
-			/>
+			<SlashMenuPlugin<T> items={items} onSelect={onSelect} />
 		</>
 	);
 }
 
 export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	onSubmit,
-	slashMenu,
+	slashItems = [],
 	onSplit,
 	panel,
 	placeholder = "Capture a thought…",
 	ref,
 }: CaptureBarProps<T>) {
 	const [text, setText] = useState("");
+	/** Slash commands picked so far; they apply when the text is submitted. */
+	const [picked, setPicked] = useState<T[]>([]);
 	const [added, setAdded] = useState(0);
 	const editorRef = useRef<EditorHandle>(null);
 	const hasText = text.trim() !== "";
 	useImperativeHandle(ref, () => ({
 		focus: () => editorRef.current?.focus(),
 	}));
-	// Commands act on what's being captured, so there is nothing to offer without text.
-	const match = matchSlashTrigger(text);
-	const beforeSlash = match ? text.slice(0, match.index) : text;
-	const items = slashMenu && beforeSlash.trim() ? slashMenu.items : [];
 	// Keeps the last panel on screen while it collapses.
 	const lastPanel = useRef<ReactNode>(null);
 	const [, rerender] = useReducer((n: number) => n + 1, 0);
@@ -389,7 +432,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	function submit() {
 		const trimmed = text.trim();
 		if (!trimmed) return;
-		onSubmit(trimmed);
+		onSubmit(trimmed, picked);
+		setPicked([]);
 		editorRef.current?.clear();
 		setAdded((n) => n + 1);
 		editorRef.current?.focus();
@@ -399,11 +443,23 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		const trimmed = text.trim();
 		if (!trimmed || !onSplit) return;
 		onSplit(trimmed);
+		setPicked([]);
 		editorRef.current?.clear();
 	}
 
+	function pick(item: T) {
+		setPicked((all) => (all.includes(item) ? all : [...all, item]));
+	}
+
+	function unpick(item: T) {
+		setPicked((all) => all.filter((each) => each !== item));
+		editorRef.current?.focus();
+	}
+
+	/** Escape: the text goes first, then the chips, then focus. */
 	function dismiss() {
 		if (hasText) editorRef.current?.clear();
+		else if (picked.length > 0) setPicked([]);
 		else (document.activeElement as HTMLElement | null)?.blur();
 	}
 
@@ -429,6 +485,28 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				>
 					<span {...stylex.props(styles.dot, hasText && styles.dotVisible)} />
 				</span>
+				{picked.map((item) => (
+					<span
+						key={item.id}
+						{...stylex.props(styles.chip)}
+						data-testid="capture-bar-chip"
+					>
+						{item.icon && (
+							<span {...stylex.props(styles.chipIcon)} aria-hidden>
+								{item.icon}
+							</span>
+						)}
+						{item.label}
+						<button
+							type="button"
+							aria-label={`Remove ${item.label}`}
+							onClick={() => unpick(item)}
+							{...stylex.props(styles.chipRemove)}
+						>
+							<XIcon size={11} weight="bold" aria-hidden />
+						</button>
+					</span>
+				))}
 				<LexicalComposer
 					initialConfig={{
 						namespace: "capture-bar",
@@ -440,16 +518,13 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					<Editor<T>
 						ref={editorRef}
 						placeholder={placeholder}
-						items={items}
-						onSelect={(item, rest) => {
-							slashMenu?.onSelect(item, rest.trim());
-							editorRef.current?.clear();
-							setAdded((n) => n + 1);
-						}}
+						items={slashItems}
+						onSelect={pick}
 						onTextChange={setText}
 						onSubmit={submit}
 						onSplit={split}
 						onEscape={dismiss}
+						onBackspaceEmpty={() => setPicked((all) => all.slice(0, -1))}
 					/>
 				</LexicalComposer>
 				{onSplit && hasText && (

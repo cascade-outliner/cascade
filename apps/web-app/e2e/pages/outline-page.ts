@@ -4,6 +4,8 @@ export class OutlinePage {
 	readonly outline: Locator;
 	readonly rows: Locator;
 	readonly captureInput: Locator;
+	/** Slash commands picked in the capture bar, waiting for its text to be submitted. */
+	readonly captureChips: Locator;
 	readonly addButton: Locator;
 	readonly emptyState: Locator;
 	/** The zoomed-in node's title; only there when zoomed in. */
@@ -13,6 +15,7 @@ export class OutlinePage {
 		this.outline = page.getByTestId("outliner-list");
 		this.rows = this.outline.getByTestId("outliner-row");
 		this.captureInput = page.getByTestId("capture-bar-input");
+		this.captureChips = page.getByTestId("capture-bar-chip");
 		this.addButton = page.getByTestId("capture-bar-submit");
 		this.emptyState = page.getByTestId("outline-empty");
 		this.title = page.getByRole("heading", { level: 1 });

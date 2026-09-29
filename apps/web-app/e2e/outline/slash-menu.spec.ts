@@ -121,42 +121,81 @@ test.describe("slash menu in the capture bar", () => {
 		await outlinePage.goto();
 	});
 
-	test("opens once there is text before the slash", async ({
-		outlinePage,
-		slashMenu,
-	}) => {
+	test("opens on a leading slash", async ({ outlinePage, slashMenu }) => {
 		await outlinePage.captureInput.fill("/");
-		await expect(slashMenu.menu).toBeHidden();
-
-		await outlinePage.captureInput.fill("Buy milk /");
 
 		await expect(slashMenu.menu).toBeVisible();
 		await expect(slashMenu.highlighted).toHaveText(/Turn into task/);
 	});
 
-	test("Enter creates the node from the text and runs the command", async ({
+	test("a pick becomes a chip and applies when the text is submitted", async ({
 		outlinePage,
 		slashMenu,
 	}) => {
-		await outlinePage.captureInput.fill("Buy milk /task");
+		await outlinePage.captureInput.fill("/task");
 		await expect(slashMenu.highlighted).toHaveText(/Turn into task/);
 		await outlinePage.captureInput.press("Enter");
 
 		await expect(slashMenu.menu).toBeHidden();
+		await expect(outlinePage.captureChips).toHaveText(["Turn into task"]);
+		await expect(outlinePage.captureInput).toHaveText("");
+		await expect(outlinePage.rows).toHaveCount(0);
+
+		await outlinePage.captureInput.pressSequentially("Buy milk");
+		await outlinePage.captureInput.press("Enter");
+
 		await expect(outlinePage.rows).toHaveText(["Buy milk"]);
 		await expect(
 			outlinePage.row("Buy milk").getByRole("checkbox"),
 		).toBeVisible();
+		await expect(outlinePage.captureChips).toHaveCount(0);
 		await expect(outlinePage.captureInput).toHaveText("");
 		await expect(outlinePage.captureInput).toBeFocused();
 	});
 
-	test("clicking a command runs it", async ({ outlinePage, slashMenu }) => {
-		await outlinePage.captureInput.fill("Call mom /tom");
+	test("a slash after the text works too, and picks chain", async ({
+		outlinePage,
+		slashMenu,
+	}) => {
+		await outlinePage.captureInput.fill("Call mom /task");
+		await expect(slashMenu.highlighted).toHaveText(/Turn into task/);
+		await outlinePage.captureInput.press("Enter");
+		await outlinePage.captureInput.pressSequentially(" /tom");
 		await slashMenu.option("Due tomorrow").click();
 
+		await expect(outlinePage.captureChips).toHaveText([
+			"Turn into task",
+			"Due tomorrow",
+		]);
+		await expect(outlinePage.captureInput).toHaveText("Call mom");
+
+		await outlinePage.captureInput.press("Enter");
+
+		await expect(
+			outlinePage.row("Call mom").getByRole("checkbox"),
+		).toBeVisible();
 		await expect(outlinePage.duePill("Call mom")).toHaveText("Tomorrow");
-		await expect(outlinePage.captureInput).toHaveText("");
+	});
+
+	test("chips go with their × button or Backspace on empty text", async ({
+		outlinePage,
+		slashMenu,
+	}) => {
+		await outlinePage.captureInput.fill("/task");
+		await expect(slashMenu.highlighted).toHaveText(/Turn into task/);
+		await outlinePage.captureInput.press("Enter");
+		await outlinePage.captureInput.pressSequentially("/tom");
+		await expect(slashMenu.highlighted).toHaveText(/Due tomorrow/);
+		await outlinePage.captureInput.press("Enter");
+		await expect(outlinePage.captureChips).toHaveCount(2);
+
+		await outlinePage.captureInput.press("Backspace");
+		await expect(outlinePage.captureChips).toHaveText(["Turn into task"]);
+
+		await outlinePage.page
+			.getByRole("button", { name: "Remove Turn into task" })
+			.click();
+		await expect(outlinePage.captureChips).toHaveCount(0);
 	});
 
 	test("Escape hides the menu and keeps the text", async ({
@@ -175,7 +214,7 @@ test.describe("slash menu in the capture bar", () => {
 		outlinePage,
 		slashMenu,
 	}) => {
-		await outlinePage.captureInput.fill("Buy milk /");
+		await outlinePage.captureInput.fill("/");
 
 		await expect(slashMenu.option("Turn into task")).toBeVisible();
 		await expect(slashMenu.option("Delete")).toBeHidden();
