@@ -48,6 +48,7 @@ const styles = stylex.create({
 	},
 	selected: {
 		color: colors.onPrimary,
+		backgroundColor: colors.primary,
 	},
 	// One fill that slides between days, instead of one per day.
 	pill: {
