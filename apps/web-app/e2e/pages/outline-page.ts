@@ -21,6 +21,18 @@ export class OutlinePage {
 		this.title = page.getByRole("heading", { level: 1 });
 	}
 
+	/**
+	 * A `#tag` chip in a row. Lexical gives hashtags no test id, so this finds the
+	 * text span holding only the tag: plain text would be one span with the rest.
+	 */
+	tag(name: string): Locator {
+		return this.rows
+			.getByTestId("outliner-content")
+			.locator("span[data-lexical-text]", {
+				hasText: new RegExp(`^#${name}$`),
+			});
+	}
+
 	async goto(path = "/") {
 		await this.page.goto(path);
 		await this.captureInput.waitFor();

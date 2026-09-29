@@ -6,13 +6,8 @@ test.describe("tags", () => {
 		await outlinePage.addNode("Ship it #work");
 	});
 
-	test("renders #tag as its own inline node", async ({ page }) => {
-		// A hashtag is a separate text span; plain text would be one span.
-		await expect(
-			page
-				.getByTestId("outliner-content")
-				.locator("span[data-lexical-text]", { hasText: /^#work$/ }),
-		).toBeVisible();
+	test("renders #tag as a chip", async ({ outlinePage }) => {
+		await expect(outlinePage.tag("work")).toBeVisible();
 	});
 
 	test("the palette lists tags and picking one searches for it", async ({
