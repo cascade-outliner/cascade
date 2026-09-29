@@ -17,7 +17,8 @@
 			"!**/migrations/**/*",
 			"!**/.output/**/*",
 			"!**/test-results",
-			"!**/playwright-report"
+			"!**/playwright-report",
+			"!**/dist/**/*"
 		]
 	},
 	"formatter": {

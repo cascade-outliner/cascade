@@ -17,11 +17,14 @@ import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { PlusIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import {
+	$createParagraphNode,
+	$createTextNode,
 	$getRoot,
 	COMMAND_PRIORITY_LOW,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
 	KEY_ESCAPE_COMMAND,
+	SKIP_DOM_SELECTION_TAG,
 } from "lexical";
 import type { ReactNode, Ref } from "react";
 import {
@@ -248,6 +251,8 @@ const styles = stylex.create({
 
 export interface CaptureBarHandle {
 	focus: () => void;
+	/** Replaces the text and puts the caret after it, e.g. a cancelled split handing the line back. */
+	setText: (text: string) => void;
 }
 
 export interface CaptureBarProps<T extends SlashMenuItem = SlashMenuItem> {
@@ -320,7 +325,9 @@ function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 
 interface EditorHandle {
 	focus: () => void;
-	clear: () => void;
+	/** Empties the editor; `keepFocus: false` stops Lexical pulling focus back into it. */
+	clear: (keepFocus?: boolean) => void;
+	setText: (text: string) => void;
 }
 
 interface EditorProps<T extends SlashMenuItem> {
@@ -352,7 +359,19 @@ function Editor<T extends SlashMenuItem>({
 		ref,
 		() => ({
 			focus: () => editor.focus(),
-			clear: () => editor.update(() => $getRoot().clear()),
+			clear: (keepFocus = true) =>
+				editor.update(() => $getRoot().clear(), {
+					tag: keepFocus ? undefined : SKIP_DOM_SELECTION_TAG,
+				}),
+			setText: (text) =>
+				editor.update(() => {
+					const root = $getRoot();
+					root.clear();
+					const paragraph = $createParagraphNode();
+					paragraph.append($createTextNode(text));
+					root.append(paragraph);
+					paragraph.selectEnd();
+				}),
 		}),
 		[editor],
 	);
@@ -414,6 +433,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	const hasText = text.trim() !== "";
 	useImperativeHandle(ref, () => ({
 		focus: () => editorRef.current?.focus(),
+		setText: (text) => editorRef.current?.setText(text),
 	}));
 	// Keeps the last panel on screen while it collapses.
 	const lastPanel = useRef<ReactNode>(null);
@@ -445,7 +465,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		if (!trimmed || !onSplit) return;
 		onSplit(trimmed);
 		setPicked([]);
-		editorRef.current?.clear();
+		// The split panel takes focus; don't let the editor grab it back.
+		editorRef.current?.clear(false);
 	}
 
 	function pick(item: T) {
@@ -457,10 +478,9 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		editorRef.current?.focus();
 	}
 
-	/** Escape: the text goes first, then the chips, then focus. */
+	/** Escape: the chips go first, then focus. Typed text is never thrown away. */
 	function dismiss() {
-		if (hasText) editorRef.current?.clear();
-		else if (picked.length > 0) setPicked([]);
+		if (picked.length > 0) setPicked([]);
 		else (document.activeElement as HTMLElement | null)?.blur();
 	}
 

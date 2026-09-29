@@ -3,6 +3,7 @@ import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import { CheckIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
+import { useHotkey } from "@tanstack/react-hotkeys";
 import { useEffect, useRef } from "react";
 import { Drafts } from "#/components/split-tasks/drafts.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
@@ -53,6 +54,7 @@ const styles = stylex.create({
 		gap: space["2"],
 		paddingTop: space["2.5"],
 		paddingLeft: space["8"],
+		paddingRight: space["3"],
 		minHeight: 24,
 		fontSize: fontSize["200"],
 		color: colors.muted,
@@ -60,6 +62,13 @@ const styles = stylex.create({
 	notice: {
 		fontSize: fontSize["300"],
 		color: colors.muted,
+		borderWidth: 4,
+		borderTopWidth: 0,
+		borderBottomWidth: 0,
+		borderRightWidth: 0,
+		borderStyle: "solid",
+		borderColor: colors.primary,
+		paddingLeft: space["3"],
 	},
 	loading: {
 		display: "flex",
@@ -81,14 +90,21 @@ export interface CaptureSplitProps {
 	/** Where the capture bar adds nodes. */
 	parentId: string | null;
 	onClose: () => void;
+	/** Esc: nothing is added; the caller hands `text` back to the capture bar. */
+	onCancel: () => void;
 }
 
 /**
  * 3a: previews a captured line split into dashed tasks, inside the capture bar.
- * Tab accepts (a titled parent with the tasks under it), Backspace or Esc keeps
- * it as one line.
+ * Tab accepts (a titled parent with the tasks under it), Backspace keeps it as
+ * one line, Esc cancels and returns the text to the input.
  */
-export function CaptureSplit({ text, parentId, onClose }: CaptureSplitProps) {
+export function CaptureSplit({
+	text,
+	parentId,
+	onClose,
+	onCancel,
+}: CaptureSplitProps) {
 	const store = useOutlineStore();
 	const { result, error } = useSplit(text);
 	const ref = useRef<HTMLElement>(null);
@@ -97,6 +113,17 @@ export function CaptureSplit({ text, parentId, onClose }: CaptureSplitProps) {
 	useEffect(() => {
 		ref.current?.focus();
 	}, []);
+
+	// Esc cancels wherever focus ended up, unless a popup already took the key.
+	useHotkey(
+		"Escape",
+		(event) => {
+			if (event.defaultPrevented) return;
+			event.preventDefault();
+			onCancel();
+		},
+		{ preventDefault: false, ignoreInputs: false },
+	);
 
 	const keepAsOne = () => {
 		store.create(parentId, { content: textState(text) });
@@ -120,7 +147,7 @@ export function CaptureSplit({ text, parentId, onClose }: CaptureSplitProps) {
 				if (event.key === "Tab" && !event.shiftKey && tasks.length > 0) {
 					event.preventDefault();
 					accept();
-				} else if (event.key === "Escape" || event.key === "Backspace") {
+				} else if (event.key === "Backspace") {
 					event.preventDefault();
 					keepAsOne();
 				}
