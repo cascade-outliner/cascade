@@ -29,6 +29,8 @@ export interface PullResponse {
 	cursor: string | null;
 	/** On a full pull (`since: null`): whether the server has this workspace at all. */
 	known?: boolean;
+	/** On a full pull: when the server says onboarding finished (ms since the epoch), if it did. */
+	onboardedAt?: number | null;
 }
 
 /** Talks to the server. Implemented by the app, so the engine stays framework-free. */

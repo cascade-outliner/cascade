@@ -21,6 +21,7 @@ export interface Sync {
 	subscribeConfig(listener: () => void): () => void;
 	/** Records the finished onboarding; the background job sends it to the server. */
 	recordOnboarding(): Promise<void>;
+	isOnboarded(): Promise<boolean>;
 	/** Starts the background job when the server can sync and the user is signed in; otherwise stays disabled. */
 	start(): Promise<void>;
 	stop(): void;
@@ -56,6 +57,7 @@ export function createSync(): Sync {
 			return () => listeners.delete(listener);
 		},
 		recordOnboarding: () => engine.recordOnboarding(),
+		isOnboarded: () => engine.isOnboarded(),
 		async start() {
 			try {
 				config = await getSyncConfig();

@@ -97,6 +97,11 @@ export class SyncEngine {
 		this.#schedulePush();
 	}
 
+	/** Whether onboarding finished here or, as far as the last full pull knew, on the server. */
+	async isOnboarded(): Promise<boolean> {
+		return (await this.#state.getMeta()).onboarding !== null;
+	}
+
 	/**
 	 * Starts syncing as `userId`; resolves once the first sync settles, also
 	 * for repeat callers. The local outline follows the first user who syncs
@@ -275,12 +280,14 @@ export class SyncEngine {
 		let since = full ? null : (await this.#state.getMeta()).cursor;
 		const serverIds = new Set<string>();
 		let known = true;
+		let onboardedAt: number | null = null;
 		let response: PullResponse;
 		do {
 			response = await this.#transport.pull({ since });
 			if (response.known === false) {
 				known = false;
 			}
+			onboardedAt = response.onboardedAt ?? onboardedAt;
 			for (const node of response.put) {
 				serverIds.add(node.id);
 			}
@@ -298,6 +305,11 @@ export class SyncEngine {
 
 		if (full) {
 			await this.#prune(serverIds, known);
+			if (onboardedAt !== null && !(await this.isOnboarded())) {
+				await this.#state.setMeta({
+					onboarding: { completedAt: onboardedAt, synced: true },
+				});
+			}
 		}
 	}
 

@@ -19,12 +19,12 @@ function requireDb(): Db {
 	return instance;
 }
 
-async function findWorkspace(db: Db, userId: string): Promise<string | null> {
+async function findWorkspace(db: Db, userId: string) {
 	const [workspace] = await db
-		.select({ id: workspaces.id })
+		.select({ id: workspaces.id, onboardedAt: workspaces.onboardedAt })
 		.from(workspaces)
 		.where(eq(workspaces.userId, userId));
-	return workspace?.id ?? null;
+	return workspace ?? null;
 }
 
 /** The signed-in user's workspace, created on their first push. */
@@ -124,6 +124,7 @@ export interface WirePullResponse {
 	delete: Tombstone[];
 	cursor: string | null;
 	known?: boolean;
+	onboardedAt?: number | null;
 }
 
 export interface SyncConfig {
@@ -201,7 +202,8 @@ export const pullChanges = createServerFn({ method: "GET" })
 	.handler(async ({ data }): Promise<WirePullResponse> => {
 		const instance = requireDb();
 		const user = await requireUser();
-		const workspaceId = await findWorkspace(instance, user.id);
+		const workspace = await findWorkspace(instance, user.id);
+		const workspaceId = workspace?.id ?? null;
 		const since = data.since ? decodeCursor(data.since) : null;
 		if (workspaceId === null) {
 			return { put: [], delete: [], cursor: data.since, known: false };
@@ -241,6 +243,7 @@ export const pullChanges = createServerFn({ method: "GET" })
 		}
 		if (data.since === null) {
 			response.known = true;
+			response.onboardedAt = workspace?.onboardedAt?.getTime() ?? null;
 		}
 		return response;
 	});

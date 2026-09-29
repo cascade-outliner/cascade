@@ -45,4 +45,22 @@ export class OnboardingPage {
 		await this.goToLastStep();
 		await this.startButton.click();
 	}
+
+	/** Deletes the stored "onboarding finished" flag, as if this browser never finished it. */
+	async forgetOnboarding() {
+		await this.page.evaluate(
+			() =>
+				new Promise<void>((resolve) => {
+					const open = indexedDB.open("cascade");
+					open.onsuccess = () => {
+						const tx = open.result.transaction("meta", "readwrite");
+						tx.objectStore("meta").delete("onboarding");
+						tx.oncomplete = () => {
+							open.result.close();
+							resolve();
+						};
+					};
+				}),
+		);
+	}
 }

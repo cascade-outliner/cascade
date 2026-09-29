@@ -1,4 +1,4 @@
-import { test as base } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
 import { AppHeader } from "./pages/app-header.ts";
 import { CommandPalette } from "./pages/command-palette.ts";
 import { ContextMenu } from "./pages/context-menu.ts";
@@ -10,7 +10,7 @@ import { SlashMenu } from "./pages/slash-menu.ts";
 import { SplitApi } from "./pages/split-api.ts";
 
 interface Options {
-	/** Skip onboarding by marking it finished before the app boots. Default `true`. */
+	/** Run through onboarding before the test starts. Default `true`. */
 	onboarded: boolean;
 }
 
@@ -34,12 +34,9 @@ export const test = base.extend<Options & Fixtures>({
 	onboarded: [true, { option: true }],
 	page: async ({ page, onboarded }, use) => {
 		if (onboarded) {
-			await page.addInitScript(() => {
-				localStorage.setItem(
-					"cascade:onboarding",
-					JSON.stringify({ template: "blank" }),
-				);
-			});
+			await page.goto("/");
+			await new OnboardingPage(page).complete();
+			await expect(page.getByTestId("onboarding")).toBeHidden();
 		}
 		await use(page);
 	},
@@ -72,4 +69,4 @@ export const test = base.extend<Options & Fixtures>({
 	},
 });
 
-export { expect } from "@playwright/test";
+export { expect };

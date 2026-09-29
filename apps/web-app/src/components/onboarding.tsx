@@ -14,18 +14,8 @@ import { flushSync } from "react-dom";
 import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
 import { useSyncConfig } from "#/lib/outline-store.tsx";
 
-const STORAGE_KEY = "cascade:onboarding";
 /** Query param the Google sign-in callback lands on, to reopen the account step. */
 const RETURN_PARAM = "onboarding";
-
-/** Whether onboarding was finished in this browser. */
-export function isOnboarded(): boolean {
-	try {
-		return localStorage.getItem(STORAGE_KEY) !== null;
-	} catch {
-		return true;
-	}
-}
 
 type TemplateId = "blank" | "project" | "journal";
 
@@ -531,9 +521,6 @@ export function Onboarding({ onDone }: OnboardingProps) {
 			transition(() => setStep(step + 1));
 			return;
 		}
-		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify({ template }));
-		} catch {}
 		transition(onDone);
 	}
 

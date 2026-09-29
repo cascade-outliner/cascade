@@ -28,7 +28,7 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
 import { DueElsewhere } from "#/components/due-elsewhere.tsx";
-import { isOnboarded, Onboarding } from "#/components/onboarding.tsx";
+import { Onboarding } from "#/components/onboarding.tsx";
 import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import {
@@ -183,7 +183,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const [sources, setSources] = useState<string[]>([]);
 	const [captured, setCaptured] = useState<string | null>(null);
 	const { aiEnabled } = appRoute.useLoaderData();
-	const [onboarded, setOnboarded] = useState(isOnboarded);
+	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 	const captureInputRef = useRef<CaptureBarHandle>(null);
 
 	const zoomTo = (id: string | null) => {
@@ -194,6 +194,10 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		});
 	};
 	const capture = useCapture(zoomedId, zoomTo);
+
+	useEffect(() => {
+		void sync.isOnboarded().then(setOnboarded);
+	}, [sync]);
 
 	// Zooming changes which rows are visible; a hidden selection would surprise on Backspace.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on every zoom change on purpose
@@ -229,7 +233,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		return () => window.removeEventListener("keydown", onKeyDown);
 	}, [store]);
 
-	if (store.status !== "ready") {
+	if (store.status !== "ready" || onboarded === null) {
 		return null;
 	}
 
