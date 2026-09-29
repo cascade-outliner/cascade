@@ -32,7 +32,7 @@ const styles = stylex.create({
 		borderRadius: radius.md,
 		fontSize: fontSize["500"],
 		color: colors.ink,
-		cursor: "default",
+		cursor: "pointer",
 		outline: "none",
 		"[data-highlighted]": { backgroundColor: colors.surface },
 	},
