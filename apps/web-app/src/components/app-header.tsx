@@ -16,6 +16,7 @@ import {
 	radius,
 	space,
 } from "@cascade/theme/tokens.stylex";
+import { DropdownMenu } from "@cascade/ui/dropdown-menu";
 import { Breadcrumbs } from "@cascade/ui/outliner/breadcrumbs";
 import { DaySwitcher } from "@cascade/ui/outliner/day-switcher";
 import {
@@ -95,27 +96,15 @@ const styles = stylex.create({
 	search: {
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
-		width: { default: 240, [MOBILE]: "auto" },
+		justifyContent: "center",
+		flexShrink: 0,
+		width: 32,
 		height: 32,
-		paddingInline: space["2.5"],
-		borderWidth: borderWidth.thin,
-		borderStyle: "solid",
-		borderColor: {
-			default: colors.border,
-			":hover": colors.borderStrong,
-		},
+		border: "none",
 		borderRadius: radius.md,
-		backgroundColor: colors.white,
-		font: "inherit",
-		fontSize: fontSize["300"],
+		backgroundColor: { default: "transparent", ":hover": colors.inkSubtle },
 		color: colors.muted,
 		cursor: "pointer",
-	},
-	searchLabel: {
-		flex: 1,
-		textAlign: "start",
-		display: { default: "block", [MOBILE]: "none" },
 	},
 	account: {
 		display: "flex",
@@ -141,18 +130,23 @@ const styles = stylex.create({
 		color: colors.ink,
 		cursor: "pointer",
 	},
+	profile: {
+		display: "flex",
+		flexShrink: 0,
+		position: { default: "static", [WIDE]: "absolute" },
+		right: space["4"],
+		top: space["2.5"],
+		padding: 0,
+		border: "none",
+		borderRadius: radius.full,
+		backgroundColor: "transparent",
+		cursor: "pointer",
+	},
 	avatar: {
-		width: 20,
-		height: 20,
+		width: 32,
+		height: 32,
 		borderRadius: radius.full,
 		backgroundColor: colors.canvas,
-	},
-	accountLabel: {
-		display: { default: "-webkit-box", [MOBILE]: "none" },
-		maxWidth: 160,
-		overflow: "hidden",
-		WebkitBoxOrient: "vertical",
-		WebkitLineClamp: 1,
 	},
 });
 
@@ -175,27 +169,33 @@ function AccountButton() {
 		);
 	}
 	return (
-		<button
-			type="button"
-			data-testid="header-sign-out"
-			aria-label={`Sign out ${config.user.name}`}
-			title="Sign out"
-			onClick={() => void signOut()}
-			{...stylex.props(styles.account)}
-		>
-			{config.user.image ? (
-				<img
-					{...stylex.props(styles.avatar)}
-					src={config.user.image}
-					alt=""
-					referrerPolicy="no-referrer"
-				/>
-			) : (
-				<span {...stylex.props(styles.avatar)} aria-hidden />
-			)}
-			<span {...stylex.props(styles.accountLabel)}>{config.user.name}</span>
-			<SignOutIcon size={14} />
-		</button>
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger
+				data-testid="header-account"
+				aria-label={`Account, ${config.user.name}`}
+				{...stylex.props(styles.profile)}
+			>
+				{config.user.image ? (
+					<img
+						{...stylex.props(styles.avatar)}
+						src={config.user.image}
+						alt=""
+						referrerPolicy="no-referrer"
+					/>
+				) : (
+					<span {...stylex.props(styles.avatar)} aria-hidden />
+				)}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Popup>
+				<DropdownMenu.Label>{config.user.name}</DropdownMenu.Label>
+				<DropdownMenu.Item
+					icon={<SignOutIcon size={15} />}
+					onClick={() => void signOut()}
+				>
+					<span data-testid="header-sign-out">Sign out</span>
+				</DropdownMenu.Item>
+			</DropdownMenu.Popup>
+		</DropdownMenu.Root>
 	);
 }
 
@@ -338,11 +338,11 @@ export const AppHeader = observer(function AppHeader({
 				<button
 					type="button"
 					aria-label="Search"
+					title="Search"
 					onClick={openCommandMenu}
 					{...stylex.props(styles.search)}
 				>
 					<MagnifyingGlassIcon size={14} />
-					<span {...stylex.props(styles.searchLabel)}>Search…</span>
 				</button>
 				<AccountButton />
 			</div>
