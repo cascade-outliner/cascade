@@ -32,37 +32,16 @@ const styles = stylex.create({
 		backgroundColor: colors.white,
 		boxShadow: shadow.focus,
 	},
-	// Repeats the row's pseudo-classes: StyleX keeps them per condition, so hover would otherwise win.
-	selected: {
-		backgroundColor: {
-			default: colors.primaryMuted,
-			":hover:not(:focus-within)": colors.primaryMuted,
-			":focus-within": colors.primaryMuted,
-		},
-		boxShadow: {
-			default: `0 0 0 1px ${colors.primary}`,
-			":focus-within": `0 0 0 1px ${colors.primary}`,
-		},
-	},
 });
 
 export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 	active?: boolean;
-	/** Part of a multi-selection. Wins over `active` and hover. */
-	selected?: boolean;
 	children: React.ReactNode;
 }
 
-export function Row({ active, selected, children, ...props }: RowProps) {
+export function Row({ active, children, ...props }: RowProps) {
 	return (
-		<div
-			{...stylex.props(
-				styles.row,
-				active && styles.active,
-				selected && styles.selected,
-			)}
-			{...props}
-		>
+		<div {...stylex.props(styles.row, active && styles.active)} {...props}>
 			{children}
 		</div>
 	);

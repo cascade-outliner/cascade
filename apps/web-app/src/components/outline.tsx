@@ -25,7 +25,7 @@ import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
 import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { Onboarding } from "#/components/onboarding.tsx";
@@ -111,7 +111,6 @@ const OutlineRow = observer(function OutlineRow({
 		>
 			<RowShell
 				active={active || !!highlight}
-				selected={store.selection.has(node.id)}
 				style={{ viewTransitionName: zoomTransitionName(node.id) }}
 			>
 				<Chevron
@@ -234,6 +233,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	}, [store]);
 
 	if (store.status !== "ready" || onboarded === null) {
+	if (store.status !== "ready") {
 		return null;
 	}
 
@@ -294,8 +294,6 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 					rootId={zoomedId}
 					aria-label="Outline"
 					onMove={(id, parentId, index) => store.move(id, parentId, index)}
-					selected={store.selection}
-					onSelect={store.select}
 				>
 					{(row) => (
 						<OutlineRow
