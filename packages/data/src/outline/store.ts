@@ -35,8 +35,6 @@ import type { Node, Row } from "./types.ts";
  */
 export class OutlineStore {
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
-	/** Selected node ids. UI state only, never persisted. */
-	readonly selection = observable.set<string>();
 	readonly #persistence: OutlinePersistence;
 	readonly #children: IComputedValue<Children>;
 	readonly ready: Promise<void>;
@@ -48,11 +46,7 @@ export class OutlineStore {
 		this.#children = computed(() => indexChildren(this.nodes.values()), {
 			keepAlive: true,
 		});
-		makeAutoObservable(
-			this,
-			{ nodes: false, selection: false },
-			{ autoBind: true },
-		);
+		makeAutoObservable(this, { nodes: false }, { autoBind: true });
 		this.ready = this.#load();
 
 		persistence.subscribe?.((change) => runInAction(() => this.#merge(change)));
@@ -329,15 +323,6 @@ export class OutlineStore {
 		return true;
 	}
 
-	/** Replaces the selection with `ids`. */
-	select(ids: Iterable<string>): void {
-		this.selection.replace([...ids]);
-	}
-
-	clearSelection(): void {
-		this.selection.clear();
-	}
-
 	setTaskMany(ids: Iterable<string>, task: { done: boolean } | null): void {
 		for (const id of ids) {
 			this.setTask(id, task);
@@ -405,7 +390,6 @@ export class OutlineStore {
 		}
 		for (const id of all) {
 			this.nodes.delete(id);
-			this.selection.delete(id);
 		}
 		this.#persist([], [...all]);
 	}
@@ -443,7 +427,6 @@ export class OutlineStore {
 		}
 		for (const id of change.delete) {
 			this.nodes.delete(id);
-			this.selection.delete(id);
 		}
 		const fixed = breakCycles(this.nodes);
 		if (fixed.length > 0) {

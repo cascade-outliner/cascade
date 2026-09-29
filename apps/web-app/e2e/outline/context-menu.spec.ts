@@ -1,5 +1,4 @@
 import { expect, test } from "../fixtures.ts";
-import type { OutlinePage } from "../pages/outline-page.ts";
 
 test.beforeEach(async ({ outlinePage }) => {
 	await outlinePage.goto();
@@ -177,34 +176,5 @@ test.describe("delete", () => {
 		await contextMenu.item("Delete").click();
 
 		await expect(outlinePage.rows).toHaveText(["Buy eggs"]);
-	});
-});
-
-test.describe("multi-select", () => {
-	/** Drags a marquee box over both rows to select them. */
-	async function marqueeSelect(outlinePage: OutlinePage) {
-		const first = await outlinePage.row("Buy milk").boundingBox();
-		const second = await outlinePage.row("Buy eggs").boundingBox();
-		if (!first || !second) throw new Error("rows not found");
-		await outlinePage.page.mouse.move(first.x - 20, first.y - 5);
-		await outlinePage.page.mouse.down();
-		await outlinePage.page.mouse.move(
-			second.x + second.width,
-			second.y + second.height,
-			{ steps: 5 },
-		);
-		await outlinePage.page.mouse.up();
-	}
-
-	test("acts on every selected row", async ({ contextMenu, outlinePage }) => {
-		await outlinePage.addNode("Buy milk");
-		await outlinePage.addNode("Buy eggs");
-
-		await marqueeSelect(outlinePage);
-		await contextMenu.open(outlinePage.row("Buy milk"));
-		await expect(contextMenu.item("Delete 2 nodes")).toBeVisible();
-		await contextMenu.item("Delete 2 nodes").click();
-
-		await expect(outlinePage.rows).toHaveCount(0);
 	});
 });

@@ -46,10 +46,7 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 	onSplit,
 }: OutlinerContextMenuProps) {
 	const store = useOutlineStore();
-	// Opened on a selected row, the actions apply to the whole selection.
-	const batch = store.selection.has(node.id) && store.selection.size > 1;
-	const ids = batch ? [...store.selection] : [node.id];
-	const count = batch ? ` ${ids.length} nodes` : "";
+	const ids = [node.id];
 	// Daily nodes can't be converted or copied.
 	const locked = ids.every(store.isLocked);
 	// Controlled, so picking a day in the calendar can close the menu.
@@ -150,7 +147,6 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 				</Menu.Submenu>
 				<Menu.Item
 					icon={<MagnifyingGlassPlusIcon size={15} />}
-					disabled={batch}
 					onClick={() => onZoomIn?.(node.id)}
 				>
 					Zoom in
@@ -164,7 +160,7 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 						Duplicate selected
 					</Menu.Item>
 					<Menu.Item
-						disabled={locked || (!batch && childCount === 0)}
+						disabled={locked || childCount === 0}
 						onClick={() => store.duplicateMany(ids, true)}
 					>
 						Duplicate with children
@@ -175,28 +171,25 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 					disabled={!ids.some(store.canIndent)}
 					onClick={() => store.indentMany(ids)}
 				>
-					Indent{count}
+					Indent
 				</Menu.Item>
 				<Menu.Item
 					icon={<ArrowLineLeftIcon size={15} />}
 					disabled={!ids.some(store.canOutdent)}
 					onClick={() => store.outdentMany(ids)}
 				>
-					Outdent{count}
+					Outdent
 				</Menu.Item>
 				<Menu.Separator />
 				<Menu.Item
 					icon={<SparkleIcon size={15} />}
-					disabled={
-						!onSplit || batch || locked || !plainText(node.content).trim()
-					}
+					disabled={!onSplit || locked || !plainText(node.content).trim()}
 					onClick={() => onSplit?.(node.id)}
 				>
 					Break into steps
 				</Menu.Item>
 				<Menu.Item
 					icon={<LinkSimpleIcon size={15} />}
-					disabled={batch}
 					onClick={() => {
 						const url = new URL(`/node/${node.id}`, window.location.origin);
 						navigator.clipboard.writeText(url.toString());
@@ -210,7 +203,7 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 					danger
 					onClick={() => store.removeMany(ids)}
 				>
-					Delete{count}
+					Delete
 				</Menu.Item>
 			</Menu.Popup>
 		</Menu.Root>

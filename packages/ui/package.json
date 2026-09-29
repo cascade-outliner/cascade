@@ -21,7 +21,6 @@
 		"./empty-state-card": "./src/empty-state/empty-state-card.tsx"
 	},
 	"dependencies": {
-		"@air/react-drag-to-select": "^5.0.11",
 		"@base-ui/react": "^1.7.0",
 		"@cascade/data": "workspace:*",
 		"@cascade/theme": "workspace:*",
