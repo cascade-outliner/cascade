@@ -7,6 +7,7 @@ const LOG_IN = "https://app.cascadelist.com/login";
 
 export const headerSeed: Seed<Header> = {
 	siteName: "Cascadelist",
+	siteUrl: "https://cascadelist.com",
 	navigation: [
 		{ label: "Features", url: "/#features" },
 		{ label: "Daily notes", url: "/#daily-notes" },

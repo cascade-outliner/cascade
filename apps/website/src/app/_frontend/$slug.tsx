@@ -9,10 +9,10 @@ export const Route = createFileRoute("/_frontend/$slug")({
 		if (params.slug === HOME_SLUG) throw redirect({ to: "/" });
 		const page = await getPageBySlug({ data: params.slug });
 		if (!page) throw notFound();
-		return { page, siteName: context.chrome.header.siteName };
+		return { page, header: context.chrome.header };
 	},
 	head: ({ loaderData }) =>
-		loaderData ? pageHead(loaderData.page, loaderData.siteName) : {},
+		loaderData ? pageHead(loaderData.page, loaderData.header) : {},
 });
 
 function SlugPage() {

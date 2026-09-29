@@ -739,6 +739,10 @@ export interface Header {
    * Wordmark next to the logo, and the page title suffix.
    */
   siteName: string;
+  /**
+   * Public origin, no trailing slash. Used for canonical and social preview URLs.
+   */
+  siteUrl: string;
   navigation?:
     | {
         label: string;
@@ -780,6 +784,7 @@ export interface Footer {
  */
 export interface HeaderSelect<T extends boolean = true> {
   siteName?: T;
+  siteUrl?: T;
   navigation?:
     | T
     | {

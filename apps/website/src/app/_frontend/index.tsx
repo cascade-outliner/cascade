@@ -8,10 +8,10 @@ export const Route = createFileRoute("/_frontend/")({
 	loader: async ({ context }) => {
 		const page = await getPageBySlug({ data: HOME_SLUG });
 		if (!page) throw notFound();
-		return { page, siteName: context.chrome.header.siteName };
+		return { page, header: context.chrome.header };
 	},
 	head: ({ loaderData }) =>
-		loaderData ? pageHead(loaderData.page, loaderData.siteName) : {},
+		loaderData ? pageHead(loaderData.page, loaderData.header) : {},
 });
 
 function HomePage() {

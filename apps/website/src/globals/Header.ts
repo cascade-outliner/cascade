@@ -17,6 +17,16 @@ export const Header: GlobalConfig = {
 			},
 		},
 		{
+			name: "siteUrl",
+			type: "text",
+			required: true,
+			defaultValue: "https://cascadelist.com",
+			admin: {
+				description:
+					"Public origin, no trailing slash. Used for canonical and social preview URLs.",
+			},
+		},
+		{
 			name: "navigation",
 			type: "array",
 			labels: { singular: "Link", plural: "Links" },
