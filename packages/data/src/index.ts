@@ -16,6 +16,7 @@ export {
 } from "./outline/daily.ts";
 export type { SearchHit, SearchResult } from "./outline/search.ts";
 export { OutlineStore } from "./outline/store.ts";
+export { extractTags, tagCounts } from "./outline/tags.ts";
 export type { Node, Row } from "./outline/types.ts";
 export { IdbPersistence, openCascadeDb } from "./persistence/idb.ts";
 export { MemoryPersistence } from "./persistence/memory.ts";

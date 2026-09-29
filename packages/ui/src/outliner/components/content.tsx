@@ -1,14 +1,16 @@
 import type { Node } from "@cascade/data";
-import { fontSize } from "@cascade/theme/tokens.stylex";
+import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
+import { HashtagNode } from "@lexical/hashtag";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { HashtagPlugin } from "@lexical/react/LexicalHashtagPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import * as stylex from "@stylexjs/stylex";
-import type { EditorState } from "lexical";
+import { $nodesOfType, type EditorState, TextNode } from "lexical";
 import { type ReactNode, useEffect } from "react";
 import { useItem } from "../context";
 
@@ -21,6 +23,12 @@ const styles = stylex.create({
 	content: {
 		outline: "none",
 		fontSize: fontSize["600"],
+	},
+	tag: {
+		backgroundColor: colors.inkSubtle,
+		color: colors.muted,
+		paddingInline: space["1"],
+		borderRadius: radius.full,
 	},
 });
 
@@ -65,6 +73,27 @@ function SyncContentPlugin({ content }: { content: Node["content"] }) {
 	return null;
 }
 
+/**
+ * Hashtag detection only runs on text nodes that changed, so re-mark the
+ * loaded ones (initially and after a remote edit) to turn existing `#tags`
+ * into chips. Runs after HashtagPlugin registers, and doesn't count as an edit.
+ */
+function RetagPlugin({ content }: { content: Node["content"] }) {
+	const [editor] = useLexicalComposerContext();
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-run when content changes
+	useEffect(() => {
+		editor.update(
+			() => {
+				for (const text of $nodesOfType(TextNode)) text.markDirty();
+			},
+			{ tag: "history-merge" },
+		);
+	}, [editor, content]);
+
+	return null;
+}
+
 export function Content({
 	style,
 	label,
@@ -99,6 +128,8 @@ export function Content({
 				namespace: `outliner-node-${node.id}`,
 				editorState: JSON.stringify(node.content),
 				editable,
+				nodes: [HashtagNode],
+				theme: { hashtag: stylex.props(styles.tag).className },
 				onError: (error) => {
 					throw error;
 				},
@@ -109,8 +140,10 @@ export function Content({
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
+			<HashtagPlugin />
 			<HistoryPlugin />
 			<SyncContentPlugin content={node.content} />
+			<RetagPlugin content={node.content} />
 			{onChange && (
 				<OnChangePlugin
 					onChange={onChange}

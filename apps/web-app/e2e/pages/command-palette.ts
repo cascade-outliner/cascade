@@ -10,7 +10,7 @@ export class CommandPalette {
 		this.input = this.dialog.getByRole("combobox", { name: "Search nodes" });
 	}
 
-	option(name: string): Locator {
+	option(name: string | RegExp): Locator {
 		return this.dialog.getByRole("option", { name });
 	}
 }

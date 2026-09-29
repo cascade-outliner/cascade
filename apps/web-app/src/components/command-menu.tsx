@@ -3,6 +3,7 @@ import {
 	openDay,
 	plainText,
 	type SearchHit,
+	tagCounts,
 	textState,
 } from "@cascade/data";
 import {
@@ -14,6 +15,7 @@ import {
 	CalendarBlankIcon,
 	CheckCircleIcon,
 	CircleIcon,
+	HashIcon,
 	HouseSimpleIcon,
 	PlusIcon,
 } from "@phosphor-icons/react";
@@ -130,6 +132,29 @@ export const CommandMenu = observer(function CommandMenu() {
 			});
 		}
 		groups.push({ label: "Nodes", items: nodeItems(others.hits) });
+
+		// "#wo" lists the tags starting with "wo"; picking one searches for it.
+		const tagQuery = deferredQuery.trim().match(/^#(\S*)$/);
+		if (tagQuery) {
+			const items = tagCounts(store.nodes.values())
+				.filter(([tag]) => tag.startsWith(tagQuery[1].toLowerCase()))
+				.slice(0, NODE_LIMIT)
+				.map(
+					([tag, count]): PaletteItem => ({
+						id: `tag:${tag}`,
+						label: `#${tag}`,
+						detail: `${count} node${count === 1 ? "" : "s"}`,
+						icon: <HashIcon size={13} />,
+						// Selecting closes the palette, so reopen it on the tag.
+						onSelect: () =>
+							setTimeout(() => {
+								openCommandMenu();
+								setQuery(`#${tag}`);
+							}),
+					}),
+				);
+			if (items.length) groups.unshift({ label: "Tags", items });
+		}
 
 		if (query.trim()) {
 			groups.push({
