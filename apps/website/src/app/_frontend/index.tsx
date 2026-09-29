@@ -1,17 +1,19 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { NotFound } from "@/components/not-found";
 import { PageView, pageHead } from "@/components/page-view";
 import { HOME_SLUG } from "@/lib/site";
 import { getPageBySlug } from "./page.functions";
 
 export const Route = createFileRoute("/_frontend/")({
 	component: HomePage,
+	notFoundComponent: NotFound,
 	loader: async ({ context }) => {
 		const page = await getPageBySlug({ data: HOME_SLUG });
 		if (!page) throw notFound();
-		return { page, siteName: context.chrome.header.siteName };
+		return { page, header: context.chrome.header };
 	},
 	head: ({ loaderData }) =>
-		loaderData ? pageHead(loaderData.page, loaderData.siteName) : {},
+		loaderData ? pageHead(loaderData.page, loaderData.header) : {},
 });
 
 function HomePage() {

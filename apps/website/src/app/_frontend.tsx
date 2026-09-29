@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 
+import dmSans from "@fontsource-variable/dm-sans/files/dm-sans-latin-opsz-normal.woff2?url";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/site-footer";
@@ -19,6 +20,13 @@ export const Route = createFileRoute("/_frontend")({
 			{ name: "theme-color", content: "#ad4c4e" },
 		],
 		links: [
+			{
+				rel: "preload",
+				href: dmSans,
+				as: "font",
+				type: "font/woff2",
+				crossOrigin: "anonymous",
+			},
 			{ rel: "stylesheet", href: styles },
 			{
 				rel: "icon",

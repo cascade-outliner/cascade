@@ -13,6 +13,7 @@
 		"migrate": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate",
 		"migrate:create": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:create",
 		"migrate:status": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:status",
+		"seed:clean": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js run src/seed/clean.ts",
 		"seed": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js run src/seed/index.ts",
 		"typecheck": "tsc"
 	},
@@ -43,6 +44,8 @@
 		"zod": "^4.6.2"
 	},
 	"devDependencies": {
+		"@tanstack/react-devtools": "^0.10.12",
+		"@tanstack/react-router-devtools": "^1.167.2",
 		"@types/node": "24.12.3",
 		"@types/react": "19.2.14",
 		"@types/react-dom": "19.2.3",

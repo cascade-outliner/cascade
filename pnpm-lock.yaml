@@ -205,6 +205,12 @@ importers:
         specifier: ^4.6.2
         version: 4.6.2
     devDependencies:
+      '@tanstack/react-devtools':
+        specifier: ^0.10.12
+        version: 0.10.12(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(solid-js@1.9.15)
+      '@tanstack/react-router-devtools':
+        specifier: ^1.167.2
+        version: 1.167.2(@tanstack/react-router@1.170.36(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@tanstack/router-core@1.171.30)(csstype@3.2.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@types/node':
         specifier: 24.12.3
         version: 24.12.3
