@@ -327,6 +327,10 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 										setCaptured(null);
 										captureInputRef.current?.focus();
 									}}
+									onCancel={() => {
+										setCaptured(null);
+										captureInputRef.current?.setText(captured);
+									}}
 								/>
 							)
 						}

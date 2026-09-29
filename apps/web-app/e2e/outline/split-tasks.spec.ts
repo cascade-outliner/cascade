@@ -32,7 +32,7 @@ test.describe("capture bar", () => {
 		await outlinePage.goto();
 	});
 
-	test("Escape keeps the captured line as a single node", async ({
+	test("Backspace keeps the captured line as a single node", async ({
 		outlinePage,
 		page,
 		splitApi,
@@ -47,17 +47,49 @@ test.describe("capture bar", () => {
 		]);
 
 		await outlinePage.captureInput.fill("Call the landlord and pay the rent");
-		// ⌘⇧↵ keeps focus inside the preview, so Escape reaches its own key handler.
+		// ⌘⇧↵ keeps focus inside the preview, so Backspace reaches its own key handler.
 		await outlinePage.captureInput.press("ControlOrMeta+Shift+Enter");
 
 		const section = page.getByRole("region", { name: "Split into tasks" });
 		await expect(section).toBeVisible();
-		await page.keyboard.press("Escape");
+		await page.keyboard.press("Backspace");
 
 		await expect(section).toBeHidden();
 		await expect(outlinePage.rows).toHaveText([
 			"Call the landlord and pay the rent",
 		]);
+	});
+
+	test("Escape cancels the split and hands the text back to the input", async ({
+		outlinePage,
+		page,
+		splitApi,
+	}) => {
+		await splitApi.respond("Move out", [
+			{ text: "Call the landlord", source: "Call the landlord" },
+			{ text: "Pay the rent", source: "pay the rent" },
+		]);
+
+		await outlinePage.captureInput.fill("Call the landlord and pay the rent");
+		await outlinePage.captureInput.press("ControlOrMeta+Shift+Enter");
+
+		const section = page.getByRole("region", { name: "Split into tasks" });
+		await expect(section).toBeVisible();
+		await expect(outlinePage.captureInput).toHaveText("");
+		await page.keyboard.press("Escape");
+
+		await expect(section).toBeHidden();
+		await expect(outlinePage.rows).toHaveCount(0);
+		await expect(outlinePage.captureInput).toHaveText(
+			"Call the landlord and pay the rent",
+		);
+		await expect(outlinePage.captureInput).toBeFocused();
+
+		// A second Escape (or a key repeat) must not throw the text away.
+		await page.keyboard.press("Escape");
+		await expect(outlinePage.captureInput).toHaveText(
+			"Call the landlord and pay the rent",
+		);
 	});
 
 	test("accepting splits the line into a titled parent and its tasks", async ({
