@@ -1,13 +1,21 @@
+import { createHash } from "node:crypto";
 import type { Page, Route } from "@playwright/test";
 import { toCrossJSON } from "seroval";
 
-// The RPC id TanStack Start derives from the server file + export name; stable
-// across dev and production builds, so it's safe to hardcode.
-const FILE = "/src/server/split.ts?tss-serverfn-split";
+// TanStack Start derives the RPC id from the server file + export name, but
+// differently per mode: dev base64url-encodes them as JSON, production (CI)
+// sha256-hashes `<app-relative file>--<handler>`.
+const FILE = "src/server/split.ts";
 
-function serverFnGlob(exportName: string): string {
-	const id = { file: FILE, export: `${exportName}_createServerFn_handler` };
-	return `**/_serverFn/${Buffer.from(JSON.stringify(id)).toString("base64url")}`;
+function serverFnUrl(exportName: string): (url: URL) => boolean {
+	const handler = `${exportName}_createServerFn_handler`;
+	const dev = Buffer.from(
+		JSON.stringify({ file: `/${FILE}?tss-serverfn-split`, export: handler }),
+	).toString("base64url");
+	const prod = createHash("sha256").update(`${FILE}--${handler}`).digest("hex");
+	return (url) =>
+		url.pathname.endsWith(`/_serverFn/${dev}`) ||
+		url.pathname.endsWith(`/_serverFn/${prod}`);
 }
 
 /** Fulfills a server function route with a successful, start-serialized result. */
@@ -39,14 +47,14 @@ export class SplitApi {
 
 	/** Reports AI as configured, so the split affordances render at all. */
 	async enable() {
-		await this.page.route(serverFnGlob("getAiConfig"), (route) =>
+		await this.page.route(serverFnUrl("getAiConfig"), (route) =>
 			fulfillResult(route, { enabled: true }),
 		);
 	}
 
 	/** The next split call resolves with this title and these tasks. */
 	async respond(title: string, tasks: SplitTaskStub[]) {
-		await this.page.route(serverFnGlob("splitIntoTasks"), (route) =>
+		await this.page.route(serverFnUrl("splitIntoTasks"), (route) =>
 			fulfillResult(route, {
 				title,
 				tasks: tasks.map((task) => ({ due: null, owner: null, ...task })),
