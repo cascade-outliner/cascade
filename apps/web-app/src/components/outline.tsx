@@ -64,10 +64,7 @@ const styles = stylex.create({
 	// Keeps the capture bar in reach at the bottom of long outlines.
 	captureBar: {
 		position: { default: "sticky", "@media (max-width: 640px)": "fixed" },
-		bottom: {
-			default: `max(${space["4"]}, env(safe-area-inset-bottom))`,
-			"@media (max-width: 640px)": "env(safe-area-inset-bottom, 0px)",
-		},
+		bottom: `max(${space["4"]}, env(safe-area-inset-bottom))`,
 		left: { default: null, "@media (max-width: 640px)": space["4"] },
 		right: { default: null, "@media (max-width: 640px)": space["4"] },
 		zIndex: 1,
