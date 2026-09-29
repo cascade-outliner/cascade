@@ -25,7 +25,7 @@ import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
 import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { Onboarding } from "#/components/onboarding.tsx";
@@ -198,42 +198,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		void sync.isOnboarded().then(setOnboarded);
 	}, [sync]);
 
-	// Zooming changes which rows are visible; a hidden selection would surprise on Backspace.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: runs on every zoom change on purpose
-	useEffect(() => store.clearSelection(), [store, zoomedId]);
-
-	// Backspace/Delete removes the selection, unless the user is typing somewhere. Esc clears it.
-	useEffect(() => {
-		const onKeyDown = (event: KeyboardEvent) => {
-			// A popup that took the key (a menu closing on Esc) keeps the selection.
-			if (store.selection.size === 0 || event.defaultPrevented) {
-				return;
-			}
-			if (event.key === "Escape") {
-				store.clearSelection();
-				return;
-			}
-			if (event.key !== "Backspace" && event.key !== "Delete") {
-				return;
-			}
-			const active = document.activeElement;
-			if (
-				active instanceof HTMLElement &&
-				(active.isContentEditable ||
-					active instanceof HTMLInputElement ||
-					active instanceof HTMLTextAreaElement)
-			) {
-				return;
-			}
-			event.preventDefault();
-			store.removeMany(store.selection);
-		};
-		window.addEventListener("keydown", onKeyDown);
-		return () => window.removeEventListener("keydown", onKeyDown);
-	}, [store]);
-
 	if (store.status !== "ready" || onboarded === null) {
-	if (store.status !== "ready") {
 		return null;
 	}
 
