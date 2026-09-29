@@ -216,12 +216,21 @@ export interface Page {
    */
   slug: string;
   /**
+   * Search result title. Falls back to the page title with the site name.
+   */
+  metaTitle?: string | null;
+  /**
    * Meta description for search engines and link previews.
    */
   description?: string | null;
+  /**
+   * Ask search engines not to list this page.
+   */
+  noIndex?: boolean | null;
   layout: (HeroBlock | FeatureGridBlock | DailyNotesBlock | PricingBlock | FaqBlock | CtaBlock)[];
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -552,7 +561,9 @@ export interface TagsSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  metaTitle?: T;
   description?: T;
+  noIndex?: T;
   layout?:
     | T
     | {
@@ -565,6 +576,7 @@ export interface PagesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -30,6 +30,9 @@ export const footerSeed: Seed<Footer> = {
 export const homeSeed: Seed<Page> = {
 	title: "Every thought gets a place to land",
 	slug: "home",
+	_status: "published",
+	metaTitle:
+		"Cascadelist: an outliner for nested notes, tasks and daily journaling",
 	description:
 		"Cascadelist is one infinite list you can nest, fold, zoom and link. An outliner for writers, researchers, engineers and anyone with 40 tabs open in their head.",
 	layout: [
@@ -169,6 +172,16 @@ export const homeSeed: Seed<Page> = {
 					question: "Is it keyboard-friendly?",
 					answer:
 						"Aggressively. ⌘K does almost everything; your mouse can take the day off.",
+				},
+				{
+					question: "How is Cascadelist different from Workflowy or Dynalist?",
+					answer:
+						"Same infinite outline, plus daily notes that roll unfinished tasks forward, board and table views over the same tree, and mirrors that keep one bullet in sync everywhere.",
+				},
+				{
+					question: "Who is Cascadelist best for?",
+					answer:
+						"Writers plotting a book, researchers collecting sources, engineers running a sprint, and anyone who thinks in lists and wants notes, tasks and a journal in one place.",
 				},
 			],
 		},

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './app/__root'
 import { Route as FrontendRouteImport } from './app/_frontend'
 import { Route as PayloadRouteImport } from './app/_payload'
+import { Route as SitemapDotxmlRouteImport } from './app/sitemap[.]xml'
 import { Route as FrontendIndexRouteImport } from './app/_frontend/index'
 import { Route as FrontendSlugRouteImport } from './app/_frontend/$slug'
 import { Route as PayloadAdminIndexRouteImport } from './app/_payload/admin.index'
@@ -23,6 +24,11 @@ const FrontendRoute = FrontendRouteImport.update({
 } as any)
 const PayloadRoute = PayloadRouteImport.update({
   id: '/_payload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FrontendIndexRoute = FrontendIndexRouteImport.update({
@@ -53,6 +59,7 @@ const PayloadApiSplatRoute = PayloadApiSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof FrontendIndexRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$slug': typeof FrontendSlugRoute
   '/admin/$': typeof PayloadAdminSplatRoute
   '/api/$': typeof PayloadApiSplatRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof FrontendIndexRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$slug': typeof FrontendSlugRoute
   '/admin/$': typeof PayloadAdminSplatRoute
   '/api/$': typeof PayloadApiSplatRoute
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_frontend': typeof FrontendRouteWithChildren
   '/_payload': typeof PayloadRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_frontend/$slug': typeof FrontendSlugRoute
   '/_frontend/': typeof FrontendIndexRoute
   '/_payload/admin/$': typeof PayloadAdminSplatRoute
@@ -77,13 +86,14 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$slug' | '/admin/$' | '/api/$' | '/admin/'
+  fullPaths: '/' | '/sitemap.xml' | '/$slug' | '/admin/$' | '/api/$' | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$slug' | '/admin/$' | '/api/$' | '/admin'
+  to: '/' | '/sitemap.xml' | '/$slug' | '/admin/$' | '/api/$' | '/admin'
   id:
     | '__root__'
     | '/_frontend'
     | '/_payload'
+    | '/sitemap.xml'
     | '/_frontend/$slug'
     | '/_frontend/'
     | '/_payload/admin/$'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   FrontendRoute: typeof FrontendRouteWithChildren
   PayloadRoute: typeof PayloadRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -110,6 +121,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PayloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_frontend/': {
@@ -182,6 +200,7 @@ const PayloadRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   FrontendRoute: FrontendRouteWithChildren,
   PayloadRoute: PayloadRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

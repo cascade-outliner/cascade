@@ -9,8 +9,10 @@ export const Pages: CollectionConfig = {
 		defaultColumns: ["title", "slug", "updatedAt"],
 	},
 	access: {
-		read: () => true,
+		// Anonymous readers (the frontend, REST, GraphQL, MCP) only see published pages.
+		read: ({ req }) => (req.user ? true : { _status: { equals: "published" } }),
 	},
+	versions: { drafts: true },
 	fields: [
 		{
 			name: "title",
@@ -41,11 +43,29 @@ export const Pages: CollectionConfig = {
 			},
 		},
 		{
+			name: "metaTitle",
+			type: "text",
+			admin: {
+				position: "sidebar",
+				description:
+					"Search result title. Falls back to the page title with the site name.",
+			},
+		},
+		{
 			name: "description",
 			type: "textarea",
 			admin: {
 				position: "sidebar",
 				description: "Meta description for search engines and link previews.",
+			},
+		},
+		{
+			name: "noIndex",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				position: "sidebar",
+				description: "Ask search engines not to list this page.",
 			},
 		},
 		{

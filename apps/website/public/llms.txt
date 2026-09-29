@@ -1,0 +1,25 @@
+# Cascadelist
+
+> Cascadelist is an outliner app: one infinite list you can nest, fold, zoom and link. It is built for writers, researchers, engineers and anyone with too many tabs open in their head.
+
+Every view (outline, board, table) is the same tree underneath. Notes, tasks and daily journal entries live in one place and link to each other with [[wiki links]] and backlinks. It works offline and syncs when you are back online. Available on the web.
+
+## Features
+
+- Infinite nesting: any bullet can hold more bullets. Fold, zoom in, drag to reorder.
+- Daily notes: a fresh page every morning; unfinished tasks roll forward automatically.
+- [[Links]] and backlinks between bullets; every page knows who references it.
+- Mirrors: one bullet in many places, kept in sync.
+- Board and table views over the same outline.
+- Split pane, version history, keyboard-first (⌘K does almost everything).
+- Import Markdown, OPML or plain indented text.
+
+## Pricing
+
+- Free: unlimited bullets, all views, daily notes and backlinks, 7 days of history.
+
+## Links
+
+- [Home](https://cascadelist.com/): product overview, features, pricing and FAQ
+- [Sign up](https://app.cascadelist.com/): start free, no card
+- [Log in](https://app.cascadelist.com/)
