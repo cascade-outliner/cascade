@@ -7,6 +7,10 @@ export class OutlinePage {
 	/** Slash commands picked in the capture bar, waiting for its text to be submitted. */
 	readonly captureChips: Locator;
 	readonly addButton: Locator;
+	/** The "+" that opens the capture commands without typing a slash. */
+	readonly captureMenuButton: Locator;
+	/** Only there while AI is configured and the capture bar has text to split. */
+	readonly captureSplitButton: Locator;
 	readonly emptyState: Locator;
 	/** The zoomed-in node's title; only there when zoomed in. */
 	readonly title: Locator;
@@ -17,6 +21,8 @@ export class OutlinePage {
 		this.captureInput = page.getByTestId("capture-bar-input");
 		this.captureChips = page.getByTestId("capture-bar-chip");
 		this.addButton = page.getByTestId("capture-bar-submit");
+		this.captureMenuButton = page.getByTestId("capture-bar-plus");
+		this.captureSplitButton = page.getByTestId("capture-bar-split");
 		this.emptyState = page.getByTestId("outline-empty");
 		this.title = page.getByRole("heading", { level: 1 });
 	}

@@ -628,6 +628,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					<button
 						type="button"
 						aria-label="Split"
+						data-testid="capture-bar-split"
 						onClick={split}
 						disabled={!hasText}
 						aria-hidden={!hasText}
