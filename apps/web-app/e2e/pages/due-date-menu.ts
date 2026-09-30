@@ -21,6 +21,10 @@ export class DueDateMenu {
 
 	/** A calendar day, by its long label ("September 30"). */
 	day(label: string): Locator {
-		return this.calendar.getByRole("button", { name: new RegExp(label) });
+		// Escaped, and bounded so "September 3" can't match "September 30".
+		const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		return this.calendar.getByRole("button", {
+			name: new RegExp(`\\b${escaped}\\b`),
+		});
 	}
 }
