@@ -3,7 +3,6 @@ import {
 	colors,
 	duration,
 	fontSize,
-	opacity,
 	radius,
 	shadow,
 	space,
@@ -46,16 +45,9 @@ import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-const NARROW = "@media (max-width: 640px)";
 const TOUCH = "@media (hover: none)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
-
-const pop = stylex.keyframes({
-	"0%": { transform: "scale(1)" },
-	"40%": { transform: "scale(1.35)" },
-	"100%": { transform: "scale(1)" },
-});
 
 const styles = stylex.create({
 	bar: {
@@ -101,15 +93,13 @@ const styles = stylex.create({
 		borderBottomColor: colors.border,
 	},
 	plus: {
-		display: { default: "none", [NARROW]: "flex" },
+		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		alignSelf: "flex-end",
 		flexShrink: 0,
 		width: 32,
 		height: 32,
-		marginBlock: 0,
-		marginInlineStart: 0,
 		padding: 0,
 		border: "none",
 		borderRadius: radius.md,
@@ -124,63 +114,25 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "flex-start",
 		gap: space["2.5"],
-		paddingBlock: { default: space["2.5"], [NARROW]: space["3"] },
-		paddingInline: {
-			default: `${space["3"]} ${space["2.5"]}`,
-			[NARROW]: `${space["4"]} ${space["3"]}`,
-		},
+		paddingBlock: space["3"],
+		paddingInline: `${space["4"]} ${space["3"]}`,
 		cursor: "text",
 	},
 	rowWrap: {
-		flexWrap: { default: "nowrap", [NARROW]: "wrap" },
+		flexWrap: "wrap",
 	},
 	editorBelowChips: {
-		flexBasis: { default: "auto", [NARROW]: "calc(100% - 52px)" },
-	},
-	ghost: {
-		display: { default: "flex", [NARROW]: "none" },
-		width: 18,
-		height: 18,
-		marginTop: (LINE - 18) / 2,
-		flexShrink: 0,
-		alignItems: "center",
-		justifyContent: "center",
-		borderRadius: "50%",
-		borderWidth: borderWidth.thick,
-		borderStyle: "dashed",
-		borderColor: colors.borderStrong,
-		backgroundColor: "transparent",
-		transition: `background-color ${duration["150"]} ease, border-color ${duration["150"]} ease`,
-	},
-	ghostFilled: {
-		borderColor: "transparent",
-		backgroundColor: colors.primaryMuted,
-	},
-	ghostPop: {
-		animationName: { default: pop, [REDUCED_MOTION]: "none" },
-		animationDuration: "240ms",
-		animationTimingFunction: "ease-out",
-	},
-	dot: {
-		width: 6,
-		height: 6,
-		borderRadius: "50%",
-		backgroundColor: colors.primary,
-		transform: "scale(0)",
-		transition: `transform ${duration["150"]} ease`,
-	},
-	dotVisible: {
-		transform: "scale(1)",
+		flexBasis: "calc(100% - 52px)",
 	},
 	split: {
 		display: "flex",
 		alignItems: "center",
 		gap: space["1.5"],
 		flexShrink: 0,
-		height: { default: LINE, [NARROW]: 32 },
-		alignSelf: { default: "auto", [NARROW]: "flex-end" },
+		height: 32,
+		alignSelf: "flex-end",
 		paddingBlock: 0,
-		paddingInline: { default: space["2"], [NARROW]: space["3"] },
+		paddingInline: space["3"],
 		border: "none",
 		borderRadius: radius.md,
 		backgroundColor: colors.primaryMuted,
@@ -204,7 +156,7 @@ const styles = stylex.create({
 		},
 	},
 	shortcut: {
-		display: { default: "inline", [NARROW]: "none", [TOUCH]: "none" },
+		display: { default: "inline", [TOUCH]: "none" },
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
 	},
@@ -252,7 +204,7 @@ const styles = stylex.create({
 	},
 	editor: {
 		position: "relative",
-		alignSelf: { default: "auto", [NARROW]: "center" },
+		alignSelf: "center",
 		flexGrow: 1,
 		minWidth: 0,
 		maxHeight: "40vh",
@@ -282,58 +234,39 @@ const styles = stylex.create({
 		lineHeight: `${LINE}px`,
 		whiteSpace: "nowrap",
 	},
-	// The Add button is taller than a line; the negative margins centre it on the first
-	// without growing the row.
 	add: {
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		alignSelf: { default: "auto", [NARROW]: "flex-end" },
+		alignSelf: "flex-end",
 		flexShrink: 0,
-		gap: space["1"],
-		marginBlock: { default: -2, [NARROW]: 0 },
-		width: { default: "auto", [NARROW]: 32 },
-		height: { default: "auto", [NARROW]: 32 },
-		paddingBlock: { default: "5px", [NARROW]: 0 },
-		paddingInline: { default: space["3"], [NARROW]: 0 },
+		width: 32,
+		height: 32,
+		padding: 0,
 		border: "none",
 		borderRadius: radius.md,
 		backgroundColor: {
 			default: colors.primary,
-			[NARROW]: { default: colors.primary, ":disabled": colors.primaryMuted },
+			":disabled": colors.primaryMuted,
 		},
-		color: {
-			default: colors.onPrimary,
-			[NARROW]: { default: colors.onPrimary, ":disabled": colors.primary },
-		},
+		color: { default: colors.onPrimary, ":disabled": colors.primary },
 		font: "inherit",
 		fontSize: fontSize["300"],
 		fontWeight: 500,
 		whiteSpace: "nowrap",
 		outline: "none",
 		cursor: { default: "pointer", ":disabled": "not-allowed" },
-		opacity: {
-			default: 1,
-			":disabled": { default: opacity.disabled, [NARROW]: 1 },
-		},
 		transform: {
-			default: "none",
-			[NARROW]: {
-				default: "scale(1)",
-				":disabled": "scale(0.88)",
-				":active": "scale(0.92)",
-			},
+			default: "scale(1)",
+			":disabled": "scale(0.88)",
+			":active": "scale(0.92)",
 		},
 		transition: {
-			default: "none",
-			[NARROW]:
+			default:
 				"transform 180ms cubic-bezier(0.3, 1.4, 0.5, 1), background-color 150ms ease",
 			[REDUCED_MOTION]: "none",
 		},
 		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
-	},
-	addLabel: {
-		display: { default: "inline", [NARROW]: "none" },
 	},
 });
 
@@ -534,7 +467,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	const [text, setText] = useState("");
 	/** Slash commands picked so far; they apply when the text is submitted. */
 	const [picked, setPicked] = useState<T[]>([]);
-	const [added, setAdded] = useState(0);
 	const editorRef = useRef<EditorHandle>(null);
 	const hasText = text.trim() !== "";
 	useImperativeHandle(ref, () => ({
@@ -562,7 +494,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		onSubmit(trimmed, picked);
 		setPicked([]);
 		editorRef.current?.clear();
-		setAdded((n) => n + 1);
 		editorRef.current?.focus();
 	}
 
@@ -613,17 +544,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						<PlusIcon size={16} weight="bold" aria-hidden />
 					</button>
 				)}
-				<span
-					key={added}
-					aria-hidden
-					{...stylex.props(
-						styles.ghost,
-						hasText && styles.ghostFilled,
-						added > 0 && styles.ghostPop,
-					)}
-				>
-					<span {...stylex.props(styles.dot, hasText && styles.dotVisible)} />
-				</span>
 				{picked.map((item) => (
 					<span
 						key={item.id}
@@ -685,7 +605,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					{...stylex.props(styles.add)}
 				>
 					<ArrowUpIcon size={16} weight="bold" aria-hidden />
-					<span {...stylex.props(styles.addLabel)}>Add</span>
 				</button>
 			</div>
 		</div>
