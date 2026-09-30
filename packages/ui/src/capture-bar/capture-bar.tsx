@@ -45,6 +45,7 @@ import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+const NARROW = "@media (max-width: 640px)";
 const TOUCH = "@media (hover: none)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
@@ -132,7 +133,9 @@ const styles = stylex.create({
 		height: 32,
 		alignSelf: "flex-end",
 		paddingBlock: 0,
-		paddingInline: space["3"],
+		justifyContent: "center",
+		paddingInline: { default: space["3"], [NARROW]: 0 },
+		width: { default: "auto", [NARROW]: 32 },
 		border: "none",
 		borderRadius: radius.md,
 		backgroundColor: colors.primaryMuted,
@@ -155,8 +158,11 @@ const styles = stylex.create({
 		opacity: 0,
 		pointerEvents: "none",
 	},
+	splitLabel: {
+		display: { default: "inline", [NARROW]: "none" },
+	},
 	shortcut: {
-		display: { default: "inline", [TOUCH]: "none" },
+		display: { default: "inline", [NARROW]: "none", [TOUCH]: "none" },
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
 	},
@@ -584,6 +590,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				{onSplit && (
 					<button
 						type="button"
+						aria-label="Split"
 						onClick={split}
 						disabled={!hasText}
 						aria-hidden={!hasText}
@@ -591,7 +598,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						{...stylex.props(styles.split, !hasText && styles.splitHidden)}
 					>
 						<SparkleIcon size={13} aria-hidden />
-						Split
+						<span {...stylex.props(styles.splitLabel)}>Split</span>
 						<span aria-hidden {...stylex.props(styles.shortcut)}>
 							⌘⇧↵
 						</span>
