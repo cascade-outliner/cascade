@@ -111,6 +111,7 @@ test.describe("links", () => {
 			"href",
 			"https://example.org",
 		);
+		await expect(links.anchors(row)).toHaveAttribute("title", "example.org");
 		await expect(links.editor(row)).toHaveText("Docs Example");
 	});
 

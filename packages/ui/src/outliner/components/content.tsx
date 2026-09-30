@@ -32,6 +32,13 @@ const styles = stylex.create({
 		cursor: "text",
 		marginRight: "1.25em",
 		borderRadius: radius.sm,
+		"[title]::after": {
+			content: "attr(title)",
+			display: "inline-block",
+			marginLeft: "0.4em",
+			fontSize: fontSize["300"],
+			color: colors.muted,
+		},
 	},
 });
 

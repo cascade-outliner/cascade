@@ -21,7 +21,7 @@ import {
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "../button/button.tsx";
 import { Popover } from "../popover/popover.tsx";
-import { LINK_ATTRIBUTES, normalizeUrl } from "./url.ts";
+import { linkAttributes, normalizeUrl } from "./url.ts";
 
 export const OPEN_LINK_DIALOG_COMMAND = createCommand<void>("OPEN_LINK_DIALOG");
 
@@ -134,11 +134,12 @@ export function LinkDialogPlugin() {
 			const selection = $getSelection();
 			if (!$isRangeSelection(selection)) return;
 			if (!selection.isCollapsed()) {
-				$toggleLink(href, LINK_ATTRIBUTES);
+				$toggleLink(href, linkAttributes(href, selection.getTextContent()));
 				return;
 			}
-			const link = $createLinkNode(href, LINK_ATTRIBUTES);
-			link.append($createTextNode(text.trim() || url.trim()));
+			const label = text.trim();
+			const link = $createLinkNode(href, linkAttributes(href, label));
+			link.append($createTextNode(label || url.trim()));
 			selection.insertNodes([link]);
 			link.selectNext();
 		});

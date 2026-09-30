@@ -39,3 +39,15 @@ export const LINK_MATCHERS: LinkMatcher[] = [
 		return match && { ...match, attributes: LINK_ATTRIBUTES };
 	},
 ];
+
+export function linkAttributes(url: string, text: string) {
+	if (!text || text === url) return LINK_ATTRIBUTES;
+	try {
+		const { protocol, hostname, pathname } = new URL(url);
+		const label =
+			protocol === "mailto:" ? pathname : hostname.replace(/^www\./, "");
+		return label ? { ...LINK_ATTRIBUTES, title: label } : LINK_ATTRIBUTES;
+	} catch {
+		return LINK_ATTRIBUTES;
+	}
+}
