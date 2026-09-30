@@ -147,12 +147,11 @@ const styles = stylex.create({
 			boxShadow: shadow.focusRing,
 		},
 		transition: {
-			default: "opacity 150ms ease, transform 150ms ease",
+			default: "opacity 150ms ease",
 			[REDUCED_MOTION]: "none",
 		},
 		"@starting-style": {
 			opacity: 0,
-			transform: "scale(0.94)",
 		},
 	},
 	shortcut: {
@@ -256,14 +255,8 @@ const styles = stylex.create({
 		whiteSpace: "nowrap",
 		outline: "none",
 		cursor: { default: "pointer", ":disabled": "not-allowed" },
-		transform: {
-			default: "scale(1)",
-			":disabled": "scale(0.88)",
-			":active": "scale(0.92)",
-		},
 		transition: {
-			default:
-				"transform 180ms cubic-bezier(0.3, 1.4, 0.5, 1), background-color 150ms ease",
+			default: "background-color 150ms ease, color 150ms ease",
 			[REDUCED_MOTION]: "none",
 		},
 		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
