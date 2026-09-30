@@ -9,7 +9,6 @@ import {
 	borderWidth,
 	colors,
 	fontSize,
-	fonts,
 	radius,
 	space,
 } from "@cascade/theme/tokens.stylex";
@@ -55,7 +54,6 @@ const styles = stylex.create({
 		padding: 0,
 		border: "none",
 		backgroundColor: "transparent",
-		fontFamily: fonts.mono,
 		fontSize: fontSize["200"],
 		fontWeight: 500,
 		color: { default: colors.muted, ":hover": colors.primary },
@@ -91,11 +89,8 @@ const styles = stylex.create({
 		gap: space["1.5"],
 		flex: 1,
 		minWidth: 0,
-		fontFamily: fonts.mono,
-		fontSize: fontSize["100"],
-		fontWeight: 500,
-		letterSpacing: "0.04em",
-		textTransform: "uppercase",
+		fontSize: fontSize["200"],
+		fontWeight: 600,
 		color: colors.primary,
 		whiteSpace: "nowrap",
 	},
@@ -164,11 +159,8 @@ const styles = stylex.create({
 		gap: space["2.5"],
 	},
 	groupLabel: {
-		fontFamily: fonts.mono,
-		fontSize: fontSize["100"],
-		fontWeight: 500,
-		letterSpacing: "0.04em",
-		textTransform: "uppercase",
+		fontSize: fontSize["200"],
+		fontWeight: 600,
 		color: colors.muted,
 	},
 	list: {
@@ -181,8 +173,7 @@ const styles = stylex.create({
 		marginLeft: "2px",
 		border: "none",
 		backgroundColor: "transparent",
-		fontFamily: fonts.mono,
-		fontSize: "9.5px",
+		fontSize: fontSize["100"],
 		fontWeight: 500,
 		lineHeight: 1,
 		verticalAlign: "super",
@@ -216,8 +207,7 @@ const styles = stylex.create({
 		whiteSpace: "nowrap",
 	},
 	chipNumber: {
-		fontFamily: fonts.mono,
-		fontSize: "9.5px",
+		fontSize: fontSize["100"],
 		fontWeight: 500,
 		color: colors.primary,
 	},
@@ -231,7 +221,6 @@ const styles = stylex.create({
 		padding: 0,
 		border: "none",
 		backgroundColor: "transparent",
-		fontFamily: fonts.mono,
 		fontSize: fontSize["200"],
 		fontWeight: 500,
 		color: { default: colors.muted, ":hover": colors.ink },
@@ -455,7 +444,11 @@ export const SummaryCard = observer(function SummaryCard({
 				</p>
 			)}
 			{shown && shown.sentences.length === 0 && (
-				<p {...stylex.props(styles.error)}>Nothing here to summarize yet.</p>
+				<p {...stylex.props(styles.error)}>
+					{shown.mode === "status"
+						? "No tasks in this branch yet."
+						: "Nothing here to summarize yet."}
+				</p>
 			)}
 			{shown && <Body summary={shown} onZoomTo={onZoomTo} />}
 			{shown && shown.sources.length > 0 && (

@@ -29,16 +29,17 @@ export type SummaryResult = z.infer<typeof summarySchema>;
 const MODES = {
 	line: "Mode: one line. Exactly one sentence, at most 20 words, naming where the branch stands overall.",
 	short:
-		"Mode: short. Two to four sentences. Lead with what's settled or done, then what's moving, then what's stuck or has no owner.",
+		"Mode: short. Two to four sentences. Lead with the main points and decisions in the notes; if the branch has tasks, say what's done, what's open, and what's overdue.",
 	status:
-		"Mode: status. One short item per piece of work (a few words, no full sentences), each with a status: done, progress (in progress or not started), or blocked (waiting on something, or has no owner). Order them done, progress, blocked. At most 10 items; merge small related ones.",
+		"Mode: status. One short item per task (a few words, no full sentences). done is a [x] task. progress is an open [ ] task. blocked is an open [ ] task whose own text or notes under it say it's waiting on something or blocked. Order them done, progress, blocked. At most 10 items; merge small related ones. Lines that aren't tasks get no item of their own, unless their text itself says something is finished, underway, or blocked. A branch with no tasks and no such lines returns no items.",
 } as const;
 
 export const SYSTEM = `You summarize one branch of a personal outliner: a line the user zoomed into, and everything nested under it. The summary is pinned under the branch's title, so the user can see where things stand without expanding every line.
 
 Input
 - The first line is the branch's title. Each direct child starts with its number, like "[2] Launch checklist". Their descendants are indented under them.
-- "[x]" is a finished task, "[ ]" an open one. "(due YYYY-MM-DD)" is a due date; compare it with today's date to spot anything overdue.
+- Only lines starting with "[ ]" (open) or "[x]" (finished) are tasks. Every other line is a note: an idea, a heading, a fact, meeting minutes. Never call a note done, open, unowned, or overdue, and never turn it into a to-do.
+- "(due YYYY-MM-DD)" is a due date; compare it with today's date to spot anything overdue.
 
 Writing
 - Plain, specific language in the user's own terms. Name things; don't describe the outline ("this branch contains…").
