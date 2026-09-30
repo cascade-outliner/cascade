@@ -252,6 +252,7 @@ const styles = stylex.create({
 	},
 	editor: {
 		position: "relative",
+		alignSelf: { default: "auto", [NARROW]: "center" },
 		flexGrow: 1,
 		minWidth: 0,
 		maxHeight: "40vh",
