@@ -18,7 +18,7 @@ export const summarySchema = z.object({
 				.nullable()
 				.describe("In status mode, which group the item belongs to; else null"),
 			sources: z
-				.array(z.number().int())
+				.array(z.number())
 				.describe("The [n] numbers of the branches this sentence came from"),
 		}),
 	),
@@ -76,7 +76,7 @@ export const summarizeBranch = createServerFn({ method: "POST" })
 				text: sentence.text.replace(/\s*\[\d+\]/g, "").trim(),
 				status: data.mode === "status" ? (sentence.status ?? "progress") : null,
 				sources: [...new Set(sentence.sources)].filter(
-					(n) => n >= 1 && n <= data.branches,
+					(n) => Number.isInteger(n) && n >= 1 && n <= data.branches,
 				),
 			})),
 		};
