@@ -8,6 +8,7 @@ import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
 import { SlashMenu } from "./pages/slash-menu.ts";
 import { SplitApi } from "./pages/split-api.ts";
+import { Summary } from "./pages/summary.ts";
 
 interface Options {
 	/** Run through onboarding before the test starts. Default `true`. */
@@ -24,6 +25,7 @@ interface Fixtures {
 	outlinePage: OutlinePage;
 	splitApi: SplitApi;
 	slashMenu: SlashMenu;
+	summary: Summary;
 }
 
 /**
@@ -66,6 +68,9 @@ export const test = base.extend<Options & Fixtures>({
 	},
 	slashMenu: async ({ page }, use) => {
 		await use(new SlashMenu(page));
+	},
+	summary: async ({ page }, use) => {
+		await use(new Summary(page));
 	},
 });
 

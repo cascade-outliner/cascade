@@ -17,6 +17,8 @@ export interface Node {
 	task?: { done: boolean };
 	/** Due date as a local calendar day, `YYYY-MM-DD`, or `undefined` if none. */
 	due?: string;
+	/** An AI summary of the node's branch, pinned under its title when zoomed in. */
+	summary?: Summary;
 	/**
 	 * Timestamp of the last modification, in milliseconds since the epoch.
 	 *
@@ -34,4 +36,17 @@ export interface Row {
 	depth: number;
 	/** Number of direct children, whether or not they are visible. */
 	childCount: number;
+}
+
+/**
+ * An AI summary of a branch. Each sentence cites the child branches it came
+ * from, as 1-based indexes into `sources`.
+ */
+export interface Summary {
+	sentences: { text: string; sources: number[] }[];
+	/** Ids of the cited children, in the order they're first cited. */
+	sources: string[];
+	/** Fingerprint of the branch when summarized; the summary is stale once it changes. */
+	basis: string;
+	createdAt: number;
 }

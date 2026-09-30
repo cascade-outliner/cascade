@@ -79,6 +79,21 @@ const nodeSchema = z.object({
 		.string()
 		.regex(/^\d{4}-\d{2}-\d{2}$/)
 		.optional(),
+	summary: z
+		.object({
+			sentences: z
+				.array(
+					z.object({
+						text: z.string().max(2_000),
+						sources: z.array(z.number().int().positive()).max(50),
+					}),
+				)
+				.max(50),
+			sources: z.array(z.string().min(1)).max(50),
+			basis: z.string(),
+			createdAt: z.number().int().nonnegative(),
+		})
+		.optional(),
 	updatedAt: z.number().int().nonnegative(),
 });
 
@@ -163,6 +178,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 						collapsed: node.collapsed,
 						task: node.task ?? null,
 						due: node.due ?? null,
+						summary: node.summary ?? null,
 						updatedAt: node.updatedAt,
 						deletedAt: null,
 					})
@@ -175,6 +191,7 @@ export const pushChanges = createServerFn({ method: "POST" })
 							collapsed: sql`excluded.collapsed`,
 							task: sql`excluded.task`,
 							due: sql`excluded.due`,
+							summary: sql`excluded.summary`,
 							updatedAt: sql`excluded.updated_at`,
 							deletedAt: null,
 							syncedAt: sql`now()`,
@@ -257,6 +274,7 @@ function toNode(row: NodeRow): WireNode {
 		collapsed: row.collapsed,
 		task: row.task ?? undefined,
 		due: row.due ?? undefined,
+		summary: (row.summary as Node["summary"]) ?? undefined,
 		updatedAt: row.updatedAt,
 	};
 }
