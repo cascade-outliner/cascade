@@ -308,7 +308,8 @@ function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 		);
 		const offEscape = editor.registerCommand(
 			KEY_ESCAPE_COMMAND,
-			() => {
+			(event) => {
+				event?.preventDefault();
 				onEscape();
 				return true;
 			},
