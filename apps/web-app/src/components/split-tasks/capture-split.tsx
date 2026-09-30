@@ -1,7 +1,12 @@
 import { textState } from "@cascade/data";
 import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
-import { CheckIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
+import {
+	ArrowUUpLeftIcon,
+	CheckIcon,
+	SparkleIcon,
+	XIcon,
+} from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useEffect, useRef } from "react";
@@ -50,6 +55,7 @@ const styles = stylex.create({
 	},
 	actions: {
 		display: "flex",
+		flexWrap: "wrap",
 		alignItems: "center",
 		gap: space["2"],
 		paddingTop: space["2.5"],
@@ -181,20 +187,15 @@ export function CaptureSplit({
 						</Button>
 					</>
 				) : (
-					<>
-						<span {...stylex.props(styles.loading)}>
-							<SparkleIcon
-								size={13}
-								{...stylex.props(!error && styles.pulse)}
-							/>
-							{error ?? "Splitting…"}
-						</span>
-						<Button size="small" onClick={onCancel} data-testid="split-cancel">
-							<XIcon size={11} weight="bold" aria-hidden />
-							Cancel
-						</Button>
-					</>
+					<span {...stylex.props(styles.loading)}>
+						<SparkleIcon size={13} {...stylex.props(!error && styles.pulse)} />
+						{error ?? "Splitting…"}
+					</span>
 				)}
+				<Button size="small" onClick={onCancel} data-testid="split-cancel">
+					<ArrowUUpLeftIcon size={11} weight="bold" aria-hidden />
+					Cancel
+				</Button>
 			</div>
 		</section>
 	);
