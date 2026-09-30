@@ -92,6 +92,27 @@ test.describe("capture bar", () => {
 		);
 	});
 
+	test("Cancel while splitting hands the text back to the input", async ({
+		outlinePage,
+		page,
+		splitApi,
+	}) => {
+		await splitApi.hang();
+
+		await outlinePage.captureInput.fill("Call the landlord and pay the rent");
+		await outlinePage.captureInput.press("ControlOrMeta+Shift+Enter");
+
+		await expect(page.getByText("Splitting…")).toBeVisible();
+		await page.getByTestId("split-cancel").click();
+
+		await expect(page.getByText("Splitting…")).toBeHidden();
+		await expect(outlinePage.rows).toHaveCount(0);
+		await expect(outlinePage.captureInput).toHaveText(
+			"Call the landlord and pay the rent",
+		);
+		await expect(outlinePage.captureInput).toBeFocused();
+	});
+
 	test("accepting splits the line into a titled parent and its tasks", async ({
 		outlinePage,
 		page,

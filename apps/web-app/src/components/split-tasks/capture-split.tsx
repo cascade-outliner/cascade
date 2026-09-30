@@ -181,10 +181,19 @@ export function CaptureSplit({
 						</Button>
 					</>
 				) : (
-					<span {...stylex.props(styles.loading)}>
-						<SparkleIcon size={13} {...stylex.props(!error && styles.pulse)} />
-						{error ?? "Splitting…"}
-					</span>
+					<>
+						<span {...stylex.props(styles.loading)}>
+							<SparkleIcon
+								size={13}
+								{...stylex.props(!error && styles.pulse)}
+							/>
+							{error ?? "Splitting…"}
+						</span>
+						<Button size="small" onClick={onCancel} data-testid="split-cancel">
+							<XIcon size={11} weight="bold" aria-hidden />
+							Cancel
+						</Button>
+					</>
 				)}
 			</div>
 		</section>

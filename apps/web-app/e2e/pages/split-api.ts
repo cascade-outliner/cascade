@@ -61,4 +61,9 @@ export class SplitApi {
 			}),
 		);
 	}
+
+	/** The next split call never answers, so the preview stays on "Splitting…". */
+	async hang() {
+		await this.page.route(serverFnUrl("splitIntoTasks"), () => {});
+	}
 }
