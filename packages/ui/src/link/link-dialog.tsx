@@ -1,12 +1,9 @@
-import { Popover } from "@base-ui/react/popover";
 import {
-	borderWidth,
 	colors,
 	fontSize,
 	radius,
 	shadow,
 	space,
-	zIndex,
 } from "@cascade/theme/tokens.stylex";
 import { $createLinkNode, $isLinkNode, $toggleLink } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -23,24 +20,13 @@ import {
 } from "lexical";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "../button/button.tsx";
+import { Popover } from "../popover/popover.tsx";
 import { LINK_ATTRIBUTES, normalizeUrl } from "./url.ts";
 
 export const OPEN_LINK_DIALOG_COMMAND = createCommand<void>("OPEN_LINK_DIALOG");
 
 const styles = stylex.create({
-	positioner: { zIndex: zIndex.overlay },
-	popup: {
-		width: 300,
-		maxWidth: "calc(100vw - 32px)",
-		padding: space["3"],
-		borderRadius: radius.lg,
-		borderWidth: borderWidth.thin,
-		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		boxShadow: shadow.popup,
-		outline: "none",
-	},
+	popup: { width: 300, maxWidth: "calc(100vw - 32px)" },
 	footer: {
 		display: "flex",
 		justifyContent: "flex-end",
@@ -161,71 +147,57 @@ export function LinkDialogPlugin() {
 
 	return (
 		<Popover.Root open={open} onOpenChange={setOpen}>
-			<Popover.Portal>
-				<Popover.Positioner
-					anchor={anchor}
-					side="bottom"
-					align="start"
-					sideOffset={8}
-					{...stylex.props(styles.positioner)}
-				>
-					<Popover.Popup
-						aria-label="Add link"
-						initialFocus={urlInput}
-						{...stylex.props(styles.popup)}
-					>
-						<form onSubmit={submit} {...stylex.props(styles.form)}>
-							<input
-								ref={urlInput}
-								data-testid="link-dialog-url"
-								aria-label="URL"
-								value={url}
-								placeholder="Paste or type a link"
-								onChange={(event) => {
-									setUrl(event.target.value);
-									setInvalid(false);
-								}}
-								{...stylex.props(styles.input)}
-							/>
-							{!hasRange && (
-								<input
-									data-testid="link-dialog-text"
-									aria-label="Text"
-									value={text}
-									placeholder="Text (optional)"
-									onChange={(event) => setText(event.target.value)}
-									{...stylex.props(styles.input)}
-								/>
-							)}
-							{invalid && (
-								<p
-									data-testid="link-dialog-error"
-									{...stylex.props(styles.error)}
-								>
-									Enter a valid http, https or mailto link
-								</p>
-							)}
-							<div {...stylex.props(styles.footer)}>
-								<Popover.Close
-									render={
-										<Button size="small" data-testid="link-dialog-cancel" />
-									}
-								>
-									Cancel
-								</Popover.Close>
-								<Button
-									size="small"
-									variant="primary"
-									type="submit"
-									data-testid="link-dialog-submit"
-								>
-									Save
-								</Button>
-							</div>
-						</form>
-					</Popover.Popup>
-				</Popover.Positioner>
-			</Popover.Portal>
+			<Popover.Popup
+				anchor={anchor}
+				label="Add link"
+				initialFocus={urlInput}
+				style={styles.popup}
+			>
+				<form onSubmit={submit} {...stylex.props(styles.form)}>
+					<input
+						ref={urlInput}
+						data-testid="link-dialog-url"
+						aria-label="URL"
+						value={url}
+						placeholder="Paste or type a link"
+						onChange={(event) => {
+							setUrl(event.target.value);
+							setInvalid(false);
+						}}
+						{...stylex.props(styles.input)}
+					/>
+					{!hasRange && (
+						<input
+							data-testid="link-dialog-text"
+							aria-label="Text"
+							value={text}
+							placeholder="Text (optional)"
+							onChange={(event) => setText(event.target.value)}
+							{...stylex.props(styles.input)}
+						/>
+					)}
+					{invalid && (
+						<p data-testid="link-dialog-error" {...stylex.props(styles.error)}>
+							Enter a valid http, https or mailto link
+						</p>
+					)}
+					<div {...stylex.props(styles.footer)}>
+						<Popover.Close
+							render={<Button size="small" data-testid="link-dialog-cancel" />}
+						>
+							Cancel
+						</Popover.Close>
+						<Button
+							size="small"
+							variant="primary"
+							type="submit"
+							data-testid="link-dialog-submit"
+						>
+							Save
+						</Button>
+					</div>
+				</form>
+			</Popover.Popup>
 		</Popover.Root>
 	);
 }

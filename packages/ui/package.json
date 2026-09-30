@@ -11,6 +11,7 @@
 		"./context-menu": "./src/context-menu/context-menu.tsx",
 		"./dropdown-menu": "./src/dropdown-menu/dropdown-menu.tsx",
 		"./calendar": "./src/calendar/calendar.tsx",
+		"./popover": "./src/popover/popover.tsx",
 		"./dialog": "./src/dialog/dialog.tsx",
 		"./sheet": "./src/sheet/sheet.tsx",
 		"./command-palette": "./src/command-palette/command-palette.tsx",
