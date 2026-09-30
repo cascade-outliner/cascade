@@ -33,18 +33,14 @@ import {
 } from "lexical";
 import type { ReactNode, Ref } from "react";
 import {
-	Fragment,
 	useEffect,
 	useImperativeHandle,
 	useReducer,
 	useRef,
 	useState,
 } from "react";
-import { DropdownMenu } from "../dropdown-menu/dropdown-menu.tsx";
-import {
-	groupSlashMenuItems,
-	type SlashMenuItem,
-} from "../slash-menu/filter.ts";
+import type { SlashMenuItem } from "../slash-menu/filter.ts";
+import { SlashMenu } from "../slash-menu/slash-menu.tsx";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
@@ -94,6 +90,19 @@ const styles = stylex.create({
 		borderBottomWidth: borderWidth.thin,
 		borderBottomStyle: "solid",
 		borderBottomColor: colors.border,
+	},
+	plusWrap: {
+		position: "relative",
+		display: "flex",
+		alignSelf: "flex-end",
+		flexShrink: 0,
+	},
+	menuAnchor: {
+		position: "absolute",
+		top: "100%",
+		left: 0,
+		width: 32,
+		height: 32,
 	},
 	plus: {
 		display: "flex",
@@ -455,8 +464,10 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	/** Slash commands picked so far; they apply when the text is submitted. */
 	const [picked, setPicked] = useState<T[]>([]);
 	const editorRef = useRef<EditorHandle>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
+	const [menuOpen, setMenuOpen] = useState(false);
+	const [highlighted, setHighlighted] = useState<number | null>(null);
 	const hasText = text.trim() !== "";
-	const groups = groupSlashMenuItems(slashItems);
 	useImperativeHandle(ref, () => ({
 		focus: () => editorRef.current?.focus(),
 		setText: (text) => editorRef.current?.setText(text),
@@ -475,6 +486,15 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		}, 250);
 		return () => clearTimeout(timer);
 	}, [open]);
+
+	useEffect(() => {
+		if (!menuOpen) return;
+		const close = (event: PointerEvent) => {
+			if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+		};
+		document.addEventListener("pointerdown", close);
+		return () => document.removeEventListener("pointerdown", close);
+	}, [menuOpen]);
 
 	function submit() {
 		const trimmed = text.trim();
@@ -505,7 +525,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 
 	/** Escape: the chips go first, then focus. Typed text is never thrown away. */
 	function dismiss() {
-		if (picked.length > 0) setPicked([]);
+		if (menuOpen) setMenuOpen(false);
+		else if (picked.length > 0) setPicked([]);
 		else (document.activeElement as HTMLElement | null)?.blur();
 	}
 
@@ -521,35 +542,41 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 			</div>
 			<div {...stylex.props(styles.row)}>
 				{slashItems.length > 0 && (
-					<DropdownMenu.Root>
-						<DropdownMenu.Trigger
+					// biome-ignore lint/a11y/noStaticElementInteractions: only closes the menu on Escape while focus is on its button.
+					<div
+						ref={menuRef}
+						{...stylex.props(styles.plusWrap)}
+						onKeyDown={(event) => {
+							if (event.key === "Escape") setMenuOpen(false);
+						}}
+					>
+						<button
+							type="button"
 							aria-label="Insert command"
+							aria-expanded={menuOpen}
+							onPointerDown={(event) => event.preventDefault()}
+							onClick={() => setMenuOpen((open) => !open)}
 							data-testid="capture-bar-plus"
-							render={<button type="button" />}
 							{...stylex.props(styles.plus)}
 						>
 							<PlusIcon size={16} weight="bold" aria-hidden />
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Popup align="start">
-							{groups.map((group) => (
-								<Fragment key={group.label}>
-									<DropdownMenu.Label>{group.label}</DropdownMenu.Label>
-									{group.items.map((item) => (
-										<DropdownMenu.Item
-											key={item.id}
-											icon={item.icon}
-											onClick={() => {
-												pick(item);
-												setTimeout(() => editorRef.current?.focus());
-											}}
-										>
-											{item.label}
-										</DropdownMenu.Item>
-									))}
-								</Fragment>
-							))}
-						</DropdownMenu.Popup>
-					</DropdownMenu.Root>
+						</button>
+						{menuOpen && (
+							<span {...stylex.props(styles.menuAnchor)}>
+								<SlashMenu
+									items={slashItems}
+									highlightedIndex={highlighted}
+									onHighlight={setHighlighted}
+									hints={false}
+									onSelect={(item) => {
+										pick(item);
+										setMenuOpen(false);
+										editorRef.current?.focus();
+									}}
+								/>
+							</span>
+						)}
+					</div>
 				)}
 				{picked.length > 0 && (
 					<div {...stylex.props(styles.chips)}>
