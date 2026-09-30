@@ -1,9 +1,12 @@
+import { Popover } from "@base-ui/react/popover";
 import {
+	borderWidth,
 	colors,
 	fontSize,
 	radius,
 	shadow,
 	space,
+	zIndex,
 } from "@cascade/theme/tokens.stylex";
 import { $createLinkNode, $isLinkNode, $toggleLink } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -20,12 +23,29 @@ import {
 } from "lexical";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "../button/button.tsx";
-import { Dialog } from "../dialog/dialog.tsx";
 import { LINK_ATTRIBUTES, normalizeUrl } from "./url.ts";
 
 export const OPEN_LINK_DIALOG_COMMAND = createCommand<void>("OPEN_LINK_DIALOG");
 
 const styles = stylex.create({
+	positioner: { zIndex: zIndex.overlay },
+	popup: {
+		width: 300,
+		maxWidth: "calc(100vw - 32px)",
+		padding: space["3"],
+		borderRadius: radius.lg,
+		borderWidth: borderWidth.thin,
+		borderStyle: "solid",
+		borderColor: colors.border,
+		backgroundColor: colors.white,
+		boxShadow: shadow.popup,
+		outline: "none",
+	},
+	footer: {
+		display: "flex",
+		justifyContent: "flex-end",
+		gap: space["2"],
+	},
 	form: {
 		display: "flex",
 		flexDirection: "column",
@@ -59,6 +79,20 @@ const styles = stylex.create({
 	},
 });
 
+interface VirtualElement {
+	getBoundingClientRect: () => DOMRect;
+}
+
+function caretRect(root: HTMLElement | null): DOMRect {
+	const selection = window.getSelection();
+	if (selection && selection.rangeCount > 0) {
+		const range = selection.getRangeAt(0);
+		const rect = range.getClientRects()[0] ?? range.getBoundingClientRect();
+		if (rect.height > 0 && root?.contains(range.startContainer)) return rect;
+	}
+	return (root ?? document.body).getBoundingClientRect();
+}
+
 export function LinkDialogPlugin() {
 	const [editor] = useLexicalComposerContext();
 	const [open, setOpen] = useState(false);
@@ -66,6 +100,8 @@ export function LinkDialogPlugin() {
 	const [text, setText] = useState("");
 	const [hasRange, setHasRange] = useState(false);
 	const [invalid, setInvalid] = useState(false);
+	const [anchor, setAnchor] = useState<VirtualElement | null>(null);
+	const urlInput = useRef<HTMLInputElement>(null);
 	const saved = useRef<BaseSelection | null>(null);
 
 	useEffect(
@@ -89,6 +125,8 @@ export function LinkDialogPlugin() {
 					setText("");
 					setHasRange(range);
 					setInvalid(false);
+					const caret = caretRect(editor.getRootElement());
+					setAnchor({ getBoundingClientRect: () => caret });
 					setOpen(true);
 					return true;
 				},
@@ -122,63 +160,72 @@ export function LinkDialogPlugin() {
 	};
 
 	return (
-		<Dialog.Root open={open} onOpenChange={setOpen}>
-			<Dialog.Popup
-				title="Add link"
-				footer={
-					<>
-						<Dialog.Close render={<Button data-testid="link-dialog-cancel" />}>
-							Cancel
-						</Dialog.Close>
-						<Button
-							variant="primary"
-							type="submit"
-							form="link-dialog-form"
-							data-testid="link-dialog-submit"
-						>
-							Save
-						</Button>
-					</>
-				}
-			>
-				<form
-					id="link-dialog-form"
-					onSubmit={submit}
-					{...stylex.props(styles.form)}
+		<Popover.Root open={open} onOpenChange={setOpen}>
+			<Popover.Portal>
+				<Popover.Positioner
+					anchor={anchor}
+					side="bottom"
+					align="start"
+					sideOffset={8}
+					{...stylex.props(styles.positioner)}
 				>
-					<label {...stylex.props(styles.field)}>
-						URL
-						<input
-							data-testid="link-dialog-url"
-							ref={(element) => element?.focus()}
-							value={url}
-							placeholder="https://example.com"
-							onChange={(event) => {
-								setUrl(event.target.value);
-								setInvalid(false);
-							}}
-							{...stylex.props(styles.input)}
-						/>
-					</label>
-					{!hasRange && (
-						<label {...stylex.props(styles.field)}>
-							Text
+					<Popover.Popup
+						aria-label="Add link"
+						initialFocus={urlInput}
+						{...stylex.props(styles.popup)}
+					>
+						<form onSubmit={submit} {...stylex.props(styles.form)}>
 							<input
-								data-testid="link-dialog-text"
-								value={text}
-								placeholder="Optional"
-								onChange={(event) => setText(event.target.value)}
+								ref={urlInput}
+								data-testid="link-dialog-url"
+								aria-label="URL"
+								value={url}
+								placeholder="Paste or type a link"
+								onChange={(event) => {
+									setUrl(event.target.value);
+									setInvalid(false);
+								}}
 								{...stylex.props(styles.input)}
 							/>
-						</label>
-					)}
-					{invalid && (
-						<p data-testid="link-dialog-error" {...stylex.props(styles.error)}>
-							Enter a valid http, https or mailto link
-						</p>
-					)}
-				</form>
-			</Dialog.Popup>
-		</Dialog.Root>
+							{!hasRange && (
+								<input
+									data-testid="link-dialog-text"
+									aria-label="Text"
+									value={text}
+									placeholder="Text (optional)"
+									onChange={(event) => setText(event.target.value)}
+									{...stylex.props(styles.input)}
+								/>
+							)}
+							{invalid && (
+								<p
+									data-testid="link-dialog-error"
+									{...stylex.props(styles.error)}
+								>
+									Enter a valid http, https or mailto link
+								</p>
+							)}
+							<div {...stylex.props(styles.footer)}>
+								<Popover.Close
+									render={
+										<Button size="small" data-testid="link-dialog-cancel" />
+									}
+								>
+									Cancel
+								</Popover.Close>
+								<Button
+									size="small"
+									variant="primary"
+									type="submit"
+									data-testid="link-dialog-submit"
+								>
+									Save
+								</Button>
+							</div>
+						</form>
+					</Popover.Popup>
+				</Popover.Positioner>
+			</Popover.Portal>
+		</Popover.Root>
 	);
 }
