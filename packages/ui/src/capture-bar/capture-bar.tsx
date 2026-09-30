@@ -291,13 +291,13 @@ const styles = stylex.create({
 		alignSelf: { default: "auto", [NARROW]: "flex-end" },
 		flexShrink: 0,
 		gap: space["1"],
-		marginBlock: { default: -2, [NARROW]: -4 },
-		width: { default: "auto", [NARROW]: 40 },
-		height: { default: "auto", [NARROW]: 40 },
+		marginBlock: { default: -2, [NARROW]: 0 },
+		width: { default: "auto", [NARROW]: 32 },
+		height: { default: "auto", [NARROW]: 32 },
 		paddingBlock: { default: "5px", [NARROW]: 0 },
 		paddingInline: { default: space["3"], [NARROW]: 0 },
 		border: "none",
-		borderRadius: { default: radius.md, [NARROW]: "50%" },
+		borderRadius: radius.md,
 		backgroundColor: {
 			default: colors.primary,
 			[NARROW]: { default: colors.primary, ":disabled": colors.primaryMuted },
@@ -684,7 +684,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					data-testid="capture-bar-submit"
 					{...stylex.props(styles.add)}
 				>
-					<ArrowUpIcon size={18} weight="bold" aria-hidden />
+					<ArrowUpIcon size={16} weight="bold" aria-hidden />
 					<span {...stylex.props(styles.addLabel)}>Add</span>
 				</button>
 			</div>
