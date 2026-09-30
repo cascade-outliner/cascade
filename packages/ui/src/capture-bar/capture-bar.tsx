@@ -3,6 +3,7 @@ import {
 	colors,
 	duration,
 	fontSize,
+	opacity,
 	radius,
 	shadow,
 	space,
@@ -34,11 +35,12 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+const NARROW = "@media (max-width: 640px)";
+const TOUCH = "@media (hover: none)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
 
@@ -95,8 +97,11 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "flex-start",
 		gap: space["2.5"],
-		paddingBlock: space["2.5"],
-		paddingInline: `${space["3"]} ${space["2.5"]}`,
+		paddingBlock: { default: space["2.5"], [NARROW]: space["3"] },
+		paddingInline: {
+			default: `${space["3"]} ${space["2.5"]}`,
+			[NARROW]: `${space["4"]} ${space["3"]}`,
+		},
 		cursor: "text",
 	},
 	ghost: {
@@ -139,9 +144,10 @@ const styles = stylex.create({
 		alignItems: "center",
 		gap: space["1.5"],
 		flexShrink: 0,
-		height: LINE,
+		height: { default: LINE, [NARROW]: 32 },
+		marginTop: { default: 0, [NARROW]: -4 },
 		paddingBlock: 0,
-		paddingInline: space["2"],
+		paddingInline: { default: space["2"], [NARROW]: space["3"] },
 		border: "none",
 		borderRadius: radius.md,
 		backgroundColor: colors.primaryMuted,
@@ -165,6 +171,7 @@ const styles = stylex.create({
 		},
 	},
 	shortcut: {
+		display: { default: "inline", [NARROW]: "none", [TOUCH]: "none" },
 		fontFamily: "monospace",
 		fontSize: fontSize["200"],
 	},
@@ -241,11 +248,34 @@ const styles = stylex.create({
 		lineHeight: `${LINE}px`,
 		whiteSpace: "nowrap",
 	},
-	// The Add button is a little taller than a line; this centres it on the first.
+	// The Add button is taller than a line; the negative margins centre it on the first
+	// without growing the row.
 	add: {
 		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
 		flexShrink: 0,
-		marginTop: -2,
+		gap: space["1"],
+		marginBlock: { default: -2, [NARROW]: -8 },
+		width: { default: "auto", [NARROW]: 40 },
+		height: { default: "auto", [NARROW]: 40 },
+		paddingBlock: { default: "5px", [NARROW]: 0 },
+		paddingInline: { default: space["3"], [NARROW]: 0 },
+		border: "none",
+		borderRadius: { default: radius.md, [NARROW]: "50%" },
+		backgroundColor: colors.primary,
+		color: colors.onPrimary,
+		font: "inherit",
+		fontSize: fontSize["300"],
+		fontWeight: 500,
+		whiteSpace: "nowrap",
+		outline: "none",
+		cursor: { default: "pointer", ":disabled": "not-allowed" },
+		opacity: { default: 1, ":disabled": opacity.disabled },
+		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
+	},
+	addLabel: {
+		display: { default: "inline", [NARROW]: "none" },
 	},
 });
 
@@ -558,17 +588,17 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						</span>
 					</button>
 				)}
-				<span {...stylex.props(styles.add)}>
-					<Button
-						variant="primary"
-						disabled={!hasText}
-						onClick={submit}
-						data-testid="capture-bar-submit"
-					>
-						<PlusIcon size={14} weight="bold" aria-hidden />
-						Add
-					</Button>
-				</span>
+				<button
+					type="button"
+					aria-label="Add"
+					disabled={!hasText}
+					onClick={submit}
+					data-testid="capture-bar-submit"
+					{...stylex.props(styles.add)}
+				>
+					<PlusIcon size={16} weight="bold" aria-hidden />
+					<span {...stylex.props(styles.addLabel)}>Add</span>
+				</button>
 			</div>
 		</div>
 	);
