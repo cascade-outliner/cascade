@@ -309,7 +309,6 @@ function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 		const offEscape = editor.registerCommand(
 			KEY_ESCAPE_COMMAND,
 			(event) => {
-				// Claim the key so window-level Escape handlers (outline selection) skip it.
 				event?.preventDefault();
 				onEscape();
 				return true;
