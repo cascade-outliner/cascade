@@ -1,5 +1,7 @@
 import { plainText } from "@cascade/data";
+import { OPEN_LINK_DIALOG_COMMAND } from "@cascade/ui/link";
 import {
+	LinkIcon,
 	LinkSimpleIcon,
 	MagnifyingGlassPlusIcon,
 	SparkleIcon,
@@ -30,6 +32,16 @@ export const nodeCommands: SlashCommand[] = [
 		run: ({ split, node }) => {
 			if (plainText(node.content).trim()) split?.(node.id);
 		},
+	},
+	{
+		id: "add-link",
+		group: GROUP,
+		label: "Link",
+		keywords: ["url", "web", "hyperlink"],
+		icon: <LinkIcon size={15} />,
+		available: ({ editor }) => !!editor,
+		run: ({ editor }) =>
+			editor?.dispatchCommand(OPEN_LINK_DIALOG_COMMAND, undefined),
 	},
 	{
 		id: "copy-link",
