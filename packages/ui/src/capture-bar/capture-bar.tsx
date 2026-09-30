@@ -25,8 +25,6 @@ import {
 	$createParagraphNode,
 	$createTextNode,
 	$getRoot,
-	$getSelection,
-	$isRangeSelection,
 	COMMAND_PRIORITY_LOW,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
@@ -35,13 +33,18 @@ import {
 } from "lexical";
 import type { ReactNode, Ref } from "react";
 import {
+	Fragment,
 	useEffect,
 	useImperativeHandle,
 	useReducer,
 	useRef,
 	useState,
 } from "react";
-import type { SlashMenuItem } from "../slash-menu/filter.ts";
+import { DropdownMenu } from "../dropdown-menu/dropdown-menu.tsx";
+import {
+	groupSlashMenuItems,
+	type SlashMenuItem,
+} from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
@@ -351,7 +354,6 @@ interface EditorHandle {
 	/** Empties the editor; `keepFocus: false` stops Lexical pulling focus back into it. */
 	clear: (keepFocus?: boolean) => void;
 	setText: (text: string) => void;
-	openSlash: () => void;
 }
 
 interface EditorProps<T extends SlashMenuItem> {
@@ -383,15 +385,6 @@ function Editor<T extends SlashMenuItem>({
 		ref,
 		() => ({
 			focus: () => editor.focus(),
-			openSlash: () =>
-				editor.focus(() =>
-					editor.update(() => {
-						const selection = $getSelection();
-						if (!$isRangeSelection(selection)) return;
-						const text = $getRoot().getTextContent();
-						selection.insertText(/\S$/.test(text) ? " /" : "/");
-					}),
-				),
 			clear: (keepFocus = true) =>
 				editor.update(() => $getRoot().clear(), {
 					tag: keepFocus ? undefined : SKIP_DOM_SELECTION_TAG,
@@ -463,6 +456,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	const [picked, setPicked] = useState<T[]>([]);
 	const editorRef = useRef<EditorHandle>(null);
 	const hasText = text.trim() !== "";
+	const groups = groupSlashMenuItems(slashItems);
 	useImperativeHandle(ref, () => ({
 		focus: () => editorRef.current?.focus(),
 		setText: (text) => editorRef.current?.setText(text),
@@ -527,16 +521,35 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 			</div>
 			<div {...stylex.props(styles.row)}>
 				{slashItems.length > 0 && (
-					<button
-						type="button"
-						aria-label="Insert command"
-						onPointerDown={(event) => event.preventDefault()}
-						onClick={() => editorRef.current?.openSlash()}
-						data-testid="capture-bar-plus"
-						{...stylex.props(styles.plus)}
-					>
-						<PlusIcon size={16} weight="bold" aria-hidden />
-					</button>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger
+							aria-label="Insert command"
+							data-testid="capture-bar-plus"
+							render={<button type="button" />}
+							{...stylex.props(styles.plus)}
+						>
+							<PlusIcon size={16} weight="bold" aria-hidden />
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Popup align="start">
+							{groups.map((group) => (
+								<Fragment key={group.label}>
+									<DropdownMenu.Label>{group.label}</DropdownMenu.Label>
+									{group.items.map((item) => (
+										<DropdownMenu.Item
+											key={item.id}
+											icon={item.icon}
+											onClick={() => {
+												pick(item);
+												setTimeout(() => editorRef.current?.focus());
+											}}
+										>
+											{item.label}
+										</DropdownMenu.Item>
+									))}
+								</Fragment>
+							))}
+						</DropdownMenu.Popup>
+					</DropdownMenu.Root>
 				)}
 				{picked.length > 0 && (
 					<div {...stylex.props(styles.chips)}>

@@ -44,12 +44,18 @@ const styles = stylex.create({
 	},
 });
 
-function Popup({ children }: { children: React.ReactNode }) {
+function Popup({
+	children,
+	align = "end",
+}: {
+	children: React.ReactNode;
+	align?: "start" | "end";
+}) {
 	return (
 		<Base.Portal>
 			<Base.Positioner
 				{...stylex.props(styles.positioner)}
-				align="end"
+				align={align}
 				sideOffset={4}
 			>
 				<Base.Popup {...stylex.props(styles.popup)}>{children}</Base.Popup>
