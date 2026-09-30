@@ -52,7 +52,6 @@ const LINE = 24;
 
 const styles = stylex.create({
 	bar: {
-		position: "relative",
 		display: "flex",
 		flexDirection: "column",
 		marginTop: {
@@ -115,19 +114,22 @@ const styles = stylex.create({
 	row: {
 		display: "flex",
 		alignItems: "flex-start",
+		flexWrap: { default: "nowrap", [NARROW]: "wrap" },
 		gap: space["2.5"],
 		paddingBlock: space["3"],
 		paddingInline: `${space["4"]} ${space["3"]}`,
 		cursor: "text",
 	},
 	chips: {
-		position: "absolute",
-		bottom: `calc(100% + ${space["2"]})`,
-		left: space["1"],
-		right: space["1"],
 		display: "flex",
+		alignSelf: "center",
 		flexWrap: "wrap",
-		gap: space["2"],
+		gap: space["1.5"],
+		maxWidth: { default: "55%", [NARROW]: "none" },
+		flexBasis: { default: "auto", [NARROW]: "100%" },
+		order: { default: 0, [NARROW]: -1 },
+		paddingBottom: { default: 0, [NARROW]: space["1"] },
+		flexShrink: 0,
 	},
 	split: {
 		display: "flex",
@@ -216,6 +218,7 @@ const styles = stylex.create({
 		position: "relative",
 		alignSelf: "center",
 		flexGrow: 1,
+		flexBasis: 0,
 		minWidth: 0,
 		maxHeight: "40vh",
 		overflowY: "auto",
@@ -528,32 +531,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					{panel ?? lastPanel.current}
 				</div>
 			</div>
-			{picked.length > 0 && (
-				<div {...stylex.props(styles.chips)}>
-					{picked.map((item) => (
-						<span
-							key={item.id}
-							{...stylex.props(styles.chip)}
-							data-testid="capture-bar-chip"
-						>
-							{item.icon && (
-								<span {...stylex.props(styles.chipIcon)} aria-hidden>
-									{item.icon}
-								</span>
-							)}
-							{item.label}
-							<button
-								type="button"
-								aria-label={`Remove ${item.label}`}
-								onClick={() => unpick(item)}
-								{...stylex.props(styles.chipRemove)}
-							>
-								<XIcon size={11} weight="bold" aria-hidden />
-							</button>
-						</span>
-					))}
-				</div>
-			)}
 			<div {...stylex.props(styles.row)}>
 				{slashItems.length > 0 && (
 					<button
@@ -566,6 +543,32 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					>
 						<PlusIcon size={16} weight="bold" aria-hidden />
 					</button>
+				)}
+				{picked.length > 0 && (
+					<div {...stylex.props(styles.chips)}>
+						{picked.map((item) => (
+							<span
+								key={item.id}
+								{...stylex.props(styles.chip)}
+								data-testid="capture-bar-chip"
+							>
+								{item.icon && (
+									<span {...stylex.props(styles.chipIcon)} aria-hidden>
+										{item.icon}
+									</span>
+								)}
+								{item.label}
+								<button
+									type="button"
+									aria-label={`Remove ${item.label}`}
+									onClick={() => unpick(item)}
+									{...stylex.props(styles.chipRemove)}
+								>
+									<XIcon size={11} weight="bold" aria-hidden />
+								</button>
+							</span>
+						))}
+					</div>
 				)}
 				<LexicalComposer
 					initialConfig={{
