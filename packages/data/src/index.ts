@@ -24,8 +24,6 @@ export type {
 	Node,
 	Row,
 	Summary,
-	SummaryMode,
-	SummaryStatus,
 } from "./outline/types.ts";
 export { IdbPersistence, openCascadeDb } from "./persistence/idb.ts";
 export { MemoryPersistence } from "./persistence/memory.ts";

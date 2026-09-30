@@ -5,7 +5,6 @@ export interface SummarySentenceStub {
 	text: string;
 	/** Numbers of the zoomed node's children the sentence came from, from 1. */
 	sources?: number[];
-	status?: "done" | "progress" | "blocked" | null;
 }
 
 /** The summary under a zoomed-in node's title (5b), and its stubbed AI round-trip. */
@@ -28,7 +27,6 @@ export class Summary {
 				fulfillResult(route, {
 					sentences: sentences.map((sentence) => ({
 						sources: [],
-						status: null,
 						...sentence,
 					})),
 				}),

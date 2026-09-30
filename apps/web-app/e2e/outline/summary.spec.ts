@@ -90,6 +90,19 @@ test.describe("AI on", () => {
 		await expect(summary.card).toHaveAttribute("data-state", "pinned");
 	});
 
+	test("offers no length options", async ({
+		contextMenu,
+		outlinePage,
+		summary,
+	}) => {
+		await zoomIntoLaunch(outlinePage, contextMenu);
+		await summary.trigger.click();
+		await expect(summary.card).toHaveAttribute("data-state", "ready");
+
+		await expect(summary.action("One line")).toHaveCount(0);
+		await expect(summary.action("Status")).toHaveCount(0);
+	});
+
 	test("discarding a draft leaves nothing pinned", async ({
 		contextMenu,
 		outlinePage,
@@ -116,24 +129,5 @@ test.describe("AI on", () => {
 		await summary.source("Launch checklist").click();
 
 		await expect(outlinePage.title).toHaveText("Launch checklist");
-	});
-
-	test("status mode groups items by where they stand", async ({
-		contextMenu,
-		outlinePage,
-		summary,
-	}) => {
-		await summary.respond([
-			{ text: "Pricing copy", sources: [1], status: "done" },
-			{ text: "Press list", sources: [2], status: "blocked" },
-		]);
-		await zoomIntoLaunch(outlinePage, contextMenu);
-		await summary.trigger.click();
-
-		await summary.action("Status").click();
-
-		await expect(summary.text).toContainText("Done");
-		await expect(summary.text).toContainText("Blocked");
-		await expect(summary.text).not.toContainText("In progress");
 	});
 });

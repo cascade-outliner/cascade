@@ -38,18 +38,12 @@ export interface Row {
 	childCount: number;
 }
 
-/** How long a summary is: one sentence, a short paragraph, or items by status. */
-export type SummaryMode = "line" | "short" | "status";
-
-export type SummaryStatus = "done" | "progress" | "blocked";
-
 /**
  * An AI summary of a branch. Each sentence cites the child branches it came
  * from, as 1-based indexes into `sources`.
  */
 export interface Summary {
-	mode: SummaryMode;
-	sentences: { text: string; status?: SummaryStatus; sources: number[] }[];
+	sentences: { text: string; sources: number[] }[];
 	/** Ids of the cited children, in the order they're first cited. */
 	sources: string[];
 	/** Fingerprint of the branch when summarized; the summary is stale once it changes. */

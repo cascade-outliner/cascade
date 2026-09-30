@@ -4,7 +4,6 @@ import {
 	plainText,
 	relativeDay,
 	type Summary,
-	type SummaryMode,
 } from "@cascade/data";
 import type { SummaryResult } from "#/server/summarize.ts";
 
@@ -72,11 +71,7 @@ export function readBranch(store: OutlineStore, root: Node): Branch {
 }
 
 /** Renumbers the model's branch numbers into footnotes, in the order they're first cited. */
-export function toSummary(
-	result: SummaryResult,
-	branch: Branch,
-	mode: SummaryMode,
-): Summary {
+export function toSummary(result: SummaryResult, branch: Branch): Summary {
 	const sources: string[] = [];
 	const footnote = (n: number) => {
 		const id = branch.children[n - 1];
@@ -85,10 +80,8 @@ export function toSummary(
 		return [sources.indexOf(id) + 1];
 	};
 	return {
-		mode,
-		sentences: result.sentences.map(({ text, status, sources: cited }) => ({
+		sentences: result.sentences.map(({ text, sources: cited }) => ({
 			text,
-			...(status ? { status } : {}),
 			sources: cited.flatMap(footnote),
 		})),
 		sources,

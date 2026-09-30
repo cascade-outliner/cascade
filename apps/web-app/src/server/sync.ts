@@ -81,12 +81,10 @@ const nodeSchema = z.object({
 		.optional(),
 	summary: z
 		.object({
-			mode: z.enum(["line", "short", "status"]),
 			sentences: z
 				.array(
 					z.object({
 						text: z.string().max(2_000),
-						status: z.enum(["done", "progress", "blocked"]).optional(),
 						sources: z.array(z.number().int().positive()).max(50),
 					}),
 				)

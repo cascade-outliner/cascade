@@ -1,10 +1,4 @@
-import {
-	isoDay,
-	type Node,
-	type Summary,
-	type SummaryMode,
-	type SummaryStatus,
-} from "@cascade/data";
+import { isoDay, type Node, type Summary } from "@cascade/data";
 import {
 	borderWidth,
 	colors,
@@ -27,18 +21,6 @@ import { summarizeBranch } from "#/server/summarize.ts";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 const dashed = `color-mix(in srgb, ${colors.primary} 35%, transparent)`;
-
-const MODES: { mode: SummaryMode; label: string }[] = [
-	{ mode: "line", label: "One line" },
-	{ mode: "short", label: "Short" },
-	{ mode: "status", label: "Status" },
-];
-
-const STATUSES: { status: SummaryStatus; label: string }[] = [
-	{ status: "done", label: "Done" },
-	{ status: "progress", label: "In progress" },
-	{ status: "blocked", label: "Blocked" },
-];
 
 const pulse = stylex.keyframes({
 	"0%, 100%": { opacity: 0.5 },
@@ -101,32 +83,6 @@ const styles = stylex.create({
 		backgroundColor: colors.inkSubtle,
 		color: colors.muted,
 	},
-	modes: {
-		display: "flex",
-		margin: 0,
-		minWidth: 0,
-		border: "none",
-		gap: space["0.5"],
-		padding: space["0.5"],
-		borderRadius: "7px",
-		backgroundColor: colors.inkSubtle,
-	},
-	mode: {
-		paddingBlock: "3px",
-		paddingInline: space["2"],
-		border: "none",
-		borderRadius: "5px",
-		backgroundColor: "transparent",
-		font: "inherit",
-		fontSize: fontSize["200"],
-		color: { default: colors.muted, ":hover": colors.ink },
-		cursor: "pointer",
-	},
-	modeOn: {
-		backgroundColor: colors.canvas,
-		boxShadow: "0 1px 2px rgba(0, 0, 0, 0.08)",
-		color: colors.ink,
-	},
 	prose: {
 		margin: 0,
 		fontSize: fontSize["300"],
@@ -152,21 +108,6 @@ const styles = stylex.create({
 		margin: 0,
 		fontSize: fontSize["300"],
 		color: colors.muted,
-	},
-	groups: {
-		display: "flex",
-		flexDirection: "column",
-		gap: space["2.5"],
-	},
-	groupLabel: {
-		fontSize: fontSize["200"],
-		fontWeight: 600,
-		color: colors.muted,
-	},
-	list: {
-		margin: 0,
-		marginTop: space["1"],
-		paddingLeft: space["4"],
 	},
 	cite: {
 		padding: 0,
@@ -232,9 +173,9 @@ const styles = stylex.create({
 });
 
 type Draft =
-	| { mode: SummaryMode; state: "loading" }
-	| { mode: SummaryMode; state: "ready"; summary: Summary }
-	| { mode: SummaryMode; state: "error" };
+	| { state: "loading" }
+	| { state: "ready"; summary: Summary }
+	| { state: "error" };
 
 function Cites({
 	sources,
@@ -265,47 +206,20 @@ function Body({
 	summary: Summary;
 	onZoomTo: (id: string) => void;
 }) {
-	if (summary.mode !== "status") {
-		return (
-			<p {...stylex.props(styles.prose)} data-testid="summary-text">
-				{summary.sentences.map((sentence, i) => (
-					<Fragment key={sentence.text}>
-						{i > 0 && " "}
-						{sentence.text}
-						<Cites
-							sources={sentence.sources}
-							summary={summary}
-							onZoomTo={onZoomTo}
-						/>
-					</Fragment>
-				))}
-			</p>
-		);
-	}
 	return (
-		<div {...stylex.props(styles.groups)} data-testid="summary-text">
-			{STATUSES.map(({ status, label }) => {
-				const items = summary.sentences.filter((s) => s.status === status);
-				if (items.length === 0) return null;
-				return (
-					<div key={status}>
-						<div {...stylex.props(styles.groupLabel)}>{label}</div>
-						<ul {...stylex.props(styles.list, styles.prose)}>
-							{items.map((item) => (
-								<li key={item.text}>
-									{item.text}
-									<Cites
-										sources={item.sources}
-										summary={summary}
-										onZoomTo={onZoomTo}
-									/>
-								</li>
-							))}
-						</ul>
-					</div>
-				);
-			})}
-		</div>
+		<p {...stylex.props(styles.prose)} data-testid="summary-text">
+			{summary.sentences.map((sentence, i) => (
+				<Fragment key={sentence.text}>
+					{i > 0 && " "}
+					{sentence.text}
+					<Cites
+						sources={sentence.sources}
+						summary={summary}
+						onZoomTo={onZoomTo}
+					/>
+				</Fragment>
+			))}
+		</p>
 	);
 }
 
@@ -335,34 +249,33 @@ export const SummaryCard = observer(function SummaryCard({
 	const branches = lines.filter((row) => row.depth === 0).length;
 	const pinned = node.summary;
 
-	function summarize(mode: SummaryMode, fresh = false) {
+	function summarize(fresh = false) {
 		const branch = readBranch(store, node);
-		const key = `${mode}:${branch.basis}`;
+		const key = branch.basis;
 		const cached = cache.current.get(key);
 		if (cached && !fresh) {
-			setDraft({ mode, state: "ready", summary: cached });
+			setDraft({ state: "ready", summary: cached });
 			return;
 		}
 		const id = ++request.current;
-		setDraft({ mode, state: "loading" });
+		setDraft({ state: "loading" });
 		summarizeBranch({
 			data: {
 				outline: branch.outline,
-				mode,
 				branches: branch.children.length,
 				today: isoDay(new Date()),
 			},
 		})
 			.then((result) => {
-				const summary = toSummary(result, branch, mode);
+				const summary = toSummary(result, branch);
 				cache.current.set(key, summary);
 				if (id === request.current) {
-					setDraft({ mode, state: "ready", summary });
+					setDraft({ state: "ready", summary });
 				}
 			})
 			.catch((error) => {
 				console.error("Summary: request failed", error);
-				if (id === request.current) setDraft({ mode, state: "error" });
+				if (id === request.current) setDraft({ state: "error" });
 			});
 	}
 
@@ -372,7 +285,7 @@ export const SummaryCard = observer(function SummaryCard({
 			<button
 				type="button"
 				data-testid="summarize"
-				onClick={() => summarize("short")}
+				onClick={() => summarize()}
 				{...stylex.props(styles.trigger)}
 			>
 				<SparkleIcon size={12} aria-hidden />
@@ -388,7 +301,6 @@ export const SummaryCard = observer(function SummaryCard({
 
 	const shown =
 		draft?.state === "ready" ? draft.summary : draft ? null : pinned;
-	const mode = draft?.mode ?? pinned?.mode ?? "short";
 	const stale =
 		!draft && !!pinned && pinned.basis !== branchBasis(store, node.id);
 
@@ -407,35 +319,13 @@ export const SummaryCard = observer(function SummaryCard({
 					{lines.length} {lines.length === 1 ? "line" : "lines"}
 					{stale && <span {...stylex.props(styles.stale)}>Out of date</span>}
 				</span>
-				{ai && (
-					<fieldset aria-label="Length" {...stylex.props(styles.modes)}>
-						{MODES.map((each) => (
-							<button
-								key={each.mode}
-								type="button"
-								aria-pressed={each.mode === mode}
-								onClick={() => each.mode !== mode && summarize(each.mode)}
-								{...stylex.props(
-									styles.mode,
-									each.mode === mode && styles.modeOn,
-								)}
-							>
-								{each.label}
-							</button>
-						))}
-					</fieldset>
-				)}
 			</div>
 
 			{draft?.state === "loading" && (
 				<div {...stylex.props(styles.loading)}>
 					<span {...stylex.props(styles.bar)} style={{ width: "92%" }} />
-					{mode !== "line" && (
-						<>
-							<span {...stylex.props(styles.bar)} style={{ width: "78%" }} />
-							<span {...stylex.props(styles.bar)} style={{ width: "54%" }} />
-						</>
-					)}
+					<span {...stylex.props(styles.bar)} style={{ width: "78%" }} />
+					<span {...stylex.props(styles.bar)} style={{ width: "54%" }} />
 				</div>
 			)}
 			{draft?.state === "error" && (
@@ -444,11 +334,7 @@ export const SummaryCard = observer(function SummaryCard({
 				</p>
 			)}
 			{shown && shown.sentences.length === 0 && (
-				<p {...stylex.props(styles.error)}>
-					{shown.mode === "status"
-						? "No tasks in this branch yet."
-						: "Nothing here to summarize yet."}
-				</p>
+				<p {...stylex.props(styles.error)}>Nothing here to summarize yet.</p>
 			)}
 			{shown && <Body summary={shown} onZoomTo={onZoomTo} />}
 			{shown && shown.sources.length > 0 && (
@@ -491,7 +377,7 @@ export const SummaryCard = observer(function SummaryCard({
 						{draft.state !== "loading" && (
 							<button
 								type="button"
-								onClick={() => summarize(draft.mode, true)}
+								onClick={() => summarize(true)}
 								{...stylex.props(styles.action)}
 							>
 								Redo
@@ -510,7 +396,7 @@ export const SummaryCard = observer(function SummaryCard({
 						{ai && (
 							<button
 								type="button"
-								onClick={() => summarize(mode, true)}
+								onClick={() => summarize(true)}
 								{...stylex.props(styles.action, stale && styles.actionPrimary)}
 							>
 								Refresh
