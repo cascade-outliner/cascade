@@ -178,7 +178,7 @@ const styles = stylex.create({
 		gap: space["1.5"],
 		flexShrink: 0,
 		height: { default: LINE, [NARROW]: 32 },
-		marginTop: { default: 0, [NARROW]: -4 },
+		alignSelf: { default: "auto", [NARROW]: "flex-end" },
 		paddingBlock: 0,
 		paddingInline: { default: space["2"], [NARROW]: space["3"] },
 		border: "none",
