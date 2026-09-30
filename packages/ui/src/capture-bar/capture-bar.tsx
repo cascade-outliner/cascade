@@ -52,6 +52,7 @@ const LINE = 24;
 
 const styles = stylex.create({
 	bar: {
+		position: "relative",
 		display: "flex",
 		flexDirection: "column",
 		marginTop: {
@@ -119,11 +120,14 @@ const styles = stylex.create({
 		paddingInline: `${space["4"]} ${space["3"]}`,
 		cursor: "text",
 	},
-	rowWrap: {
+	chips: {
+		position: "absolute",
+		bottom: `calc(100% + ${space["2"]})`,
+		left: space["1"],
+		right: space["1"],
+		display: "flex",
 		flexWrap: "wrap",
-	},
-	editorBelowChips: {
-		flexBasis: "calc(100% - 52px)",
+		gap: space["2"],
 	},
 	split: {
 		display: "flex",
@@ -363,7 +367,6 @@ interface EditorProps<T extends SlashMenuItem> {
 	onSplit: () => void;
 	onEscape: () => void;
 	onBackspaceEmpty: () => void;
-	belowChips: boolean;
 }
 
 /** The one-line Lexical editor inside the bar, with its plugins. */
@@ -377,7 +380,6 @@ function Editor<T extends SlashMenuItem>({
 	onSplit,
 	onEscape,
 	onBackspaceEmpty,
-	belowChips,
 }: EditorProps<T>) {
 	const [editor] = useLexicalComposerContext();
 	useImperativeHandle(
@@ -414,12 +416,7 @@ function Editor<T extends SlashMenuItem>({
 		<>
 			<PlainTextPlugin
 				contentEditable={
-					<div
-						{...stylex.props(
-							styles.editor,
-							belowChips && styles.editorBelowChips,
-						)}
-					>
+					<div {...stylex.props(styles.editor)}>
 						<ContentEditable
 							{...stylex.props(styles.editable)}
 							data-testid="capture-bar-input"
@@ -531,7 +528,33 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					{panel ?? lastPanel.current}
 				</div>
 			</div>
-			<div {...stylex.props(styles.row, picked.length > 0 && styles.rowWrap)}>
+			{picked.length > 0 && (
+				<div {...stylex.props(styles.chips)}>
+					{picked.map((item) => (
+						<span
+							key={item.id}
+							{...stylex.props(styles.chip)}
+							data-testid="capture-bar-chip"
+						>
+							{item.icon && (
+								<span {...stylex.props(styles.chipIcon)} aria-hidden>
+									{item.icon}
+								</span>
+							)}
+							{item.label}
+							<button
+								type="button"
+								aria-label={`Remove ${item.label}`}
+								onClick={() => unpick(item)}
+								{...stylex.props(styles.chipRemove)}
+							>
+								<XIcon size={11} weight="bold" aria-hidden />
+							</button>
+						</span>
+					))}
+				</div>
+			)}
+			<div {...stylex.props(styles.row)}>
 				{slashItems.length > 0 && (
 					<button
 						type="button"
@@ -544,28 +567,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						<PlusIcon size={16} weight="bold" aria-hidden />
 					</button>
 				)}
-				{picked.map((item) => (
-					<span
-						key={item.id}
-						{...stylex.props(styles.chip)}
-						data-testid="capture-bar-chip"
-					>
-						{item.icon && (
-							<span {...stylex.props(styles.chipIcon)} aria-hidden>
-								{item.icon}
-							</span>
-						)}
-						{item.label}
-						<button
-							type="button"
-							aria-label={`Remove ${item.label}`}
-							onClick={() => unpick(item)}
-							{...stylex.props(styles.chipRemove)}
-						>
-							<XIcon size={11} weight="bold" aria-hidden />
-						</button>
-					</span>
-				))}
 				<LexicalComposer
 					initialConfig={{
 						namespace: "capture-bar",
@@ -576,7 +577,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				>
 					<Editor<T>
 						ref={editorRef}
-						belowChips={picked.length > 0}
 						placeholder={placeholder}
 						items={slashItems}
 						onSelect={pick}
