@@ -32,7 +32,8 @@ const styles = stylex.create({
 
 export type PillTone = "neutral" | "primary" | "info";
 
-export interface PillProps extends React.HTMLAttributes<HTMLSpanElement> {
+export interface PillProps
+	extends Omit<React.HTMLAttributes<HTMLSpanElement>, "className" | "style"> {
 	tone?: PillTone;
 	icon?: React.ReactNode;
 	children: React.ReactNode;
