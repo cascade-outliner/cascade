@@ -308,7 +308,9 @@ function KeysPlugin({ onEnter, onEscape, onBackspaceEmpty }: KeysPluginProps) {
 		);
 		const offEscape = editor.registerCommand(
 			KEY_ESCAPE_COMMAND,
-			() => {
+			(event) => {
+				// Consumed here, so the outline's window handler keeps its selection.
+				event?.preventDefault();
 				onEscape();
 				return true;
 			},
