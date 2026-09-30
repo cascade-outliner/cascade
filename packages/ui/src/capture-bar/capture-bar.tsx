@@ -106,13 +106,13 @@ const styles = stylex.create({
 		justifyContent: "center",
 		alignSelf: "flex-end",
 		flexShrink: 0,
-		width: 40,
-		height: 40,
-		marginBlock: -4,
-		marginInlineStart: -4,
+		width: 32,
+		height: 32,
+		marginBlock: 0,
+		marginInlineStart: 0,
 		padding: 0,
 		border: "none",
-		borderRadius: radius.lg,
+		borderRadius: radius.md,
 		backgroundColor: { default: colors.primaryMuted, ":active": colors.border },
 		color: colors.primary,
 		cursor: "pointer",
@@ -610,7 +610,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						data-testid="capture-bar-plus"
 						{...stylex.props(styles.plus)}
 					>
-						<PlusIcon size={20} weight="bold" aria-hidden />
+						<PlusIcon size={16} weight="bold" aria-hidden />
 					</button>
 				)}
 				<span
