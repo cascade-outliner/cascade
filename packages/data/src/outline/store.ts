@@ -28,7 +28,7 @@ import {
 	orderAt,
 	rowsOf,
 } from "./tree.ts";
-import type { Node, Row } from "./types.ts";
+import type { Node, Row, Summary } from "./types.ts";
 
 /**
  * The outline, client-side and mutable.
@@ -67,6 +67,11 @@ export class OutlineStore {
 	// ponytail: not memoised per rootId; computedFn from mobx-utils if the walk shows up in profiles.
 	rows(rootId: string | null = null): Row[] {
 		return rowsOf(this.#tree, rootId);
+	}
+
+	/** Every row below `id`, collapsed or not, depth-first. */
+	subtree(id: string): Row[] {
+		return rowsOf(this.#tree, id, true);
 	}
 
 	/** `id`'s parent, or `null` if it's a root node or unknown. Used to zoom back out. */
@@ -178,6 +183,17 @@ export class OutlineStore {
 			return;
 		}
 		node.due = due ?? undefined;
+		node.updatedAt = Date.now();
+		this.#persist([node]);
+	}
+
+	/** Pins (or clears, `null`) an AI summary of `id`'s branch. Allowed on daily notes too. */
+	setSummary(id: string, summary: Summary | null): void {
+		const node = this.nodes.get(id);
+		if (!node) {
+			return;
+		}
+		node.summary = summary ?? undefined;
 		node.updatedAt = Date.now();
 		this.#persist([node]);
 	}
