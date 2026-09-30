@@ -42,7 +42,7 @@ test.describe("links", () => {
 		expect((await popup).url()).toBe("https://example.com/a");
 	});
 
-	test("a plain click on a link keeps editing, ctrl+click opens", async ({
+	test("a plain click on a link opens its editor, ctrl+click opens the url", async ({
 		page,
 		outlinePage,
 		links,
@@ -58,11 +58,49 @@ test.describe("links", () => {
 			);
 
 		await links.anchors(row).click();
-		await expect(links.editor(row)).toBeFocused();
+		await expect(links.dialog).toBeVisible();
+		await expect(links.urlInput).toHaveValue("https://example.com/a");
+		await page.keyboard.press("Escape");
+		await expect(links.dialog).toBeHidden();
 
 		const popup = page.waitForEvent("popup");
 		await links.anchors(row).click({ modifiers: ["ControlOrMeta"] });
 		expect((await popup).url()).toBe("https://example.com/a");
+	});
+
+	test("editing a link changes its url and text", async ({
+		outlinePage,
+		links,
+	}) => {
+		const row = outlinePage.row("Docs");
+		await links.editor(row).click();
+		await links.editor(row).press("End");
+		await links.editor(row).pressSequentially(" https://example.com/a ");
+
+		await links.anchors(row).click();
+		await links.urlInput.fill("example.org/b");
+		await links.textInput.fill("Docs B");
+		await links.submit.click();
+
+		await expect(links.dialog).toBeHidden();
+		await expect(links.anchors(row)).toHaveText("Docs B");
+		await expect(links.anchors(row)).toHaveAttribute(
+			"href",
+			"https://example.org/b",
+		);
+	});
+
+	test("removing a link keeps its text", async ({ outlinePage, links }) => {
+		const row = outlinePage.row("Docs");
+		await links.editor(row).click();
+		await links.editor(row).press("End");
+		await links.editor(row).pressSequentially(" https://example.com/a ");
+
+		await links.anchors(row).click();
+		await links.remove.click();
+
+		await expect(links.anchors(row)).toHaveCount(0);
+		await expect(links.editor(row)).toContainText("https://example.com/a");
 	});
 
 	test("pasting a url over selected text links it", async ({

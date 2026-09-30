@@ -5,12 +5,20 @@ import {
 	shadow,
 	space,
 } from "@cascade/theme/tokens.stylex";
-import { $createLinkNode, $isLinkNode, $toggleLink } from "@lexical/link";
+import {
+	$createLinkNode,
+	$isAutoLinkNode,
+	$isLinkNode,
+	$toggleLink,
+	type LinkNode,
+} from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent } from "@lexical/utils";
 import * as stylex from "@stylexjs/stylex";
 import {
 	$createTextNode,
+	$getNearestNodeFromDOMNode,
+	$getNodeByKey,
 	$getSelection,
 	$isRangeSelection,
 	$setSelection,
@@ -23,7 +31,9 @@ import { Button } from "../button/button.tsx";
 import { Popover } from "../popover/popover.tsx";
 import { linkAttributes, normalizeUrl } from "./url.ts";
 
-export const OPEN_LINK_DIALOG_COMMAND = createCommand<void>("OPEN_LINK_DIALOG");
+export const OPEN_LINK_DIALOG_COMMAND = createCommand<HTMLElement | undefined>(
+	"OPEN_LINK_DIALOG",
+);
 
 const styles = stylex.create({
 	popup: { width: 300, maxWidth: "calc(100vw - 32px)" },
@@ -88,13 +98,34 @@ export function LinkDialogPlugin() {
 	const [invalid, setInvalid] = useState(false);
 	const [anchor, setAnchor] = useState<VirtualElement | null>(null);
 	const urlInput = useRef<HTMLInputElement>(null);
+	const [editingKey, setEditingKey] = useState<string | null>(null);
 	const saved = useRef<BaseSelection | null>(null);
 
 	useEffect(
 		() =>
 			editor.registerCommand(
 				OPEN_LINK_DIALOG_COMMAND,
-				() => {
+				(target) => {
+					const node = target ? $getNearestNodeFromDOMNode(target) : null;
+					const clicked = node
+						? $isLinkNode(node)
+							? node
+							: $findMatchingParent(node, $isLinkNode)
+						: null;
+					if (target && clicked) {
+						const rect =
+							target.getClientRects()[0] ?? target.getBoundingClientRect();
+						saved.current = null;
+						setEditingKey(clicked.getKey());
+						setUrl(clicked.getURL());
+						setText(clicked.getTextContent());
+						setHasRange(false);
+						setInvalid(false);
+						setAnchor({ getBoundingClientRect: () => rect });
+						setOpen(true);
+						return true;
+					}
+					setEditingKey(null);
 					const selection = $getSelection();
 					saved.current = selection?.clone() ?? null;
 					let existing = "";
@@ -130,6 +161,16 @@ export function LinkDialogPlugin() {
 		}
 		setOpen(false);
 		editor.update(() => {
+			if (editingKey) {
+				const existing = $getNodeByKey<LinkNode>(editingKey);
+				if (!existing) return;
+				const label = text.trim() || href;
+				const link = $createLinkNode(href, linkAttributes(href, label));
+				link.append($createTextNode(label));
+				existing.replace(link);
+				link.selectEnd();
+				return;
+			}
 			if (saved.current) $setSelection(saved.current.clone());
 			const selection = $getSelection();
 			if (!$isRangeSelection(selection)) return;
@@ -146,11 +187,27 @@ export function LinkDialogPlugin() {
 		editor.focus();
 	};
 
+	const remove = () => {
+		setOpen(false);
+		editor.update(() => {
+			if (!editingKey) return;
+			const existing = $getNodeByKey<LinkNode>(editingKey);
+			if (!existing) return;
+			if ($isAutoLinkNode(existing)) {
+				existing.setIsUnlinked(true);
+				return;
+			}
+			for (const child of existing.getChildren()) existing.insertBefore(child);
+			existing.remove();
+		});
+		editor.focus();
+	};
+
 	return (
 		<Popover.Root open={open} onOpenChange={setOpen}>
 			<Popover.Popup
 				anchor={anchor}
-				label="Add link"
+				label={editingKey ? "Edit link" : "Add link"}
 				initialFocus={urlInput}
 				style={styles.popup}
 			>
@@ -183,6 +240,15 @@ export function LinkDialogPlugin() {
 						</p>
 					)}
 					<div {...stylex.props(styles.footer)}>
+						{editingKey && (
+							<Button
+								size="small"
+								data-testid="link-dialog-remove"
+								onClick={remove}
+							>
+								Remove
+							</Button>
+						)}
 						<Popover.Close
 							render={<Button size="small" data-testid="link-dialog-cancel" />}
 						>

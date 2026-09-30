@@ -5,6 +5,7 @@ export class Links {
 	readonly urlInput: Locator;
 	readonly textInput: Locator;
 	readonly submit: Locator;
+	readonly remove: Locator;
 	readonly error: Locator;
 
 	constructor(readonly page: Page) {
@@ -12,6 +13,7 @@ export class Links {
 		this.urlInput = page.getByTestId("link-dialog-url");
 		this.textInput = page.getByTestId("link-dialog-text");
 		this.submit = page.getByTestId("link-dialog-submit");
+		this.remove = page.getByTestId("link-dialog-remove");
 		this.error = page.getByTestId("link-dialog-error");
 	}
 

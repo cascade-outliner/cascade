@@ -6,6 +6,7 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { OPEN_LINK_DIALOG_COMMAND } from "./link-dialog.tsx";
 import { isSafeUrl, LINK_ATTRIBUTES, LINK_MATCHERS, openUrl } from "./url.ts";
 
 const styles = stylex.create({
@@ -137,8 +138,13 @@ function ClickToOpenPlugin() {
 			if (!(event.target instanceof Element)) return;
 			const anchor = event.target.closest("a[href]");
 			if (!anchor) return;
-			if (editor.isEditable() && !event.metaKey && !event.ctrlKey) return;
 			event.preventDefault();
+			if (editor.isEditable() && !event.metaKey && !event.ctrlKey) {
+				if (anchor instanceof HTMLElement) {
+					editor.dispatchCommand(OPEN_LINK_DIALOG_COMMAND, anchor);
+				}
+				return;
+			}
 			const href = anchor.getAttribute("href");
 			if (href) openUrl(href);
 		};
