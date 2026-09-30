@@ -150,9 +150,10 @@ const styles = stylex.create({
 			default: "opacity 150ms ease",
 			[REDUCED_MOTION]: "none",
 		},
-		"@starting-style": {
-			opacity: 0,
-		},
+	},
+	splitHidden: {
+		opacity: 0,
+		pointerEvents: "none",
 	},
 	shortcut: {
 		display: { default: "inline", [TOUCH]: "none" },
@@ -580,8 +581,15 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						onBackspaceEmpty={() => setPicked((all) => all.slice(0, -1))}
 					/>
 				</LexicalComposer>
-				{onSplit && hasText && (
-					<button type="button" onClick={split} {...stylex.props(styles.split)}>
+				{onSplit && (
+					<button
+						type="button"
+						onClick={split}
+						disabled={!hasText}
+						aria-hidden={!hasText}
+						tabIndex={hasText ? 0 : -1}
+						{...stylex.props(styles.split, !hasText && styles.splitHidden)}
+					>
 						<SparkleIcon size={13} aria-hidden />
 						Split
 						<span aria-hidden {...stylex.props(styles.shortcut)}>
