@@ -6,7 +6,8 @@ export const DB_NAME = "cascade";
 export const NODES_STORE = "nodes";
 export const OUTBOX_STORE = "outbox";
 export const META_STORE = "meta";
-const DB_VERSION = 2;
+export const PREFERENCES_STORE = "preferences";
+const DB_VERSION = 3;
 
 /** Opens (and upgrades) the shared IndexedDB database the outline and its sync state live in. */
 export function openCascadeDb(name = DB_NAME): Promise<IDBPDatabase> {
@@ -20,6 +21,9 @@ export function openCascadeDb(name = DB_NAME): Promise<IDBPDatabase> {
 			}
 			if (!db.objectStoreNames.contains(META_STORE)) {
 				db.createObjectStore(META_STORE, { keyPath: "key" });
+			}
+			if (!db.objectStoreNames.contains(PREFERENCES_STORE)) {
+				db.createObjectStore(PREFERENCES_STORE, { keyPath: "key" });
 			}
 		},
 	});

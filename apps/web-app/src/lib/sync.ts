@@ -1,11 +1,11 @@
 import {
 	IdbPersistence,
 	IdbSyncState,
-	openCascadeDb,
 	type PullResponse,
 	SyncEngine,
 	SyncedPersistence,
 } from "@cascade/data";
+import { cascadeDb } from "#/lib/db.ts";
 import {
 	getSyncConfig,
 	pullChanges,
@@ -28,7 +28,7 @@ export interface Sync {
 }
 
 export function createSync(): Sync {
-	const db = openCascadeDb();
+	const db = cascadeDb();
 	const state = new IdbSyncState(db);
 	const persistence = new SyncedPersistence(
 		new IdbPersistence(undefined, db),

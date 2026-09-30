@@ -23,7 +23,7 @@ import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import { ZoomHeader } from "@cascade/ui/outliner/zoom-header";
 import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
-import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
@@ -39,9 +39,8 @@ import { SlashCommandsPlugin } from "#/components/slash-commands/slash-commands-
 import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
 import { SplitSheet } from "#/components/split-tasks/split-sheet.tsx";
+import { useFeatureFlag } from "#/lib/feature-flags/index.ts";
 import { useOutlineStore, useSync } from "#/lib/outline-store.tsx";
-
-const appRoute = getRouteApi("/_app");
 
 const styles = stylex.create({
 	page: {
@@ -81,8 +80,9 @@ interface OutlineRowProps {
 	active: boolean;
 	onMenuOpen: (id: string | null) => void;
 	onZoomTo: (id: string | null) => void;
-	/** Opens the split sheet (3b). Unset when AI is off (no API key on the server). */
+	/** Opens the split sheet (3b). Unset when the `aiSplit` flag is off. */
 	onSplit?: (split: Split) => void;
+	slashCommands: boolean;
 	/** Phrases to highlight while this row is being split, read-only. */
 	highlight?: string[];
 }
@@ -101,6 +101,7 @@ const OutlineRow = observer(function OutlineRow({
 	onMenuOpen,
 	onZoomTo,
 	onSplit,
+	slashCommands,
 	highlight,
 }: OutlineRowProps) {
 	const store = useOutlineStore();
@@ -145,12 +146,14 @@ const OutlineRow = observer(function OutlineRow({
 					editable={!store.isLocked(node.id)}
 					onChange={(state) => store.setContent(node.id, state.toJSON())}
 				>
-					<SlashCommandsPlugin
-						node={node}
-						childCount={childCount}
-						onZoomTo={onZoomTo}
-						onSplit={split}
-					/>
+					{slashCommands && (
+						<SlashCommandsPlugin
+							node={node}
+							childCount={childCount}
+							onZoomTo={onZoomTo}
+							onSplit={split}
+						/>
+					)}
 				</Content>
 				{node.due && (
 					<Pill
@@ -187,7 +190,9 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	const [split, setSplit] = useState<Split | null>(null);
 	const [sources, setSources] = useState<string[]>([]);
 	const [captured, setCaptured] = useState<string | null>(null);
-	const { aiEnabled } = appRoute.useLoaderData();
+	const aiEnabled = useFeatureFlag("aiSplit");
+	const slashCommands = useFeatureFlag("slashCommands");
+	const dueElsewhere = useFeatureFlag("dueElsewhere");
 	const [onboarded, setOnboarded] = useState<boolean | null>(null);
 	const captureInputRef = useRef<CaptureBarHandle>(null);
 
@@ -277,11 +282,12 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 							onMenuOpen={setMenuOpenId}
 							onZoomTo={zoomTo}
 							onSplit={aiEnabled ? setSplit : undefined}
+							slashCommands={slashCommands}
 							highlight={split?.id === row.node.id ? sources : undefined}
 						/>
 					)}
 				</VirtualList>
-				{zoomedId === dayId(new Date()) && (
+				{dueElsewhere && zoomedId === dayId(new Date()) && (
 					<DueElsewhere
 						groups={[
 							{
@@ -309,7 +315,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 				<div {...stylex.props(styles.captureBar)}>
 					<CaptureBar
 						ref={captureInputRef}
-						slashItems={captureSlashCommands}
+						slashItems={slashCommands ? captureSlashCommands : undefined}
 						onSplit={aiEnabled ? setCaptured : undefined}
 						panel={
 							captured !== null && (

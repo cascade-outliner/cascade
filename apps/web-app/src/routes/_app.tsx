@@ -1,17 +1,24 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { CommandMenu } from "#/components/command-menu.tsx";
+import { featureFlags, type ServerFlags } from "#/lib/feature-flags/index.ts";
 import { loadOutline } from "#/lib/outline-store.tsx";
-import { getAiConfig } from "#/server/split.ts";
+import { getFeatureFlags } from "#/server/feature-flags.ts";
 
-// Memoized: the loader re-runs on navigation.
-let ai: Promise<{ enabled: boolean }> | undefined;
+let flags: Promise<ServerFlags | null> | undefined;
 
 export const Route = createFileRoute("/_app")({
 	ssr: false,
 	loader: async () => {
-		ai ??= getAiConfig().catch(() => ({ enabled: false }));
-		const [, { enabled }] = await Promise.all([loadOutline(), ai]);
-		return { aiEnabled: enabled };
+		flags ??= getFeatureFlags()
+			.then((server) => {
+				featureFlags().setServerFlags(server);
+				return server;
+			})
+			.catch((error) => {
+				console.error("Feature flags: could not reach the server", error);
+				return null;
+			});
+		await Promise.all([loadOutline(), flags, featureFlags().load()]);
 	},
 	component: () => (
 		<>

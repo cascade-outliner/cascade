@@ -2,7 +2,7 @@ import { expect, test } from "../fixtures.ts";
 
 test.describe("AI off", () => {
 	test.beforeEach(async ({ outlinePage }) => {
-		// No splitApi.enable(): getAiConfig reports AI as unconfigured, as it
+		// No splitApi.enable(): the server pins the aiSplit flag off, as it
 		// does in this suite's own server (no ANTHROPIC_API_KEY).
 		await outlinePage.goto();
 	});

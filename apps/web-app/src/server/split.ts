@@ -86,10 +86,6 @@ const weekday = (day: string) =>
 		timeZone: "UTC",
 	});
 
-export const getAiConfig = createServerFn({ method: "GET" }).handler(
-	async () => ({ enabled: !!process.env.ANTHROPIC_API_KEY }),
-);
-
 export const splitIntoTasks = createServerFn({ method: "POST" })
 	.validator(
 		z.object({

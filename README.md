@@ -8,6 +8,12 @@ The outline lives in the browser (IndexedDB) and works fully offline. Optionally
 
 Sync is tied to an account. Users sign in with Google ([better-auth](https://www.better-auth.com)); each user gets one workspace on first push, recorded with its onboarding time in the `workspaces` table. A browser keeps syncing the account that first synced its outline: signing in as someone else on the same browser starts from that account's server copy instead.
 
+## Feature flags
+
+Web-app features resolve from three layers, first match wins: the server (an env var like `FEATURE_SLASH_COMMANDS=off`, or a missing capability such as AI without `ANTHROPIC_API_KEY`), then the user's per-browser override (kept in the `preferences` store of the same IndexedDB database as the outline; a settings UI will drive it later via the store's `setOverride`/`resetOverrides`), then the flag's default.
+
+Flags live in `apps/web-app/src/lib/feature-flags/registry.ts`. Adding one there gives it a `FEATURE_<KEY>` variable and a `label`/`description` for the future UI; gate code with `useFeatureFlag("key")` or `<Feature flag="key">`, and read the whole resolved set (value, source, locked, reason) with `useFeatureFlags()`.
+
 ## Website
 
 `apps/website` is the marketing site: a TanStack Start app with Payload as its CMS. Pages are built from blocks (hero, feature grid, daily notes, pricing, FAQ, call to action) in the admin at `/admin`; the header and footer are globals. It needs `DATABASE_URL_WEBSITE` and `PAYLOAD_SECRET` (see `.env.example`).
