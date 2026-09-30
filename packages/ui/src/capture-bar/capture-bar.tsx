@@ -46,7 +46,6 @@ import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 const NARROW = "@media (max-width: 640px)";
-const TOUCH = "@media (hover: none)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
 
@@ -166,11 +165,6 @@ const styles = stylex.create({
 	},
 	splitLabel: {
 		display: { default: "inline", [NARROW]: "none" },
-	},
-	shortcut: {
-		display: { default: "inline", [NARROW]: "none", [TOUCH]: "none" },
-		fontFamily: "monospace",
-		fontSize: fontSize["200"],
 	},
 	chip: {
 		display: "flex",
@@ -602,9 +596,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					>
 						<SparkleIcon size={13} aria-hidden />
 						<span {...stylex.props(styles.splitLabel)}>Split</span>
-						<span aria-hidden {...stylex.props(styles.shortcut)}>
-							⌘⇧↵
-						</span>
 					</button>
 				)}
 				<button
