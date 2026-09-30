@@ -15,12 +15,19 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
-import { ArrowUpIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
+import {
+	ArrowUpIcon,
+	PlusIcon,
+	SparkleIcon,
+	XIcon,
+} from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import {
 	$createParagraphNode,
 	$createTextNode,
 	$getRoot,
+	$getSelection,
+	$isRangeSelection,
 	COMMAND_PRIORITY_LOW,
 	KEY_BACKSPACE_COMMAND,
 	KEY_ENTER_COMMAND,
@@ -52,18 +59,13 @@ const pop = stylex.keyframes({
 
 const styles = stylex.create({
 	bar: {
-		minWidth: 0,
-		marginInline: 0,
-		marginBottom: 0,
-		padding: 0,
-		border: "none",
 		display: "flex",
 		flexDirection: "column",
 		marginTop: {
 			default: space["8"],
 			"@media (max-width: 640px)": space["4"],
 		},
-		borderRadius: { default: radius.xl, [NARROW]: 28 },
+		borderRadius: radius.xl,
 		backgroundColor: colors.white,
 		boxShadow: {
 			default: shadow.float,
@@ -98,36 +100,25 @@ const styles = stylex.create({
 		borderBottomStyle: "solid",
 		borderBottomColor: colors.border,
 	},
-	quick: {
+	plus: {
 		display: { default: "none", [NARROW]: "flex" },
-		gap: space["2"],
-		paddingBlock: space["3"],
-		paddingInline: space["4"],
-		overflowX: "auto",
-		scrollbarWidth: "none",
-		borderBottomWidth: borderWidth.thin,
-		borderBottomStyle: "solid",
-		borderBottomColor: colors.border,
-		"@starting-style": { opacity: 0 },
-		transition: "opacity 150ms ease",
-	},
-	quickChip: {
-		display: "flex",
 		alignItems: "center",
-		gap: space["1.5"],
+		justifyContent: "center",
+		alignSelf: "flex-end",
 		flexShrink: 0,
-		height: 34,
-		paddingInline: space["3"],
+		width: 40,
+		height: 40,
+		marginBlock: -4,
+		marginInlineStart: -4,
+		padding: 0,
 		border: "none",
-		borderRadius: 17,
+		borderRadius: radius.lg,
 		backgroundColor: { default: colors.primaryMuted, ":active": colors.border },
 		color: colors.primary,
-		font: "inherit",
-		fontSize: fontSize["300"],
-		fontWeight: 500,
-		whiteSpace: "nowrap",
 		cursor: "pointer",
 		touchAction: "manipulation",
+		outline: "none",
+		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
 	},
 	row: {
 		display: "flex",
@@ -147,11 +138,11 @@ const styles = stylex.create({
 		flexBasis: { default: "auto", [NARROW]: "calc(100% - 52px)" },
 	},
 	ghost: {
+		display: { default: "flex", [NARROW]: "none" },
 		width: 18,
 		height: 18,
 		marginTop: (LINE - 18) / 2,
 		flexShrink: 0,
-		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		borderRadius: "50%",
@@ -296,9 +287,10 @@ const styles = stylex.create({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
+		alignSelf: { default: "auto", [NARROW]: "flex-end" },
 		flexShrink: 0,
 		gap: space["1"],
-		marginBlock: { default: -2, [NARROW]: -8 },
+		marginBlock: { default: -2, [NARROW]: -4 },
 		width: { default: "auto", [NARROW]: 40 },
 		height: { default: "auto", [NARROW]: 40 },
 		paddingBlock: { default: "5px", [NARROW]: 0 },
@@ -424,6 +416,7 @@ interface EditorHandle {
 	/** Empties the editor; `keepFocus: false` stops Lexical pulling focus back into it. */
 	clear: (keepFocus?: boolean) => void;
 	setText: (text: string) => void;
+	openSlash: () => void;
 }
 
 interface EditorProps<T extends SlashMenuItem> {
@@ -457,6 +450,15 @@ function Editor<T extends SlashMenuItem>({
 		ref,
 		() => ({
 			focus: () => editor.focus(),
+			openSlash: () =>
+				editor.focus(() =>
+					editor.update(() => {
+						const selection = $getSelection();
+						if (!$isRangeSelection(selection)) return;
+						const text = $getRoot().getTextContent();
+						selection.insertText(/\S$/.test(text) ? " /" : "/");
+					}),
+				),
 			clear: (keepFocus = true) =>
 				editor.update(() => $getRoot().clear(), {
 					tag: keepFocus ? undefined : SKIP_DOM_SELECTION_TAG,
@@ -533,7 +535,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	const [picked, setPicked] = useState<T[]>([]);
 	const [added, setAdded] = useState(0);
 	const editorRef = useRef<EditorHandle>(null);
-	const [focused, setFocused] = useState(false);
 	const hasText = text.trim() !== "";
 	useImperativeHandle(ref, () => ({
 		focus: () => editorRef.current?.focus(),
@@ -589,14 +590,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	}
 
 	return (
-		<fieldset
-			{...stylex.props(styles.bar)}
-			onFocus={() => setFocused(true)}
-			onBlur={(event) => {
-				if (!event.currentTarget.contains(event.relatedTarget))
-					setFocused(false);
-			}}
-		>
+		<div {...stylex.props(styles.bar)}>
 			<div {...stylex.props(styles.panel, open && styles.panelOpen)}>
 				<div
 					inert={!open}
@@ -605,29 +599,19 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					{panel ?? lastPanel.current}
 				</div>
 			</div>
-			{focused && slashItems.some((item) => !picked.includes(item)) && (
-				<div {...stylex.props(styles.quick)} data-testid="capture-bar-quick">
-					{slashItems
-						.filter((item) => !picked.includes(item))
-						.map((item) => (
-							<button
-								key={item.id}
-								type="button"
-								onPointerDown={(event) => event.preventDefault()}
-								onClick={() => pick(item)}
-								{...stylex.props(styles.quickChip)}
-							>
-								{item.icon && (
-									<span {...stylex.props(styles.chipIcon)} aria-hidden>
-										{item.icon}
-									</span>
-								)}
-								{item.label}
-							</button>
-						))}
-				</div>
-			)}
 			<div {...stylex.props(styles.row, picked.length > 0 && styles.rowWrap)}>
+				{slashItems.length > 0 && (
+					<button
+						type="button"
+						aria-label="Insert command"
+						onPointerDown={(event) => event.preventDefault()}
+						onClick={() => editorRef.current?.openSlash()}
+						data-testid="capture-bar-plus"
+						{...stylex.props(styles.plus)}
+					>
+						<PlusIcon size={20} weight="bold" aria-hidden />
+					</button>
+				)}
 				<span
 					key={added}
 					aria-hidden
@@ -703,6 +687,6 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					<span {...stylex.props(styles.addLabel)}>Add</span>
 				</button>
 			</div>
-		</fieldset>
+		</div>
 	);
 }
