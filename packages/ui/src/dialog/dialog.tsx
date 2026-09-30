@@ -12,6 +12,8 @@ import {
 import { XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
+const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+
 const styles = stylex.create({
 	backdrop: {
 		position: "fixed",
@@ -22,7 +24,7 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: duration["150"],
+		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
 	},
 	popup: {
 		position: "fixed",
@@ -58,7 +60,7 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: duration["150"],
+		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
 	},
 	header: {
 		display: "flex",
