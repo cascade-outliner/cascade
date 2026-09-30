@@ -1,10 +1,4 @@
-import {
-	colors,
-	fontSize,
-	radius,
-	shadow,
-	space,
-} from "@cascade/theme/tokens.stylex";
+import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import {
 	$createLinkNode,
 	$isAutoLinkNode,
@@ -28,6 +22,7 @@ import {
 } from "lexical";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "../button/button.tsx";
+import { Field } from "../field/field.tsx";
 import { Popover } from "../popover/popover.tsx";
 import { linkAttributes, normalizeUrl } from "./url.ts";
 
@@ -46,27 +41,6 @@ const styles = stylex.create({
 		display: "flex",
 		flexDirection: "column",
 		gap: space["3"],
-	},
-	field: {
-		display: "flex",
-		flexDirection: "column",
-		gap: space["1"],
-		fontSize: fontSize["300"],
-		color: colors.muted,
-	},
-	input: {
-		padding: space["2"],
-		border: "none",
-		borderRadius: radius.md,
-		backgroundColor: colors.white,
-		boxShadow: {
-			default: `inset 0 0 0 1px ${colors.borderStrong}`,
-			":focus": shadow.focusRing,
-		},
-		outline: "none",
-		font: "inherit",
-		fontSize: fontSize["500"],
-		color: colors.ink,
 	},
 	error: {
 		margin: 0,
@@ -212,26 +186,24 @@ export function LinkDialogPlugin() {
 				style={styles.popup}
 			>
 				<form onSubmit={submit} {...stylex.props(styles.form)}>
-					<input
+					<Field
+						label="URL"
 						ref={urlInput}
 						data-testid="link-dialog-url"
-						aria-label="URL"
 						value={url}
 						placeholder="Paste or type a link"
 						onChange={(event) => {
 							setUrl(event.target.value);
 							setInvalid(false);
 						}}
-						{...stylex.props(styles.input)}
 					/>
 					{!hasRange && (
-						<input
+						<Field
+							label="Text"
 							data-testid="link-dialog-text"
-							aria-label="Text"
 							value={text}
 							placeholder="Text (optional)"
 							onChange={(event) => setText(event.target.value)}
-							{...stylex.props(styles.input)}
 						/>
 					)}
 					{invalid && (
