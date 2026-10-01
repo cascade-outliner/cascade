@@ -14,7 +14,12 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
-import { PlusIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
+import {
+	ArrowUpIcon,
+	PlusIcon,
+	SparkleIcon,
+	XIcon,
+} from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import {
 	$createParagraphNode,
@@ -34,19 +39,14 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
+import { SlashMenu } from "../slash-menu/slash-menu.tsx";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
 const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+const NARROW = "@media (max-width: 640px)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
-
-const pop = stylex.keyframes({
-	"0%": { transform: "scale(1)" },
-	"40%": { transform: "scale(1.35)" },
-	"100%": { transform: "scale(1)" },
-});
 
 const styles = stylex.create({
 	bar: {
@@ -91,57 +91,68 @@ const styles = stylex.create({
 		borderBottomStyle: "solid",
 		borderBottomColor: colors.border,
 	},
-	row: {
+	plusWrap: {
+		position: "relative",
 		display: "flex",
-		alignItems: "flex-start",
-		gap: space["2.5"],
-		paddingBlock: space["2.5"],
-		paddingInline: `${space["3"]} ${space["2.5"]}`,
-		cursor: "text",
-	},
-	ghost: {
-		width: 18,
-		height: 18,
-		marginTop: (LINE - 18) / 2,
+		alignSelf: "flex-end",
 		flexShrink: 0,
+	},
+	menuAnchor: {
+		position: "absolute",
+		top: "100%",
+		left: 0,
+		width: 32,
+		height: 32,
+	},
+	plus: {
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		borderRadius: "50%",
-		borderWidth: borderWidth.thick,
-		borderStyle: "dashed",
-		borderColor: colors.borderStrong,
-		backgroundColor: "transparent",
-		transition: `background-color ${duration["150"]} ease, border-color ${duration["150"]} ease`,
+		alignSelf: "flex-end",
+		flexShrink: 0,
+		width: 32,
+		height: 32,
+		padding: 0,
+		border: "none",
+		borderRadius: radius.md,
+		backgroundColor: { default: colors.primaryMuted, ":active": colors.border },
+		color: colors.primary,
+		cursor: "pointer",
+		touchAction: "manipulation",
+		outline: "none",
+		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
 	},
-	ghostFilled: {
-		borderColor: "transparent",
-		backgroundColor: colors.primaryMuted,
+	row: {
+		display: "flex",
+		alignItems: "flex-start",
+		flexWrap: { default: "nowrap", [NARROW]: "wrap" },
+		gap: space["2.5"],
+		paddingBlock: space["3"],
+		paddingInline: `${space["4"]} ${space["3"]}`,
+		cursor: "text",
 	},
-	ghostPop: {
-		animationName: { default: pop, [REDUCED_MOTION]: "none" },
-		animationDuration: "240ms",
-		animationTimingFunction: "ease-out",
-	},
-	dot: {
-		width: 6,
-		height: 6,
-		borderRadius: "50%",
-		backgroundColor: colors.primary,
-		transform: "scale(0)",
-		transition: `transform ${duration["150"]} ease`,
-	},
-	dotVisible: {
-		transform: "scale(1)",
+	chips: {
+		display: "flex",
+		alignSelf: "center",
+		flexWrap: "wrap",
+		gap: space["1.5"],
+		maxWidth: { default: "55%", [NARROW]: "none" },
+		flexBasis: { default: "auto", [NARROW]: "100%" },
+		order: { default: 0, [NARROW]: -1 },
+		paddingBottom: { default: 0, [NARROW]: space["1"] },
+		flexShrink: 0,
 	},
 	split: {
 		display: "flex",
 		alignItems: "center",
 		gap: space["1.5"],
 		flexShrink: 0,
-		height: LINE,
+		height: 32,
+		alignSelf: "flex-end",
 		paddingBlock: 0,
-		paddingInline: space["2"],
+		justifyContent: "center",
+		paddingInline: { default: space["3"], [NARROW]: 0 },
+		width: { default: "auto", [NARROW]: 32 },
 		border: "none",
 		borderRadius: radius.md,
 		backgroundColor: colors.primaryMuted,
@@ -156,17 +167,16 @@ const styles = stylex.create({
 			boxShadow: shadow.focusRing,
 		},
 		transition: {
-			default: "opacity 150ms ease, transform 150ms ease",
+			default: "opacity 150ms ease",
 			[REDUCED_MOTION]: "none",
 		},
-		"@starting-style": {
-			opacity: 0,
-			transform: "scale(0.94)",
-		},
 	},
-	shortcut: {
-		fontFamily: "monospace",
-		fontSize: fontSize["200"],
+	splitHidden: {
+		opacity: 0,
+		pointerEvents: "none",
+	},
+	splitLabel: {
+		display: { default: "inline", [NARROW]: "none" },
 	},
 	chip: {
 		display: "flex",
@@ -212,7 +222,9 @@ const styles = stylex.create({
 	},
 	editor: {
 		position: "relative",
+		alignSelf: "center",
 		flexGrow: 1,
+		flexBasis: 0,
 		minWidth: 0,
 		maxHeight: "40vh",
 		overflowY: "auto",
@@ -241,11 +253,33 @@ const styles = stylex.create({
 		lineHeight: `${LINE}px`,
 		whiteSpace: "nowrap",
 	},
-	// The Add button is a little taller than a line; this centres it on the first.
 	add: {
 		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		alignSelf: "flex-end",
 		flexShrink: 0,
-		marginTop: -2,
+		width: 32,
+		height: 32,
+		padding: 0,
+		border: "none",
+		borderRadius: radius.md,
+		backgroundColor: {
+			default: colors.primary,
+			":disabled": colors.primaryMuted,
+		},
+		color: { default: colors.onPrimary, ":disabled": colors.primary },
+		font: "inherit",
+		fontSize: fontSize["300"],
+		fontWeight: 500,
+		whiteSpace: "nowrap",
+		outline: "none",
+		cursor: { default: "pointer", ":disabled": "not-allowed" },
+		transition: {
+			default: "background-color 150ms ease, color 150ms ease",
+			[REDUCED_MOTION]: "none",
+		},
+		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
 	},
 });
 
@@ -429,8 +463,10 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	const [text, setText] = useState("");
 	/** Slash commands picked so far; they apply when the text is submitted. */
 	const [picked, setPicked] = useState<T[]>([]);
-	const [added, setAdded] = useState(0);
 	const editorRef = useRef<EditorHandle>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
+	const [menuOpen, setMenuOpen] = useState(false);
+	const [highlighted, setHighlighted] = useState<number | null>(null);
 	const hasText = text.trim() !== "";
 	useImperativeHandle(ref, () => ({
 		focus: () => editorRef.current?.focus(),
@@ -451,13 +487,21 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		return () => clearTimeout(timer);
 	}, [open]);
 
+	useEffect(() => {
+		if (!menuOpen) return;
+		const close = (event: PointerEvent) => {
+			if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+		};
+		document.addEventListener("pointerdown", close);
+		return () => document.removeEventListener("pointerdown", close);
+	}, [menuOpen]);
+
 	function submit() {
 		const trimmed = text.trim();
 		if (!trimmed) return;
 		onSubmit(trimmed, picked);
 		setPicked([]);
 		editorRef.current?.clear();
-		setAdded((n) => n + 1);
 		editorRef.current?.focus();
 	}
 
@@ -481,7 +525,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 
 	/** Escape: the chips go first, then focus. Typed text is never thrown away. */
 	function dismiss() {
-		if (picked.length > 0) setPicked([]);
+		if (menuOpen) setMenuOpen(false);
+		else if (picked.length > 0) setPicked([]);
 		else (document.activeElement as HTMLElement | null)?.blur();
 	}
 
@@ -496,39 +541,69 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				</div>
 			</div>
 			<div {...stylex.props(styles.row)}>
-				<span
-					key={added}
-					aria-hidden
-					{...stylex.props(
-						styles.ghost,
-						hasText && styles.ghostFilled,
-						added > 0 && styles.ghostPop,
-					)}
-				>
-					<span {...stylex.props(styles.dot, hasText && styles.dotVisible)} />
-				</span>
-				{picked.map((item) => (
-					<span
-						key={item.id}
-						{...stylex.props(styles.chip)}
-						data-testid="capture-bar-chip"
+				{slashItems.length > 0 && (
+					// biome-ignore lint/a11y/noStaticElementInteractions: only closes the menu on Escape while focus is on its button.
+					<div
+						ref={menuRef}
+						{...stylex.props(styles.plusWrap)}
+						onKeyDown={(event) => {
+							if (event.key === "Escape") setMenuOpen(false);
+						}}
 					>
-						{item.icon && (
-							<span {...stylex.props(styles.chipIcon)} aria-hidden>
-								{item.icon}
-							</span>
-						)}
-						{item.label}
 						<button
 							type="button"
-							aria-label={`Remove ${item.label}`}
-							onClick={() => unpick(item)}
-							{...stylex.props(styles.chipRemove)}
+							aria-label="Insert command"
+							aria-expanded={menuOpen}
+							onPointerDown={(event) => event.preventDefault()}
+							onClick={() => setMenuOpen((open) => !open)}
+							data-testid="capture-bar-plus"
+							{...stylex.props(styles.plus)}
 						>
-							<XIcon size={11} weight="bold" aria-hidden />
+							<PlusIcon size={16} weight="bold" aria-hidden />
 						</button>
-					</span>
-				))}
+						{menuOpen && (
+							<span {...stylex.props(styles.menuAnchor)}>
+								<SlashMenu
+									items={slashItems}
+									highlightedIndex={highlighted}
+									onHighlight={setHighlighted}
+									hints={false}
+									onSelect={(item) => {
+										pick(item);
+										setMenuOpen(false);
+										editorRef.current?.focus();
+									}}
+								/>
+							</span>
+						)}
+					</div>
+				)}
+				{picked.length > 0 && (
+					<div {...stylex.props(styles.chips)}>
+						{picked.map((item) => (
+							<span
+								key={item.id}
+								{...stylex.props(styles.chip)}
+								data-testid="capture-bar-chip"
+							>
+								{item.icon && (
+									<span {...stylex.props(styles.chipIcon)} aria-hidden>
+										{item.icon}
+									</span>
+								)}
+								{item.label}
+								<button
+									type="button"
+									aria-label={`Remove ${item.label}`}
+									onClick={() => unpick(item)}
+									{...stylex.props(styles.chipRemove)}
+								>
+									<XIcon size={11} weight="bold" aria-hidden />
+								</button>
+							</span>
+						))}
+					</div>
+				)}
 				<LexicalComposer
 					initialConfig={{
 						namespace: "capture-bar",
@@ -549,26 +624,31 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						onBackspaceEmpty={() => setPicked((all) => all.slice(0, -1))}
 					/>
 				</LexicalComposer>
-				{onSplit && hasText && (
-					<button type="button" onClick={split} {...stylex.props(styles.split)}>
+				{onSplit && (
+					<button
+						type="button"
+						aria-label="Split"
+						data-testid="capture-bar-split"
+						onClick={split}
+						disabled={!hasText}
+						aria-hidden={!hasText}
+						tabIndex={hasText ? 0 : -1}
+						{...stylex.props(styles.split, !hasText && styles.splitHidden)}
+					>
 						<SparkleIcon size={13} aria-hidden />
-						Split
-						<span aria-hidden {...stylex.props(styles.shortcut)}>
-							⌘⇧↵
-						</span>
+						<span {...stylex.props(styles.splitLabel)}>Split</span>
 					</button>
 				)}
-				<span {...stylex.props(styles.add)}>
-					<Button
-						variant="primary"
-						disabled={!hasText}
-						onClick={submit}
-						data-testid="capture-bar-submit"
-					>
-						<PlusIcon size={14} weight="bold" aria-hidden />
-						Add
-					</Button>
-				</span>
+				<button
+					type="button"
+					aria-label="Add"
+					disabled={!hasText}
+					onClick={submit}
+					data-testid="capture-bar-submit"
+					{...stylex.props(styles.add)}
+				>
+					<ArrowUpIcon size={16} weight="bold" aria-hidden />
+				</button>
 			</div>
 		</div>
 	);

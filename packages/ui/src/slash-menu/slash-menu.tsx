@@ -137,6 +137,8 @@ export interface SlashMenuProps<T extends SlashMenuItem> {
 	onSelect: (item: T) => void;
 	/** Lets the keyboard scroll the highlighted item into view. */
 	itemRef?: (item: T, element: HTMLElement | null) => void;
+	/** Shows the key hints. Turn off where the keys don't drive the menu. */
+	hints?: boolean;
 }
 
 /** Space to keep from the window's edge and from the caret's line. */
@@ -169,6 +171,7 @@ export function SlashMenu<T extends SlashMenuItem>({
 	onHighlight,
 	onSelect,
 	itemRef,
+	hints = true,
 }: SlashMenuProps<T>) {
 	const groups: SlashMenuGroup<T>[] = groupSlashMenuItems(items);
 	const popupRef = useRef<HTMLDivElement>(null);
@@ -212,11 +215,13 @@ export function SlashMenu<T extends SlashMenuItem>({
 					})}
 				</div>
 			))}
-			<div {...stylex.props(styles.footer)} aria-hidden>
-				<span>↑↓ navigate</span>
-				<span>⏎ select</span>
-				<span>esc dismiss</span>
-			</div>
+			{hints && (
+				<div {...stylex.props(styles.footer)} aria-hidden>
+					<span>↑↓ navigate</span>
+					<span>⏎ select</span>
+					<span>esc dismiss</span>
+				</div>
+			)}
 		</div>
 	);
 }
