@@ -1,6 +1,11 @@
 import { textState } from "@cascade/data";
 import { Button } from "@cascade/ui/button";
-import { CheckIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
+import {
+	ArrowUUpLeftIcon,
+	CheckIcon,
+	SparkleIcon,
+	XIcon,
+} from "@phosphor-icons/react";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useEffect, useRef } from "react";
 import { Drafts } from "#/components/split-tasks/drafts.tsx";
@@ -45,6 +50,7 @@ const styles = {
 	}),
 	actions: css({
 		display: "flex",
+		flexWrap: "wrap",
 		alignItems: "center",
 		gap: "2",
 		paddingTop: "2.5",
@@ -184,6 +190,10 @@ export function CaptureSplit({
 						{error ?? "Splitting…"}
 					</span>
 				)}
+				<Button size="small" onClick={onCancel} data-testid="split-cancel">
+					<ArrowUUpLeftIcon size={11} weight="bold" aria-hidden />
+					Cancel
+				</Button>
 			</div>
 		</section>
 	);

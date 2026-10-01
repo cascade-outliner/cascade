@@ -1,4 +1,4 @@
-import { css, cva, keyframes } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -6,7 +6,12 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
-import { PlusIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
+import {
+	ArrowUpIcon,
+	PlusIcon,
+	SparkleIcon,
+	XIcon,
+} from "@phosphor-icons/react";
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -25,15 +30,9 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
+import { SlashMenu } from "../slash-menu/slash-menu.tsx";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
-
-const pop = keyframes({
-	"0%": { transform: "scale(1)" },
-	"40%": { transform: "scale(1.35)" },
-	"100%": { transform: "scale(1)" },
-});
 
 const styles = {
 	bar: css({
@@ -50,47 +49,61 @@ const styles = {
 		transitionDuration: "150",
 		transitionTimingFunction: "standard",
 	}),
-	row: css({
+	plusWrap: css({
+		position: "relative",
 		display: "flex",
-		alignItems: "flex-start",
-		gap: "2.5",
-		paddingBlock: "2.5",
-		paddingInlineStart: "3",
-		paddingInlineEnd: "2.5",
-		cursor: "text",
+		alignSelf: "flex-end",
+		flexShrink: 0,
 	}),
-	split: css({
+	menuAnchor: css({
+		position: "absolute",
+		top: "[100%]",
+		left: "0",
+		width: "control.xl",
+		height: "control.xl",
+	}),
+	plus: css({
 		display: "flex",
 		alignItems: "center",
-		gap: "1.5",
+		justifyContent: "center",
+		alignSelf: "flex-end",
 		flexShrink: 0,
-		height: "control.md",
-		paddingBlock: "0",
-		paddingInline: "2",
+		width: "control.xl",
+		height: "control.xl",
+		padding: "0",
 		border: "none",
 		borderRadius: "md",
 		backgroundColor: "primaryMuted",
 		color: "primary",
-		fontFamily: "inherit",
-		fontSize: "300",
-		fontWeight: 500,
-		whiteSpace: "nowrap",
 		cursor: "pointer",
-		_focusVisible: {
-			outline: "none",
-			boxShadow: "focusRing",
-		},
-		transitionProperty: "[opacity, transform]",
-		transitionDuration: { base: "150", _motionReduce: "0" },
-		transitionTimingFunction: "standard",
-		_starting: {
-			opacity: "hidden",
-			transform: "scale(0.94)",
-		},
+		touchAction: "manipulation",
+		outline: "none",
+		_active: { backgroundColor: "border" },
+		_focusVisible: { boxShadow: "focusRing" },
 	}),
-	shortcut: css({
-		fontFamily: "mono",
-		fontSize: "200",
+	row: css({
+		display: "flex",
+		alignItems: "flex-start",
+		flexWrap: { base: "nowrap", _mobile: "wrap" },
+		gap: "2.5",
+		paddingBlock: "3",
+		paddingInlineStart: "4",
+		paddingInlineEnd: "3",
+		cursor: "text",
+	}),
+	chips: css({
+		display: "flex",
+		alignSelf: "center",
+		flexWrap: "wrap",
+		gap: "1.5",
+		maxWidth: { base: "[55%]", _mobile: "[none]" },
+		flexBasis: { base: "auto", _mobile: "[100%]" },
+		order: { base: 0, _mobile: -1 },
+		paddingBottom: { base: "0", _mobile: "1" },
+		flexShrink: 0,
+	}),
+	splitLabel: css({
+		display: { base: "inline", _mobile: "[none]" },
 	}),
 	chip: css({
 		display: "flex",
@@ -135,7 +148,9 @@ const styles = {
 	}),
 	editor: css({
 		position: "relative",
+		alignSelf: "center",
 		flexGrow: 1,
+		flexBasis: "0",
 		minWidth: "0",
 		maxHeight: "[40vh]",
 		overflowY: "auto",
@@ -158,13 +173,73 @@ const styles = {
 		lineHeight: "line",
 		whiteSpace: "nowrap",
 	}),
-	// The Add button is a little taller than a line; this centres it on the first.
-	add: css({
-		display: "flex",
-		flexShrink: 0,
-		marginTop: "-0.5",
-	}),
 };
+
+const splitButton = cva({
+	base: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: "1.5",
+		flexShrink: 0,
+		height: "control.xl",
+		alignSelf: "flex-end",
+		paddingBlock: "0",
+		paddingInline: { base: "3", _mobile: "0" },
+		width: { base: "auto", _mobile: "control.xl" },
+		border: "none",
+		borderRadius: "md",
+		backgroundColor: "primaryMuted",
+		color: "primary",
+		fontFamily: "inherit",
+		fontSize: "300",
+		fontWeight: 500,
+		whiteSpace: "nowrap",
+		cursor: "pointer",
+		_focusVisible: {
+			outline: "none",
+			boxShadow: "focusRing",
+		},
+		transitionProperty: "[opacity]",
+		transitionDuration: { base: "150", _motionReduce: "0" },
+		transitionTimingFunction: "standard",
+	},
+	variants: {
+		hidden: {
+			true: { opacity: "hidden", pointerEvents: "none" },
+		},
+	},
+});
+
+const add = css({
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	alignSelf: "flex-end",
+	flexShrink: 0,
+	width: "control.xl",
+	height: "control.xl",
+	padding: "0",
+	border: "none",
+	borderRadius: "md",
+	backgroundColor: "primary",
+	color: "onPrimary",
+	font: "inherit",
+	fontSize: "300",
+	fontWeight: 500,
+	whiteSpace: "nowrap",
+	outline: "none",
+	cursor: "pointer",
+	transitionProperty: "[background-color, color]",
+	transitionDuration: { base: "150", _motionReduce: "0" },
+	transitionTimingFunction: "standard",
+	_disabled: {
+		backgroundColor: "primaryMuted",
+		color: "primary",
+		cursor: "not-allowed",
+	},
+	_focusVisible: { boxShadow: "focusRing" },
+});
 
 // Grows from 0 to its content's height: grid rows can transition, `height: auto` can't.
 const collapsible = cva({
@@ -199,59 +274,6 @@ const panelInner = cva({
 				borderBottomStyle: "solid",
 				borderBottomColor: "border",
 			},
-		},
-	},
-});
-
-const ghost = cva({
-	base: {
-		width: "control.xs",
-		height: "control.xs",
-		marginTop: "[3px]",
-		flexShrink: 0,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		borderRadius: "circle",
-		borderWidth: "thick",
-		borderStyle: "dashed",
-		borderColor: "borderStrong",
-		backgroundColor: "transparent",
-		transitionProperty: "[background-color, border-color]",
-		transitionDuration: "150",
-		transitionTimingFunction: "standard",
-	},
-	variants: {
-		filled: {
-			true: {
-				borderColor: "transparent",
-				backgroundColor: "primaryMuted",
-			},
-		},
-		pop: {
-			true: {
-				animationName: { base: `[${pop}]` as const, _motionReduce: "[none]" },
-				animationDuration: "250",
-				animationTimingFunction: "enter",
-			},
-		},
-	},
-});
-
-const dot = cva({
-	base: {
-		width: "dot.lg",
-		height: "dot.lg",
-		borderRadius: "circle",
-		backgroundColor: "primary",
-		transform: "scale(0)",
-		transitionProperty: "[transform]",
-		transitionDuration: "150",
-		transitionTimingFunction: "standard",
-	},
-	variants: {
-		visible: {
-			true: { transform: "scale(1)" },
 		},
 	},
 });
@@ -436,7 +458,9 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	const [text, setText] = useState("");
 	/** Slash commands picked so far; they apply when the text is submitted. */
 	const [picked, setPicked] = useState<T[]>([]);
-	const [added, setAdded] = useState(0);
+	const menuRef = useRef<HTMLDivElement>(null);
+	const [menuOpen, setMenuOpen] = useState(false);
+	const [highlighted, setHighlighted] = useState<number | null>(null);
 	const editorRef = useRef<EditorHandle>(null);
 	const hasText = text.trim() !== "";
 	useImperativeHandle(ref, () => ({
@@ -458,13 +482,21 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 		return () => clearTimeout(timer);
 	}, [open]);
 
+	useEffect(() => {
+		if (!menuOpen) return;
+		const close = (event: PointerEvent) => {
+			if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+		};
+		document.addEventListener("pointerdown", close);
+		return () => document.removeEventListener("pointerdown", close);
+	}, [menuOpen]);
+
 	function submit() {
 		const trimmed = text.trim();
 		if (!trimmed) return;
 		onSubmit(trimmed, picked);
 		setPicked([]);
 		editorRef.current?.clear();
-		setAdded((n) => n + 1);
 		editorRef.current?.focus();
 	}
 
@@ -488,7 +520,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 
 	/** Escape: the chips go first, then focus. Typed text is never thrown away. */
 	function dismiss() {
-		if (picked.length > 0) setPicked([]);
+		if (menuOpen) setMenuOpen(false);
+		else if (picked.length > 0) setPicked([]);
 		else (document.activeElement as HTMLElement | null)?.blur();
 	}
 
@@ -500,35 +533,69 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				</div>
 			</div>
 			<div className={styles.row}>
-				<span
-					key={added}
-					aria-hidden
-					className={ghost({ filled: hasText, pop: added > 0 })}
-				>
-					<span className={dot({ visible: hasText })} />
-				</span>
-				{picked.map((item) => (
-					<span
-						key={item.id}
-						className={styles.chip}
-						data-testid="capture-bar-chip"
+				{slashItems.length > 0 && (
+					// biome-ignore lint/a11y/noStaticElementInteractions: only closes the menu on Escape while focus is on its button.
+					<div
+						ref={menuRef}
+						className={styles.plusWrap}
+						onKeyDown={(event) => {
+							if (event.key === "Escape") setMenuOpen(false);
+						}}
 					>
-						{item.icon && (
-							<span className={styles.chipIcon} aria-hidden>
-								{item.icon}
-							</span>
-						)}
-						{item.label}
 						<button
 							type="button"
-							aria-label={`Remove ${item.label}`}
-							onClick={() => unpick(item)}
-							className={styles.chipRemove}
+							aria-label="Insert command"
+							aria-expanded={menuOpen}
+							onPointerDown={(event) => event.preventDefault()}
+							onClick={() => setMenuOpen((open) => !open)}
+							data-testid="capture-bar-plus"
+							className={styles.plus}
 						>
-							<XIcon size={11} weight="bold" aria-hidden />
+							<PlusIcon size={16} weight="bold" aria-hidden />
 						</button>
-					</span>
-				))}
+						{menuOpen && (
+							<span className={styles.menuAnchor}>
+								<SlashMenu
+									items={slashItems}
+									highlightedIndex={highlighted}
+									onHighlight={setHighlighted}
+									hints={false}
+									onSelect={(item) => {
+										pick(item);
+										setMenuOpen(false);
+										editorRef.current?.focus();
+									}}
+								/>
+							</span>
+						)}
+					</div>
+				)}
+				{picked.length > 0 && (
+					<div className={styles.chips}>
+						{picked.map((item) => (
+							<span
+								key={item.id}
+								className={styles.chip}
+								data-testid="capture-bar-chip"
+							>
+								{item.icon && (
+									<span className={styles.chipIcon} aria-hidden>
+										{item.icon}
+									</span>
+								)}
+								{item.label}
+								<button
+									type="button"
+									aria-label={`Remove ${item.label}`}
+									onClick={() => unpick(item)}
+									className={styles.chipRemove}
+								>
+									<XIcon size={11} weight="bold" aria-hidden />
+								</button>
+							</span>
+						))}
+					</div>
+				)}
 				<LexicalComposer
 					initialConfig={{
 						namespace: "capture-bar",
@@ -549,26 +616,31 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 						onBackspaceEmpty={() => setPicked((all) => all.slice(0, -1))}
 					/>
 				</LexicalComposer>
-				{onSplit && hasText && (
-					<button type="button" onClick={split} className={styles.split}>
+				{onSplit && (
+					<button
+						type="button"
+						aria-label="Split"
+						data-testid="capture-bar-split"
+						onClick={split}
+						disabled={!hasText}
+						aria-hidden={!hasText}
+						tabIndex={hasText ? 0 : -1}
+						className={splitButton({ hidden: !hasText })}
+					>
 						<SparkleIcon size={13} aria-hidden />
-						Split
-						<span aria-hidden className={styles.shortcut}>
-							⌘⇧↵
-						</span>
+						<span className={styles.splitLabel}>Split</span>
 					</button>
 				)}
-				<span className={styles.add}>
-					<Button
-						variant="primary"
-						disabled={!hasText}
-						onClick={submit}
-						data-testid="capture-bar-submit"
-					>
-						<PlusIcon size={14} weight="bold" aria-hidden />
-						Add
-					</Button>
-				</span>
+				<button
+					type="button"
+					aria-label="Add"
+					disabled={!hasText}
+					onClick={submit}
+					data-testid="capture-bar-submit"
+					className={add}
+				>
+					<ArrowUpIcon size={16} weight="bold" aria-hidden />
+				</button>
 			</div>
 		</div>
 	);
