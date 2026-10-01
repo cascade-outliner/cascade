@@ -89,7 +89,7 @@ const styles = stylex.create({
 		animationDuration: "1.8s",
 		animationIterationCount: "infinite",
 		animationTimingFunction: "ease-in-out",
-		"@media (prefers-reduced-motion: reduce)": { animationName: "none" },
+		[media.reducedMotion]: { animationName: "none" },
 	},
 	cardTitle: {
 		marginBlockEnd: "0.375rem",

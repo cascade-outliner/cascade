@@ -9,6 +9,7 @@ import {
 	shiftDay,
 	yearId,
 } from "@cascade/data";
+import { media } from "@cascade/theme/media.stylex";
 import {
 	borderWidth,
 	colors,
@@ -32,7 +33,6 @@ import { openCommandMenu } from "#/components/command-menu.tsx";
 import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
 import { useOutlineStore, useSyncConfig } from "#/lib/outline-store.tsx";
 
-const MOBILE = "@media (max-width: 640px)";
 // Wide enough for the logo to sit left of the centered container without overlapping it.
 const WIDE = "@media (min-width: 1200px)";
 
@@ -50,14 +50,14 @@ const styles = stylex.create({
 	},
 	inner: {
 		display: "flex",
-		flexWrap: { default: "nowrap", [MOBILE]: "wrap" },
+		flexWrap: { default: "nowrap", [media.mobile]: "wrap" },
 		alignItems: "center",
 		gap: space["3"],
-		rowGap: { default: null, [MOBILE]: space["2"] },
+		rowGap: { default: null, [media.mobile]: space["2"] },
 		maxWidth: 980,
 		margin: "0 auto",
 		paddingBlock: space["2.5"],
-		paddingInline: { default: space["8"], [MOBILE]: space["4"] },
+		paddingInline: { default: space["8"], [media.mobile]: space["4"] },
 	},
 	logo: {
 		display: "flex",
@@ -65,7 +65,7 @@ const styles = stylex.create({
 		gap: space["2"],
 		flexShrink: 0,
 		height: 32,
-		marginInlineEnd: { default: space["3"], [MOBILE]: "auto", [WIDE]: 0 },
+		marginInlineEnd: { default: space["3"], [media.mobile]: "auto", [WIDE]: 0 },
 		position: { default: "static", [WIDE]: "absolute" },
 		left: space["4"],
 		// The header also holds the period strip, so 50% would drift down; pin to the top row.
@@ -81,16 +81,16 @@ const styles = stylex.create({
 		flexShrink: 0,
 	},
 	wordmark: {
-		display: { default: "inline", [MOBILE]: "none" },
+		display: { default: "inline", [media.mobile]: "none" },
 	},
 	// On mobile the breadcrumbs drop to their own row below; hidden there when there are none.
 	start: {
 		display: {
 			default: "flex",
-			[MOBILE]: { default: "flex", ":empty": "none" },
+			[media.mobile]: { default: "flex", ":empty": "none" },
 		},
-		flex: { default: 1, [MOBILE]: "1 1 100%" },
-		order: { default: null, [MOBILE]: 1 },
+		flex: { default: 1, [media.mobile]: "1 1 100%" },
+		order: { default: null, [media.mobile]: 1 },
 		minWidth: 0,
 	},
 	search: {

@@ -1,4 +1,5 @@
 import { Dialog as Base } from "@base-ui/react/dialog";
+import { media } from "@cascade/theme/media.stylex";
 import {
 	borderWidth,
 	colors,
@@ -12,23 +13,20 @@ import { XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 
-const MOBILE = "@media (max-width: 640px)";
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-
 const styles = stylex.create({
 	popup: {
 		position: "fixed",
 		zIndex: zIndex.popup,
 		// Floats inside the viewport rather than sticking to its edge.
-		top: { default: space["3"], [MOBILE]: "auto" },
-		right: { default: space["3"], [MOBILE]: space["2"] },
-		bottom: { default: "auto", [MOBILE]: space["2"] },
-		left: { default: "auto", [MOBILE]: space["2"] },
-		width: { default: 440, [MOBILE]: "auto" },
+		top: { default: space["3"], [media.mobile]: "auto" },
+		right: { default: space["3"], [media.mobile]: space["2"] },
+		bottom: { default: "auto", [media.mobile]: space["2"] },
+		left: { default: "auto", [media.mobile]: space["2"] },
+		width: { default: 440, [media.mobile]: "auto" },
 		// Fits its content, up to the viewport.
 		maxHeight: {
 			default: `calc(100dvh - 2 * ${space["3"]})`,
-			[MOBILE]: "85dvh",
+			[media.mobile]: "85dvh",
 		},
 		display: "flex",
 		flexDirection: "column",
@@ -43,12 +41,12 @@ const styles = stylex.create({
 		"@starting-style": {
 			transform: {
 				default: "translateX(16px) scale(0.98)",
-				[MOBILE]: "translateY(16px)",
+				[media.mobile]: "translateY(16px)",
 			},
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: "200ms", [REDUCED_MOTION]: "0s" },
+		transitionDuration: { default: "200ms", [media.reducedMotion]: "0s" },
 		transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
 	},
 	header: {
