@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_frontend")({
 
 const shell = {
 	page: css({
-		minHeight: "100vh",
+		minHeight: "screen",
 		display: "flex",
 		flexDirection: "column",
 		backgroundColor: "site.canvas",
@@ -56,24 +56,24 @@ const shell = {
 		fontSmoothing: "antialiased",
 	}),
 	main: css({
-		flex: 1,
+		flex: "1",
 		outline: "none",
 	}),
 	skip: css({
 		position: "absolute",
-		insetInlineStart: "1rem",
-		top: "-100%",
-		zIndex: 100,
-		paddingBlock: "0.5rem",
-		paddingInline: "0.875rem",
-		borderRadius: "8px",
+		insetInlineStart: "site.4",
+		top: "[-100%]",
+		zIndex: "overlay",
+		paddingBlock: "site.2",
+		paddingInline: "site.3.5",
+		borderRadius: "md",
 		backgroundColor: "site.ink",
 		color: "site.onDark",
 		textDecoration: "none",
 		fontWeight: 600,
 		_focus: {
-			top: "1rem",
-			boxShadow: "site.focus",
+			top: "site.4",
+			boxShadow: "focusRing",
 			outline: "none",
 		},
 	}),

@@ -8,12 +8,12 @@ const styles = {
 	ghost: css({
 		position: "relative",
 		cursor: "grabbing",
-		opacity: 0.85,
+		opacity: "strong",
 	}),
 	pill: css({
 		position: "absolute",
-		top: "-6px",
-		right: "-6px",
+		top: "-1.5",
+		right: "-1.5",
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",

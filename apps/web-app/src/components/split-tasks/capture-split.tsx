@@ -14,11 +14,9 @@ import {
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 import { css, keyframes } from "#/styled-system/css";
 
-const dashed = "color-mix(in srgb, token(colors.primary) 55%, transparent)";
-
 const pulse = keyframes({
-	"0%, 100%": { opacity: 0.4 },
-	"50%": { opacity: 1 },
+	"0%, 100%": { opacity: "disabled" },
+	"50%": { opacity: "full" },
 });
 
 const styles = {
@@ -31,17 +29,16 @@ const styles = {
 		paddingInline: "3",
 		paddingBlock: "1",
 		fontSize: "400",
-		lineHeight: 1.55,
+		lineHeight: "normal",
 		color: "muted",
 	}),
 	underline: css.raw({
 		textDecorationLine: "underline",
-		textDecorationColor: dashed,
+		textDecorationColor: "primarySoft",
 		textUnderlineOffset: "3px",
-		transition: {
-			base: "text-decoration-color 400ms ease",
-			_motionReduce: "none",
-		},
+		transitionProperty: "[text-decoration-color]",
+		transitionDuration: { base: "400", _motionReduce: "0" },
+		transitionTimingFunction: "standard",
 		_starting: {
 			textDecorationColor: "transparent",
 		},
@@ -53,17 +50,17 @@ const styles = {
 		paddingTop: "2.5",
 		paddingLeft: "8",
 		paddingRight: "3",
-		minHeight: "24px",
+		minHeight: "control.md",
 		fontSize: "200",
 		color: "muted",
 	}),
 	notice: css({
 		fontSize: "300",
 		color: "muted",
-		borderWidth: "4px",
-		borderTopWidth: 0,
-		borderBottomWidth: 0,
-		borderRightWidth: 0,
+		borderWidth: "bar",
+		borderTopWidth: "0",
+		borderBottomWidth: "0",
+		borderRightWidth: "0",
 		borderStyle: "solid",
 		borderColor: "primary",
 		paddingLeft: "3",
@@ -75,10 +72,10 @@ const styles = {
 		color: "primary",
 	}),
 	pulse: css({
-		animationName: { base: pulse, _motionReduce: "none" },
-		animationDuration: "1.2s",
+		animationName: { base: `[${pulse}]` as const, _motionReduce: "[none]" },
+		animationDuration: "pulse",
 		animationIterationCount: "infinite",
-		animationTimingFunction: "ease-in-out",
+		animationTimingFunction: "inOut",
 	}),
 };
 

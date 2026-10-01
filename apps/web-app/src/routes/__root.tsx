@@ -92,7 +92,7 @@ const styles = {
 		color: "ink",
 		fontFamily: "app",
 		touchAction: "manipulation",
-		minHeight: "100dvh",
+		minHeight: "dvh",
 		overscrollBehaviorY: "none",
 	}),
 };

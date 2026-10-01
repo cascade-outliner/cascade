@@ -44,11 +44,12 @@ const appRoute = getRouteApi("/_app");
 
 const styles = {
 	page: css({
-		maxWidth: "980px",
-		margin: "0 auto",
+		maxWidth: "page",
+		marginBlock: "0",
+		marginInline: "auto",
 		padding: { base: "8", _mobile: "4" },
 		paddingBottom: {
-			_mobile: "calc(6rem + env(safe-area-inset-bottom, 0px))",
+			_mobile: "[calc(6rem + env(safe-area-inset-bottom, 0px))]",
 		},
 	}),
 	outline: css({
@@ -62,10 +63,10 @@ const styles = {
 	// Keeps the capture bar in reach at the bottom of long outlines.
 	captureBar: css({
 		position: { base: "sticky", _mobile: "fixed" },
-		bottom: "max(token(spacing.4), env(safe-area-inset-bottom))",
+		bottom: "[max(token(spacing.4), env(safe-area-inset-bottom))]",
 		left: { _mobile: "4" },
 		right: { _mobile: "4" },
-		zIndex: 1,
+		zIndex: "raised",
 		viewTransitionName: "capture-bar",
 	}),
 };

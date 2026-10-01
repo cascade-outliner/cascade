@@ -4,10 +4,10 @@ import { css } from "@/styled-system/css";
 const styles = {
 	hidden: css({
 		position: "absolute",
-		width: "1px",
-		height: "1px",
-		padding: 0,
-		margin: "-1px",
+		width: "hairline",
+		height: "hairline",
+		padding: "0",
+		margin: "-px",
 		overflow: "hidden",
 		clipPath: "inset(50%)",
 		whiteSpace: "nowrap",

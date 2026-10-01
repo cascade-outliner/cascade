@@ -2,16 +2,15 @@ import { css, cva } from "@cascade/theme/css";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 const DAY_WIDTH = 64;
-const GAP = 6;
 
 const styles = {
 	strip: css({
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "stretch",
-		gap: { base: "1", _narrow: 0 },
+		gap: { base: "1", _narrow: "0" },
 		paddingBlock: "2",
-		paddingInline: { base: 0, _narrow: "1" },
+		paddingInline: { base: "0", _narrow: "1" },
 	}),
 	arrow: css({
 		display: "flex",
@@ -19,7 +18,7 @@ const styles = {
 		alignSelf: "center",
 		flexShrink: 0,
 		padding: { base: "2", _narrow: "3" },
-		borderWidth: 0,
+		borderWidth: "0",
 		borderRadius: "md",
 		backgroundColor: { base: "transparent", _hover: "primaryMuted" },
 		color: "muted",
@@ -28,40 +27,39 @@ const styles = {
 	// One fill that slides between days, instead of one per day.
 	pill: css({
 		position: "absolute",
-		top: 0,
-		left: 0,
-		height: "100%",
+		top: "0",
+		left: "0",
+		height: "full",
 		boxSizing: "border-box",
-		paddingInline: `${GAP / 2}px`,
-		transition: {
-			base: "transform 260ms cubic-bezier(0.2, 0, 0, 1)",
-			_motionReduce: "none",
-		},
+		paddingInline: "[3px]",
+		transitionProperty: "[transform]",
+		transitionDuration: { base: "250", _motionReduce: "0" },
+		transitionTimingFunction: "out",
 	}),
 	pillFill: css({
-		width: "100%",
-		height: "100%",
+		width: "full",
+		height: "full",
 		borderRadius: "lg",
 		backgroundColor: "primary",
 	}),
 	days: css({
 		position: "relative",
 		display: "grid",
-		flex: 1,
-		minWidth: 0,
+		flex: "1",
+		minWidth: "0",
 	}),
 	name: css({
-		fontSize: { base: "100", _narrow: "10px" },
+		fontSize: { base: "100", _narrow: "100" },
 		fontWeight: 500,
-		opacity: 0.7,
+		opacity: "soft",
 	}),
 	num: css({
 		fontSize: { base: "500", _narrow: "300" },
 		fontWeight: 600,
 	}),
 	dot: css({
-		width: "4px",
-		height: "4px",
+		width: "dot.md",
+		height: "dot.md",
 		borderRadius: "full",
 		backgroundColor: "currentColor",
 	}),
@@ -73,19 +71,18 @@ const day = cva({
 		flexDirection: "column",
 		alignItems: "center",
 		gap: "0.5",
-		flex: 1,
-		minWidth: 0,
+		flex: "1",
+		minWidth: "0",
 		paddingBlock: "2",
-		borderWidth: 0,
+		borderWidth: "0",
 		borderRadius: "lg",
 		backgroundColor: "transparent",
 		color: "ink",
 		cursor: "pointer",
 		position: "relative",
-		transition: {
-			base: "color 200ms",
-			_motionReduce: "none",
-		},
+		transitionProperty: "[color]",
+		transitionDuration: { base: "200", _motionReduce: "0" },
+		transitionTimingFunction: "standard",
 	},
 	variants: {
 		selected: {

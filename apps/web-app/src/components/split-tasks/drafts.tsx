@@ -4,11 +4,9 @@ import type { SplitTask } from "#/server/split.ts";
 import { css, keyframes } from "#/styled-system/css";
 import type { SystemStyleObject } from "#/styled-system/types";
 
-const dashed = "color-mix(in srgb, token(colors.primary) 55%, transparent)";
-
 const rise = keyframes({
-	from: { opacity: 0, transform: "translateY(4px)" },
-	to: { opacity: 1, transform: "none" },
+	from: { opacity: "hidden", transform: "translateY(4px)" },
+	to: { opacity: "full", transform: "none" },
 });
 
 const styles = {
@@ -16,16 +14,15 @@ const styles = {
 	growIn: css({
 		display: "grid",
 		gridTemplateRows: "1fr",
-		transition: {
-			base: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
-			_motionReduce: "none",
-		},
+		transitionProperty: "[grid-template-rows]",
+		transitionDuration: { base: "250", _motionReduce: "0" },
+		transitionTimingFunction: "out",
 		_starting: {
 			gridTemplateRows: "0fr",
 		},
 	}),
 	clip: css({
-		minHeight: 0,
+		minHeight: "0",
 		overflow: "hidden",
 	}),
 	list: css.raw({
@@ -36,7 +33,7 @@ const styles = {
 		paddingLeft: "2.5",
 		borderLeftWidth: "thin",
 		borderLeftStyle: "dashed",
-		borderLeftColor: dashed,
+		borderLeftColor: "primarySoft",
 	}),
 	// Each draft rises in after the one before it.
 	draft: css({
@@ -46,23 +43,23 @@ const styles = {
 		paddingBlock: "1.5",
 		paddingInline: "2.5",
 		color: "ink",
-		animationName: { base: rise, _motionReduce: "none" },
-		animationDuration: "240ms",
-		animationTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
+		animationName: { base: `[${rise}]` as const, _motionReduce: "[none]" },
+		animationDuration: "250",
+		animationTimingFunction: "out",
 		animationFillMode: "backwards",
 	}),
 	marker: css({
-		width: "18px",
-		height: "18px",
+		width: "control.xs",
+		height: "control.xs",
 		flexShrink: 0,
 		borderRadius: "full",
 		borderWidth: "thick",
 		borderStyle: "dashed",
-		borderColor: dashed,
+		borderColor: "primarySoft",
 	}),
 	text: css({
-		flex: 1,
-		minWidth: 0,
+		flex: "1",
+		minWidth: "0",
 	}),
 };
 

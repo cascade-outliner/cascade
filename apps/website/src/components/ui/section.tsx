@@ -6,7 +6,7 @@ import { Container } from "./container";
 const styles = {
 	section: css.raw({
 		paddingBlockEnd: "site.sectionGap",
-		scrollMarginBlockStart: "1.5rem",
+		scrollMarginBlockStart: "site.6",
 	}),
 };
 

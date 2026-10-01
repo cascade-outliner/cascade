@@ -18,7 +18,7 @@ const styles = {
 		borderRadius: "sm",
 		backgroundColor: "muted",
 		color: "white",
-		fontFamily: "monospace",
+		fontFamily: "mono",
 		fontSize: "200",
 		lineHeight: "compact",
 	}),

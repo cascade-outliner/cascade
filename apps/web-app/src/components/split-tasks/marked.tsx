@@ -3,14 +3,12 @@ import type { ReactNode } from "react";
 import { css } from "#/styled-system/css";
 import type { SystemStyleObject } from "#/styled-system/types";
 
-const tint = "color-mix(in srgb, token(colors.primary) 14%, transparent)";
-
 const styles = {
 	// 3b: the tint on the phrases of the note tasks were pulled from.
 	source: css.raw({
-		backgroundColor: tint,
+		backgroundColor: "primaryFaint",
 		borderRadius: "sm",
-		boxShadow: `0 0 0 2px ${tint}`,
+		boxShadow: "[0 0 0 2px token(colors.primaryFaint)]",
 	}),
 };
 

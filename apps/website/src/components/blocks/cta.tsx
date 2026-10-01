@@ -9,19 +9,19 @@ import { Text } from "../ui/text";
 const styles = {
 	band: css({
 		backgroundColor: "site.primary",
-		color: "#ffffff",
-		paddingBlock: { base: "5.5rem", _mobile: "4rem" },
+		color: "site.onPrimary",
+		paddingBlock: { base: "site.22", _mobile: "site.16" },
 	}),
 	inner: css.raw({
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		gap: "1.625rem",
+		gap: "site.6.5",
 		textAlign: "center",
 	}),
 	body: css.raw({
-		opacity: 0.9,
-		fontSize: "1.125rem",
+		opacity: "strong",
+		fontSize: "site.lead",
 	}),
 };
 

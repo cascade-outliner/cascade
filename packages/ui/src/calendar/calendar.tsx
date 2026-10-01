@@ -12,8 +12,8 @@ const styles = {
 	}),
 	nav: css({
 		position: "absolute",
-		top: 0,
-		right: 0,
+		top: "0",
+		right: "0",
 		display: "flex",
 		gap: "0.5",
 	}),
@@ -21,9 +21,9 @@ const styles = {
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: "28px",
-		height: "28px",
-		padding: 0,
+		width: "control.lg",
+		height: "control.lg",
+		padding: "0",
 		border: "none",
 		borderRadius: "md",
 		backgroundColor: {
@@ -37,14 +37,14 @@ const styles = {
 			boxShadow: "focusRing",
 		},
 		_disabled: {
-			opacity: 0.4,
+			opacity: "disabled",
 			cursor: "default",
 		},
 	}),
 	caption: css({
 		display: "flex",
 		alignItems: "center",
-		height: "28px",
+		height: "control.lg",
 		paddingInline: "1.5",
 		marginBottom: "2",
 	}),
@@ -57,7 +57,7 @@ const styles = {
 		borderCollapse: "collapse",
 	}),
 	weekday: css({
-		width: "34px",
+		width: "[34px]",
 		paddingBottom: "1",
 		fontSize: "200",
 		fontWeight: 500,
@@ -71,9 +71,9 @@ const styles = {
 
 const dayButton = cva({
 	base: {
-		width: "32px",
-		height: "32px",
-		padding: 0,
+		width: "control.xl",
+		height: "control.xl",
+		padding: "0",
 		border: "none",
 		borderRadius: "full",
 		backgroundColor: {
@@ -108,11 +108,11 @@ const dayButton = cva({
 				_after: {
 					content: '""',
 					position: "absolute",
-					bottom: "3px",
-					left: "50%",
-					width: "3px",
-					height: "3px",
-					marginLeft: "-1.5px",
+					bottom: "[3px]",
+					left: "[50%]",
+					width: "dot.sm",
+					height: "dot.sm",
+					marginLeft: "[-1.5px]",
 					borderRadius: "full",
 					backgroundColor: "currentColor",
 				},

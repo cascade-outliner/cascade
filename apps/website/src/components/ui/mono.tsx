@@ -7,7 +7,7 @@ const mono = cva({
 		fontFamily: "mono",
 		fontSize: "site.eyebrow",
 		fontWeight: 500,
-		lineHeight: 1.4,
+		lineHeight: "label",
 		whiteSpace: "nowrap",
 	},
 	variants: {

@@ -3,24 +3,26 @@ import { CaretRightIcon } from "@phosphor-icons/react";
 
 const chevron = cva({
 	base: {
-		width: { base: "16px", _pointerCoarse: "24px" },
-		height: { base: "18px", _pointerCoarse: "24px" },
+		width: { base: "icon.md", _pointerCoarse: "control.md" },
+		height: { base: "control.xs", _pointerCoarse: "control.md" },
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		border: "none",
-		padding: 0,
+		padding: "0",
 		backgroundColor: "transparent",
 		color: "muted",
 		cursor: "pointer",
-		opacity: { base: 0.35, _pointerCoarse: 0.55 },
-		transition: "transform token(durations.100) ease-in-out",
+		opacity: { base: "faint", _pointerCoarse: "muted" },
+		transitionProperty: "[transform]",
+		transitionDuration: "100",
+		transitionTimingFunction: "inOut",
 		_hover: {
-			opacity: 1,
+			opacity: "full",
 		},
 		_focusVisible: {
-			opacity: 1,
+			opacity: "full",
 			boxShadow: "focusRing",
 			borderRadius: "sm",
 		},

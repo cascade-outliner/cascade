@@ -6,7 +6,7 @@ import { Content } from "./content.tsx";
 
 const styles = {
 	heading: css({
-		margin: 0,
+		margin: "0",
 		font: "inherit",
 	}),
 	title: css.raw({

@@ -12,8 +12,8 @@ const styles = {
 		outline: "none",
 	}),
 	popup: css({
-		minWidth: "200px",
-		maxWidth: "calc(100vw - 32px)",
+		minWidth: "[200px]",
+		maxWidth: "[calc(100vw - 32px)]",
 		borderRadius: "lg",
 		borderWidth: "thin",
 		borderStyle: "solid",
@@ -60,7 +60,7 @@ const item = cva({
 
 const itemIcon = cva({
 	base: {
-		width: "16px",
+		width: "icon.md",
 		flexShrink: 0,
 		display: "flex",
 		justifyContent: "center",
@@ -75,11 +75,11 @@ const itemIcon = cva({
 
 const extra = {
 	label: css({
-		flex: 1,
-		minWidth: 0,
+		flex: "1",
+		minWidth: "0",
 	}),
 	separator: css({
-		height: "1px",
+		height: "hairline",
 		border: "none",
 		backgroundColor: "border",
 		marginBlock: "1.5",

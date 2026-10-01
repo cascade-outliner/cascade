@@ -9,12 +9,12 @@ import {
 const styles = {
 	popup: css({
 		position: "absolute",
-		top: 0,
-		left: 0,
+		top: "0",
+		left: "0",
 		zIndex: "popup",
-		width: "280px",
-		maxWidth: "calc(100vw - 32px)",
-		maxHeight: "320px",
+		width: "popup.md",
+		maxWidth: "[calc(100vw - 32px)]",
+		maxHeight: "[320px]",
 		overflowY: "auto",
 		overscrollBehavior: "contain",
 		padding: "1.5",
@@ -27,10 +27,10 @@ const styles = {
 		boxShadow: "popup",
 		outline: "none",
 		_starting: {
-			opacity: 0,
+			opacity: "hidden",
 			transform: "translateY(-4px)",
 		},
-		transitionProperty: "transform, opacity",
+		transitionProperty: "[transform, opacity]",
 		transitionDuration: "100",
 	}),
 	groupLabel: css({
@@ -47,7 +47,7 @@ const styles = {
 	}),
 	body: css({
 		flexGrow: 1,
-		minWidth: 0,
+		minWidth: "0",
 	}),
 	label: css({
 		overflow: "hidden",
@@ -106,8 +106,8 @@ const option = cva({
 
 const icon = cva({
 	base: {
-		width: "22px",
-		height: "22px",
+		width: "control.sm",
+		height: "control.sm",
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",

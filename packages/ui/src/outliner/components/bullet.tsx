@@ -4,16 +4,16 @@ import { DragHandleContext } from "../context";
 
 const bullet = cva({
 	base: {
-		width: "18px",
-		height: "18px",
+		width: "control.xs",
+		height: "control.xs",
 		flexShrink: 0,
-		borderRadius: "50%",
+		borderRadius: "circle",
 		backgroundColor: "inkSubtle",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		border: "none",
-		padding: 0,
+		padding: "0",
 		cursor: "grab",
 		touchAction: "none",
 	},
@@ -26,9 +26,9 @@ const bullet = cva({
 
 const styles = {
 	dot: css({
-		width: "6px",
-		height: "6px",
-		borderRadius: "50%",
+		width: "dot.lg",
+		height: "dot.lg",
+		borderRadius: "circle",
 		backgroundColor: "muted",
 	}),
 };

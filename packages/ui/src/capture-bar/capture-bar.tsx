@@ -29,9 +29,6 @@ import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
-/** The editor's line box; the dot, chips and buttons line up with the first one. */
-const LINE = 24;
-
 const pop = keyframes({
 	"0%": { transform: "scale(1)" },
 	"40%": { transform: "scale(1.35)" },
@@ -47,9 +44,11 @@ const styles = {
 		backgroundColor: "white",
 		boxShadow: {
 			base: "float",
-			_focusWithin: "token(shadows.focus), token(shadows.float)",
+			_focusWithin: "[token(shadows.focus), token(shadows.float)]",
 		},
-		transition: "box-shadow token(durations.150) ease",
+		transitionProperty: "[box-shadow]",
+		transitionDuration: "150",
+		transitionTimingFunction: "standard",
 	}),
 	row: css({
 		display: "flex",
@@ -65,8 +64,8 @@ const styles = {
 		alignItems: "center",
 		gap: "1.5",
 		flexShrink: 0,
-		height: `${LINE}px`,
-		paddingBlock: 0,
+		height: "control.md",
+		paddingBlock: "0",
 		paddingInline: "2",
 		border: "none",
 		borderRadius: "md",
@@ -81,17 +80,16 @@ const styles = {
 			outline: "none",
 			boxShadow: "focusRing",
 		},
-		transition: {
-			base: "opacity 150ms ease, transform 150ms ease",
-			_motionReduce: "none",
-		},
+		transitionProperty: "[opacity, transform]",
+		transitionDuration: { base: "150", _motionReduce: "0" },
+		transitionTimingFunction: "standard",
 		_starting: {
-			opacity: 0,
+			opacity: "hidden",
 			transform: "scale(0.94)",
 		},
 	}),
 	shortcut: css({
-		fontFamily: "monospace",
+		fontFamily: "mono",
 		fontSize: "200",
 	}),
 	chip: css({
@@ -99,7 +97,7 @@ const styles = {
 		alignItems: "center",
 		gap: "1",
 		flexShrink: 0,
-		height: `${LINE}px`,
+		height: "control.md",
 		paddingLeft: "2",
 		paddingRight: "1",
 		borderRadius: "md",
@@ -109,13 +107,12 @@ const styles = {
 		fontWeight: 500,
 		whiteSpace: "nowrap",
 		_starting: {
-			opacity: 0,
+			opacity: "hidden",
 			transform: "scale(0.94)",
 		},
-		transition: {
-			base: "opacity 150ms ease, transform 150ms ease",
-			_motionReduce: "none",
-		},
+		transitionProperty: "[opacity, transform]",
+		transitionDuration: { base: "150", _motionReduce: "0" },
+		transitionTimingFunction: "standard",
 	}),
 	chipIcon: css({
 		display: "flex",
@@ -139,33 +136,33 @@ const styles = {
 	editor: css({
 		position: "relative",
 		flexGrow: 1,
-		minWidth: 0,
-		maxHeight: "40vh",
+		minWidth: "0",
+		maxHeight: "[40vh]",
 		overflowY: "auto",
 	}),
 	editable: css({
 		outline: "none",
 		color: "ink",
 		fontSize: { base: "400", _pointerCoarse: "600" },
-		lineHeight: `${LINE}px`,
+		lineHeight: "line",
 		whiteSpace: "pre-wrap",
 		overflowWrap: "anywhere",
 	}),
 	placeholder: css({
 		position: "absolute",
-		top: 0,
-		left: 0,
+		top: "0",
+		left: "0",
 		pointerEvents: "none",
 		color: "placeholder",
 		fontSize: { base: "400", _pointerCoarse: "600" },
-		lineHeight: `${LINE}px`,
+		lineHeight: "line",
 		whiteSpace: "nowrap",
 	}),
 	// The Add button is a little taller than a line; this centres it on the first.
 	add: css({
 		display: "flex",
 		flexShrink: 0,
-		marginTop: "-2px",
+		marginTop: "-0.5",
 	}),
 };
 
@@ -174,10 +171,9 @@ const collapsible = cva({
 	base: {
 		display: "grid",
 		gridTemplateRows: "0fr",
-		transition: {
-			base: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
-			_motionReduce: "none",
-		},
+		transitionProperty: "[grid-template-rows]",
+		transitionDuration: { base: "200", _motionReduce: "0" },
+		transitionTimingFunction: "out",
 	},
 	variants: {
 		open: {
@@ -188,18 +184,17 @@ const collapsible = cva({
 
 const panelInner = cva({
 	base: {
-		minHeight: 0,
+		minHeight: "0",
 		overflow: "hidden",
-		opacity: 0,
-		transition: {
-			base: "opacity 160ms ease",
-			_motionReduce: "none",
-		},
+		opacity: "hidden",
+		transitionProperty: "[opacity]",
+		transitionDuration: { base: "150", _motionReduce: "0" },
+		transitionTimingFunction: "standard",
 	},
 	variants: {
 		open: {
 			true: {
-				opacity: 1,
+				opacity: "full",
 				borderBottomWidth: "thin",
 				borderBottomStyle: "solid",
 				borderBottomColor: "border",
@@ -210,20 +205,21 @@ const panelInner = cva({
 
 const ghost = cva({
 	base: {
-		width: "18px",
-		height: "18px",
-		marginTop: `${(LINE - 18) / 2}px`,
+		width: "control.xs",
+		height: "control.xs",
+		marginTop: "[3px]",
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		borderRadius: "50%",
+		borderRadius: "circle",
 		borderWidth: "thick",
 		borderStyle: "dashed",
 		borderColor: "borderStrong",
 		backgroundColor: "transparent",
-		transition:
-			"background-color token(durations.150) ease, border-color token(durations.150) ease",
+		transitionProperty: "[background-color, border-color]",
+		transitionDuration: "150",
+		transitionTimingFunction: "standard",
 	},
 	variants: {
 		filled: {
@@ -234,9 +230,9 @@ const ghost = cva({
 		},
 		pop: {
 			true: {
-				animationName: { base: pop, _motionReduce: "none" },
-				animationDuration: "240ms",
-				animationTimingFunction: "ease-out",
+				animationName: { base: `[${pop}]` as const, _motionReduce: "[none]" },
+				animationDuration: "250",
+				animationTimingFunction: "enter",
 			},
 		},
 	},
@@ -244,12 +240,14 @@ const ghost = cva({
 
 const dot = cva({
 	base: {
-		width: "6px",
-		height: "6px",
-		borderRadius: "50%",
+		width: "dot.lg",
+		height: "dot.lg",
+		borderRadius: "circle",
 		backgroundColor: "primary",
 		transform: "scale(0)",
-		transition: "transform token(durations.150) ease",
+		transitionProperty: "[transform]",
+		transitionDuration: "150",
+		transitionTimingFunction: "standard",
 	},
 	variants: {
 		visible: {

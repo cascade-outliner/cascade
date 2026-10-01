@@ -16,7 +16,7 @@ const styles = {
 	wrapper: css({
 		flexGrow: 1,
 		flexShrink: 1,
-		flexBasis: "0%",
+		flexBasis: "[0%]",
 	}),
 	content: css.raw({
 		outline: "none",

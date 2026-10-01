@@ -4,15 +4,15 @@ import { CheckIcon } from "@phosphor-icons/react";
 const styles = {
 	wrapper: css({
 		position: "relative",
-		width: { base: "18px", _pointerCoarse: "22px" },
-		height: { base: "18px", _pointerCoarse: "22px" },
+		width: { base: "control.xs", _pointerCoarse: "control.sm" },
+		height: { base: "control.xs", _pointerCoarse: "control.sm" },
 		flexShrink: 0,
 		display: "flex",
 	}),
 	icon: css({
 		position: "absolute",
-		top: "50%",
-		left: "50%",
+		top: "[50%]",
+		left: "[50%]",
 		transform: "translate(-50%, -50%)",
 		color: "canvas",
 		pointerEvents: "none",
@@ -22,11 +22,11 @@ const styles = {
 const marker = cva({
 	base: {
 		appearance: "none",
-		margin: 0,
-		width: "100%",
-		height: "100%",
-		borderRadius: "50%",
-		padding: 0,
+		margin: "0",
+		width: "full",
+		height: "full",
+		borderRadius: "circle",
+		padding: "0",
 		backgroundColor: "transparent",
 		cursor: "pointer",
 		_focusVisible: {
@@ -42,7 +42,7 @@ const marker = cva({
 				borderColor: "borderStrong",
 			},
 			done: {
-				borderWidth: 0,
+				borderWidth: "0",
 				borderStyle: "none",
 				backgroundColor: "primary",
 			},

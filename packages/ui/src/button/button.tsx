@@ -7,11 +7,11 @@ const button = cva({
 		border: "none",
 		font: "inherit",
 		cursor: { base: "pointer", _disabled: "not-allowed" },
-		opacity: { base: 1, _disabled: "disabled" },
+		opacity: { base: "full", _disabled: "disabled" },
 		display: "inline-flex",
 		alignItems: "center",
 		gap: "1",
-		paddingBlock: "5px",
+		paddingBlock: "[5px]",
 		paddingInline: "3",
 		borderRadius: "md",
 		outline: "none",
@@ -23,7 +23,7 @@ const button = cva({
 		size: {
 			default: {},
 			small: {
-				paddingBlock: "2px",
+				paddingBlock: "0.5",
 				paddingInline: "2",
 				fontSize: "200",
 			},
@@ -32,7 +32,7 @@ const button = cva({
 			secondary: {
 				backgroundColor: { base: "white", _hover: "surface" },
 				boxShadow: {
-					base: "inset 0 0 0 1px token(colors.borderStrong)",
+					base: "hairlineInset",
 					_focusVisible: "focusRing",
 				},
 				color: "ink",

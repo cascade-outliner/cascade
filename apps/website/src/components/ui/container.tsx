@@ -4,7 +4,7 @@ import type { SystemStyleObject } from "@/styled-system/types";
 
 const styles = {
 	container: css.raw({
-		width: "100%",
+		width: "full",
 		maxWidth: "site.maxWidth",
 		marginInline: "auto",
 		paddingInline: "site.gutter",

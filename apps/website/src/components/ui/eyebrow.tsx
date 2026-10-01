@@ -9,7 +9,7 @@ const eyebrow = cva({
 		fontSize: "site.eyebrow",
 		fontWeight: 500,
 		textTransform: "uppercase",
-		lineHeight: 1.4,
+		lineHeight: "label",
 	},
 	variants: {
 		tone: {

@@ -7,51 +7,51 @@ const buttonLink = cva({
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
-		gap: "0.5rem",
+		gap: "site.2",
 		fontWeight: 600,
-		lineHeight: 1.2,
+		lineHeight: "snug",
 		textDecoration: "none",
 		whiteSpace: "nowrap",
 		borderRadius: "lg",
-		transitionProperty: "background-color, color, box-shadow, transform",
-		transitionDuration: "150ms",
+		transitionProperty: "[background-color, color, box-shadow, transform]",
+		transitionDuration: "150",
 		outline: "none",
-		boxShadow: { base: "none", _focusVisible: "site.focus" },
+		boxShadow: { base: "none", _focusVisible: "focusRing" },
 	},
 	variants: {
 		size: {
 			md: {
 				fontSize: "site.small",
-				paddingBlock: "0.625rem",
-				paddingInline: "1.125rem",
+				paddingBlock: "site.2.5",
+				paddingInline: "site.4.5",
 			},
 			lg: {
 				fontSize: "site.body",
-				paddingBlock: "0.875rem",
-				paddingInline: "1.5rem",
+				paddingBlock: "site.3.5",
+				paddingInline: "site.6",
 				borderRadius: "lg",
 			},
 		},
 		variant: {
 			primary: {
 				backgroundColor: { base: "site.primary", _hover: "site.primaryHover" },
-				color: "#ffffff",
+				color: "site.onPrimary",
 			},
 			dark: {
 				backgroundColor: { base: "site.ink", _hover: "site.inkSoft" },
 				color: "site.onDark",
 			},
 			light: {
-				backgroundColor: { base: "site.card", _hover: "#ffffff" },
+				backgroundColor: { base: "site.card", _hover: "site.onPrimary" },
 				color: "site.ink",
 			},
 			outline: {
 				backgroundColor: { base: "transparent", _hover: "site.tint" },
 				color: "site.ink",
 				boxShadow: {
-					base: "inset 0 0 0 1.5px token(colors.site.ink)",
+					base: "site.outlineInk",
 					_focusVisible:
-						"inset 0 0 0 1.5px token(colors.site.ink), token(shadows.site.focus)",
+						"[token(shadows.site.outlineInk), token(shadows.focusRing)]",
 				},
 			},
 			ghost: {
@@ -63,14 +63,14 @@ const buttonLink = cva({
 		/** Stretch to the parent's width. */
 		block: {
 			true: {
-				width: "100%",
-				paddingBlock: "0.8125rem",
+				width: "full",
+				paddingBlock: "site.3.5",
 			},
 		},
 		/** Stretch to the parent's width on phones only. */
 		fullOnMobile: {
 			true: {
-				width: { _mobile: "100%" },
+				width: { _mobile: "full" },
 			},
 		},
 	},

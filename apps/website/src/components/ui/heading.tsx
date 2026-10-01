@@ -4,17 +4,17 @@ import type { SystemStyleObject } from "@/styled-system/types";
 
 const heading = cva({
 	base: {
-		margin: 0,
+		margin: "0",
 		fontWeight: 700,
 		textWrap: "balance",
 		color: "inherit",
 	},
 	variants: {
 		size: {
-			h1: { fontSize: "site.h1", lineHeight: 1.08 },
-			h2: { fontSize: "site.h2", lineHeight: 1.12 },
-			display: { fontSize: "site.display", lineHeight: 1.08 },
-			h3: { fontSize: "site.h3", lineHeight: 1.3, fontWeight: 600 },
+			h1: { fontSize: "site.h1", lineHeight: "tight" },
+			h2: { fontSize: "site.h2", lineHeight: "tight" },
+			display: { fontSize: "site.display", lineHeight: "tight" },
+			h3: { fontSize: "site.h3", lineHeight: "title", fontWeight: 600 },
 		},
 	},
 });

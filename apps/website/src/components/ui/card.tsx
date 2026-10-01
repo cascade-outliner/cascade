@@ -6,7 +6,7 @@ const card = cva({
 	base: {
 		display: "flex",
 		flexDirection: "column",
-		borderRadius: "18px",
+		borderRadius: "site.card",
 	},
 	variants: {
 		tone: {
@@ -31,8 +31,8 @@ const card = cva({
 		},
 		padding: {
 			none: {},
-			padded: { padding: "1.375rem" },
-			roomy: { padding: "2rem", borderRadius: "22px" },
+			padded: { padding: "site.5.5" },
+			roomy: { padding: "site.8", borderRadius: "site.cardLg" },
 		},
 	},
 });

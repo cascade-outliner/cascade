@@ -21,7 +21,7 @@ const styles = {
 		display: "flex",
 		alignItems: "baseline",
 		gap: "2.5",
-		margin: 0,
+		margin: "0",
 		paddingInline: "2.5",
 		paddingBottom: "2",
 		marginBottom: "1",
@@ -67,8 +67,8 @@ const styles = {
 
 const text = cva({
 	base: {
-		flex: 1,
-		minWidth: 0,
+		flex: "1",
+		minWidth: "0",
 		color: "ink",
 	},
 	variants: {

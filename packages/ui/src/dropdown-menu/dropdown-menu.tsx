@@ -4,7 +4,7 @@ import { css } from "@cascade/theme/css";
 const styles = {
 	positioner: css({ zIndex: "overlay", outline: "none" }),
 	popup: css({
-		minWidth: "160px",
+		minWidth: "[160px]",
 		borderRadius: "lg",
 		borderWidth: "thin",
 		borderStyle: "solid",

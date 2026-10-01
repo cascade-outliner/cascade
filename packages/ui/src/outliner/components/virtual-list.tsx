@@ -17,16 +17,16 @@ import { CHEVRON_CENTER, INDENT } from "../layout";
 const styles = {
 	viewport: css({
 		position: "relative",
-		width: "100%",
+		width: "full",
 	}),
 	list: css({
 		listStyle: "none",
 	}),
 	guide: css({
 		position: "absolute",
-		top: 0,
-		bottom: 0,
-		width: "1px",
+		top: "0",
+		bottom: "0",
+		width: "hairline",
 		backgroundColor: "border",
 	}),
 };
@@ -34,15 +34,17 @@ const styles = {
 const listRow = cva({
 	base: {
 		position: "absolute",
-		top: 0,
-		left: 0,
-		width: "100%",
+		top: "0",
+		left: "0",
+		width: "full",
 		paddingBottom: "1",
-		transition: "opacity token(durations.100) ease-in-out",
+		transitionProperty: "[opacity]",
+		transitionDuration: "100",
+		transitionTimingFunction: "inOut",
 	},
 	variants: {
 		dragging: {
-			true: { opacity: 0.3 },
+			true: { opacity: "dim" },
 		},
 	},
 });

@@ -5,21 +5,21 @@ const styles = {
 	link: css({
 		display: "inline-flex",
 		alignItems: "center",
-		gap: "0.625rem",
+		gap: "site.2.5",
 		color: "site.ink",
 		textDecoration: "none",
-		borderRadius: "8px",
+		borderRadius: "md",
 		outline: "none",
 		boxShadow: {
 			base: "none",
-			_focusVisible: "0 0 0 3px token(colors.site.primaryTintStrong)",
+			_focusVisible: "focusRing",
 		},
 	}),
 	mark: css({
 		flexShrink: 0,
 	}),
 	wordmark: css({
-		fontSize: "1.1875rem",
+		fontSize: "site.h4",
 		fontWeight: 700,
 	}),
 };

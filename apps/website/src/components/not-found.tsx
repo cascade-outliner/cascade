@@ -11,9 +11,9 @@ const styles = {
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "flex-start",
-		gap: "1.25rem",
-		maxWidth: "560px",
-		paddingBlock: "3rem",
+		gap: "site.5",
+		maxWidth: "[560px]",
+		paddingBlock: "site.12",
 	}),
 };
 

@@ -9,8 +9,9 @@ const row = cva({
 		paddingBlock: { base: "1.5", _pointerCoarse: "2.5" },
 		paddingInline: "2.5",
 		borderRadius: "lg",
-		transition:
-			"background-color token(durations.50) ease-in-out, box-shadow token(durations.50) ease-in-out",
+		transitionProperty: "[background-color, box-shadow]",
+		transitionDuration: "50",
+		transitionTimingFunction: "inOut",
 		"&:hover:not(:focus-within)": {
 			backgroundColor: "surface",
 		},

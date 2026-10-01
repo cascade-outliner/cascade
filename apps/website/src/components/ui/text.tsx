@@ -4,14 +4,14 @@ import type { SystemStyleObject } from "@/styled-system/types";
 
 const text = cva({
 	base: {
-		margin: 0,
+		margin: "0",
 		textWrap: "pretty",
 	},
 	variants: {
 		size: {
-			lead: { fontSize: "site.large", lineHeight: 1.6 },
-			body: { fontSize: "site.lead", lineHeight: 1.7 },
-			small: { fontSize: "site.small", lineHeight: 1.65 },
+			lead: { fontSize: "site.large", lineHeight: "relaxed" },
+			body: { fontSize: "site.lead", lineHeight: "loose" },
+			small: { fontSize: "site.small", lineHeight: "relaxed" },
 		},
 		tone: {
 			soft: { color: "site.inkSoft" },
