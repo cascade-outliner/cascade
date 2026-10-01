@@ -1,15 +1,14 @@
-import { colors } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 import { useContext } from "react";
 import { DragHandleContext } from "../context";
 
-const styles = stylex.create({
-	bullet: {
-		width: 18,
-		height: 18,
+const styles = {
+	bullet: css.raw({
+		width: "18px",
+		height: "18px",
 		flexShrink: 0,
 		borderRadius: "50%",
-		backgroundColor: colors.inkSubtle,
+		backgroundColor: "inkSubtle",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -17,17 +16,17 @@ const styles = stylex.create({
 		padding: 0,
 		cursor: "grab",
 		touchAction: "none",
-	},
-	dragging: {
+	}),
+	dragging: css.raw({
 		cursor: "grabbing",
-	},
-	dot: {
-		width: 6,
-		height: 6,
+	}),
+	dot: css({
+		width: "6px",
+		height: "6px",
 		borderRadius: "50%",
-		backgroundColor: colors.muted,
-	},
-});
+		backgroundColor: "muted",
+	}),
+};
 
 export interface BulletProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -43,11 +42,11 @@ export function Bullet({ collapsed, ...props }: BulletProps) {
 		<button
 			ref={drag?.setActivatorNodeRef}
 			type="button"
-			{...stylex.props(styles.bullet, drag?.isDragging && styles.dragging)}
+			className={css(styles.bullet, drag?.isDragging && styles.dragging)}
 			{...drag?.listeners}
 			{...props}
 		>
-			<div {...stylex.props(styles.dot)} />
+			<div className={styles.dot} />
 		</button>
 	);
 }

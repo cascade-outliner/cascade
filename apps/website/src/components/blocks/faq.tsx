@@ -1,37 +1,35 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
 import type { FaqBlock } from "@/payload-types";
-import { media } from "@/theme/breakpoints.stylex";
-import { site, siteFontSize, siteShadow } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 import { Heading } from "../ui/heading";
 import { Section } from "../ui/section";
 import { Paragraphs } from "../ui/text";
 
-const styles = stylex.create({
-	layout: {
+const styles = {
+	layout: css({
 		display: "grid",
 		gridTemplateColumns: {
-			default: "320px minmax(0, 1fr)",
-			[media.tablet]: "minmax(0, 1fr)",
+			base: "320px minmax(0, 1fr)",
+			_tablet: "minmax(0, 1fr)",
 		},
-		gap: { default: "3.5rem", [media.tablet]: "1.5rem" },
+		gap: { base: "3.5rem", _tablet: "1.5rem" },
 		alignItems: "start",
-	},
-	list: {
+	}),
+	list: css({
 		display: "flex",
 		flexDirection: "column",
-		borderBottomWidth: 1,
+		borderBottomWidth: "1px",
 		borderBottomStyle: "solid",
-		borderBottomColor: site.rule,
-	},
-	item: {
-		borderTopWidth: 1,
+		borderBottomColor: "site.rule",
+	}),
+	item: css({
+		borderTopWidth: "1px",
 		borderTopStyle: "solid",
-		borderTopColor: site.rule,
+		borderTopColor: "site.rule",
 		paddingBlock: "1.25rem",
-	},
-	summary: {
+	}),
+	summary: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "space-between",
@@ -43,27 +41,27 @@ const styles = stylex.create({
 		lineHeight: 1.4,
 		borderRadius: "8px",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
-		"::-webkit-details-marker": { display: "none" },
-	},
-	caret: {
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+		_marker: { display: "none" },
+	}),
+	caret: css({
 		flexShrink: 0,
-		color: site.muted,
+		color: "site.muted",
 		transitionProperty: "transform",
-		transitionDuration: { default: "150ms", [media.reducedMotion]: "0ms" },
-	},
-	caretOpen: {
+		transitionDuration: { base: "150ms", _motionReduce: "0ms" },
+	}),
+	caretOpen: css({
 		transform: "rotate(180deg)",
-	},
-	answer: {
+	}),
+	answer: css({
 		marginBlockStart: "0.75rem",
-		maxWidth: 620,
+		maxWidth: "620px",
 		display: "flex",
 		flexDirection: "column",
 		gap: "0.75rem",
-		fontSize: siteFontSize.body,
-	},
-});
+		fontSize: "site.body",
+	}),
+};
 
 export function Faq({ block }: { block: FaqBlock }) {
 	const headingId = useId();
@@ -71,27 +69,27 @@ export function Faq({ block }: { block: FaqBlock }) {
 
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
-			<div {...stylex.props(styles.layout)}>
+			<div className={styles.layout}>
 				<Heading as="h2" id={headingId}>
 					{block.heading}
 				</Heading>
-				<div {...stylex.props(styles.list)}>
+				<div className={styles.list}>
 					{items.map((item, index) => (
 						<details
 							key={item.id ?? item.question}
 							open={index === 0}
 							name="faq"
-							{...stylex.props(styles.item)}
+							className={styles.item}
 						>
-							<summary {...stylex.props(styles.summary)}>
+							<summary className={styles.summary}>
 								{item.question}
 								<CaretDownIcon
 									size={16}
 									aria-hidden="true"
-									{...stylex.props(styles.caret)}
+									className={styles.caret}
 								/>
 							</summary>
-							<div {...stylex.props(styles.answer)}>
+							<div className={styles.answer}>
 								<Paragraphs text={item.answer} tone="muted" />
 							</div>
 						</details>

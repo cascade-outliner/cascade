@@ -1,21 +1,15 @@
-import {
-	borderWidth,
-	colors,
-	radius,
-	shadow,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { CheckIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 
-const styles = stylex.create({
-	wrapper: {
+const styles = {
+	wrapper: css({
 		position: "relative",
-		width: { default: 18, "@media (hover: none)": 22 },
-		height: { default: 18, "@media (hover: none)": 22 },
+		width: { base: "18px", _pointerCoarse: "22px" },
+		height: { base: "18px", _pointerCoarse: "22px" },
 		flexShrink: 0,
 		display: "flex",
-	},
-	marker: {
+	}),
+	marker: css.raw({
 		appearance: "none",
 		margin: 0,
 		width: "100%",
@@ -24,30 +18,30 @@ const styles = stylex.create({
 		padding: 0,
 		backgroundColor: "transparent",
 		cursor: "pointer",
-		":focus-visible": {
-			boxShadow: shadow.focusRing,
-			borderRadius: radius.full,
+		_focusVisible: {
+			boxShadow: "focusRing",
+			borderRadius: "full",
 		},
-	},
-	todo: {
-		borderWidth: borderWidth.thick,
+	}),
+	todo: css.raw({
+		borderWidth: "thick",
 		borderStyle: "solid",
-		borderColor: colors.borderStrong,
-	},
-	done: {
+		borderColor: "borderStrong",
+	}),
+	done: css.raw({
 		borderWidth: 0,
 		borderStyle: "none",
-		backgroundColor: colors.primary,
-	},
-	icon: {
+		backgroundColor: "primary",
+	}),
+	icon: css({
 		position: "absolute",
 		top: "50%",
 		left: "50%",
 		transform: "translate(-50%, -50%)",
-		color: colors.canvas,
+		color: "canvas",
 		pointerEvents: "none",
-	},
-});
+	}),
+};
 
 export type TaskMarkerVariant = "todo" | "done";
 
@@ -58,12 +52,12 @@ export interface TaskMarkerProps
 
 export function TaskMarker({ variant, ...props }: TaskMarkerProps) {
 	return (
-		<span {...stylex.props(styles.wrapper)}>
+		<span className={styles.wrapper}>
 			<input
 				type="checkbox"
 				checked={variant === "done"}
 				readOnly
-				{...stylex.props(
+				className={css(
 					styles.marker,
 					variant === "done" && styles.done,
 					variant === "todo" && styles.todo,
@@ -71,7 +65,7 @@ export function TaskMarker({ variant, ...props }: TaskMarkerProps) {
 				{...props}
 			/>
 			{variant === "done" && (
-				<CheckIcon size={11} weight="bold" {...stylex.props(styles.icon)} />
+				<CheckIcon size={11} weight="bold" className={styles.icon} />
 			)}
 		</span>
 	);

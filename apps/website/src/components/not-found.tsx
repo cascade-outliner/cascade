@@ -1,28 +1,28 @@
-import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
+import { css } from "@/styled-system/css";
 import { ButtonLink } from "./ui/button-link";
 import { Eyebrow } from "./ui/eyebrow";
 import { Heading } from "./ui/heading";
 import { Section } from "./ui/section";
 import { Text } from "./ui/text";
 
-const styles = stylex.create({
-	layout: {
+const styles = {
+	layout: css({
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "flex-start",
 		gap: "1.25rem",
-		maxWidth: 560,
+		maxWidth: "560px",
 		paddingBlock: "3rem",
-	},
-});
+	}),
+};
 
 /** Branded 404 for unknown slugs, rendered inside the site header and footer. */
 export function NotFound() {
 	const headingId = useId();
 	return (
 		<Section labelledBy={headingId}>
-			<div {...stylex.props(styles.layout)}>
+			<div className={styles.layout}>
 				<Eyebrow>404</Eyebrow>
 				<Heading as="h1" id={headingId}>
 					That bullet doesn't exist.

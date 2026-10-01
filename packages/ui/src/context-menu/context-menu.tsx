@@ -1,104 +1,92 @@
 import { ContextMenu as Base } from "@base-ui/react/context-menu";
-import {
-	borderWidth,
-	colors,
-	fontSize,
-	opacity,
-	radius,
-	shadow,
-	space,
-	zIndex,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kbd";
 
-const styles = stylex.create({
-	trigger: {
+const styles = {
+	trigger: css({
 		display: "contents",
-	},
-	positioner: {
-		zIndex: zIndex.overlay,
+	}),
+	positioner: css({
+		zIndex: "overlay",
 		outline: "none",
-	},
-	popup: {
-		minWidth: 200,
+	}),
+	popup: css({
+		minWidth: "200px",
 		maxWidth: "calc(100vw - 32px)",
-		borderRadius: radius.lg,
-		borderWidth: borderWidth.thin,
+		borderRadius: "lg",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		padding: space["1.5"],
-		boxShadow: shadow.popup,
+		borderColor: "border",
+		backgroundColor: "white",
+		padding: "1.5",
+		boxShadow: "popup",
 		outline: "none",
-	},
-	item: {
+	}),
+	item: css.raw({
 		display: "flex",
 		alignItems: "center",
-		gap: space["3"],
-		paddingBlock: { default: space["2"], "@media (hover: none)": space["3"] },
-		paddingInline: space["3"],
-		borderRadius: radius.md,
-		fontSize: fontSize["500"],
-		color: colors.ink,
+		gap: "3",
+		paddingBlock: { base: "2", _pointerCoarse: "3" },
+		paddingInline: "3",
+		borderRadius: "md",
+		fontSize: "500",
+		color: "ink",
 		cursor: "default",
 		outline: "none",
-		"[data-highlighted]": {
-			backgroundColor: colors.surface,
+		_highlighted: {
+			backgroundColor: "surface",
 		},
-		":hover:not([data-disabled])": {
-			backgroundColor: colors.surface,
+		"&:hover:not([data-disabled])": {
+			backgroundColor: "surface",
 		},
-		"[data-checked]": {
-			backgroundColor: colors.primaryMuted,
+		_checked: {
+			backgroundColor: "primaryMuted",
 			fontWeight: 500,
 		},
-		"[data-disabled]": {
-			opacity: opacity.disabled,
+		_disabled: {
+			opacity: "disabled",
 		},
-	},
-	danger: {
-		color: colors.danger,
-	},
-	icon: {
-		width: 16,
+	}),
+	danger: css.raw({
+		color: "danger",
+	}),
+	icon: css.raw({
+		width: "16px",
 		flexShrink: 0,
 		display: "flex",
 		justifyContent: "center",
-		color: colors.muted,
-	},
-	dangerIcon: {
-		color: colors.danger,
-	},
-	label: {
+		color: "muted",
+	}),
+	dangerIcon: css.raw({
+		color: "danger",
+	}),
+	label: css({
 		flex: 1,
 		minWidth: 0,
-	},
-	separator: {
-		height: 1,
+	}),
+	separator: css({
+		height: "1px",
 		border: "none",
-		backgroundColor: colors.border,
-		marginBlock: space["1.5"],
-		marginInline: space["2"],
-	},
-	chevron: {
+		backgroundColor: "border",
+		marginBlock: "1.5",
+		marginInline: "2",
+	}),
+	chevron: css({
 		display: "flex",
-		color: colors.muted,
-	},
-	custom: {
-		padding: space["1.5"],
-	},
-	radioIndicator: {
+		color: "muted",
+	}),
+	custom: css({
+		padding: "1.5",
+	}),
+	radioIndicator: css({
 		display: "flex",
-		color: colors.primary,
-	},
-});
+		color: "primary",
+	}),
+};
 
 function Trigger({ children }: { children: React.ReactNode }) {
-	return (
-		<Base.Trigger {...stylex.props(styles.trigger)}>{children}</Base.Trigger>
-	);
+	return <Base.Trigger className={styles.trigger}>{children}</Base.Trigger>;
 }
 
 function Root(props: React.ComponentProps<typeof Base.Root>) {
@@ -108,8 +96,8 @@ function Root(props: React.ComponentProps<typeof Base.Root>) {
 function Popup({ children }: { children: React.ReactNode }) {
 	return (
 		<Base.Portal>
-			<Base.Positioner {...stylex.props(styles.positioner)} sideOffset={4}>
-				<Base.Popup {...stylex.props(styles.popup)}>{children}</Base.Popup>
+			<Base.Positioner className={styles.positioner} sideOffset={4}>
+				<Base.Popup className={styles.popup}>{children}</Base.Popup>
 			</Base.Positioner>
 		</Base.Portal>
 	);
@@ -134,16 +122,16 @@ function Item({
 }: MenuItemProps) {
 	return (
 		<Base.Item
-			{...stylex.props(styles.item, danger && styles.danger)}
+			className={css(styles.item, danger && styles.danger)}
 			disabled={disabled}
 			onClick={onClick}
 		>
 			{icon && (
-				<span {...stylex.props(styles.icon, danger && styles.dangerIcon)}>
+				<span className={css(styles.icon, danger && styles.dangerIcon)}>
 					{icon}
 				</span>
 			)}
-			<span {...stylex.props(styles.label)}>{children}</span>
+			<span className={styles.label}>{children}</span>
 			{shortcut && (
 				<KbdGroup>
 					{[...shortcut].map((key, index) => (
@@ -157,7 +145,7 @@ function Item({
 }
 
 function Separator() {
-	return <Base.Separator {...stylex.props(styles.separator)} />;
+	return <Base.Separator className={styles.separator} />;
 }
 
 export interface MenuSubmenuProps {
@@ -169,10 +157,10 @@ export interface MenuSubmenuProps {
 function Submenu({ icon, label, children }: MenuSubmenuProps) {
 	return (
 		<Base.SubmenuRoot highlightItemOnHover={false}>
-			<Base.SubmenuTrigger {...stylex.props(styles.item)}>
-				{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
-				<span {...stylex.props(styles.label)}>{label}</span>
-				<span {...stylex.props(styles.chevron)}>
+			<Base.SubmenuTrigger className={css(styles.item)}>
+				{icon && <span className={css(styles.icon)}>{icon}</span>}
+				<span className={styles.label}>{label}</span>
+				<span className={styles.chevron}>
 					<CaretRightIcon size={11} weight="bold" />
 				</span>
 			</Base.SubmenuTrigger>
@@ -193,11 +181,11 @@ function RadioItem({ icon, value, disabled, children }: MenuRadioItemProps) {
 		<Base.RadioItem
 			value={value}
 			disabled={disabled}
-			{...stylex.props(styles.item)}
+			className={css(styles.item)}
 		>
-			{icon && <span {...stylex.props(styles.icon)}>{icon}</span>}
-			<span {...stylex.props(styles.label)}>{children}</span>
-			<Base.RadioItemIndicator {...stylex.props(styles.radioIndicator)}>
+			{icon && <span className={css(styles.icon)}>{icon}</span>}
+			<span className={styles.label}>{children}</span>
+			<Base.RadioItemIndicator className={styles.radioIndicator}>
 				<CheckIcon size={13} weight="bold" />
 			</Base.RadioItemIndicator>
 		</Base.RadioItem>
@@ -219,7 +207,7 @@ function Custom({ label, children }: MenuCustomProps) {
 	return (
 		<Base.Group
 			aria-label={label}
-			{...stylex.props(styles.custom)}
+			className={styles.custom}
 			onKeyDown={(event) => {
 				if (event.key !== "Escape") event.stopPropagation();
 			}}

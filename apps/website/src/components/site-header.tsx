@@ -1,90 +1,88 @@
 import { ListIcon, XIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { useId, useState } from "react";
 import type { Header } from "@/payload-types";
-import { media } from "@/theme/breakpoints.stylex";
-import { site, siteFontSize, siteShadow } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 import { ButtonLink } from "./ui/button-link";
 import { Container } from "./ui/container";
 import { Logo } from "./ui/logo";
 
-const styles = stylex.create({
-	header: {
+const styles = {
+	header: css({
 		position: "relative",
 		zIndex: 10,
-	},
-	bar: {
+	}),
+	bar: css({
 		display: "flex",
 		alignItems: "center",
 		gap: "2rem",
 		paddingBlock: "1.375rem",
-	},
-	nav: {
-		display: { default: "flex", [media.tablet]: "none" },
+	}),
+	nav: css({
+		display: { base: "flex", _tablet: "none" },
 		gap: "1.625rem",
 		marginInlineStart: "1.25rem",
-		fontSize: siteFontSize.small,
-	},
-	navLink: {
-		color: { default: site.muted, ":hover": site.ink },
+		fontSize: "site.small",
+	}),
+	navLink: css({
+		color: { base: "site.muted", _hover: "site.ink" },
 		textDecoration: "none",
 		whiteSpace: "nowrap",
 		borderRadius: "6px",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
 		transitionProperty: "color",
 		transitionDuration: "150ms",
-	},
-	actions: {
+	}),
+	actions: css({
 		marginInlineStart: "auto",
-		display: { default: "flex", [media.tablet]: "none" },
+		display: { base: "flex", _tablet: "none" },
 		alignItems: "center",
 		gap: "0.625rem",
-	},
-	menuButton: {
-		display: { default: "none", [media.tablet]: "inline-flex" },
+	}),
+	menuButton: css({
+		display: { base: "none", _tablet: "inline-flex" },
 		marginInlineStart: "auto",
 		alignItems: "center",
 		justifyContent: "center",
-		width: 40,
-		height: 40,
+		width: "40px",
+		height: "40px",
 		borderRadius: "10px",
-		backgroundColor: { default: "transparent", ":hover": site.tint },
-		color: site.ink,
+		backgroundColor: { base: "transparent", _hover: "site.tint" },
+		color: "site.ink",
 		cursor: "pointer",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
-	},
-	menu: {
-		display: { default: "none", [media.tablet]: "flex" },
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+	}),
+	menu: css.raw({
+		display: { base: "none", _tablet: "flex" },
 		flexDirection: "column",
 		gap: "0.25rem",
 		paddingBlockEnd: "1.25rem",
-	},
-	menuClosed: {
+	}),
+	menuClosed: css.raw({
 		display: "none",
-	},
-	menuLink: {
+	}),
+	menuLink: css({
 		display: "block",
 		paddingBlock: "0.75rem",
 		paddingInline: "0.75rem",
 		borderRadius: "10px",
-		fontSize: siteFontSize.large,
+		fontSize: "site.large",
 		fontWeight: 500,
-		color: site.ink,
+		color: "site.ink",
 		textDecoration: "none",
-		backgroundColor: { default: "transparent", ":hover": site.tint },
+		backgroundColor: { base: "transparent", _hover: "site.tint" },
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
-	},
-	menuActions: {
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+	}),
+	menuActions: css({
 		display: "flex",
 		flexDirection: "column",
 		gap: "0.625rem",
 		marginBlockStart: "0.75rem",
 		paddingInline: "0.75rem",
-	},
-});
+	}),
+};
 
 export interface SiteHeaderProps {
 	siteName: string;
@@ -97,22 +95,22 @@ export function SiteHeader({ siteName, header }: SiteHeaderProps) {
 	const navigation = header.navigation ?? [];
 
 	return (
-		<header {...stylex.props(styles.header)}>
+		<header className={styles.header}>
 			<Container>
-				<div {...stylex.props(styles.bar)}>
+				<div className={styles.bar}>
 					<Logo name={siteName} />
-					<nav aria-label="Primary" {...stylex.props(styles.nav)}>
+					<nav aria-label="Primary" className={styles.nav}>
 						{navigation.map((item) => (
 							<a
 								key={item.id ?? item.url}
 								href={item.url}
-								{...stylex.props(styles.navLink)}
+								className={styles.navLink}
 							>
 								{item.label}
 							</a>
 						))}
 					</nav>
-					<div {...stylex.props(styles.actions)}>
+					<div className={styles.actions}>
 						{header.secondaryAction?.url && header.secondaryAction.label && (
 							<ButtonLink
 								href={header.secondaryAction.url}
@@ -136,7 +134,7 @@ export function SiteHeader({ siteName, header }: SiteHeaderProps) {
 						aria-controls={menuId}
 						aria-label={open ? "Close menu" : "Open menu"}
 						onClick={() => setOpen((value) => !value)}
-						{...stylex.props(styles.menuButton)}
+						className={styles.menuButton}
 					>
 						{open ? <XIcon size={22} /> : <ListIcon size={22} />}
 					</button>
@@ -144,19 +142,19 @@ export function SiteHeader({ siteName, header }: SiteHeaderProps) {
 				<nav
 					id={menuId}
 					aria-label="Primary"
-					{...stylex.props(styles.menu, !open && styles.menuClosed)}
+					className={css(styles.menu, !open && styles.menuClosed)}
 				>
 					{navigation.map((item) => (
 						<a
 							key={item.id ?? item.url}
 							href={item.url}
 							onClick={() => setOpen(false)}
-							{...stylex.props(styles.menuLink)}
+							className={styles.menuLink}
 						>
 							{item.label}
 						</a>
 					))}
-					<div {...stylex.props(styles.menuActions)}>
+					<div className={styles.menuActions}>
 						{header.secondaryAction?.url && header.secondaryAction.label && (
 							<ButtonLink
 								href={header.secondaryAction.url}

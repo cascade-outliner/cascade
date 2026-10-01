@@ -1,76 +1,70 @@
 import { dueLabel, isoDay } from "@cascade/data";
-import {
-	borderWidth,
-	colors,
-	radius,
-	space,
-} from "@cascade/theme/tokens.stylex";
 import { Pill } from "@cascade/ui/pill";
-import * as stylex from "@stylexjs/stylex";
 import type { SplitTask } from "#/server/split.ts";
+import { css, keyframes } from "#/styled-system/css";
+import type { SystemStyleObject } from "#/styled-system/types";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-const dashed = `color-mix(in srgb, ${colors.primary} 55%, transparent)`;
+const dashed = "color-mix(in srgb, token(colors.primary) 55%, transparent)";
 
-const rise = stylex.keyframes({
+const rise = keyframes({
 	from: { opacity: 0, transform: "translateY(4px)" },
 	to: { opacity: 1, transform: "none" },
 });
 
-const styles = stylex.create({
+const styles = {
 	// Grows from nothing when the drafts arrive.
-	growIn: {
+	growIn: css({
 		display: "grid",
 		gridTemplateRows: "1fr",
 		transition: {
-			default: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
-			[REDUCED_MOTION]: "none",
+			base: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
+			_motionReduce: "none",
 		},
-		"@starting-style": {
+		_starting: {
 			gridTemplateRows: "0fr",
 		},
-	},
-	clip: {
+	}),
+	clip: css({
 		minHeight: 0,
 		overflow: "hidden",
-	},
-	list: {
+	}),
+	list: css.raw({
 		display: "flex",
 		flexDirection: "column",
-		gap: space.px,
-		marginLeft: space["5"],
-		paddingLeft: space["2.5"],
-		borderLeftWidth: borderWidth.thin,
+		gap: "px",
+		marginLeft: "5",
+		paddingLeft: "2.5",
+		borderLeftWidth: "thin",
 		borderLeftStyle: "dashed",
 		borderLeftColor: dashed,
-	},
+	}),
 	// Each draft rises in after the one before it.
-	draft: {
+	draft: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
-		paddingBlock: space["1.5"],
-		paddingInline: space["2.5"],
-		color: colors.ink,
-		animationName: { default: rise, [REDUCED_MOTION]: "none" },
+		gap: "2",
+		paddingBlock: "1.5",
+		paddingInline: "2.5",
+		color: "ink",
+		animationName: { base: rise, _motionReduce: "none" },
 		animationDuration: "240ms",
 		animationTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
 		animationFillMode: "backwards",
-	},
-	marker: {
-		width: 18,
-		height: 18,
+	}),
+	marker: css({
+		width: "18px",
+		height: "18px",
 		flexShrink: 0,
-		borderRadius: radius.full,
-		borderWidth: borderWidth.thick,
+		borderRadius: "full",
+		borderWidth: "thick",
 		borderStyle: "dashed",
 		borderColor: dashed,
-	},
-	text: {
+	}),
+	text: css({
 		flex: 1,
 		minWidth: 0,
-	},
-});
+	}),
+};
 
 function TaskChips({ task }: { task: SplitTask }) {
 	return (
@@ -87,23 +81,23 @@ function TaskChips({ task }: { task: SplitTask }) {
 
 export interface DraftsProps {
 	tasks: SplitTask[];
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
 /** The dashed task list both views preview a split with. */
-export function Drafts({ tasks, style }: DraftsProps) {
+export function Drafts({ tasks, css: cssProp }: DraftsProps) {
 	return (
-		<div {...stylex.props(styles.growIn)}>
-			<div {...stylex.props(styles.clip)}>
-				<div {...stylex.props(styles.list, style)}>
+		<div className={styles.growIn}>
+			<div className={styles.clip}>
+				<div className={css(styles.list, cssProp)}>
 					{tasks.map((task, i) => (
 						<div
 							key={task.source}
 							style={{ animationDelay: `${60 + i * 50}ms` }}
-							{...stylex.props(styles.draft)}
+							className={styles.draft}
 						>
-							<span {...stylex.props(styles.marker)} />
-							<span {...stylex.props(styles.text)}>{task.text}</span>
+							<span className={styles.marker} />
+							<span className={styles.text}>{task.text}</span>
 							<TaskChips task={task} />
 						</div>
 					))}

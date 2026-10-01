@@ -1,7 +1,6 @@
 import type { Row } from "@cascade/data";
-import { colors, duration, space } from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { DndContext } from "@dnd-kit/core";
-import * as stylex from "@stylexjs/stylex";
 import {
 	useWindowVirtualizer,
 	type VirtualItem,
@@ -15,33 +14,33 @@ import { type MoveHandler, useOutlineDnd } from "../dnd/use-outline-dnd";
 import { useRowDnd } from "../dnd/use-row-dnd";
 import { CHEVRON_CENTER, INDENT } from "../layout";
 
-const styles = stylex.create({
-	viewport: {
+const styles = {
+	viewport: css({
 		position: "relative",
 		width: "100%",
-	},
-	list: {
+	}),
+	list: css({
 		listStyle: "none",
-	},
-	row: {
+	}),
+	row: css.raw({
 		position: "absolute",
 		top: 0,
 		left: 0,
 		width: "100%",
-		paddingBottom: space["1"],
-		transition: `opacity ${duration["100"]} ease-in-out`,
-	},
-	dragging: {
+		paddingBottom: "1",
+		transition: "opacity token(durations.100) ease-in-out",
+	}),
+	dragging: css.raw({
 		opacity: 0.3,
-	},
-	guide: {
+	}),
+	guide: css({
 		position: "absolute",
 		top: 0,
 		bottom: 0,
-		width: 1,
-		backgroundColor: colors.border,
-	},
-});
+		width: "1px",
+		backgroundColor: "border",
+	}),
+};
 
 type RowRenderer = (row: Row) => React.ReactNode;
 
@@ -69,7 +68,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 			ref={setRef}
 			data-testid="outliner-row"
 			data-index={item.index}
-			{...stylex.props(styles.row, dnd.isDragging && styles.dragging)}
+			className={css(styles.row, dnd.isDragging && styles.dragging)}
 			style={{
 				transform: `translateY(${
 					item.start - virtualizer.options.scrollMargin
@@ -80,7 +79,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: guides are a fixed-length, non-reorderable sequence
 					key={i}
-					{...stylex.props(styles.guide)}
+					className={styles.guide}
 					style={{ left: i * INDENT + CHEVRON_CENTER }}
 				/>
 			))}
@@ -146,13 +145,13 @@ export function VirtualList({
 		<DndContext {...dnd.contextProps}>
 			<div
 				ref={parentRef}
-				{...stylex.props(styles.viewport)}
+				className={styles.viewport}
 				style={{ height: virtualizer.getTotalSize() }}
 			>
 				<ul
 					aria-label={ariaLabel}
 					data-testid="outliner-list"
-					{...stylex.props(styles.list)}
+					className={styles.list}
 				>
 					{virtualItems.map((item) => (
 						<VirtualRow

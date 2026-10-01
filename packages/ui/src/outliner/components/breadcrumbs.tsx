@@ -1,72 +1,71 @@
 import { type Node, plainText } from "@cascade/data";
-import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { CaretRightIcon, HouseSimpleIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { Fragment } from "react";
 
 /** Ancestors beyond this many (from the current node) collapse behind an ellipsis. */
 const MAX_VISIBLE_ANCESTORS = 3;
 
-const styles = stylex.create({
-	trail: {
+const styles = {
+	trail: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["0.5"],
+		gap: "0.5",
 		// Fill the slot so the transition box keeps its width; a content-sized box stretches the snapshot.
 		flex: 1,
 		minWidth: 0,
-		fontSize: fontSize["300"],
-		color: colors.muted,
+		fontSize: "300",
+		color: "muted",
 		viewTransitionName: "zoom-trail",
-	},
-	homeButton: {
+	}),
+	homeButton: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: 20,
-		height: 20,
+		width: "20px",
+		height: "20px",
 		flexShrink: 0,
 		border: "none",
 		padding: 0,
 		borderRadius: "50%",
-		backgroundColor: colors.inkSubtle,
-		color: colors.muted,
+		backgroundColor: "inkSubtle",
+		color: "muted",
 		cursor: "pointer",
-		":hover": {
-			backgroundColor: colors.inkSubtleHover,
-			color: colors.ink,
+		_hover: {
+			backgroundColor: "inkSubtleHover",
+			color: "ink",
 		},
-	},
-	separator: {
+	}),
+	separator: css({
 		display: "flex",
 		alignItems: "center",
 		flexShrink: 0,
-		color: colors.muted,
-	},
-	ellipsis: {
+		color: "muted",
+	}),
+	ellipsis: css({
 		flexShrink: 0,
-	},
-	crumbButton: {
+	}),
+	crumbButton: css({
 		display: "block",
 		minWidth: 0,
 		border: "none",
-		paddingBlock: space["0.5"],
-		paddingInline: space["1.5"],
-		borderRadius: radius.sm,
+		paddingBlock: "0.5",
+		paddingInline: "1.5",
+		borderRadius: "sm",
 		backgroundColor: "transparent",
 		font: "inherit",
 		color: "inherit",
 		cursor: "pointer",
-		maxWidth: 200,
+		maxWidth: "200px",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",
-		":hover": {
-			backgroundColor: colors.inkSubtleHover,
-			color: colors.ink,
+		_hover: {
+			backgroundColor: "inkSubtleHover",
+			color: "ink",
 		},
-	},
-});
+	}),
+};
 
 export interface BreadcrumbsProps {
 	/** Ancestors of the current node, from the tree's root down to its immediate parent. */
@@ -87,10 +86,10 @@ export function Breadcrumbs({
 	const collapsed = ancestors.length > visible.length;
 
 	return (
-		<nav aria-label="Breadcrumbs" {...stylex.props(styles.trail)}>
+		<nav aria-label="Breadcrumbs" className={styles.trail}>
 			<button
 				type="button"
-				{...stylex.props(styles.homeButton)}
+				className={styles.homeButton}
 				onClick={() => onZoomTo(null)}
 				aria-label="Zoom out to root"
 			>
@@ -98,22 +97,22 @@ export function Breadcrumbs({
 			</button>
 			{collapsed && (
 				<>
-					<span {...stylex.props(styles.separator)}>
+					<span className={styles.separator}>
 						<CaretRightIcon size={10} weight="bold" />
 					</span>
-					<span {...stylex.props(styles.ellipsis)} aria-hidden="true">
+					<span className={styles.ellipsis} aria-hidden="true">
 						…
 					</span>
 				</>
 			)}
 			{visible.map((ancestor) => (
 				<Fragment key={ancestor.id}>
-					<span {...stylex.props(styles.separator)}>
+					<span className={styles.separator}>
 						<CaretRightIcon size={10} weight="bold" />
 					</span>
 					<button
 						type="button"
-						{...stylex.props(styles.crumbButton)}
+						className={styles.crumbButton}
 						onClick={() => onZoomTo(ancestor.id)}
 					>
 						{labelOf?.(ancestor) ?? (plainText(ancestor.content) || "Untitled")}

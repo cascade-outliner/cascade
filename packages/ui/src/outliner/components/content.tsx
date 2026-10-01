@@ -1,5 +1,6 @@
 import type { Node } from "@cascade/data";
-import { fontSize } from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
+import type { SystemStyleObject } from "@cascade/theme/types";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -7,36 +8,35 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
 import { type ReactNode, useEffect } from "react";
 import { useItem } from "../context";
 
-const styles = stylex.create({
-	wrapper: {
+const styles = {
+	wrapper: css({
 		flexGrow: 1,
 		flexShrink: 1,
 		flexBasis: "0%",
-	},
-	content: {
+	}),
+	content: css.raw({
 		outline: "none",
-		fontSize: fontSize["600"],
-	},
-});
+		fontSize: "600",
+	}),
+};
 
 function Editable({
-	style,
+	css: cssProp,
 	onCommit,
 }: {
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 	onCommit?: (state: EditorState) => void;
 }) {
 	const [editor] = useLexicalComposerContext();
 
 	return (
-		<div {...stylex.props(styles.wrapper)}>
+		<div className={styles.wrapper}>
 			<ContentEditable
-				{...stylex.props(styles.content, style)}
+				className={css(styles.content, cssProp)}
 				data-testid="outliner-content"
 				onBlur={onCommit && (() => onCommit(editor.getEditorState()))}
 			/>
@@ -66,14 +66,14 @@ function SyncContentPlugin({ content }: { content: Node["content"] }) {
 }
 
 export function Content({
-	style,
+	css: cssProp,
 	label,
 	editable = true,
 	onChange,
 	onCommit,
 	children,
 }: {
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 	/** Shown instead of the node's content, read-only (e.g. "Today" for a daily note). */
 	label?: React.ReactNode;
 	/** `false` shows the text without letting it be edited. */
@@ -87,8 +87,8 @@ export function Content({
 
 	if (label !== undefined) {
 		return (
-			<div {...stylex.props(styles.wrapper)}>
-				<div {...stylex.props(styles.content, style)}>{label}</div>
+			<div className={styles.wrapper}>
+				<div className={css(styles.content, cssProp)}>{label}</div>
 			</div>
 		);
 	}
@@ -105,7 +105,7 @@ export function Content({
 			}}
 		>
 			<RichTextPlugin
-				contentEditable={<Editable style={style} onCommit={onCommit} />}
+				contentEditable={<Editable css={cssProp} onCommit={onCommit} />}
 				placeholder={null}
 				ErrorBoundary={LexicalErrorBoundary}
 			/>

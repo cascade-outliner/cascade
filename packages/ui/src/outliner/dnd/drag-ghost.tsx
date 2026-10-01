@@ -1,39 +1,32 @@
 import type { Row } from "@cascade/data";
-import {
-	colors,
-	fontSize,
-	lineHeight,
-	radius,
-	space,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { DragOverlay } from "@dnd-kit/core";
-import * as stylex from "@stylexjs/stylex";
 import { ItemContext } from "../context";
 import { INDENT, ROW_GAP } from "../layout";
 
-const styles = stylex.create({
-	ghost: {
+const styles = {
+	ghost: css({
 		position: "relative",
 		cursor: "grabbing",
 		opacity: 0.85,
-	},
-	pill: {
+	}),
+	pill: css({
 		position: "absolute",
-		top: -6,
-		right: -6,
+		top: "-6px",
+		right: "-6px",
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingBlock: space.px,
-		paddingInline: space["1.5"],
-		borderRadius: radius.full,
-		backgroundColor: colors.primary,
-		color: colors.onPrimary,
-		fontSize: fontSize["200"],
-		lineHeight: lineHeight.compact,
+		paddingBlock: "px",
+		paddingInline: "1.5",
+		borderRadius: "full",
+		backgroundColor: "primary",
+		color: "onPrimary",
+		fontSize: "200",
+		lineHeight: "compact",
 		whiteSpace: "nowrap",
-	},
-});
+	}),
+};
 
 export interface DragGhostProps {
 	row: Row | null;
@@ -46,15 +39,13 @@ export function DragGhost({ row, children }: DragGhostProps) {
 		<DragOverlay dropAnimation={null}>
 			{row && (
 				<div
-					{...stylex.props(styles.ghost)}
+					className={styles.ghost}
 					style={{ paddingLeft: row.depth * INDENT, paddingBottom: ROW_GAP }}
 				>
 					<ItemContext.Provider value={row}>
 						{children(row)}
 					</ItemContext.Provider>
-					{childCount > 0 && (
-						<span {...stylex.props(styles.pill)}>+{childCount}</span>
-					)}
+					{childCount > 0 && <span className={styles.pill}>+{childCount}</span>}
 				</div>
 			)}
 		</DragOverlay>

@@ -1,34 +1,38 @@
 import { phraseRanges } from "@cascade/data";
-import { colors, radius } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
+import { css } from "#/styled-system/css";
+import type { SystemStyleObject } from "#/styled-system/types";
 
-const tint = `color-mix(in srgb, ${colors.primary} 14%, transparent)`;
+const tint = "color-mix(in srgb, token(colors.primary) 14%, transparent)";
 
-const styles = stylex.create({
+const styles = {
 	// 3b: the tint on the phrases of the note tasks were pulled from.
-	source: {
+	source: css.raw({
 		backgroundColor: tint,
-		borderRadius: radius.sm,
+		borderRadius: "sm",
 		boxShadow: `0 0 0 2px ${tint}`,
-	},
-});
+	}),
+};
 
 export interface MarkedProps {
 	text: string;
 	phrases: string[];
 	/** How the phrases look. Defaults to the source tint. */
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
-/** `text` with `phrases` wrapped in `style`. */
-export function Marked({ text, phrases, style = styles.source }: MarkedProps) {
+/** `text` with `phrases` wrapped in `css`. */
+export function Marked({
+	text,
+	phrases,
+	css: cssProp = styles.source,
+}: MarkedProps) {
 	const parts: ReactNode[] = [];
 	let at = 0;
 	for (const [start, end] of phraseRanges(text, phrases)) {
 		parts.push(
 			text.slice(at, start),
-			<span key={start} {...stylex.props(style)}>
+			<span key={start} className={css(cssProp)}>
 				{text.slice(start, end)}
 			</span>,
 		);

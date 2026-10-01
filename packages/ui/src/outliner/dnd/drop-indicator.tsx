@@ -1,37 +1,36 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { ArrowElbowDownRightIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { INDENT, NEST_SHIFT, ROW_GAP, ROW_INSET } from "../layout";
 import type { Projection } from "./projection";
 
-const styles = stylex.create({
-	line: {
+const styles = {
+	line: css({
 		position: "absolute",
 		top: 0,
 		left: 0,
-		height: 2,
-		borderRadius: 1,
-		backgroundColor: colors.primary,
+		height: "2px",
+		borderRadius: "1px",
+		backgroundColor: "primary",
 		pointerEvents: "none",
 		zIndex: 1,
-	},
-	dot: {
+	}),
+	dot: css({
 		position: "absolute",
-		left: -4,
-		top: -3,
-		width: 8,
-		height: 8,
+		left: "-4px",
+		top: "-3px",
+		width: "8px",
+		height: "8px",
 		borderRadius: "50%",
-		backgroundColor: colors.primary,
-	},
-	nestIcon: {
+		backgroundColor: "primary",
+	}),
+	nestIcon: css({
 		position: "absolute",
-		left: -15,
-		top: -8,
+		left: "-15px",
+		top: "-8px",
 		display: "flex",
-		color: colors.primary,
-	},
-});
+		color: "primary",
+	}),
+};
 
 export interface DropIndicatorProps {
 	projection: Projection;
@@ -51,7 +50,7 @@ export function DropIndicator({
 		(projection.nesting ? NEST_SHIFT : 0);
 	return (
 		<div
-			{...stylex.props(styles.line)}
+			className={styles.line}
 			style={{
 				left,
 				right: ROW_INSET,
@@ -62,10 +61,10 @@ export function DropIndicator({
 				<ArrowElbowDownRightIcon
 					size={12}
 					weight="bold"
-					{...stylex.props(styles.nestIcon)}
+					className={styles.nestIcon}
 				/>
 			) : (
-				<div {...stylex.props(styles.dot)} />
+				<div className={styles.dot} />
 			)}
 		</div>
 	);

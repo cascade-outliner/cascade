@@ -14,7 +14,8 @@
 		"format": "biome format",
 		"lint": "biome lint",
 		"check": "biome check",
-		"typecheck": "tsc",
+		"panda": "panda codegen",
+		"typecheck": "panda codegen && tsc",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui"
 	},
@@ -27,7 +28,6 @@
 		"@fontsource-variable/dm-sans": "^5.3.0",
 		"@lexical/react": "^0.38.0",
 		"@phosphor-icons/react": "^2.1.10",
-		"@stylexjs/stylex": "0.19.0",
 		"@tanstack/ai": "^0.61.0",
 		"@tanstack/ai-anthropic": "^0.19.1",
 		"@tanstack/react-hotkeys": "0.12.1",
@@ -46,6 +46,8 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.5.13",
 		"@cascade/config": "workspace:*",
+		"@pandacss/dev": "2.0.1",
+		"@pandacss/vite": "2.0.1",
 		"@playwright/test": "1.63.0",
 		"@tanstack/devtools-vite": "^0.8.5",
 		"@tanstack/react-devtools": "^0.10.12",

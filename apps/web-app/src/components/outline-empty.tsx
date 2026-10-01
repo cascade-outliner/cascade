@@ -1,4 +1,3 @@
-import { space } from "@cascade/theme/tokens.stylex";
 import { EmptyStateCard as Card } from "@cascade/ui/empty-state-card";
 import {
 	CursorClickIcon,
@@ -7,15 +6,15 @@ import {
 	MagnifyingGlassPlusIcon,
 	TreeStructureIcon,
 } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "#/styled-system/css";
 
-const styles = stylex.create({
-	grid: {
+const styles = {
+	grid: css({
 		display: "grid",
 		gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-		gap: space["3.5"],
-	},
-});
+		gap: "3.5",
+	}),
+};
 
 export interface NodeNotFoundProps {
 	/** Navigates back to the top-level outline. */
@@ -65,7 +64,7 @@ export function OutlineEmpty({ zoomed, onAddStep }: OutlineEmptyProps) {
 	}
 
 	return (
-		<div {...stylex.props(styles.grid)} data-testid="outline-empty">
+		<div className={styles.grid} data-testid="outline-empty">
 			<Card.Root>
 				<Card.Icon>
 					<ListDashesIcon />

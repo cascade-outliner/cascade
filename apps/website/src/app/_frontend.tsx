@@ -1,11 +1,10 @@
 /// <reference types="vite/client" />
 
 import dmSans from "@fontsource-variable/dm-sans/files/dm-sans-latin-opsz-normal.woff2?url";
-import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { site, siteFont, siteShadow } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 import { getSiteChrome } from "./_frontend/page.functions";
 import styles from "./_frontend/styles.css?url";
 
@@ -45,22 +44,22 @@ export const Route = createFileRoute("/_frontend")({
 	}),
 });
 
-const shell = stylex.create({
-	page: {
+const shell = {
+	page: css({
 		minHeight: "100vh",
 		display: "flex",
 		flexDirection: "column",
-		backgroundColor: site.canvas,
-		color: site.ink,
-		fontFamily: siteFont.sans,
+		backgroundColor: "site.canvas",
+		color: "site.ink",
+		fontFamily: "site.sans",
 		colorScheme: "light",
-		WebkitFontSmoothing: "antialiased",
-	},
-	main: {
+		fontSmoothing: "antialiased",
+	}),
+	main: css({
 		flex: 1,
 		outline: "none",
-	},
-	skip: {
+	}),
+	skip: css({
 		position: "absolute",
 		insetInlineStart: "1rem",
 		top: "-100%",
@@ -68,28 +67,28 @@ const shell = stylex.create({
 		paddingBlock: "0.5rem",
 		paddingInline: "0.875rem",
 		borderRadius: "8px",
-		backgroundColor: site.ink,
-		color: site.onDark,
+		backgroundColor: "site.ink",
+		color: "site.onDark",
 		textDecoration: "none",
 		fontWeight: 600,
-		":focus": {
+		_focus: {
 			top: "1rem",
-			boxShadow: siteShadow.focus,
+			boxShadow: "site.focus",
 			outline: "none",
 		},
-	},
-});
+	}),
+};
 
 function FrontendLayout() {
 	const { chrome } = Route.useRouteContext();
 
 	return (
-		<div {...stylex.props(shell.page)}>
-			<a href="#main" {...stylex.props(shell.skip)}>
+		<div className={shell.page}>
+			<a href="#main" className={shell.skip}>
 				Skip to content
 			</a>
 			<SiteHeader siteName={chrome.header.siteName} header={chrome.header} />
-			<main id="main" tabIndex={-1} {...stylex.props(shell.main)}>
+			<main id="main" tabIndex={-1} className={shell.main}>
 				<Outlet />
 			</main>
 			<SiteFooter footer={chrome.footer} />

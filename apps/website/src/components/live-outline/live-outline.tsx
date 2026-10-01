@@ -1,12 +1,9 @@
-import { fonts } from "@cascade/theme/tokens.stylex";
 import {
 	ArrowCounterClockwiseIcon,
 	CaretDownIcon,
 } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import type { KeyboardEvent } from "react";
-import { media } from "@/theme/breakpoints.stylex";
-import { site, siteFont, siteFontSize, siteShadow } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { type OutlineSeed, useOutline } from "./use-outline";
 
@@ -26,50 +23,50 @@ const DEFAULT_SEED: readonly OutlineSeed[] = [
 
 const INDENT_PX = 26;
 
-const styles = stylex.create({
-	frame: {
-		backgroundColor: site.card,
+const styles = {
+	frame: css({
+		backgroundColor: "site.card",
 		borderRadius: "18px",
-		boxShadow: siteShadow.outline,
-		color: site.ink,
+		boxShadow: "site.outline",
+		color: "site.ink",
 		overflow: "hidden",
-		fontFamily: siteFont.sans,
-	},
-	titleBar: {
+		fontFamily: "site.sans",
+	}),
+	titleBar: css({
 		display: "flex",
 		alignItems: "center",
 		gap: "0.625rem",
 		paddingBlock: "0.875rem",
 		paddingInline: "1.125rem",
-		borderBottomWidth: 1,
+		borderBottomWidth: "1px",
 		borderBottomStyle: "solid",
-		borderBottomColor: site.hairline,
-	},
-	mark: {
-		width: 20,
-		height: 20,
+		borderBottomColor: "site.hairline",
+	}),
+	mark: css({
+		width: "20px",
+		height: "20px",
 		flexShrink: 0,
 		borderRadius: "6px",
-		backgroundColor: site.primary,
+		backgroundColor: "site.primary",
 		display: "grid",
 		placeItems: "center",
-	},
-	markDot: {
-		width: 6,
-		height: 6,
+	}),
+	markDot: css({
+		width: "6px",
+		height: "6px",
 		borderRadius: "50%",
 		backgroundColor: "#ffffff",
-	},
-	crumbs: {
-		fontFamily: fonts.mono,
+	}),
+	crumbs: css({
+		fontFamily: "mono",
 		fontSize: "0.72rem",
 		fontWeight: 500,
-		color: site.muted,
+		color: "site.muted",
 		whiteSpace: "nowrap",
-	},
-	crumbSep: { color: site.onDarkMuted },
-	crumbHere: { color: site.ink },
-	reset: {
+	}),
+	crumbSep: css({ color: "site.onDarkMuted" }),
+	crumbHere: css({ color: "site.ink" }),
+	reset: css({
 		marginInlineStart: "auto",
 		display: "inline-flex",
 		alignItems: "center",
@@ -77,65 +74,63 @@ const styles = stylex.create({
 		paddingBlock: "0.25rem",
 		paddingInline: "0.5rem",
 		borderRadius: "6px",
-		backgroundColor: { default: "transparent", ":hover": site.primaryTint },
-		fontFamily: fonts.mono,
+		backgroundColor: { base: "transparent", _hover: "site.primaryTint" },
+		fontFamily: "mono",
 		fontSize: "0.69rem",
 		fontWeight: 500,
-		color: site.muted,
+		color: "site.muted",
 		cursor: "pointer",
 		whiteSpace: "nowrap",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
-	},
-	list: {
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+	}),
+	list: css({
 		listStyle: "none",
 		margin: 0,
-		paddingBlock: "0.875rem 0.625rem",
+		paddingBlockStart: "0.875rem",
+		paddingBlockEnd: "0.625rem",
 		paddingInline: "0.875rem",
 		display: "flex",
 		flexDirection: "column",
-		gap: 1,
-		minHeight: 300,
-	},
-	row: {
+		gap: "1px",
+		minHeight: "300px",
+	}),
+	row: css.raw({
 		display: "flex",
 		alignItems: "center",
 		gap: "0.375rem",
-		paddingBlock: 2,
+		paddingBlock: "2px",
 		paddingInlineEnd: "0.5rem",
 		borderRadius: "9px",
 		backgroundColor: "transparent",
-	},
-	rowFocused: {
-		backgroundColor: site.primaryTint,
-	},
-	indent: (depth: number) => ({
-		paddingInlineStart: 4 + depth * INDENT_PX,
 	}),
-	caret: {
-		width: 16,
-		height: 16,
+	rowFocused: css.raw({
+		backgroundColor: "site.primaryTint",
+	}),
+	caret: css.raw({
+		width: "16px",
+		height: "16px",
 		flexShrink: 0,
 		display: "grid",
 		placeItems: "center",
-		color: site.muted,
+		color: "site.muted",
 		cursor: "pointer",
 		borderRadius: "4px",
 		backgroundColor: "transparent",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
 		transitionProperty: "transform",
-		transitionDuration: { default: "150ms", [media.reducedMotion]: "0ms" },
-	},
-	caretHidden: {
+		transitionDuration: { base: "150ms", _motionReduce: "0ms" },
+	}),
+	caretHidden: css.raw({
 		visibility: "hidden",
-	},
-	caretFolded: {
+	}),
+	caretFolded: css.raw({
 		transform: "rotate(-90deg)",
-	},
-	bullet: {
-		width: 20,
-		height: 20,
+	}),
+	bullet: css.raw({
+		width: "20px",
+		height: "20px",
 		flexShrink: 0,
 		borderRadius: "50%",
 		display: "grid",
@@ -143,60 +138,61 @@ const styles = stylex.create({
 		cursor: "pointer",
 		backgroundColor: "transparent",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
-	},
-	bulletFolded: {
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+	}),
+	bulletFolded: css.raw({
 		backgroundColor: "rgba(43, 45, 51, 0.14)",
-	},
-	dot: {
-		width: 6,
-		height: 6,
+	}),
+	dot: css.raw({
+		width: "6px",
+		height: "6px",
 		borderRadius: "50%",
-		backgroundColor: site.muted,
-	},
-	dotDone: {
-		backgroundColor: site.onDarkMuted,
-	},
-	input: {
+		backgroundColor: "site.muted",
+	}),
+	dotDone: css.raw({
+		backgroundColor: "site.onDarkMuted",
+	}),
+	input: css.raw({
 		flex: 1,
 		minWidth: 0,
 		border: 0,
 		outline: "none",
 		backgroundColor: "transparent",
-		fontFamily: siteFont.sans,
+		fontFamily: "site.sans",
 		fontSize: "0.9375rem",
 		lineHeight: 1.5,
-		paddingBlock: 5,
-		color: site.ink,
-		"::placeholder": { color: site.faint },
-	},
-	inputTop: { fontWeight: 600 },
-	inputDone: {
-		color: site.faint,
+		paddingBlock: "5px",
+		color: "site.ink",
+		_placeholder: { color: "site.faint" },
+	}),
+	inputTop: css.raw({ fontWeight: 600 }),
+	inputDone: css.raw({
+		color: "site.faint",
 		textDecoration: "line-through",
-	},
-	hints: {
+	}),
+	hints: css({
 		display: "flex",
 		flexWrap: "wrap",
 		gap: "0.375rem 0.875rem",
-		paddingBlock: "0.625rem 0.875rem",
+		paddingBlockStart: "0.625rem",
+		paddingBlockEnd: "0.875rem",
 		paddingInline: "1.125rem",
-		borderTopWidth: 1,
+		borderTopWidth: "1px",
 		borderTopStyle: "solid",
-		borderTopColor: site.hairline,
-		fontFamily: fonts.mono,
+		borderTopColor: "site.hairline",
+		fontFamily: "mono",
 		fontSize: "0.66rem",
 		fontWeight: 500,
-		color: site.muted,
+		color: "site.muted",
 		listStyle: "none",
 		margin: 0,
-	},
-	hint: { whiteSpace: "nowrap" },
-	kbd: {
+	}),
+	hint: css({ whiteSpace: "nowrap" }),
+	kbd: css({
 		fontFamily: "inherit",
-		fontSize: siteFontSize.eyebrow,
-	},
-});
+		fontSize: "site.eyebrow",
+	}),
+};
 
 export interface LiveOutlineProps {
 	seed?: readonly OutlineSeed[];
@@ -242,36 +238,29 @@ export function LiveOutline({
 	};
 
 	return (
-		<div {...stylex.props(styles.frame)}>
-			<div {...stylex.props(styles.titleBar)}>
-				<span aria-hidden="true" {...stylex.props(styles.mark)}>
-					<span {...stylex.props(styles.markDot)} />
+		<div className={styles.frame}>
+			<div className={styles.titleBar}>
+				<span aria-hidden="true" className={styles.mark}>
+					<span className={styles.markDot} />
 				</span>
-				<span {...stylex.props(styles.crumbs)}>
-					{path[0]} <span {...stylex.props(styles.crumbSep)}>/</span>{" "}
-					<span {...stylex.props(styles.crumbHere)}>{path[1]}</span>
+				<span className={styles.crumbs}>
+					{path[0]} <span className={styles.crumbSep}>/</span>{" "}
+					<span className={styles.crumbHere}>{path[1]}</span>
 				</span>
-				<button
-					type="button"
-					onClick={outline.reset}
-					{...stylex.props(styles.reset)}
-				>
+				<button type="button" onClick={outline.reset} className={styles.reset}>
 					<ArrowCounterClockwiseIcon size={11} aria-hidden="true" />
 					reset
 				</button>
 			</div>
-			<ol aria-label="Editable outline" {...stylex.props(styles.list)}>
+			<ol aria-label="Editable outline" className={styles.list}>
 				{outline.rows.map(({ node, hasChildren, folded }) => {
 					const focused = outline.focusedId === node.id;
 					const label = node.text || "empty line";
 					return (
 						<li
 							key={node.id}
-							{...stylex.props(
-								styles.row,
-								styles.indent(node.depth),
-								focused && styles.rowFocused,
-							)}
+							className={css(styles.row, focused && styles.rowFocused)}
+							style={{ paddingInlineStart: 4 + node.depth * INDENT_PX }}
 						>
 							<button
 								type="button"
@@ -280,7 +269,7 @@ export function LiveOutline({
 								aria-expanded={hasChildren ? !folded : undefined}
 								aria-label={`${folded ? "Unfold" : "Fold"} “${label}”`}
 								onClick={() => outline.toggleFold(node.id)}
-								{...stylex.props(
+								className={css(
 									styles.caret,
 									!hasChildren && styles.caretHidden,
 									folded && styles.caretFolded,
@@ -295,10 +284,10 @@ export function LiveOutline({
 								aria-expanded={hasChildren ? !folded : undefined}
 								aria-label={`${folded ? "Unfold" : "Fold"} “${label}”`}
 								onClick={() => outline.toggleFold(node.id)}
-								{...stylex.props(styles.bullet, folded && styles.bulletFolded)}
+								className={css(styles.bullet, folded && styles.bulletFolded)}
 							>
 								<span
-									{...stylex.props(styles.dot, node.done && styles.dotDone)}
+									className={css(styles.dot, node.done && styles.dotDone)}
 								/>
 							</button>
 							<input
@@ -313,7 +302,7 @@ export function LiveOutline({
 								}
 								onKeyDown={(event) => onKeyDown(event, node.id)}
 								onFocus={() => outline.setFocusedId(node.id)}
-								{...stylex.props(
+								className={css(
 									styles.input,
 									node.depth === 0 && styles.inputTop,
 									node.done && styles.inputDone,
@@ -323,32 +312,32 @@ export function LiveOutline({
 					);
 				})}
 			</ol>
-			<ul aria-label="Keyboard shortcuts" {...stylex.props(styles.hints)}>
-				<li {...stylex.props(styles.hint)}>
-					<kbd {...stylex.props(styles.kbd)}>
+			<ul aria-label="Keyboard shortcuts" className={styles.hints}>
+				<li className={styles.hint}>
+					<kbd className={styles.kbd}>
 						↵<VisuallyHidden>Enter</VisuallyHidden>
 					</kbd>{" "}
 					new line
 				</li>
-				<li {...stylex.props(styles.hint)}>
-					<kbd {...stylex.props(styles.kbd)}>
+				<li className={styles.hint}>
+					<kbd className={styles.kbd}>
 						⇥<VisuallyHidden>Tab</VisuallyHidden>
 					</kbd>{" "}
 					indent
 				</li>
-				<li {...stylex.props(styles.hint)}>
-					<kbd {...stylex.props(styles.kbd)}>
+				<li className={styles.hint}>
+					<kbd className={styles.kbd}>
 						⇧⇥<VisuallyHidden>Shift Tab</VisuallyHidden>
 					</kbd>{" "}
 					outdent
 				</li>
-				<li {...stylex.props(styles.hint)}>
-					<kbd {...stylex.props(styles.kbd)}>
+				<li className={styles.hint}>
+					<kbd className={styles.kbd}>
 						⌘↵<VisuallyHidden>Command Enter</VisuallyHidden>
 					</kbd>{" "}
 					done
 				</li>
-				<li {...stylex.props(styles.hint)}>● click to fold</li>
+				<li className={styles.hint}>● click to fold</li>
 			</ul>
 		</div>
 	);

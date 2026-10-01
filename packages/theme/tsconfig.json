@@ -1,6 +1,6 @@
 {
 	"extends": "@cascade/config/tsconfig.base.json",
-	"include": ["src/**/*.ts"],
+	"include": ["panda.config.ts", "src/**/*.ts"],
 	"compilerOptions": {
 		"lib": ["ES2022", "DOM"]
 	}

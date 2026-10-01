@@ -1,8 +1,6 @@
 import { textState } from "@cascade/data";
-import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import { CheckIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useEffect, useRef } from "react";
 import { Drafts } from "#/components/split-tasks/drafts.tsx";
@@ -14,75 +12,75 @@ import {
 	useSplit,
 } from "#/components/split-tasks/split.ts";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
+import { css, keyframes } from "#/styled-system/css";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-const dashed = `color-mix(in srgb, ${colors.primary} 55%, transparent)`;
+const dashed = "color-mix(in srgb, token(colors.primary) 55%, transparent)";
 
-const pulse = stylex.keyframes({
+const pulse = keyframes({
 	"0%, 100%": { opacity: 0.4 },
 	"50%": { opacity: 1 },
 });
 
-const styles = stylex.create({
-	preview: {
-		paddingTop: space["2.5"],
-		paddingBottom: space["2"],
+const styles = {
+	preview: css({
+		paddingTop: "2.5",
+		paddingBottom: "2",
 		outline: "none",
-	},
-	original: {
-		paddingInline: space["3"],
-		paddingBlock: space["1"],
-		fontSize: fontSize["400"],
+	}),
+	original: css({
+		paddingInline: "3",
+		paddingBlock: "1",
+		fontSize: "400",
 		lineHeight: 1.55,
-		color: colors.muted,
-	},
-	underline: {
+		color: "muted",
+	}),
+	underline: css.raw({
 		textDecorationLine: "underline",
 		textDecorationColor: dashed,
-		textUnderlineOffset: 3,
+		textUnderlineOffset: "3px",
 		transition: {
-			default: "text-decoration-color 400ms ease",
-			[REDUCED_MOTION]: "none",
+			base: "text-decoration-color 400ms ease",
+			_motionReduce: "none",
 		},
-		"@starting-style": {
+		_starting: {
 			textDecorationColor: "transparent",
 		},
-	},
-	actions: {
+	}),
+	actions: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
-		paddingTop: space["2.5"],
-		paddingLeft: space["8"],
-		paddingRight: space["3"],
-		minHeight: 24,
-		fontSize: fontSize["200"],
-		color: colors.muted,
-	},
-	notice: {
-		fontSize: fontSize["300"],
-		color: colors.muted,
-		borderWidth: 4,
+		gap: "2",
+		paddingTop: "2.5",
+		paddingLeft: "8",
+		paddingRight: "3",
+		minHeight: "24px",
+		fontSize: "200",
+		color: "muted",
+	}),
+	notice: css({
+		fontSize: "300",
+		color: "muted",
+		borderWidth: "4px",
 		borderTopWidth: 0,
 		borderBottomWidth: 0,
 		borderRightWidth: 0,
 		borderStyle: "solid",
-		borderColor: colors.primary,
-		paddingLeft: space["3"],
-	},
-	loading: {
+		borderColor: "primary",
+		paddingLeft: "3",
+	}),
+	loading: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["1.5"],
-		color: colors.primary,
-	},
-	pulse: {
-		animationName: { default: pulse, [REDUCED_MOTION]: "none" },
+		gap: "1.5",
+		color: "primary",
+	}),
+	pulse: css({
+		animationName: { base: pulse, _motionReduce: "none" },
 		animationDuration: "1.2s",
 		animationIterationCount: "infinite",
 		animationTimingFunction: "ease-in-out",
-	},
-});
+	}),
+};
 
 export interface CaptureSplitProps {
 	/** What was typed in the capture bar. */
@@ -152,17 +150,17 @@ export function CaptureSplit({
 					keepAsOne();
 				}
 			}}
-			{...stylex.props(styles.preview)}
+			className={styles.preview}
 		>
-			<div {...stylex.props(styles.original)}>
+			<div className={styles.original}>
 				<Marked
 					text={text}
 					phrases={tasks.map((task) => task.source)}
-					style={styles.underline}
+					css={styles.underline}
 				/>
 			</div>
 			{tasks.length > 0 && <Drafts tasks={tasks} />}
-			<div {...stylex.props(styles.actions)}>
+			<div className={styles.actions}>
 				{result ? (
 					<>
 						{tasks.length > 0 ? (
@@ -171,7 +169,7 @@ export function CaptureSplit({
 								Accept
 							</Button>
 						) : (
-							<span role="status" {...stylex.props(styles.notice)}>
+							<span role="status" className={styles.notice}>
 								{CANT_SPLIT}
 							</span>
 						)}
@@ -181,8 +179,11 @@ export function CaptureSplit({
 						</Button>
 					</>
 				) : (
-					<span {...stylex.props(styles.loading)}>
-						<SparkleIcon size={13} {...stylex.props(!error && styles.pulse)} />
+					<span className={styles.loading}>
+						<SparkleIcon
+							size={13}
+							className={error ? undefined : styles.pulse}
+						/>
 						{error ?? "Splitting…"}
 					</span>
 				)}

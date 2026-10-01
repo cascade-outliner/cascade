@@ -1,9 +1,7 @@
 import { type Node, textState } from "@cascade/data";
-import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import { Sheet } from "@cascade/ui/sheet";
 import { PlusIcon, SparkleIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef } from "react";
 import { Drafts } from "#/components/split-tasks/drafts.tsx";
 import {
@@ -13,20 +11,21 @@ import {
 	useSplit,
 } from "#/components/split-tasks/split.ts";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
+import { css } from "#/styled-system/css";
 
-const styles = stylex.create({
+const styles = {
 	// The parent the note becomes, above its drafts.
-	title: {
-		paddingBlock: space["1.5"],
-		paddingInline: space["2.5"],
-		fontSize: fontSize["600"],
+	title: css({
+		paddingBlock: "1.5",
+		paddingInline: "2.5",
+		fontSize: "600",
 		fontWeight: 600,
-		color: colors.ink,
-	},
-	drafts: {
-		fontSize: fontSize["600"],
-	},
-});
+		color: "ink",
+	}),
+	drafts: css.raw({
+		fontSize: "600",
+	}),
+};
 
 export interface SplitSheetProps {
 	node: Node;
@@ -109,8 +108,8 @@ export function SplitSheet({
 			>
 				{result && tasks.length > 0 && (
 					<>
-						<div {...stylex.props(styles.title)}>{result.title}</div>
-						<Drafts tasks={tasks} style={styles.drafts} />
+						<div className={styles.title}>{result.title}</div>
+						<Drafts tasks={tasks} css={styles.drafts} />
 					</>
 				)}
 			</Sheet.Popup>

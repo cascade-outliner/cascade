@@ -1,11 +1,9 @@
-import { radius } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { media } from "@/theme/breakpoints.stylex";
-import { site, siteFontSize, siteShadow } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
+import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = stylex.create({
-	base: {
+const styles = {
+	base: css.raw({
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -14,56 +12,57 @@ const styles = stylex.create({
 		lineHeight: 1.2,
 		textDecoration: "none",
 		whiteSpace: "nowrap",
-		borderRadius: radius.lg,
+		borderRadius: "lg",
 		transitionProperty: "background-color, color, box-shadow, transform",
 		transitionDuration: "150ms",
 		outline: "none",
-		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
-	},
-	md: {
-		fontSize: siteFontSize.small,
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+	}),
+	md: css.raw({
+		fontSize: "site.small",
 		paddingBlock: "0.625rem",
 		paddingInline: "1.125rem",
-	},
-	lg: {
-		fontSize: siteFontSize.body,
+	}),
+	lg: css.raw({
+		fontSize: "site.body",
 		paddingBlock: "0.875rem",
 		paddingInline: "1.5rem",
-		borderRadius: radius.lg,
-	},
-	block: {
+		borderRadius: "lg",
+	}),
+	block: css.raw({
 		width: "100%",
 		paddingBlock: "0.8125rem",
-	},
-	primary: {
-		backgroundColor: { default: site.primary, ":hover": site.primaryHover },
+	}),
+	primary: css.raw({
+		backgroundColor: { base: "site.primary", _hover: "site.primaryHover" },
 		color: "#ffffff",
-	},
-	dark: {
-		backgroundColor: { default: site.ink, ":hover": site.inkSoft },
-		color: site.onDark,
-	},
-	light: {
-		backgroundColor: { default: site.card, ":hover": "#ffffff" },
-		color: site.ink,
-	},
-	outline: {
-		backgroundColor: { default: "transparent", ":hover": site.tint },
-		color: site.ink,
+	}),
+	dark: css.raw({
+		backgroundColor: { base: "site.ink", _hover: "site.inkSoft" },
+		color: "site.onDark",
+	}),
+	light: css.raw({
+		backgroundColor: { base: "site.card", _hover: "#ffffff" },
+		color: "site.ink",
+	}),
+	outline: css.raw({
+		backgroundColor: { base: "transparent", _hover: "site.tint" },
+		color: "site.ink",
 		boxShadow: {
-			default: `inset 0 0 0 1.5px ${site.ink}`,
-			":focus-visible": `inset 0 0 0 1.5px ${site.ink}, ${siteShadow.focus}`,
+			base: "inset 0 0 0 1.5px token(colors.site.ink)",
+			_focusVisible:
+				"inset 0 0 0 1.5px token(colors.site.ink), token(shadows.site.focus)",
 		},
-	},
-	ghost: {
-		backgroundColor: { default: "transparent", ":hover": site.tint },
-		color: site.ink,
+	}),
+	ghost: css.raw({
+		backgroundColor: { base: "transparent", _hover: "site.tint" },
+		color: "site.ink",
 		fontWeight: 400,
-	},
-	fullOnMobile: {
-		width: { default: null, [media.mobile]: "100%" },
-	},
-});
+	}),
+	fullOnMobile: css.raw({
+		width: { _mobile: "100%" },
+	}),
+};
 
 export type ButtonVariant = "primary" | "dark" | "light" | "outline" | "ghost";
 
@@ -77,7 +76,7 @@ export interface ButtonLinkProps {
 	/** Stretch to the parent's width on phones only. */
 	fullOnMobile?: boolean;
 	newTab?: boolean | null;
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
 function isExternal(href: string) {
@@ -93,7 +92,7 @@ export function ButtonLink({
 	block = false,
 	fullOnMobile = false,
 	newTab,
-	style,
+	css: cssProp,
 }: ButtonLinkProps) {
 	const external = isExternal(href);
 	const opensNewTab = Boolean(newTab);
@@ -103,13 +102,13 @@ export function ButtonLink({
 			href={href}
 			target={opensNewTab ? "_blank" : undefined}
 			rel={opensNewTab || external ? "noopener noreferrer" : undefined}
-			{...stylex.props(
+			className={css(
 				styles.base,
 				styles[size],
 				styles[variant],
 				block && styles.block,
 				fullOnMobile && styles.fullOnMobile,
-				style,
+				cssProp,
 			)}
 		>
 			{children}

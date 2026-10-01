@@ -12,7 +12,6 @@ import {
 	shiftDay,
 	textState,
 } from "@cascade/data";
-import { space } from "@cascade/theme/tokens.stylex";
 import { CaptureBar, type CaptureBarHandle } from "@cascade/ui/capture-bar";
 import { Bullet } from "@cascade/ui/outliner/bullet";
 import { Chevron } from "@cascade/ui/outliner/chevron";
@@ -22,7 +21,6 @@ import { TaskMarker } from "@cascade/ui/outliner/task-marker";
 import { VirtualList } from "@cascade/ui/outliner/virtual-list";
 import { ZoomHeader } from "@cascade/ui/outliner/zoom-header";
 import { Pill } from "@cascade/ui/pill";
-import * as stylex from "@stylexjs/stylex";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -40,37 +38,37 @@ import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
 import { SplitSheet } from "#/components/split-tasks/split-sheet.tsx";
 import { useOutlineStore, useSync } from "#/lib/outline-store.tsx";
+import { css } from "#/styled-system/css";
 
 const appRoute = getRouteApi("/_app");
 
-const styles = stylex.create({
-	page: {
-		maxWidth: 980,
+const styles = {
+	page: css({
+		maxWidth: "980px",
 		margin: "0 auto",
-		padding: { default: space["8"], "@media (max-width: 640px)": space["4"] },
+		padding: { base: "8", _mobile: "4" },
 		paddingBottom: {
-			default: null,
-			"@media (max-width: 640px)": `calc(6rem + env(safe-area-inset-bottom, 0px))`,
+			_mobile: "calc(6rem + env(safe-area-inset-bottom, 0px))",
 		},
-	},
-	outline: {
+	}),
+	outline: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["1"],
-	},
-	zoomHeader: {
-		marginBottom: space["6"],
-	},
+		gap: "1",
+	}),
+	zoomHeader: css({
+		marginBottom: "6",
+	}),
 	// Keeps the capture bar in reach at the bottom of long outlines.
-	captureBar: {
-		position: { default: "sticky", "@media (max-width: 640px)": "fixed" },
-		bottom: `max(${space["4"]}, env(safe-area-inset-bottom))`,
-		left: { default: null, "@media (max-width: 640px)": space["4"] },
-		right: { default: null, "@media (max-width: 640px)": space["4"] },
+	captureBar: css({
+		position: { base: "sticky", _mobile: "fixed" },
+		bottom: "max(token(spacing.4), env(safe-area-inset-bottom))",
+		left: { _mobile: "4" },
+		right: { _mobile: "4" },
 		zIndex: 1,
 		viewTransitionName: "capture-bar",
-	},
-});
+	}),
+};
 
 function zoomTransitionName(id: string): string {
 	return `outline-node-${id}`;
@@ -236,7 +234,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		return (
 			<>
 				{header}
-				<div {...stylex.props(styles.page)}>
+				<div className={styles.page}>
 					<NodeNotFound onBack={() => zoomTo(null)} />
 				</div>
 			</>
@@ -246,9 +244,9 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 	return (
 		<>
 			{header}
-			<div {...stylex.props(styles.page)}>
+			<div className={styles.page}>
 				{zoomed && (
-					<div {...stylex.props(styles.zoomHeader)}>
+					<div className={styles.zoomHeader}>
 						<ZoomHeader
 							node={zoomed}
 							readOnly={store.isLocked(zoomed.id)}
@@ -306,7 +304,7 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 						}}
 					/>
 				)}
-				<div {...stylex.props(styles.captureBar)}>
+				<div className={styles.captureBar}>
 					<CaptureBar
 						ref={captureInputRef}
 						slashItems={captureSlashCommands}

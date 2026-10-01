@@ -1,100 +1,97 @@
-import { fonts } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
 import type { FeatureGridBlock } from "@/payload-types";
-import { media } from "@/theme/breakpoints.stylex";
-import { site, siteShadow } from "@/theme/site.stylex";
+import { css, keyframes } from "@/styled-system/css";
 import { FeatureIllustrationView } from "../illustrations/feature-illustrations";
 import { Card } from "../ui/card";
 import { Heading } from "../ui/heading";
 import { Section } from "../ui/section";
 import { Text } from "../ui/text";
 
-const pulse = stylex.keyframes({
+const pulse = keyframes({
 	"0%, 100%": { opacity: 1 },
 	"50%": { opacity: 0.3 },
 });
 
-const styles = stylex.create({
-	intro: {
+const styles = {
+	intro: css({
 		display: "flex",
-		flexDirection: { default: "row", [media.tablet]: "column" },
-		alignItems: { default: "flex-end", [media.tablet]: "flex-start" },
+		flexDirection: { base: "row", _tablet: "column" },
+		alignItems: { base: "flex-end", _tablet: "flex-start" },
 		justifyContent: "space-between",
-		gap: { default: "2.5rem", [media.tablet]: "1rem" },
+		gap: { base: "2.5rem", _tablet: "1rem" },
 		marginBlockEnd: "2.25rem",
-	},
-	heading: {
-		maxWidth: 620,
-	},
-	lead: {
-		maxWidth: 360,
-	},
-	grid: {
+	}),
+	heading: css.raw({
+		maxWidth: "620px",
+	}),
+	lead: css.raw({
+		maxWidth: "360px",
+	}),
+	grid: css({
 		listStyle: "none",
 		margin: 0,
 		padding: 0,
 		display: "grid",
 		gridTemplateColumns: {
-			default: "repeat(3, minmax(0, 1fr))",
-			[media.tabletOnly]: "repeat(2, minmax(0, 1fr))",
-			[media.mobile]: "minmax(0, 1fr)",
+			base: "repeat(3, minmax(0, 1fr))",
+			_tabletOnly: "repeat(2, minmax(0, 1fr))",
+			_mobile: "minmax(0, 1fr)",
 		},
 		gap: "1.125rem",
-	},
-	card: {
+	}),
+	card: css.raw({
 		gap: "1.125rem",
-	},
+	}),
 	// Not built yet: a dashed "blueprint" outline instead of the solid hairline.
-	cardSoon: {
+	cardSoon: css.raw({
 		boxShadow: "none",
-		outlineWidth: 1.5,
+		outlineWidth: "1.5px",
 		outlineStyle: "dashed",
-		outlineColor: site.rule,
-		outlineOffset: -1.5,
-	},
-	art: {
+		outlineColor: "site.rule",
+		outlineOffset: "-1.5px",
+	}),
+	art: css({
 		position: "relative",
-	},
-	artSoon: {
+	}),
+	artSoon: css({
 		opacity: 0.55,
 		filter: "grayscale(0.6)",
-	},
-	badge: {
+	}),
+	badge: css({
 		position: "absolute",
-		top: 10,
-		insetInlineEnd: 10,
+		top: "10px",
+		insetInlineEnd: "10px",
 		display: "inline-flex",
 		alignItems: "center",
-		gap: 6,
-		paddingBlock: 4,
-		paddingInline: 9,
+		gap: "6px",
+		paddingBlock: "4px",
+		paddingInline: "9px",
 		borderRadius: "6px",
-		backgroundColor: site.card,
-		boxShadow: siteShadow.pop,
-		color: site.primary,
-		fontFamily: fonts.mono,
+		backgroundColor: "site.card",
+		boxShadow: "site.pop",
+		color: "site.primary",
+		fontFamily: "mono",
 		fontSize: "0.66rem",
 		fontWeight: 500,
 		textTransform: "uppercase",
 		whiteSpace: "nowrap",
 		transform: "rotate(3deg)",
-	},
-	dot: {
-		width: 6,
-		height: 6,
+	}),
+	dot: css({
+		width: "6px",
+		height: "6px",
 		borderRadius: "50%",
-		backgroundColor: site.primary,
+		backgroundColor: "site.primary",
 		animationName: pulse,
 		animationDuration: "1.8s",
 		animationIterationCount: "infinite",
 		animationTimingFunction: "ease-in-out",
-		"@media (prefers-reduced-motion: reduce)": { animationName: "none" },
-	},
-	cardTitle: {
+		_motionReduce: { animationName: "none" },
+	}),
+	cardTitle: css.raw({
 		marginBlockEnd: "0.375rem",
-	},
-});
+	}),
+};
 
 export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 	const headingId = useId();
@@ -102,36 +99,36 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
-			<div {...stylex.props(styles.intro)}>
-				<Heading as="h2" id={headingId} style={styles.heading}>
+			<div className={styles.intro}>
+				<Heading as="h2" id={headingId} css={styles.heading}>
 					{block.heading}
 				</Heading>
 				{block.body && (
-					<Text size="body" tone="muted" style={styles.lead}>
+					<Text size="body" tone="muted" css={styles.lead}>
 						{block.body}
 					</Text>
 				)}
 			</div>
-			<ul {...stylex.props(styles.grid)}>
+			<ul className={styles.grid}>
 				{features.map((feature) => (
 					<Card
 						key={feature.id ?? feature.title}
 						as="li"
-						style={[styles.card, feature.comingSoon && styles.cardSoon]}
+						css={css.raw(styles.card, feature.comingSoon && styles.cardSoon)}
 					>
-						<div {...stylex.props(styles.art)}>
-							<div {...stylex.props(feature.comingSoon && styles.artSoon)}>
+						<div className={styles.art}>
+							<div className={feature.comingSoon ? styles.artSoon : undefined}>
 								<FeatureIllustrationView kind={feature.illustration} />
 							</div>
 							{feature.comingSoon && (
-								<span {...stylex.props(styles.badge)}>
-									<span aria-hidden="true" {...stylex.props(styles.dot)} />
+								<span className={styles.badge}>
+									<span aria-hidden="true" className={styles.dot} />
 									Coming soon
 								</span>
 							)}
 						</div>
 						<div>
-							<Heading as="h3" style={styles.cardTitle}>
+							<Heading as="h3" css={styles.cardTitle}>
 								{feature.title}
 							</Heading>
 							<Text size="small" tone="muted">

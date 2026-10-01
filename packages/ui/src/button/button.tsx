@@ -1,51 +1,43 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import {
-	colors,
-	fontSize,
-	opacity,
-	radius,
-	shadow,
-	space,
-} from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 import type { Ref } from "react";
 
-const styles = stylex.create({
-	base: {
+const styles = {
+	base: css.raw({
 		border: "none",
 		font: "inherit",
-		cursor: { default: "pointer", ":disabled": "not-allowed" },
-		opacity: { default: 1, ":disabled": opacity.disabled },
+		cursor: { base: "pointer", _disabled: "not-allowed" },
+		opacity: { base: 1, _disabled: "disabled" },
 		display: "inline-flex",
 		alignItems: "center",
-		gap: space["1"],
+		gap: "1",
 		paddingBlock: "5px",
-		paddingInline: space["3"],
-		borderRadius: radius.md,
+		paddingInline: "3",
+		borderRadius: "md",
 		outline: "none",
-		fontSize: fontSize["300"],
+		fontSize: "300",
 		fontWeight: 500,
 		whiteSpace: "nowrap",
-	},
-	small: {
+	}),
+	small: css.raw({
 		paddingBlock: "2px",
-		paddingInline: space["2"],
-		fontSize: fontSize["200"],
-	},
-	secondary: {
-		backgroundColor: { default: colors.white, ":hover": colors.surface },
+		paddingInline: "2",
+		fontSize: "200",
+	}),
+	secondary: css.raw({
+		backgroundColor: { base: "white", _hover: "surface" },
 		boxShadow: {
-			default: `inset 0 0 0 1px ${colors.borderStrong}`,
-			":focus-visible": shadow.focusRing,
+			base: "inset 0 0 0 1px token(colors.borderStrong)",
+			_focusVisible: "focusRing",
 		},
-		color: colors.ink,
-	},
-	primary: {
-		backgroundColor: colors.primary,
-		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
-		color: colors.onPrimary,
-	},
-});
+		color: "ink",
+	}),
+	primary: css.raw({
+		backgroundColor: "primary",
+		boxShadow: { base: "none", _focusVisible: "focusRing" },
+		color: "onPrimary",
+	}),
+};
 
 export interface ButtonProps
 	extends Omit<BaseButton.Props, "className" | "style"> {
@@ -63,7 +55,7 @@ export function Button({
 		<BaseButton
 			type="button"
 			{...props}
-			{...stylex.props(
+			className={css(
 				styles.base,
 				size === "small" && styles.small,
 				styles[variant],

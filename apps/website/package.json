@@ -15,7 +15,8 @@
 		"migrate:status": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js migrate:status",
 		"seed:clean": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js run src/seed/clean.ts",
 		"seed": "node --no-deprecation --env-file-if-exists=../../.env node_modules/payload/bin.js run src/seed/index.ts",
-		"typecheck": "tsc"
+		"panda": "panda codegen",
+		"typecheck": "panda codegen && tsc"
 	},
 	"dependencies": {
 		"@cascade/config": "workspace:*",
@@ -30,7 +31,6 @@
 		"@payloadcms/tanstack-start": "4.0.0-canary.37",
 		"@payloadcms/ui": "4.0.0-canary.37",
 		"@phosphor-icons/react": "^2.1.10",
-		"@stylexjs/stylex": "0.19.0",
 		"@t3-oss/env-core": "^0.13.11",
 		"@tanstack/react-router": "^1.120.0",
 		"@tanstack/react-start": "^1.168.26",
@@ -44,6 +44,8 @@
 		"zod": "^4.6.2"
 	},
 	"devDependencies": {
+		"@pandacss/dev": "2.0.1",
+		"@pandacss/vite": "2.0.1",
 		"@tanstack/react-devtools": "^0.10.12",
 		"@tanstack/react-router-devtools": "^1.167.2",
 		"@types/node": "24.12.3",

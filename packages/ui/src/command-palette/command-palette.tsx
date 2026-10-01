@@ -1,37 +1,25 @@
 import { Autocomplete } from "@base-ui/react/autocomplete";
 import { Dialog } from "@base-ui/react/dialog";
 import type { TextRange } from "@cascade/data";
-import {
-	borderWidth,
-	colors,
-	duration,
-	fontSize,
-	radius,
-	shadow,
-	space,
-	zIndex,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-
-const styles = stylex.create({
-	backdrop: {
+const styles = {
+	backdrop: css({
 		position: "fixed",
 		inset: 0,
-		zIndex: zIndex.overlay,
-		backgroundColor: colors.overlay,
-		"@starting-style": {
+		zIndex: "overlay",
+		backgroundColor: "overlay",
+		_starting: {
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
-	},
-	popup: {
+		transitionDuration: { base: "150", _motionReduce: "0s" },
+	}),
+	popup: css({
 		position: "fixed",
-		zIndex: zIndex.popup,
+		zIndex: "popup",
 		top: "min(12vh, 96px)",
 		left: "50%",
 		transform: "translateX(-50%)",
@@ -40,35 +28,35 @@ const styles = stylex.create({
 		flexDirection: "column",
 		maxHeight: "calc(100dvh - min(12vh, 96px) - 16px)",
 		overflow: "hidden",
-		borderRadius: radius.xl,
-		borderWidth: borderWidth.thin,
+		borderRadius: "xl",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		boxShadow: shadow.popup,
+		borderColor: "border",
+		backgroundColor: "white",
+		boxShadow: "popup",
 		outline: "none",
-		"@starting-style": {
+		_starting: {
 			transform: "translateX(-50%) translateY(-8px)",
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
-	},
-	inputRow: {
+		transitionDuration: { base: "150", _motionReduce: "0s" },
+	}),
+	inputRow: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["3"],
-		paddingBlock: space["4"],
-		paddingInline: space["5"],
-		borderBottomWidth: borderWidth.thin,
+		gap: "3",
+		paddingBlock: "4",
+		paddingInline: "5",
+		borderBottomWidth: "thin",
 		borderBottomStyle: "solid",
-		borderBottomColor: colors.border,
-	},
-	searchIcon: {
+		borderBottomColor: "border",
+	}),
+	searchIcon: css({
 		display: "flex",
-		color: colors.accent,
-	},
-	input: {
+		color: "accent",
+	}),
+	input: css({
 		flexGrow: 1,
 		minWidth: 0,
 		border: "none",
@@ -76,127 +64,127 @@ const styles = stylex.create({
 		backgroundColor: "transparent",
 		outline: "none",
 		fontFamily: "inherit",
-		fontSize: fontSize["600"],
-		color: colors.ink,
-		caretColor: colors.accent,
-		"::placeholder": {
-			color: colors.placeholder,
+		fontSize: "600",
+		color: "ink",
+		caretColor: "accent",
+		_placeholder: {
+			color: "placeholder",
 		},
-	},
-	meta: {
-		fontSize: fontSize["200"],
+	}),
+	meta: css.raw({
+		fontSize: "200",
 		whiteSpace: "nowrap",
-		color: colors.placeholder,
-	},
-	list: {
+		color: "placeholder",
+	}),
+	list: css({
 		overflowY: "auto",
 		overscrollBehavior: "contain",
-		padding: space["2"],
-		scrollPaddingBlock: space["2"],
-	},
-	empty: {
-		paddingBlock: space["6"],
+		padding: "2",
+		scrollPaddingBlock: "2",
+	}),
+	empty: css({
+		paddingBlock: "6",
 		textAlign: "center",
-		fontSize: fontSize["400"],
-		color: colors.muted,
-	},
-	groupLabel: {
+		fontSize: "400",
+		color: "muted",
+	}),
+	groupLabel: css({
 		display: "flex",
-		gap: space["2"],
-		paddingTop: space["2"],
-		paddingBottom: space["1"],
-		paddingInline: space["3"],
-		fontSize: fontSize["200"],
+		gap: "2",
+		paddingTop: "2",
+		paddingBottom: "1",
+		paddingInline: "3",
+		fontSize: "200",
 		letterSpacing: "0.08em",
 		textTransform: "uppercase",
-		color: colors.placeholder,
+		color: "placeholder",
 		whiteSpace: "nowrap",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
-	},
-	item: {
+	}),
+	item: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["3"],
-		paddingBlock: { default: space["2.5"], "@media (hover: none)": space["3"] },
-		paddingInline: space["3"],
-		borderRadius: radius.lg,
-		color: colors.ink,
+		gap: "3",
+		paddingBlock: { base: "2.5", _pointerCoarse: "3" },
+		paddingInline: "3",
+		borderRadius: "lg",
+		color: "ink",
 		cursor: "default",
 		outline: "none",
-		"[data-highlighted]": {
-			backgroundColor: colors.primaryMuted,
+		_highlighted: {
+			backgroundColor: "primaryMuted",
 		},
-	},
-	icon: {
-		width: 22,
-		height: 22,
+	}),
+	icon: css({
+		width: "22px",
+		height: "22px",
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		borderRadius: radius.md,
-		backgroundColor: colors.inkSubtle,
-		color: colors.muted,
-	},
-	body: {
+		borderRadius: "md",
+		backgroundColor: "inkSubtle",
+		color: "muted",
+	}),
+	body: css({
 		flexGrow: 1,
 		minWidth: 0,
-	},
-	label: {
-		fontSize: fontSize["400"],
+	}),
+	label: css({
+		fontSize: "400",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",
-	},
-	detail: {
-		marginTop: space["0.5"],
-		fontSize: fontSize["200"],
-		color: colors.placeholder,
+	}),
+	detail: css({
+		marginTop: "0.5",
+		fontSize: "200",
+		color: "placeholder",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",
-	},
-	mark: {
+	}),
+	mark: css({
 		backgroundColor: "transparent",
-		color: colors.primary,
+		color: "primary",
 		fontWeight: 600,
-	},
-	shortcut: {
-		fontSize: fontSize["200"],
+	}),
+	shortcut: css({
+		fontSize: "200",
 		whiteSpace: "nowrap",
-		color: colors.placeholder,
-	},
-	enter: {
+		color: "placeholder",
+	}),
+	enter: css.raw({
 		display: "none",
-		fontSize: fontSize["200"],
-		color: colors.primary,
-	},
-	enterShown: {
+		fontSize: "200",
+		color: "primary",
+	}),
+	enterShown: css.raw({
 		display: "inline",
-	},
-	footer: {
+	}),
+	footer: css.raw({
 		display: "flex",
 		flexWrap: "wrap",
-		gap: space["4"],
-		paddingBlock: space["2.5"],
-		paddingInline: space["5"],
-		borderTopWidth: borderWidth.thin,
+		gap: "4",
+		paddingBlock: "2.5",
+		paddingInline: "5",
+		borderTopWidth: "thin",
 		borderTopStyle: "solid",
-		borderTopColor: colors.border,
-	},
-	scope: {
+		borderTopColor: "border",
+	}),
+	scope: css({
 		marginLeft: "auto",
-	},
-	visuallyHidden: {
+	}),
+	visuallyHidden: css({
 		position: "absolute",
-		width: 1,
-		height: 1,
+		width: "1px",
+		height: "1px",
 		overflow: "hidden",
 		clipPath: "inset(50%)",
 		whiteSpace: "nowrap",
-	},
-});
+	}),
+};
 
 export interface PaletteItem {
 	id: string;
@@ -246,7 +234,7 @@ function Highlight({
 	for (const [start, end] of ranges) {
 		parts.push(
 			text.slice(at, start),
-			<mark key={start} {...stylex.props(styles.mark)}>
+			<mark key={start} className={styles.mark}>
 				{text.slice(start, end)}
 			</mark>,
 		);
@@ -286,9 +274,9 @@ export function CommandPalette({
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Backdrop {...stylex.props(styles.backdrop)} />
+				<Dialog.Backdrop className={styles.backdrop} />
 				<Dialog.Popup
-					{...stylex.props(styles.popup)}
+					className={styles.popup}
 					aria-label="Command palette"
 					initialFocus={inputRef}
 				>
@@ -303,12 +291,12 @@ export function CommandPalette({
 						autoHighlight="always"
 						keepHighlight
 					>
-						<div {...stylex.props(styles.inputRow)}>
-							<span {...stylex.props(styles.searchIcon)}>
+						<div className={styles.inputRow}>
+							<span className={styles.searchIcon}>
 								<MagnifyingGlassIcon size={16} />
 							</span>
 							<Autocomplete.Input
-								{...stylex.props(styles.input)}
+								className={styles.input}
 								ref={inputRef}
 								placeholder={placeholder}
 								autoFocus
@@ -321,23 +309,21 @@ export function CommandPalette({
 									}
 								}}
 							/>
-							{status && <span {...stylex.props(styles.meta)}>{status}</span>}
+							{status && <span className={css(styles.meta)}>{status}</span>}
 						</div>
-						<Dialog.Close {...stylex.props(styles.visuallyHidden)}>
+						<Dialog.Close className={styles.visuallyHidden}>
 							Close command palette
 						</Dialog.Close>
-						<div {...stylex.props(styles.list)}>
+						<div className={styles.list}>
 							<Autocomplete.Empty>
-								<div {...stylex.props(styles.empty)}>
+								<div className={styles.empty}>
 									{query.trim() ? "No matches" : "Type to search your outline"}
 								</div>
 							</Autocomplete.Empty>
 							<Autocomplete.List>
 								{(group: (typeof visible)[number]) => (
 									<Autocomplete.Group key={group.value} items={group.items}>
-										<Autocomplete.GroupLabel
-											{...stylex.props(styles.groupLabel)}
-										>
+										<Autocomplete.GroupLabel className={styles.groupLabel}>
 											{group.value}
 										</Autocomplete.GroupLabel>
 										<Autocomplete.Collection>
@@ -346,34 +332,32 @@ export function CommandPalette({
 													key={item.id}
 													value={item}
 													onClick={() => select(item)}
-													{...stylex.props(styles.item)}
+													className={styles.item}
 													render={(props, state) => (
 														<div {...props}>
 															{item.icon && (
-																<span {...stylex.props(styles.icon)}>
-																	{item.icon}
-																</span>
+																<span className={styles.icon}>{item.icon}</span>
 															)}
-															<div {...stylex.props(styles.body)}>
-																<div {...stylex.props(styles.label)}>
+															<div className={styles.body}>
+																<div className={styles.label}>
 																	<Highlight
 																		text={item.label}
 																		ranges={item.ranges}
 																	/>
 																</div>
 																{item.detail && (
-																	<div {...stylex.props(styles.detail)}>
+																	<div className={styles.detail}>
 																		{item.detail}
 																	</div>
 																)}
 															</div>
 															{item.shortcut ? (
-																<span {...stylex.props(styles.shortcut)}>
+																<span className={styles.shortcut}>
 																	{item.shortcut}
 																</span>
 															) : (
 																<span
-																	{...stylex.props(
+																	className={css(
 																		styles.enter,
 																		state.highlighted && styles.enterShown,
 																	)}
@@ -390,11 +374,11 @@ export function CommandPalette({
 								)}
 							</Autocomplete.List>
 						</div>
-						<div id={hintsId} {...stylex.props(styles.footer, styles.meta)}>
+						<div id={hintsId} className={css(styles.footer, styles.meta)}>
 							{hints.map((hint) => (
 								<span key={hint}>{hint}</span>
 							))}
-							{scope && <span {...stylex.props(styles.scope)}>{scope}</span>}
+							{scope && <span className={styles.scope}>{scope}</span>}
 						</div>
 					</Autocomplete.Root>
 				</Dialog.Popup>

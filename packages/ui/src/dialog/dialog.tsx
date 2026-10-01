@@ -1,118 +1,106 @@
 import { Dialog as Base } from "@base-ui/react/dialog";
-import {
-	borderWidth,
-	colors,
-	duration,
-	fontSize,
-	radius,
-	shadow,
-	space,
-	zIndex,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { XIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-
-const styles = stylex.create({
-	backdrop: {
+const styles = {
+	backdrop: css({
 		position: "fixed",
 		inset: 0,
-		zIndex: zIndex.overlay,
-		backgroundColor: colors.overlay,
-		"@starting-style": {
+		zIndex: "overlay",
+		backgroundColor: "overlay",
+		_starting: {
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
-	},
-	popup: {
+		transitionDuration: { base: "150", _motionReduce: "0s" },
+	}),
+	popup: css({
 		position: "fixed",
-		zIndex: zIndex.popup,
-		top: { default: "50%", "@media (max-width: 640px)": "auto" },
-		left: { default: "50%", "@media (max-width: 640px)": space["4"] },
-		right: { default: "auto", "@media (max-width: 640px)": space["4"] },
-		bottom: { default: "auto", "@media (max-width: 640px)": space["4"] },
+		zIndex: "popup",
+		top: { base: "50%", _mobile: "auto" },
+		left: { base: "50%", _mobile: "4" },
+		right: { base: "auto", _mobile: "4" },
+		bottom: { base: "auto", _mobile: "4" },
 		transform: {
-			default: "translate(-50%, -50%) scale(1)",
-			"@media (max-width: 640px)": "none",
+			base: "translate(-50%, -50%) scale(1)",
+			_mobile: "none",
 		},
-		minWidth: { default: 320, "@media (max-width: 640px)": "auto" },
+		minWidth: { base: "320px", _mobile: "auto" },
 		maxWidth: {
-			default: "min(480px, calc(100vw - 32px))",
-			"@media (max-width: 640px)": "none",
+			base: "min(480px, calc(100vw - 32px))",
+			_mobile: "none",
 		},
 		maxHeight: "calc(100vh - 32px)",
 		overflowY: "auto",
-		borderRadius: radius.lg,
-		borderWidth: borderWidth.thin,
+		borderRadius: "lg",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		padding: { default: space["5"], "@media (max-width: 640px)": space["4"] },
-		boxShadow: shadow.popup,
+		borderColor: "border",
+		backgroundColor: "white",
+		padding: { base: "5", _mobile: "4" },
+		boxShadow: "popup",
 		outline: "none",
-		"@starting-style": {
+		_starting: {
 			transform: {
-				default: "translate(-50%, -50%) scale(0.96)",
-				"@media (max-width: 640px)": "translateY(16px)",
+				base: "translate(-50%, -50%) scale(0.96)",
+				_mobile: "translateY(16px)",
 			},
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
-	},
-	header: {
+		transitionDuration: { base: "150", _motionReduce: "0s" },
+	}),
+	header: css({
 		display: "flex",
 		alignItems: "flex-start",
 		justifyContent: "space-between",
-		gap: space["3"],
-		marginBottom: space["3"],
-	},
-	title: {
-		fontSize: fontSize["700"],
+		gap: "3",
+		marginBottom: "3",
+	}),
+	title: css({
+		fontSize: "700",
 		fontWeight: 600,
-		color: colors.ink,
+		color: "ink",
 		margin: 0,
-	},
-	description: {
-		fontSize: fontSize["500"],
-		color: colors.muted,
-		marginTop: space["1"],
+	}),
+	description: css({
+		fontSize: "500",
+		color: "muted",
+		marginTop: "1",
 		marginBottom: 0,
-	},
-	close: {
+	}),
+	close: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: { default: 24, "@media (hover: none)": 32 },
-		height: { default: 24, "@media (hover: none)": 32 },
+		width: { base: "24px", _pointerCoarse: "32px" },
+		height: { base: "24px", _pointerCoarse: "32px" },
 		flexShrink: 0,
-		borderRadius: radius.md,
+		borderRadius: "md",
 		border: "none",
 		backgroundColor: "transparent",
-		color: colors.muted,
+		color: "muted",
 		cursor: "pointer",
 		outline: "none",
-		"[data-highlighted]": {
-			backgroundColor: colors.surface,
+		_highlighted: {
+			backgroundColor: "surface",
 		},
-		":focus-visible": {
-			boxShadow: shadow.focusRing,
+		_focusVisible: {
+			boxShadow: "focusRing",
 		},
-	},
-	body: {
-		fontSize: fontSize["500"],
-		color: colors.ink,
-	},
-	footer: {
+	}),
+	body: css({
+		fontSize: "500",
+		color: "ink",
+	}),
+	footer: css({
 		display: "flex",
 		flexWrap: "wrap",
 		justifyContent: "flex-end",
-		gap: space["2"],
-		marginTop: space["5"],
-	},
-});
+		gap: "2",
+		marginTop: "5",
+	}),
+};
 
 function Popup({
 	title,
@@ -127,23 +115,23 @@ function Popup({
 }) {
 	return (
 		<Base.Portal>
-			<Base.Backdrop {...stylex.props(styles.backdrop)} />
-			<Base.Popup {...stylex.props(styles.popup)}>
-				<div {...stylex.props(styles.header)}>
+			<Base.Backdrop className={styles.backdrop} />
+			<Base.Popup className={styles.popup}>
+				<div className={styles.header}>
 					<div>
-						<Base.Title {...stylex.props(styles.title)}>{title}</Base.Title>
+						<Base.Title className={styles.title}>{title}</Base.Title>
 						{description && (
-							<Base.Description {...stylex.props(styles.description)}>
+							<Base.Description className={styles.description}>
 								{description}
 							</Base.Description>
 						)}
 					</div>
-					<Base.Close aria-label="Close" {...stylex.props(styles.close)}>
+					<Base.Close aria-label="Close" className={styles.close}>
 						<XIcon size={13} weight="bold" />
 					</Base.Close>
 				</div>
-				{children && <div {...stylex.props(styles.body)}>{children}</div>}
-				{footer && <div {...stylex.props(styles.footer)}>{footer}</div>}
+				{children && <div className={styles.body}>{children}</div>}
+				{footer && <div className={styles.footer}>{footer}</div>}
 			</Base.Popup>
 		</Base.Portal>
 	);

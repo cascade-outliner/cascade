@@ -9,13 +9,6 @@ import {
 	shiftDay,
 	yearId,
 } from "@cascade/data";
-import {
-	borderWidth,
-	colors,
-	fontSize,
-	radius,
-	space,
-} from "@cascade/theme/tokens.stylex";
 import { DropdownMenu } from "@cascade/ui/dropdown-menu";
 import { Breadcrumbs } from "@cascade/ui/outliner/breadcrumbs";
 import { DaySwitcher } from "@cascade/ui/outliner/day-switcher";
@@ -25,132 +18,130 @@ import {
 	type StripItem,
 } from "@cascade/ui/outliner/period-strip";
 import { MagnifyingGlassIcon, SignOutIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { Link } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import { openCommandMenu } from "#/components/command-menu.tsx";
 import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
 import { useOutlineStore, useSyncConfig } from "#/lib/outline-store.tsx";
+import { css } from "#/styled-system/css";
+import { token } from "#/styled-system/tokens";
 
-const MOBILE = "@media (max-width: 640px)";
-// Wide enough for the logo to sit left of the centered container without overlapping it.
-const WIDE = "@media (min-width: 1200px)";
-
-const styles = stylex.create({
-	header: {
+const styles = {
+	header: css({
 		position: "sticky",
 		top: 0,
 		zIndex: 2,
-		backgroundColor: colors.canvas,
-		borderBottomWidth: borderWidth.thin,
+		backgroundColor: "canvas",
+		borderBottomWidth: "thin",
 		borderBottomStyle: "solid",
-		borderBottomColor: colors.border,
+		borderBottomColor: "border",
 		// Own layer, so it holds still instead of cross-fading with the page on zoom.
 		viewTransitionName: "app-header",
-	},
-	inner: {
+	}),
+	inner: css({
 		display: "flex",
-		flexWrap: { default: "nowrap", [MOBILE]: "wrap" },
+		flexWrap: { base: "nowrap", _mobile: "wrap" },
 		alignItems: "center",
-		gap: space["3"],
-		rowGap: { default: null, [MOBILE]: space["2"] },
-		maxWidth: 980,
+		gap: "3",
+		rowGap: { _mobile: "2" },
+		maxWidth: "980px",
 		margin: "0 auto",
-		paddingBlock: space["2.5"],
-		paddingInline: { default: space["8"], [MOBILE]: space["4"] },
-	},
-	logo: {
+		paddingBlock: "2.5",
+		paddingInline: { base: "8", _mobile: "4" },
+	}),
+	// `_wide`: the logo sits left of the centered container without overlapping it.
+	logo: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
+		gap: "2",
 		flexShrink: 0,
-		height: 32,
-		marginInlineEnd: { default: space["3"], [MOBILE]: "auto", [WIDE]: 0 },
-		position: { default: "static", [WIDE]: "absolute" },
-		left: space["4"],
+		height: "32px",
+		marginInlineEnd: { base: "3", _mobile: "auto", _wide: 0 },
+		position: { base: "static", _wide: "absolute" },
+		left: "4",
 		// The header also holds the period strip, so 50% would drift down; pin to the top row.
-		top: space["2.5"],
-		borderRadius: radius.sm,
-		color: colors.ink,
-		fontSize: fontSize["700"],
+		top: "2.5",
+		borderRadius: "sm",
+		color: "ink",
+		fontSize: "700",
 		fontWeight: 600,
 		letterSpacing: "-0.02em",
 		textDecoration: "none",
-	},
-	logoMark: {
+	}),
+	logoMark: css({
 		flexShrink: 0,
-	},
-	wordmark: {
-		display: { default: "inline", [MOBILE]: "none" },
-	},
+	}),
+	wordmark: css({
+		display: { base: "inline", _mobile: "none" },
+	}),
 	// On mobile the breadcrumbs drop to their own row below; hidden there when there are none.
-	start: {
+	start: css({
 		display: {
-			default: "flex",
-			[MOBILE]: { default: "flex", ":empty": "none" },
+			base: "flex",
+			_mobile: { base: "flex", _empty: "none" },
 		},
-		flex: { default: 1, [MOBILE]: "1 1 100%" },
-		order: { default: null, [MOBILE]: 1 },
+		flex: { base: 1, _mobile: "1 1 100%" },
+		order: { _mobile: 1 },
 		minWidth: 0,
-	},
-	search: {
+	}),
+	search: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		flexShrink: 0,
-		width: 32,
-		height: 32,
-		borderWidth: borderWidth.thin,
+		width: "32px",
+		height: "32px",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		borderRadius: radius.md,
-		backgroundColor: { default: "transparent", ":hover": colors.inkSubtle },
-		color: colors.muted,
+		borderColor: "border",
+		borderRadius: "md",
+		backgroundColor: { base: "transparent", _hover: "inkSubtle" },
+		color: "muted",
 		cursor: "pointer",
-	},
-	account: {
+	}),
+	account: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
-		height: 32,
+		gap: "2",
+		height: "32px",
 		// Mirrors the logo: pinned to the screen's right edge when there's room.
-		position: { default: "static", [WIDE]: "absolute" },
-		right: space["4"],
+		position: { base: "static", _wide: "absolute" },
+		right: "4",
 		// The header also holds the period strip, so 50% would drift down; pin to the top row.
-		top: space["2.5"],
-		paddingInline: space["2"],
-		borderWidth: borderWidth.thin,
+		top: "2.5",
+		paddingInline: "2",
+		borderWidth: "thin",
 		borderStyle: "solid",
 		borderColor: {
-			default: colors.border,
-			":hover": colors.borderStrong,
+			base: "border",
+			_hover: "borderStrong",
 		},
-		borderRadius: radius.md,
-		backgroundColor: colors.white,
+		borderRadius: "md",
+		backgroundColor: "white",
 		font: "inherit",
-		fontSize: fontSize["300"],
-		color: colors.ink,
+		fontSize: "300",
+		color: "ink",
 		cursor: "pointer",
-	},
-	profile: {
+	}),
+	profile: css({
 		display: "flex",
 		flexShrink: 0,
-		position: { default: "static", [WIDE]: "absolute" },
-		right: space["4"],
-		top: space["2.5"],
+		position: { base: "static", _wide: "absolute" },
+		right: "4",
+		top: "2.5",
 		padding: 0,
 		border: "none",
-		borderRadius: radius.full,
+		borderRadius: "full",
 		backgroundColor: "transparent",
 		cursor: "pointer",
-	},
-	avatar: {
-		width: 32,
-		height: 32,
-		borderRadius: radius.full,
-		backgroundColor: colors.canvas,
-	},
-});
+	}),
+	avatar: css({
+		width: "32px",
+		height: "32px",
+		borderRadius: "full",
+		backgroundColor: "canvas",
+	}),
+};
 
 /** Sign in, or the signed-in user with a way out. Hidden when the server can't sync. */
 function AccountButton() {
@@ -164,7 +155,7 @@ function AccountButton() {
 				type="button"
 				data-testid="header-sign-in"
 				onClick={() => void signInWithGoogle()}
-				{...stylex.props(styles.account)}
+				className={styles.account}
 			>
 				Sign in
 			</button>
@@ -175,17 +166,17 @@ function AccountButton() {
 			<DropdownMenu.Trigger
 				data-testid="header-account"
 				aria-label={`Account, ${config.user.name}`}
-				{...stylex.props(styles.profile)}
+				className={styles.profile}
 			>
 				{config.user.image ? (
 					<img
-						{...stylex.props(styles.avatar)}
+						className={styles.avatar}
 						src={config.user.image}
 						alt=""
 						referrerPolicy="no-referrer"
 					/>
 				) : (
-					<span {...stylex.props(styles.avatar)} aria-hidden />
+					<span className={styles.avatar} aria-hidden />
 				)}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Popup>
@@ -209,10 +200,15 @@ function LogoMark() {
 			height={24}
 			viewBox="0 0 24 24"
 			aria-hidden="true"
-			{...stylex.props(styles.logoMark)}
+			className={styles.logoMark}
 		>
-			<rect width={24} height={24} rx={6} style={{ fill: colors.primary }} />
-			<g style={{ fill: colors.canvas }}>
+			<rect
+				width={24}
+				height={24}
+				rx={6}
+				style={{ fill: token("colors.primary") }}
+			/>
+			<g style={{ fill: token("colors.canvas") }}>
 				<rect x={4.75} y={6.75} width={12.5} height={2} rx={1} />
 				<rect x={7.25} y={11} width={9.25} height={2} rx={1} />
 				<rect x={9.5} y={15.25} width={6.75} height={2} rx={1} />
@@ -307,18 +303,18 @@ export const AppHeader = observer(function AppHeader({
 	}
 
 	return (
-		<header {...stylex.props(styles.header)}>
-			<div {...stylex.props(styles.inner)}>
+		<header className={styles.header}>
+			<div className={styles.inner}>
 				<Link
 					to="/"
 					viewTransition
 					aria-label="Cascade home"
-					{...stylex.props(styles.logo)}
+					className={styles.logo}
 				>
 					<LogoMark />
-					<span {...stylex.props(styles.wordmark)}>Cascade</span>
+					<span className={styles.wordmark}>Cascade</span>
 				</Link>
-				<div {...stylex.props(styles.start)}>
+				<div className={styles.start}>
 					{zoomed && (
 						<Breadcrumbs
 							ancestors={store.ancestorsOf(zoomed.id)}
@@ -342,7 +338,7 @@ export const AppHeader = observer(function AppHeader({
 					aria-label="Search"
 					title="Search"
 					onClick={openCommandMenu}
-					{...stylex.props(styles.search)}
+					className={styles.search}
 				>
 					<MagnifyingGlassIcon size={14} />
 				</button>

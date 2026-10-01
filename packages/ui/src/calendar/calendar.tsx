@@ -1,131 +1,122 @@
-import {
-	colors,
-	fontSize,
-	radius,
-	shadow,
-	space,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import {
 	DayButton as BaseDayButton,
 	type DayButtonProps,
 	DayPicker,
 } from "react-day-picker";
 
-const styles = stylex.create({
-	months: {
+const styles = {
+	months: css({
 		position: "relative",
-	},
-	nav: {
+	}),
+	nav: css({
 		position: "absolute",
 		top: 0,
 		right: 0,
 		display: "flex",
-		gap: space["0.5"],
-	},
-	navButton: {
+		gap: "0.5",
+	}),
+	navButton: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: 28,
-		height: 28,
+		width: "28px",
+		height: "28px",
 		padding: 0,
 		border: "none",
-		borderRadius: radius.md,
+		borderRadius: "md",
 		backgroundColor: {
-			default: "transparent",
-			":hover": colors.inkSubtle,
+			base: "transparent",
+			_hover: "inkSubtle",
 		},
-		color: colors.muted,
+		color: "muted",
 		cursor: "pointer",
-		":focus-visible": {
+		_focusVisible: {
 			outline: "none",
-			boxShadow: shadow.focusRing,
+			boxShadow: "focusRing",
 		},
-		":disabled": {
+		_disabled: {
 			opacity: 0.4,
 			cursor: "default",
 		},
-	},
-	caption: {
+	}),
+	caption: css({
 		display: "flex",
 		alignItems: "center",
-		height: 28,
-		paddingInline: space["1.5"],
-		marginBottom: space["2"],
-	},
-	captionLabel: {
-		fontSize: fontSize["500"],
+		height: "28px",
+		paddingInline: "1.5",
+		marginBottom: "2",
+	}),
+	captionLabel: css({
+		fontSize: "500",
 		fontWeight: 600,
-		color: colors.ink,
-	},
-	grid: {
+		color: "ink",
+	}),
+	grid: css({
 		borderCollapse: "collapse",
-	},
-	weekday: {
-		width: 34,
-		paddingBottom: space["1"],
-		fontSize: fontSize["200"],
+	}),
+	weekday: css({
+		width: "34px",
+		paddingBottom: "1",
+		fontSize: "200",
 		fontWeight: 500,
-		color: colors.muted,
-	},
-	day: {
-		padding: space.px,
+		color: "muted",
+	}),
+	day: css({
+		padding: "px",
 		textAlign: "center",
-	},
-	dayButton: {
-		width: 32,
-		height: 32,
+	}),
+	dayButton: css.raw({
+		width: "32px",
+		height: "32px",
 		padding: 0,
 		border: "none",
-		borderRadius: radius.full,
+		borderRadius: "full",
 		backgroundColor: {
-			default: "transparent",
-			":hover": colors.surface,
+			base: "transparent",
+			_hover: "surface",
 		},
 		fontFamily: "inherit",
-		fontSize: fontSize["400"],
+		fontSize: "400",
 		fontVariantNumeric: "tabular-nums",
-		color: colors.ink,
+		color: "ink",
 		cursor: "pointer",
-		":focus-visible": {
+		_focusVisible: {
 			outline: "none",
-			boxShadow: shadow.focusRing,
+			boxShadow: "focusRing",
 		},
-	},
-	today: {
-		color: colors.primary,
+	}),
+	today: css.raw({
+		color: "primary",
 		fontWeight: 600,
-	},
-	outside: {
-		color: colors.placeholder,
-	},
-	marked: {
+	}),
+	outside: css.raw({
+		color: "placeholder",
+	}),
+	marked: css.raw({
 		position: "relative",
-		"::after": {
+		_after: {
 			content: '""',
 			position: "absolute",
-			bottom: 3,
+			bottom: "3px",
 			left: "50%",
-			width: 3,
-			height: 3,
-			marginLeft: -1.5,
-			borderRadius: radius.full,
+			width: "3px",
+			height: "3px",
+			marginLeft: "-1.5px",
+			borderRadius: "full",
 			backgroundColor: "currentColor",
 		},
-	},
-	selected: {
+	}),
+	selected: css.raw({
 		backgroundColor: {
-			default: colors.primary,
-			":hover": colors.primary,
+			base: "primary",
+			_hover: "primary",
 		},
-		color: colors.onPrimary,
+		color: "onPrimary",
 		fontWeight: 600,
-	},
-});
-
-const cls = (style: stylex.StyleXStyles) => stylex.props(style).className ?? "";
+	}),
+};
 
 /** The library's button (it moves focus on arrow keys), styled by the day's modifiers. */
 function DayButton({ modifiers, ...props }: DayButtonProps) {
@@ -133,7 +124,7 @@ function DayButton({ modifiers, ...props }: DayButtonProps) {
 		<BaseDayButton
 			{...props}
 			modifiers={modifiers}
-			{...stylex.props(
+			className={css(
 				styles.dayButton,
 				modifiers.today && styles.today,
 				modifiers.outside && styles.outside,
@@ -163,15 +154,15 @@ export function Calendar({ value, onChange, marked }: CalendarProps) {
 			showOutsideDays
 			modifiers={marked && { marked }}
 			classNames={{
-				months: cls(styles.months),
-				nav: cls(styles.nav),
-				button_previous: cls(styles.navButton),
-				button_next: cls(styles.navButton),
-				month_caption: cls(styles.caption),
-				caption_label: cls(styles.captionLabel),
-				month_grid: cls(styles.grid),
-				weekday: cls(styles.weekday),
-				day: cls(styles.day),
+				months: styles.months,
+				nav: styles.nav,
+				button_previous: styles.navButton,
+				button_next: styles.navButton,
+				month_caption: styles.caption,
+				caption_label: styles.captionLabel,
+				month_grid: styles.grid,
+				weekday: styles.weekday,
+				day: styles.day,
 			}}
 			components={{
 				DayButton,

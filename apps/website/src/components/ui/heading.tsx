@@ -1,32 +1,32 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { siteFontSize } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
+import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = stylex.create({
-	base: {
+const styles = {
+	base: css.raw({
 		margin: 0,
 		fontWeight: 700,
 		textWrap: "balance",
 		color: "inherit",
-	},
-	h1: {
-		fontSize: siteFontSize.h1,
+	}),
+	h1: css.raw({
+		fontSize: "site.h1",
 		lineHeight: 1.08,
-	},
-	h2: {
-		fontSize: siteFontSize.h2,
+	}),
+	h2: css.raw({
+		fontSize: "site.h2",
 		lineHeight: 1.12,
-	},
-	display: {
-		fontSize: siteFontSize.display,
+	}),
+	display: css.raw({
+		fontSize: "site.display",
 		lineHeight: 1.08,
-	},
-	h3: {
-		fontSize: siteFontSize.h3,
+	}),
+	h3: css.raw({
+		fontSize: "site.h3",
 		lineHeight: 1.3,
 		fontWeight: 600,
-	},
-});
+	}),
+};
 
 type Level = "h1" | "h2" | "h3";
 
@@ -37,14 +37,20 @@ export interface HeadingProps {
 	size?: Level | "display";
 	id?: string;
 	children: ReactNode;
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
 /** A heading whose visual size is decoupled from its document level. */
-export function Heading({ as, size, id, children, style }: HeadingProps) {
+export function Heading({
+	as,
+	size,
+	id,
+	children,
+	css: cssProp,
+}: HeadingProps) {
 	const Tag = as;
 	return (
-		<Tag id={id} {...stylex.props(styles.base, styles[size ?? as], style)}>
+		<Tag id={id} className={css(styles.base, styles[size ?? as], cssProp)}>
 			{children}
 		</Tag>
 	);

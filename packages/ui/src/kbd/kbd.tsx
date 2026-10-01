@@ -1,44 +1,37 @@
-import {
-	colors,
-	fontSize,
-	lineHeight,
-	radius,
-	space,
-} from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 import type { ReactNode } from "react";
 
-const styles = stylex.create({
-	group: {
+const styles = {
+	group: css({
 		cursor: "default",
 		display: "inline-flex",
 		alignItems: "center",
-		gap: space["0.5"],
-	},
-	key: {
+		gap: "0.5",
+	}),
+	key: css({
 		cursor: "default",
 		display: "inline-flex",
 		alignItems: "center",
 		justifyContent: "center",
-		paddingBlock: space.px,
-		paddingInline: space["1.5"],
-		borderRadius: radius.sm,
-		backgroundColor: colors.muted,
-		color: colors.white,
+		paddingBlock: "px",
+		paddingInline: "1.5",
+		borderRadius: "sm",
+		backgroundColor: "muted",
+		color: "white",
 		fontFamily: "monospace",
-		fontSize: fontSize["200"],
-		lineHeight: lineHeight.compact,
-	},
-});
+		fontSize: "200",
+		lineHeight: "compact",
+	}),
+};
 
 export interface KbdProps {
 	children: ReactNode;
 }
 
 export function Kbd({ children }: KbdProps) {
-	return <kbd {...stylex.props(styles.key)}>{children}</kbd>;
+	return <kbd className={styles.key}>{children}</kbd>;
 }
 
 export function KbdGroup({ children }: { children: ReactNode }) {
-	return <kbd {...stylex.props(styles.group)}>{children}</kbd>;
+	return <kbd className={styles.group}>{children}</kbd>;
 }

@@ -1,28 +1,28 @@
-import * as stylex from "@stylexjs/stylex";
-import { site } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
+import { token } from "@/styled-system/tokens";
 
-const styles = stylex.create({
-	link: {
+const styles = {
+	link: css({
 		display: "inline-flex",
 		alignItems: "center",
 		gap: "0.625rem",
-		color: site.ink,
+		color: "site.ink",
 		textDecoration: "none",
 		borderRadius: "8px",
 		outline: "none",
 		boxShadow: {
-			default: "none",
-			":focus-visible": `0 0 0 3px ${site.primaryTintStrong}`,
+			base: "none",
+			_focusVisible: "0 0 0 3px token(colors.site.primaryTintStrong)",
 		},
-	},
-	mark: {
+	}),
+	mark: css({
 		flexShrink: 0,
-	},
-	wordmark: {
+	}),
+	wordmark: css({
 		fontSize: "1.1875rem",
 		fontWeight: 700,
-	},
-});
+	}),
+};
 
 /** The app icon's three cascading bars, matching the web app's header mark. */
 export function LogoMark({ size = "md" }: { size?: "sm" | "md" }) {
@@ -33,10 +33,15 @@ export function LogoMark({ size = "md" }: { size?: "sm" | "md" }) {
 			height={px}
 			viewBox="0 0 24 24"
 			aria-hidden="true"
-			{...stylex.props(styles.mark)}
+			className={styles.mark}
 		>
-			<rect width={24} height={24} rx={6} style={{ fill: site.primary }} />
-			<g style={{ fill: site.canvas }}>
+			<rect
+				width={24}
+				height={24}
+				rx={6}
+				style={{ fill: token("colors.site.primary") }}
+			/>
+			<g style={{ fill: token("colors.site.canvas") }}>
 				<rect x={4.75} y={6.75} width={12.5} height={2} rx={1} />
 				<rect x={7.25} y={11} width={9.25} height={2} rx={1} />
 				<rect x={9.5} y={15.25} width={6.75} height={2} rx={1} />
@@ -47,9 +52,9 @@ export function LogoMark({ size = "md" }: { size?: "sm" | "md" }) {
 
 export function Logo({ name }: { name: string }) {
 	return (
-		<a href="/" aria-label={`${name} home`} {...stylex.props(styles.link)}>
+		<a href="/" aria-label={`${name} home`} className={styles.link}>
 			<LogoMark />
-			<span {...stylex.props(styles.wordmark)}>{name}</span>
+			<span className={styles.wordmark}>{name}</span>
 		</a>
 	);
 }

@@ -1,96 +1,94 @@
-import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 
 const DAY_WIDTH = 64;
 const GAP = 6;
-const NARROW = "@media (max-width: 480px)";
 
-const styles = stylex.create({
-	strip: {
+const styles = {
+	strip: css({
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "stretch",
-		gap: { default: space["1"], [NARROW]: 0 },
-		paddingBlock: space["2"],
-		paddingInline: { default: 0, [NARROW]: space["1"] },
-	},
-	day: {
+		gap: { base: "1", _narrow: 0 },
+		paddingBlock: "2",
+		paddingInline: { base: 0, _narrow: "1" },
+	}),
+	day: css.raw({
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		gap: space["0.5"],
+		gap: "0.5",
 		flex: 1,
 		minWidth: 0,
-		paddingBlock: space["2"],
+		paddingBlock: "2",
 		borderWidth: 0,
-		borderRadius: radius.lg,
+		borderRadius: "lg",
 		backgroundColor: "transparent",
-		color: colors.ink,
+		color: "ink",
 		cursor: "pointer",
 		position: "relative",
 		transition: {
-			default: "color 200ms",
-			"@media (prefers-reduced-motion: reduce)": "none",
+			base: "color 200ms",
+			_motionReduce: "none",
 		},
-	},
-	arrow: {
+	}),
+	arrow: css({
 		display: "flex",
 		alignItems: "center",
 		alignSelf: "center",
 		flexShrink: 0,
-		padding: { default: space["2"], [NARROW]: space["3"] },
+		padding: { base: "2", _narrow: "3" },
 		borderWidth: 0,
-		borderRadius: radius.md,
-		backgroundColor: { default: "transparent", ":hover": colors.primaryMuted },
-		color: colors.muted,
+		borderRadius: "md",
+		backgroundColor: { base: "transparent", _hover: "primaryMuted" },
+		color: "muted",
 		cursor: "pointer",
-	},
-	selected: {
-		color: colors.onPrimary,
-		backgroundColor: colors.primary,
-	},
+	}),
+	selected: css.raw({
+		color: "onPrimary",
+		backgroundColor: "primary",
+	}),
 	// One fill that slides between days, instead of one per day.
-	pill: {
+	pill: css({
 		position: "absolute",
 		top: 0,
 		left: 0,
 		height: "100%",
 		boxSizing: "border-box",
-		paddingInline: GAP / 2,
+		paddingInline: `${GAP / 2}px`,
 		transition: {
-			default: "transform 260ms cubic-bezier(0.2, 0, 0, 1)",
-			"@media (prefers-reduced-motion: reduce)": "none",
+			base: "transform 260ms cubic-bezier(0.2, 0, 0, 1)",
+			_motionReduce: "none",
 		},
-	},
-	pillFill: {
+	}),
+	pillFill: css({
 		width: "100%",
 		height: "100%",
-		borderRadius: radius.lg,
-		backgroundColor: colors.primary,
-	},
-	days: {
+		borderRadius: "lg",
+		backgroundColor: "primary",
+	}),
+	days: css({
 		position: "relative",
 		display: "grid",
 		flex: 1,
 		minWidth: 0,
-	},
-	name: {
-		fontSize: { default: fontSize["100"], [NARROW]: 10 },
+	}),
+	name: css({
+		fontSize: { base: "100", _narrow: "10px" },
 		fontWeight: 500,
 		opacity: 0.7,
-	},
-	num: {
-		fontSize: { default: fontSize["500"], [NARROW]: fontSize["300"] },
+	}),
+	num: css({
+		fontSize: { base: "500", _narrow: "300" },
 		fontWeight: 600,
-	},
-	dot: {
-		width: 4,
-		height: 4,
-		borderRadius: radius.full,
+	}),
+	dot: css({
+		width: "4px",
+		height: "4px",
+		borderRadius: "full",
 		backgroundColor: "currentColor",
-	},
-});
+	}),
+};
 
 export interface StripItem {
 	/** Small text above the number, e.g. the weekday. */
@@ -124,7 +122,7 @@ export function PeriodStrip({
 	return (
 		<nav
 			aria-label={label}
-			{...stylex.props(styles.strip)}
+			className={styles.strip}
 			style={{
 				viewTransitionName: `period-strip-${kind}`,
 				viewTransitionClass: "period-strip",
@@ -134,12 +132,12 @@ export function PeriodStrip({
 				type="button"
 				aria-label="Previous"
 				onClick={() => onShift(-1)}
-				{...stylex.props(styles.arrow)}
+				className={styles.arrow}
 			>
 				<CaretLeftIcon size={14} />
 			</button>
 			<div
-				{...stylex.props(styles.days)}
+				className={styles.days}
 				style={{
 					gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
 					maxWidth: items.length * DAY_WIDTH,
@@ -147,13 +145,13 @@ export function PeriodStrip({
 			>
 				<span
 					aria-hidden="true"
-					{...stylex.props(styles.pill)}
+					className={styles.pill}
 					style={{
 						width: `${100 / items.length}%`,
 						transform: `translateX(${selected * 100}%)`,
 					}}
 				>
-					<span {...stylex.props(styles.pillFill)} />
+					<span className={styles.pillFill} />
 				</span>
 				{items.map((item, i) => (
 					<button
@@ -162,12 +160,12 @@ export function PeriodStrip({
 						type="button"
 						aria-current={i === selected ? "date" : undefined}
 						onClick={item.onPick}
-						{...stylex.props(styles.day, i === selected && styles.selected)}
+						className={css(styles.day, i === selected && styles.selected)}
 					>
-						<span {...stylex.props(styles.name)}>{item.name}</span>
-						<span {...stylex.props(styles.num)}>{item.label}</span>
+						<span className={styles.name}>{item.name}</span>
+						<span className={styles.num}>{item.label}</span>
 						<span
-							{...stylex.props(styles.dot)}
+							className={styles.dot}
 							style={{ opacity: item.marked ? 1 : 0 }}
 						/>
 					</button>
@@ -177,7 +175,7 @@ export function PeriodStrip({
 				type="button"
 				aria-label="Next"
 				onClick={() => onShift(1)}
-				{...stylex.props(styles.arrow)}
+				className={styles.arrow}
 			>
 				<CaretRightIcon size={14} />
 			</button>

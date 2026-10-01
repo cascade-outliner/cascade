@@ -1,7 +1,6 @@
-import { colors, fonts } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
+import { css } from "#/styled-system/css";
 import appCss from "../styles.css?url";
 
 import "@fontsource-variable/dm-sans/opsz.css";
@@ -86,17 +85,17 @@ const TanStackDevtoolsPanel = import.meta.env.DEV
 		})
 	: null;
 
-const styles = stylex.create({
-	body: {
+const styles = {
+	body: css({
 		colorScheme: "light dark",
-		backgroundColor: colors.canvas,
-		color: colors.ink,
-		fontFamily: fonts.app,
+		backgroundColor: "canvas",
+		color: "ink",
+		fontFamily: "app",
 		touchAction: "manipulation",
 		minHeight: "100dvh",
 		overscrollBehaviorY: "none",
-	},
-});
+	}),
+};
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
@@ -104,7 +103,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body {...stylex.props(styles.body)}>
+			<body className={styles.body}>
 				{children}
 				{TanStackDevtoolsPanel && (
 					<Suspense fallback={null}>

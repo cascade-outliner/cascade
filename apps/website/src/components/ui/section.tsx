@@ -1,14 +1,14 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { siteLayout } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
+import type { SystemStyleObject } from "@/styled-system/types";
 import { Container } from "./container";
 
-const styles = stylex.create({
-	section: {
-		paddingBlockEnd: siteLayout.sectionGap,
+const styles = {
+	section: css.raw({
+		paddingBlockEnd: "site.sectionGap",
 		scrollMarginBlockStart: "1.5rem",
-	},
-});
+	}),
+};
 
 export interface SectionProps {
 	id?: string | null;
@@ -17,7 +17,7 @@ export interface SectionProps {
 	children: ReactNode;
 	/** Skip the Container, for full-bleed sections. */
 	bleed?: boolean;
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
 export function Section({
@@ -25,13 +25,13 @@ export function Section({
 	labelledBy,
 	children,
 	bleed = false,
-	style,
+	css: cssProp,
 }: SectionProps) {
 	return (
 		<section
 			id={id ?? undefined}
 			aria-labelledby={labelledBy}
-			{...stylex.props(styles.section, style)}
+			className={css(styles.section, cssProp)}
 		>
 			{bleed ? children : <Container>{children}</Container>}
 		</section>

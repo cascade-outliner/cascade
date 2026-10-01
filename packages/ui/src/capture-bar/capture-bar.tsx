@@ -1,12 +1,4 @@
-import {
-	borderWidth,
-	colors,
-	duration,
-	fontSize,
-	radius,
-	shadow,
-	space,
-} from "@cascade/theme/tokens.stylex";
+import { css, keyframes } from "@cascade/theme/css";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -15,7 +7,6 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { PlusIcon, SparkleIcon, XIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -38,216 +29,208 @@ import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
 
-const pop = stylex.keyframes({
+const pop = keyframes({
 	"0%": { transform: "scale(1)" },
 	"40%": { transform: "scale(1.35)" },
 	"100%": { transform: "scale(1)" },
 });
 
-const styles = stylex.create({
-	bar: {
+const styles = {
+	bar: css({
 		display: "flex",
 		flexDirection: "column",
-		marginTop: {
-			default: space["8"],
-			"@media (max-width: 640px)": space["4"],
-		},
-		borderRadius: radius.xl,
-		backgroundColor: colors.white,
+		marginTop: { base: "8", _mobile: "4" },
+		borderRadius: "xl",
+		backgroundColor: "white",
 		boxShadow: {
-			default: shadow.float,
-			":focus-within": `${shadow.focus}, ${shadow.float}`,
+			base: "float",
+			_focusWithin: "token(shadows.focus), token(shadows.float)",
 		},
-		transition: `box-shadow ${duration["150"]} ease`,
-	},
+		transition: "box-shadow token(durations.150) ease",
+	}),
 	// Grows from 0 to its content's height: grid rows can transition, `height: auto` can't.
-	panel: {
+	panel: css.raw({
 		display: "grid",
 		gridTemplateRows: "0fr",
 		transition: {
-			default: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
-			[REDUCED_MOTION]: "none",
+			base: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
+			_motionReduce: "none",
 		},
-	},
-	panelOpen: {
+	}),
+	panelOpen: css.raw({
 		gridTemplateRows: "1fr",
-	},
-	panelInner: {
+	}),
+	panelInner: css.raw({
 		minHeight: 0,
 		overflow: "hidden",
 		opacity: 0,
 		transition: {
-			default: "opacity 160ms ease",
-			[REDUCED_MOTION]: "none",
+			base: "opacity 160ms ease",
+			_motionReduce: "none",
 		},
-	},
-	panelInnerOpen: {
+	}),
+	panelInnerOpen: css.raw({
 		opacity: 1,
-		borderBottomWidth: borderWidth.thin,
+		borderBottomWidth: "thin",
 		borderBottomStyle: "solid",
-		borderBottomColor: colors.border,
-	},
-	row: {
+		borderBottomColor: "border",
+	}),
+	row: css({
 		display: "flex",
 		alignItems: "flex-start",
-		gap: space["2.5"],
-		paddingBlock: space["2.5"],
-		paddingInline: `${space["3"]} ${space["2.5"]}`,
+		gap: "2.5",
+		paddingBlock: "2.5",
+		paddingInlineStart: "3",
+		paddingInlineEnd: "2.5",
 		cursor: "text",
-	},
-	ghost: {
-		width: 18,
-		height: 18,
-		marginTop: (LINE - 18) / 2,
+	}),
+	ghost: css.raw({
+		width: "18px",
+		height: "18px",
+		marginTop: `${(LINE - 18) / 2}px`,
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		borderRadius: "50%",
-		borderWidth: borderWidth.thick,
+		borderWidth: "thick",
 		borderStyle: "dashed",
-		borderColor: colors.borderStrong,
+		borderColor: "borderStrong",
 		backgroundColor: "transparent",
-		transition: `background-color ${duration["150"]} ease, border-color ${duration["150"]} ease`,
-	},
-	ghostFilled: {
+		transition:
+			"background-color token(durations.150) ease, border-color token(durations.150) ease",
+	}),
+	ghostFilled: css.raw({
 		borderColor: "transparent",
-		backgroundColor: colors.primaryMuted,
-	},
-	ghostPop: {
-		animationName: { default: pop, [REDUCED_MOTION]: "none" },
+		backgroundColor: "primaryMuted",
+	}),
+	ghostPop: css.raw({
+		animationName: { base: pop, _motionReduce: "none" },
 		animationDuration: "240ms",
 		animationTimingFunction: "ease-out",
-	},
-	dot: {
-		width: 6,
-		height: 6,
+	}),
+	dot: css.raw({
+		width: "6px",
+		height: "6px",
 		borderRadius: "50%",
-		backgroundColor: colors.primary,
+		backgroundColor: "primary",
 		transform: "scale(0)",
-		transition: `transform ${duration["150"]} ease`,
-	},
-	dotVisible: {
+		transition: "transform token(durations.150) ease",
+	}),
+	dotVisible: css.raw({
 		transform: "scale(1)",
-	},
-	split: {
+	}),
+	split: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["1.5"],
+		gap: "1.5",
 		flexShrink: 0,
-		height: LINE,
+		height: `${LINE}px`,
 		paddingBlock: 0,
-		paddingInline: space["2"],
+		paddingInline: "2",
 		border: "none",
-		borderRadius: radius.md,
-		backgroundColor: colors.primaryMuted,
-		color: colors.primary,
+		borderRadius: "md",
+		backgroundColor: "primaryMuted",
+		color: "primary",
 		fontFamily: "inherit",
-		fontSize: fontSize["300"],
+		fontSize: "300",
 		fontWeight: 500,
 		whiteSpace: "nowrap",
 		cursor: "pointer",
-		":focus-visible": {
+		_focusVisible: {
 			outline: "none",
-			boxShadow: shadow.focusRing,
+			boxShadow: "focusRing",
 		},
 		transition: {
-			default: "opacity 150ms ease, transform 150ms ease",
-			[REDUCED_MOTION]: "none",
+			base: "opacity 150ms ease, transform 150ms ease",
+			_motionReduce: "none",
 		},
-		"@starting-style": {
+		_starting: {
 			opacity: 0,
 			transform: "scale(0.94)",
 		},
-	},
-	shortcut: {
+	}),
+	shortcut: css({
 		fontFamily: "monospace",
-		fontSize: fontSize["200"],
-	},
-	chip: {
+		fontSize: "200",
+	}),
+	chip: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["1"],
+		gap: "1",
 		flexShrink: 0,
-		height: LINE,
-		paddingLeft: space["2"],
-		paddingRight: space["1"],
-		borderRadius: radius.md,
-		backgroundColor: colors.primaryMuted,
-		color: colors.primary,
-		fontSize: fontSize["300"],
+		height: `${LINE}px`,
+		paddingLeft: "2",
+		paddingRight: "1",
+		borderRadius: "md",
+		backgroundColor: "primaryMuted",
+		color: "primary",
+		fontSize: "300",
 		fontWeight: 500,
 		whiteSpace: "nowrap",
-		"@starting-style": {
+		_starting: {
 			opacity: 0,
 			transform: "scale(0.94)",
 		},
 		transition: {
-			default: "opacity 150ms ease, transform 150ms ease",
-			[REDUCED_MOTION]: "none",
+			base: "opacity 150ms ease, transform 150ms ease",
+			_motionReduce: "none",
 		},
-	},
-	chipIcon: {
+	}),
+	chipIcon: css({
 		display: "flex",
-	},
-	chipRemove: {
+	}),
+	chipRemove: css({
 		display: "flex",
-		padding: space["0.5"],
+		padding: "0.5",
 		border: "none",
-		borderRadius: radius.sm,
+		borderRadius: "sm",
 		backgroundColor: "transparent",
 		color: "inherit",
 		cursor: "pointer",
-		":hover": {
-			backgroundColor: colors.white,
+		_hover: {
+			backgroundColor: "white",
 		},
-		":focus-visible": {
+		_focusVisible: {
 			outline: "none",
-			boxShadow: shadow.focusRing,
+			boxShadow: "focusRing",
 		},
-	},
-	editor: {
+	}),
+	editor: css({
 		position: "relative",
 		flexGrow: 1,
 		minWidth: 0,
 		maxHeight: "40vh",
 		overflowY: "auto",
-	},
-	editable: {
+	}),
+	editable: css({
 		outline: "none",
-		color: colors.ink,
-		fontSize: {
-			default: fontSize["400"],
-			"@media (hover: none)": fontSize["600"],
-		},
+		color: "ink",
+		fontSize: { base: "400", _pointerCoarse: "600" },
 		lineHeight: `${LINE}px`,
 		whiteSpace: "pre-wrap",
 		overflowWrap: "anywhere",
-	},
-	placeholder: {
+	}),
+	placeholder: css({
 		position: "absolute",
 		top: 0,
 		left: 0,
 		pointerEvents: "none",
-		color: colors.placeholder,
-		fontSize: {
-			default: fontSize["400"],
-			"@media (hover: none)": fontSize["600"],
-		},
+		color: "placeholder",
+		fontSize: { base: "400", _pointerCoarse: "600" },
 		lineHeight: `${LINE}px`,
 		whiteSpace: "nowrap",
-	},
+	}),
 	// The Add button is a little taller than a line; this centres it on the first.
-	add: {
+	add: css({
 		display: "flex",
 		flexShrink: 0,
-		marginTop: -2,
-	},
-});
+		marginTop: "-2px",
+	}),
+};
 
 export interface CaptureBarHandle {
 	focus: () => void;
@@ -381,15 +364,15 @@ function Editor<T extends SlashMenuItem>({
 		<>
 			<PlainTextPlugin
 				contentEditable={
-					<div {...stylex.props(styles.editor)}>
+					<div className={styles.editor}>
 						<ContentEditable
-							{...stylex.props(styles.editable)}
+							className={styles.editable}
 							data-testid="capture-bar-input"
 							aria-label="Add a node"
 							aria-placeholder={placeholder}
 							enterKeyHint="done"
 							placeholder={
-								<div {...stylex.props(styles.placeholder)} aria-hidden>
+								<div className={styles.placeholder} aria-hidden>
 									{placeholder}
 								</div>
 							}
@@ -486,35 +469,35 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 	}
 
 	return (
-		<div {...stylex.props(styles.bar)}>
-			<div {...stylex.props(styles.panel, open && styles.panelOpen)}>
+		<div className={styles.bar}>
+			<div className={css(styles.panel, open && styles.panelOpen)}>
 				<div
 					inert={!open}
-					{...stylex.props(styles.panelInner, open && styles.panelInnerOpen)}
+					className={css(styles.panelInner, open && styles.panelInnerOpen)}
 				>
 					{panel ?? lastPanel.current}
 				</div>
 			</div>
-			<div {...stylex.props(styles.row)}>
+			<div className={styles.row}>
 				<span
 					key={added}
 					aria-hidden
-					{...stylex.props(
+					className={css(
 						styles.ghost,
 						hasText && styles.ghostFilled,
 						added > 0 && styles.ghostPop,
 					)}
 				>
-					<span {...stylex.props(styles.dot, hasText && styles.dotVisible)} />
+					<span className={css(styles.dot, hasText && styles.dotVisible)} />
 				</span>
 				{picked.map((item) => (
 					<span
 						key={item.id}
-						{...stylex.props(styles.chip)}
+						className={styles.chip}
 						data-testid="capture-bar-chip"
 					>
 						{item.icon && (
-							<span {...stylex.props(styles.chipIcon)} aria-hidden>
+							<span className={styles.chipIcon} aria-hidden>
 								{item.icon}
 							</span>
 						)}
@@ -523,7 +506,7 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 							type="button"
 							aria-label={`Remove ${item.label}`}
 							onClick={() => unpick(item)}
-							{...stylex.props(styles.chipRemove)}
+							className={styles.chipRemove}
 						>
 							<XIcon size={11} weight="bold" aria-hidden />
 						</button>
@@ -550,15 +533,15 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 					/>
 				</LexicalComposer>
 				{onSplit && hasText && (
-					<button type="button" onClick={split} {...stylex.props(styles.split)}>
+					<button type="button" onClick={split} className={styles.split}>
 						<SparkleIcon size={13} aria-hidden />
 						Split
-						<span aria-hidden {...stylex.props(styles.shortcut)}>
+						<span aria-hidden className={styles.shortcut}>
 							⌘⇧↵
 						</span>
 					</button>
 				)}
-				<span {...stylex.props(styles.add)}>
+				<span className={styles.add}>
 					<Button
 						variant="primary"
 						disabled={!hasText}

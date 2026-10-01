@@ -1,17 +1,16 @@
-import * as stylex from "@stylexjs/stylex";
 import { Fragment } from "react";
-import { site } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 
-const styles = stylex.create({
-	link: {
-		color: site.primary,
-	},
-	onDark: {
+const styles = {
+	link: css.raw({
+		color: "site.primary",
+	}),
+	onDark: css.raw({
 		color: "inherit",
 		textDecoration: "underline",
 		textUnderlineOffset: "3px",
-	},
-});
+	}),
+};
 
 const WIKI_LINK = /\[\[([^\]]+)\]\]/g;
 
@@ -30,7 +29,7 @@ export function WikiText({ text, tone = "primary" }: WikiTextProps) {
 					<span
 						// biome-ignore lint/suspicious/noArrayIndexKey: static text, order is identity
 						key={index}
-						{...stylex.props(styles.link, tone === "onDark" && styles.onDark)}
+						className={css(styles.link, tone === "onDark" && styles.onDark)}
 					>
 						[[{part}]]
 					</span>

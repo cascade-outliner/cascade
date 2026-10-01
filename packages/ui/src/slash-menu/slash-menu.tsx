@@ -1,14 +1,4 @@
-import {
-	borderWidth,
-	colors,
-	duration,
-	fontSize,
-	radius,
-	shadow,
-	space,
-	zIndex,
-} from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 import { useLayoutEffect, useRef, useState } from "react";
 import {
 	groupSlashMenuItems,
@@ -16,112 +6,112 @@ import {
 	type SlashMenuItem,
 } from "./filter.ts";
 
-const styles = stylex.create({
-	popup: {
+const styles = {
+	popup: css({
 		position: "absolute",
 		top: 0,
 		left: 0,
-		zIndex: zIndex.popup,
-		width: 280,
+		zIndex: "popup",
+		width: "280px",
 		maxWidth: "calc(100vw - 32px)",
-		maxHeight: 320,
+		maxHeight: "320px",
 		overflowY: "auto",
 		overscrollBehavior: "contain",
-		padding: space["1.5"],
-		scrollPaddingBlock: space["1.5"],
-		borderRadius: radius.lg,
-		borderWidth: borderWidth.thin,
+		padding: "1.5",
+		scrollPaddingBlock: "1.5",
+		borderRadius: "lg",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		boxShadow: shadow.popup,
+		borderColor: "border",
+		backgroundColor: "white",
+		boxShadow: "popup",
 		outline: "none",
-		"@starting-style": {
+		_starting: {
 			opacity: 0,
 			transform: "translateY(-4px)",
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: duration["100"],
-	},
-	groupLabel: {
-		paddingTop: space["2"],
-		paddingBottom: space["1"],
-		paddingInline: space["3"],
-		fontSize: fontSize["200"],
+		transitionDuration: "100",
+	}),
+	groupLabel: css({
+		paddingTop: "2",
+		paddingBottom: "1",
+		paddingInline: "3",
+		fontSize: "200",
 		letterSpacing: "0.08em",
 		textTransform: "uppercase",
-		color: colors.placeholder,
+		color: "placeholder",
 		whiteSpace: "nowrap",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
-	},
-	item: {
+	}),
+	item: css.raw({
 		display: "flex",
 		alignItems: "center",
-		gap: space["3"],
-		paddingBlock: { default: space["2"], "@media (hover: none)": space["3"] },
-		paddingInline: space["3"],
-		borderRadius: radius.md,
-		fontSize: fontSize["500"],
-		color: colors.ink,
+		gap: "3",
+		paddingBlock: { base: "2", _pointerCoarse: "3" },
+		paddingInline: "3",
+		borderRadius: "md",
+		fontSize: "500",
+		color: "ink",
 		cursor: "default",
 		outline: "none",
-	},
-	highlighted: {
-		backgroundColor: colors.primaryMuted,
-	},
-	danger: {
-		color: colors.danger,
-	},
-	icon: {
-		width: 22,
-		height: 22,
+	}),
+	highlighted: css.raw({
+		backgroundColor: "primaryMuted",
+	}),
+	danger: css.raw({
+		color: "danger",
+	}),
+	icon: css.raw({
+		width: "22px",
+		height: "22px",
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		borderRadius: radius.md,
-		backgroundColor: colors.inkSubtle,
-		color: colors.muted,
-	},
-	dangerIcon: {
-		color: colors.danger,
-	},
-	body: {
+		borderRadius: "md",
+		backgroundColor: "inkSubtle",
+		color: "muted",
+	}),
+	dangerIcon: css.raw({
+		color: "danger",
+	}),
+	body: css({
 		flexGrow: 1,
 		minWidth: 0,
-	},
-	label: {
+	}),
+	label: css({
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",
-	},
-	description: {
-		marginTop: space["0.5"],
-		fontSize: fontSize["200"],
-		color: colors.placeholder,
+	}),
+	description: css({
+		marginTop: "0.5",
+		fontSize: "200",
+		color: "placeholder",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",
-	},
-	enter: {
-		fontSize: fontSize["200"],
-		color: colors.primary,
-	},
-	footer: {
+	}),
+	enter: css({
+		fontSize: "200",
+		color: "primary",
+	}),
+	footer: css({
 		display: "flex",
-		gap: space["3"],
-		marginTop: space["1"],
-		paddingTop: space["2"],
-		paddingBottom: space["1"],
-		paddingInline: space["3"],
-		borderTopWidth: borderWidth.thin,
+		gap: "3",
+		marginTop: "1",
+		paddingTop: "2",
+		paddingBottom: "1",
+		paddingInline: "3",
+		borderTopWidth: "thin",
 		borderTopStyle: "solid",
-		borderTopColor: colors.border,
-		fontSize: fontSize["200"],
-		color: colors.placeholder,
-	},
-});
+		borderTopColor: "border",
+		fontSize: "200",
+		color: "placeholder",
+	}),
+};
 
 /** Matches the id LexicalMenu points `aria-activedescendant` at. */
 export function slashMenuItemId(index: number): string {
@@ -185,14 +175,14 @@ export function SlashMenu<T extends SlashMenuItem>({
 		// biome-ignore lint/a11y/noStaticElementInteractions: not a control; only keeps focus (and the caret) in the editor while picking with the mouse.
 		<div
 			ref={popupRef}
-			{...stylex.props(styles.popup)}
+			className={styles.popup}
 			style={lift ? { top: -lift } : undefined}
 			data-testid="slash-menu"
 			onMouseDown={(event) => event.preventDefault()}
 		>
 			{groups.map((group) => (
 				<div key={group.label}>
-					<div {...stylex.props(styles.groupLabel)} aria-hidden>
+					<div className={styles.groupLabel} aria-hidden>
 						{group.label}
 					</div>
 					{group.items.map((item) => {
@@ -212,7 +202,7 @@ export function SlashMenu<T extends SlashMenuItem>({
 					})}
 				</div>
 			))}
-			<div {...stylex.props(styles.footer)} aria-hidden>
+			<div className={styles.footer} aria-hidden>
 				<span>↑↓ navigate</span>
 				<span>⏎ select</span>
 				<span>esc dismiss</span>
@@ -246,7 +236,7 @@ function SlashMenuOption<T extends SlashMenuItem>({
 			role="option"
 			aria-selected={highlighted}
 			tabIndex={-1}
-			{...stylex.props(
+			className={css(
 				styles.item,
 				highlighted && styles.highlighted,
 				item.danger && styles.danger,
@@ -255,18 +245,18 @@ function SlashMenuOption<T extends SlashMenuItem>({
 			onClick={() => onSelect(item)}
 		>
 			{item.icon && (
-				<span {...stylex.props(styles.icon, item.danger && styles.dangerIcon)}>
+				<span className={css(styles.icon, item.danger && styles.dangerIcon)}>
 					{item.icon}
 				</span>
 			)}
-			<div {...stylex.props(styles.body)}>
-				<div {...stylex.props(styles.label)}>{item.label}</div>
+			<div className={styles.body}>
+				<div className={styles.label}>{item.label}</div>
 				{item.description && (
-					<div {...stylex.props(styles.description)}>{item.description}</div>
+					<div className={styles.description}>{item.description}</div>
 				)}
 			</div>
 			{highlighted && (
-				<span {...stylex.props(styles.enter)} aria-hidden>
+				<span className={styles.enter} aria-hidden>
 					⏎
 				</span>
 			)}

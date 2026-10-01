@@ -1,38 +1,29 @@
-import {
-	colors,
-	duration,
-	radius,
-	shadow,
-	space,
-} from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 
-const styles = stylex.create({
-	row: {
+const styles = {
+	row: css.raw({
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
-		gap: { default: space["2.5"], "@media (max-width: 640px)": space["2"] },
-		paddingBlock: {
-			default: space["1.5"],
-			"@media (hover: none)": space["2.5"],
+		gap: { base: "2.5", _mobile: "2" },
+		paddingBlock: { base: "1.5", _pointerCoarse: "2.5" },
+		paddingInline: "2.5",
+		borderRadius: "lg",
+		transition:
+			"background-color token(durations.50) ease-in-out, box-shadow token(durations.50) ease-in-out",
+		"&:hover:not(:focus-within)": {
+			backgroundColor: "surface",
 		},
-		paddingInline: space["2.5"],
-		borderRadius: radius.lg,
-		transition: `background-color ${duration["50"]} ease-in-out, box-shadow ${duration["50"]} ease-in-out`,
-		":hover:not(:focus-within)": {
-			backgroundColor: colors.surface,
+		_focusWithin: {
+			backgroundColor: "white",
+			boxShadow: "focus",
 		},
-		":focus-within": {
-			backgroundColor: colors.white,
-			boxShadow: shadow.focus,
-		},
-	},
-	active: {
-		backgroundColor: colors.white,
-		boxShadow: shadow.focus,
-	},
-});
+	}),
+	active: css.raw({
+		backgroundColor: "white",
+		boxShadow: "focus",
+	}),
+};
 
 export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 	active?: boolean;
@@ -41,7 +32,7 @@ export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Row({ active, children, ...props }: RowProps) {
 	return (
-		<div {...stylex.props(styles.row, active && styles.active)} {...props}>
+		<div className={css(styles.row, active && styles.active)} {...props}>
 			{children}
 		</div>
 	);

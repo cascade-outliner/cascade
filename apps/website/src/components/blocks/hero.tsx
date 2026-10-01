@@ -1,8 +1,5 @@
-import { fonts } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
 import type { HeroBlock } from "@/payload-types";
-import { media } from "@/theme/breakpoints.stylex";
-import { site, siteFontSize } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 import { LiveOutline } from "../live-outline/live-outline";
 import { ButtonLink } from "../ui/button-link";
 import { Container } from "../ui/container";
@@ -11,68 +8,66 @@ import { Heading } from "../ui/heading";
 import { Mono } from "../ui/mono";
 import { Paragraphs } from "../ui/text";
 
-const styles = stylex.create({
-	hero: {
+const styles = {
+	hero: css({
 		display: "grid",
 		gridTemplateColumns: {
-			default: "minmax(0, 1fr) 540px",
-			[media.tablet]: "minmax(0, 1fr)",
+			base: "minmax(0, 1fr) 540px",
+			_tablet: "minmax(0, 1fr)",
 		},
-		gap: { default: "4rem", [media.tablet]: "3rem" },
+		gap: { base: "4rem", _tablet: "3rem" },
 		alignItems: "center",
-		paddingBlock: {
-			default: "3.5rem 6rem",
-			[media.tablet]: "1.5rem 4.5rem",
-		},
-	},
-	copy: {
+		paddingBlockStart: { base: "3.5rem", _tablet: "1.5rem" },
+		paddingBlockEnd: { base: "6rem", _tablet: "4.5rem" },
+	}),
+	copy: css({
 		display: "flex",
 		flexDirection: "column",
 		gap: "1.625rem",
-	},
-	body: {
-		maxWidth: 480,
-	},
-	actions: {
+	}),
+	body: css.raw({
+		maxWidth: "480px",
+	}),
+	actions: css({
 		display: "flex",
 		flexWrap: "wrap",
 		alignItems: "center",
 		gap: "0.75rem",
-	},
-	outlineWrap: {
+	}),
+	outlineWrap: css({
 		position: "relative",
 		width: "100%",
-		maxWidth: { default: null, [media.tablet]: 620 },
-		marginInline: { default: null, [media.tablet]: "auto" },
-		marginBlockStart: { default: null, [media.tablet]: "1.5rem" },
-	},
-	sticker: {
+		maxWidth: { _tablet: "620px" },
+		marginInline: { _tablet: "auto" },
+		marginBlockStart: { _tablet: "1.5rem" },
+	}),
+	sticker: css({
 		position: "absolute",
-		top: -30,
-		insetInlineEnd: { default: -14, [media.mobile]: 8 },
+		top: "-30px",
+		insetInlineEnd: { base: "-14px", _mobile: "8px" },
 		transform: "rotate(4deg)",
 		zIndex: 2,
-		paddingBlock: 6,
-		paddingInline: 11,
+		paddingBlock: "6px",
+		paddingInline: "11px",
 		borderRadius: "8px",
-		backgroundColor: site.ink,
-		color: site.onDark,
-		fontFamily: fonts.mono,
-		fontSize: siteFontSize.eyebrow,
+		backgroundColor: "site.ink",
+		color: "site.onDark",
+		fontFamily: "mono",
+		fontSize: "site.eyebrow",
 		fontWeight: 500,
 		whiteSpace: "nowrap",
-	},
-});
+	}),
+};
 
 export function Hero({ block }: { block: HeroBlock }) {
 	return (
 		<Container>
-			<header {...stylex.props(styles.hero)}>
-				<div {...stylex.props(styles.copy)}>
+			<header className={styles.hero}>
+				<div className={styles.copy}>
 					{block.eyebrow && <Eyebrow>{block.eyebrow}</Eyebrow>}
 					<Heading as="h1">{block.heading}</Heading>
-					<Paragraphs text={block.body} size="lead" style={styles.body} />
-					<div {...stylex.props(styles.actions)}>
+					<Paragraphs text={block.body} size="lead" css={styles.body} />
+					<div className={styles.actions}>
 						<ButtonLink
 							href={block.cta.url}
 							newTab={block.cta.newTab}
@@ -83,9 +78,9 @@ export function Hero({ block }: { block: HeroBlock }) {
 						{block.note && <Mono>{block.note}</Mono>}
 					</div>
 				</div>
-				<div {...stylex.props(styles.outlineWrap)}>
+				<div className={styles.outlineWrap}>
 					{block.sticker && (
-						<span aria-hidden="true" {...stylex.props(styles.sticker)}>
+						<span aria-hidden="true" className={styles.sticker}>
 							{block.sticker}
 						</span>
 					)}

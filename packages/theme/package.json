@@ -4,17 +4,57 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
+		"build": "panda codegen && panda lib",
 		"typecheck": "tsc"
 	},
 	"exports": {
-		"./tokens.stylex": "./src/tokens.stylex.ts",
+		"./panda/*": "./dist/panda/*",
+		"./css": {
+			"types": "./styled-system/css/index.d.ts",
+			"default": "./styled-system/css/index.js"
+		},
+		"./css/*": {
+			"types": "./styled-system/css/*.d.ts",
+			"default": "./styled-system/css/*.js"
+		},
+		"./tokens": {
+			"types": "./styled-system/tokens/index.d.ts",
+			"default": "./styled-system/tokens/index.js"
+		},
+		"./patterns": {
+			"types": "./styled-system/patterns/index.d.ts",
+			"default": "./styled-system/patterns/index.js"
+		},
+		"./patterns/*": {
+			"types": "./styled-system/patterns/*.d.ts",
+			"default": "./styled-system/patterns/*.js"
+		},
+		"./jsx": {
+			"types": "./styled-system/jsx/index.d.ts",
+			"default": "./styled-system/jsx/index.js"
+		},
+		"./jsx/*": {
+			"types": "./styled-system/jsx/*.d.ts",
+			"default": "./styled-system/jsx/*.js"
+		},
+		"./helpers": {
+			"types": "./styled-system/helpers.d.ts",
+			"default": "./styled-system/helpers.js"
+		},
+		"./types": {
+			"types": "./styled-system/types/index.d.ts"
+		},
 		"./reset.css": "./reset.css"
 	},
 	"dependencies": {
-		"@stylexjs/stylex": "0.19.0"
+		"@pandacss/preset-base": "2.0.1"
+	},
+	"peerDependencies": {
+		"@pandacss/dev": "^2.0.0"
 	},
 	"devDependencies": {
 		"@cascade/config": "workspace:*",
+		"@pandacss/dev": "2.0.1",
 		"typescript": "^6.0.2"
 	}
 }

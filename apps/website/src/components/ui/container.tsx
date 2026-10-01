@@ -1,22 +1,22 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { siteLayout } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
+import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = stylex.create({
-	container: {
+const styles = {
+	container: css.raw({
 		width: "100%",
-		maxWidth: siteLayout.maxWidth,
+		maxWidth: "site.maxWidth",
 		marginInline: "auto",
-		paddingInline: siteLayout.gutter,
-	},
-});
+		paddingInline: "site.gutter",
+	}),
+};
 
 export interface ContainerProps {
 	children: ReactNode;
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
 /** Centers content at the page width with the responsive side gutter. */
-export function Container({ children, style }: ContainerProps) {
-	return <div {...stylex.props(styles.container, style)}>{children}</div>;
+export function Container({ children, css: cssProp }: ContainerProps) {
+	return <div className={css(styles.container, cssProp)}>{children}</div>;
 }

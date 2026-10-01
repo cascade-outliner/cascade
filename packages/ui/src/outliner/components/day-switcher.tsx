@@ -1,86 +1,77 @@
 import { Popover } from "@base-ui/react/popover";
-import {
-	borderWidth,
-	colors,
-	fontSize,
-	radius,
-	shadow,
-	space,
-	zIndex,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import {
 	CalendarBlankIcon,
 	CaretLeftIcon,
 	CaretRightIcon,
 } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { Calendar } from "../../calendar/calendar";
 
-const styles = stylex.create({
-	group: {
+const styles = {
+	group: css({
 		display: "inline-flex",
 		alignItems: "center",
-		gap: space["0.5"],
-		padding: space["0.5"],
-		borderRadius: radius.md,
-		borderWidth: borderWidth.thin,
+		gap: "0.5",
+		padding: "0.5",
+		borderRadius: "md",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-	},
-	step: {
+		borderColor: "border",
+	}),
+	step: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: 26,
-		height: 26,
+		width: "26px",
+		height: "26px",
 		border: "none",
 		padding: 0,
-		borderRadius: radius.sm,
+		borderRadius: "sm",
 		backgroundColor: "transparent",
-		color: colors.muted,
+		color: "muted",
 		cursor: "pointer",
-		":hover": { backgroundColor: colors.inkSubtle },
-	},
-	today: {
+		_hover: { backgroundColor: "inkSubtle" },
+	}),
+	today: css.raw({
 		display: "flex",
 		alignItems: "center",
-		gap: space["1.5"],
+		gap: "1.5",
 		border: "none",
-		paddingBlock: space["1"],
-		paddingInline: space["2.5"],
-		borderRadius: radius.sm,
+		paddingBlock: "1",
+		paddingInline: "2.5",
+		borderRadius: "sm",
 		backgroundColor: {
-			default: "transparent",
-			":hover": colors.inkSubtle,
+			base: "transparent",
+			_hover: "inkSubtle",
 		},
 		font: "inherit",
-		fontSize: fontSize["300"],
-		color: colors.ink,
+		fontSize: "300",
+		color: "ink",
 		whiteSpace: "nowrap",
 		cursor: "pointer",
-	},
-	positioner: {
-		zIndex: zIndex.overlay,
-	},
-	popup: {
-		padding: space["3"],
-		borderRadius: radius.lg,
-		borderWidth: borderWidth.thin,
+	}),
+	positioner: css({
+		zIndex: "overlay",
+	}),
+	popup: css({
+		padding: "3",
+		borderRadius: "lg",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		boxShadow: shadow.popup,
+		borderColor: "border",
+		backgroundColor: "white",
+		boxShadow: "popup",
 		outline: "none",
-	},
-	active: {
+	}),
+	active: css.raw({
 		backgroundColor: {
-			default: colors.primaryMuted,
-			":hover": colors.primaryMuted,
+			base: "primaryMuted",
+			_hover: "primaryMuted",
 		},
-		color: colors.primary,
-	},
-});
+		color: "primary",
+	}),
+};
 
 export interface DaySwitcherProps {
 	/** "Today", or the short date of the day note being shown. */
@@ -112,12 +103,12 @@ export function DaySwitcher({
 }: DaySwitcherProps) {
 	const [open, setOpen] = useState(false);
 	return (
-		<nav aria-label="Daily nodes" {...stylex.props(styles.group)}>
+		<nav aria-label="Daily nodes" className={styles.group}>
 			<button
 				type="button"
 				aria-label="Previous day"
 				onClick={onOlder}
-				{...stylex.props(styles.step)}
+				className={styles.step}
 			>
 				<CaretLeftIcon size={12} />
 			</button>
@@ -125,7 +116,7 @@ export function DaySwitcher({
 				type="button"
 				aria-current={active ? "page" : undefined}
 				onClick={onToday}
-				{...stylex.props(styles.today, active && styles.active)}
+				className={css(styles.today, active && styles.active)}
 			>
 				{label}
 			</button>
@@ -133,20 +124,17 @@ export function DaySwitcher({
 				type="button"
 				aria-label="Next day"
 				onClick={onNewer}
-				{...stylex.props(styles.step)}
+				className={styles.step}
 			>
 				<CaretRightIcon size={12} />
 			</button>
 			<Popover.Root open={open} onOpenChange={setOpen}>
-				<Popover.Trigger aria-label="Pick a day" {...stylex.props(styles.step)}>
+				<Popover.Trigger aria-label="Pick a day" className={styles.step}>
 					<CalendarBlankIcon size={13} />
 				</Popover.Trigger>
 				<Popover.Portal>
-					<Popover.Positioner
-						sideOffset={8}
-						{...stylex.props(styles.positioner)}
-					>
-						<Popover.Popup {...stylex.props(styles.popup)}>
+					<Popover.Positioner sideOffset={8} className={styles.positioner}>
+						<Popover.Popup className={styles.popup}>
 							<Calendar
 								value={date}
 								marked={marked}

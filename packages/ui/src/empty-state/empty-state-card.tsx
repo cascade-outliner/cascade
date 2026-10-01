@@ -1,5 +1,4 @@
-import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 import type { ReactNode } from "react";
 import { Button } from "../button/button.tsx";
 
@@ -7,61 +6,61 @@ interface ChildrenProps {
 	children: ReactNode;
 }
 
-const styles = stylex.create({
-	card: {
+const styles = {
+	card: css({
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		gap: space["2.5"],
+		gap: "2.5",
 		paddingBlock: "34px",
 		paddingInline: "22px",
-		color: colors.ink,
+		color: "ink",
 		textAlign: "center",
-	},
-	glyph: {
+	}),
+	glyph: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		width: "38px",
 		height: "38px",
-		borderRadius: radius.lg,
-		backgroundColor: colors.surface,
-		color: colors.primary,
+		borderRadius: "lg",
+		backgroundColor: "surface",
+		color: "primary",
 		fontSize: "18px",
-	},
-	title: {
+	}),
+	title: css({
 		margin: 0,
-		fontSize: fontSize["700"],
+		fontSize: "700",
 		fontWeight: 600,
-	},
-	body: {
+	}),
+	body: css({
 		margin: 0,
 		maxWidth: "230px",
-		color: colors.muted,
-		fontSize: fontSize["300"],
+		color: "muted",
+		fontSize: "300",
 		lineHeight: 1.55,
-	},
-});
+	}),
+};
 
 function Root({ children }: ChildrenProps) {
-	return <div {...stylex.props(styles.card)}>{children}</div>;
+	return <div className={styles.card}>{children}</div>;
 }
 
 function Icon({ children }: ChildrenProps) {
 	return (
-		<div {...stylex.props(styles.glyph)} aria-hidden>
+		<div className={styles.glyph} aria-hidden>
 			{children}
 		</div>
 	);
 }
 
 function Title({ children }: ChildrenProps) {
-	return <h2 {...stylex.props(styles.title)}>{children}</h2>;
+	return <h2 className={styles.title}>{children}</h2>;
 }
 
 /** One sentence of what happened, one of what to do. */
 function Description({ children }: ChildrenProps) {
-	return <p {...stylex.props(styles.body)}>{children}</p>;
+	return <p className={styles.body}>{children}</p>;
 }
 
 interface ActionProps extends ChildrenProps {

@@ -1,116 +1,105 @@
 import { Dialog as Base } from "@base-ui/react/dialog";
-import {
-	borderWidth,
-	colors,
-	fontSize,
-	radius,
-	shadow,
-	space,
-	zIndex,
-} from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { XIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 
-const MOBILE = "@media (max-width: 640px)";
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-
-const styles = stylex.create({
-	popup: {
+const styles = {
+	popup: css({
 		position: "fixed",
-		zIndex: zIndex.popup,
+		zIndex: "popup",
 		// Floats inside the viewport rather than sticking to its edge.
-		top: { default: space["3"], [MOBILE]: "auto" },
-		right: { default: space["3"], [MOBILE]: space["2"] },
-		bottom: { default: "auto", [MOBILE]: space["2"] },
-		left: { default: "auto", [MOBILE]: space["2"] },
-		width: { default: 440, [MOBILE]: "auto" },
+		top: { base: "3", _mobile: "auto" },
+		right: { base: "3", _mobile: "2" },
+		bottom: { base: "auto", _mobile: "2" },
+		left: { base: "auto", _mobile: "2" },
+		width: { base: "440px", _mobile: "auto" },
 		// Fits its content, up to the viewport.
 		maxHeight: {
-			default: `calc(100dvh - 2 * ${space["3"]})`,
-			[MOBILE]: "85dvh",
+			base: "calc(100dvh - 2 * token(spacing.3))",
+			_mobile: "85dvh",
 		},
 		display: "flex",
 		flexDirection: "column",
 		overflow: "hidden",
-		borderRadius: radius.xl,
-		borderWidth: borderWidth.thin,
+		borderRadius: "xl",
+		borderWidth: "thin",
 		borderStyle: "solid",
-		borderColor: colors.border,
-		backgroundColor: colors.white,
-		boxShadow: shadow.popup,
+		borderColor: "border",
+		backgroundColor: "white",
+		boxShadow: "popup",
 		outline: "none",
-		"@starting-style": {
+		_starting: {
 			transform: {
-				default: "translateX(16px) scale(0.98)",
-				[MOBILE]: "translateY(16px)",
+				base: "translateX(16px) scale(0.98)",
+				_mobile: "translateY(16px)",
 			},
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: "200ms", [REDUCED_MOTION]: "0s" },
+		transitionDuration: { base: "200ms", _motionReduce: "0s" },
 		transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
-	},
-	header: {
+	}),
+	header: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
-		paddingBlock: space["5"],
-		paddingInline: space["6"],
-		borderBottomWidth: borderWidth.thin,
+		gap: "2",
+		paddingBlock: "5",
+		paddingInline: "6",
+		borderBottomWidth: "thin",
 		borderBottomStyle: "solid",
-		borderBottomColor: colors.border,
-		color: colors.primary,
-	},
-	title: {
+		borderBottomColor: "border",
+		color: "primary",
+	}),
+	title: css({
 		flex: 1,
 		margin: 0,
 		fontSize: "1.2rem",
 		fontWeight: 600,
 		letterSpacing: "-0.01em",
-		color: colors.ink,
-	},
-	description: {
+		color: "ink",
+	}),
+	description: css({
 		margin: 0,
-		paddingInline: space["6"],
-		paddingBlock: space["4"],
-		fontSize: fontSize["500"],
-		color: colors.muted,
-	},
-	close: {
+		paddingInline: "6",
+		paddingBlock: "4",
+		fontSize: "500",
+		color: "muted",
+	}),
+	close: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
-		width: 28,
-		height: 28,
+		width: "28px",
+		height: "28px",
 		border: "none",
-		borderRadius: radius.md,
+		borderRadius: "md",
 		padding: 0,
-		backgroundColor: { default: "transparent", ":hover": colors.surface },
-		color: colors.muted,
+		backgroundColor: { base: "transparent", _hover: "surface" },
+		color: "muted",
 		cursor: "pointer",
 		outline: "none",
-		":focus-visible": {
-			boxShadow: shadow.focusRing,
+		_focusVisible: {
+			boxShadow: "focusRing",
 		},
-	},
-	body: {
+	}),
+	body: css({
 		flex: 1,
 		minHeight: 0,
 		overflowY: "auto",
-		padding: `${space["4"]} ${space["5"]}`,
-	},
-	footer: {
+		paddingBlock: "4",
+		paddingInline: "5",
+	}),
+	footer: css({
 		display: "flex",
 		justifyContent: "flex-end",
-		gap: space["2"],
-		paddingBlock: space["4"],
-		paddingInline: space["6"],
-		borderTopWidth: borderWidth.thin,
+		gap: "2",
+		paddingBlock: "4",
+		paddingInline: "6",
+		borderTopWidth: "thin",
 		borderTopStyle: "solid",
-		borderTopColor: colors.border,
-	},
-});
+		borderTopColor: "border",
+	}),
+};
 
 function Popup({
 	title,
@@ -128,21 +117,21 @@ function Popup({
 }) {
 	return (
 		<Base.Portal>
-			<Base.Popup {...stylex.props(styles.popup)}>
-				<div {...stylex.props(styles.header)}>
+			<Base.Popup className={styles.popup}>
+				<div className={styles.header}>
 					{icon}
-					<Base.Title {...stylex.props(styles.title)}>{title}</Base.Title>
-					<Base.Close aria-label="Close" {...stylex.props(styles.close)}>
+					<Base.Title className={styles.title}>{title}</Base.Title>
+					<Base.Close aria-label="Close" className={styles.close}>
 						<XIcon size={16} />
 					</Base.Close>
 				</div>
 				{description && (
-					<Base.Description {...stylex.props(styles.description)}>
+					<Base.Description className={styles.description}>
 						{description}
 					</Base.Description>
 				)}
-				{children && <div {...stylex.props(styles.body)}>{children}</div>}
-				{footer && <div {...stylex.props(styles.footer)}>{footer}</div>}
+				{children && <div className={styles.body}>{children}</div>}
+				{footer && <div className={styles.footer}>{footer}</div>}
 			</Base.Popup>
 		</Base.Portal>
 	);

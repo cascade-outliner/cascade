@@ -1,21 +1,20 @@
 import type { Node } from "@cascade/data";
-import { fontSize } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 import type { EditorState } from "lexical";
 import { ItemContext } from "../context.tsx";
 import { Content } from "./content.tsx";
 
-const styles = stylex.create({
-	heading: {
+const styles = {
+	heading: css({
 		margin: 0,
 		font: "inherit",
-	},
-	title: {
-		fontSize: fontSize["800"],
+	}),
+	title: css.raw({
+		fontSize: "800",
 		fontWeight: 600,
 		letterSpacing: "-0.02em",
-	},
-});
+	}),
+};
 
 export interface ZoomHeaderProps {
 	/** The node currently zoomed into. */
@@ -39,12 +38,12 @@ export function ZoomHeader({
 	return (
 		<ItemContext.Provider value={{ node, depth: 0 }}>
 			<h1
-				{...stylex.props(styles.heading)}
+				className={styles.heading}
 				style={{ viewTransitionName: titleTransitionName }}
 			>
 				<Content
 					key={node.id}
-					style={styles.title}
+					css={styles.title}
 					label={labelOf?.(node)}
 					editable={!readOnly}
 					onChange={onChange}

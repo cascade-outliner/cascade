@@ -1,9 +1,7 @@
 import { ArrowBendDownRightIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { useId } from "react";
 import type { DailyNotesBlock } from "@/payload-types";
-import { media } from "@/theme/breakpoints.stylex";
-import { site } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
 import { Card } from "../ui/card";
 import { Eyebrow } from "../ui/eyebrow";
 import { Heading } from "../ui/heading";
@@ -12,106 +10,107 @@ import { Section } from "../ui/section";
 import { Paragraphs } from "../ui/text";
 import { WikiText } from "../ui/wiki-text";
 
-const styles = stylex.create({
-	panel: {
+const styles = {
+	panel: css({
 		display: "grid",
 		gridTemplateColumns: {
-			default: "minmax(0, 1fr) minmax(0, 1.1fr)",
-			[media.tablet]: "minmax(0, 1fr)",
+			base: "minmax(0, 1fr) minmax(0, 1.1fr)",
+			_tablet: "minmax(0, 1fr)",
 		},
-		gap: { default: "3.5rem", [media.tablet]: "2.5rem" },
+		gap: { base: "3.5rem", _tablet: "2.5rem" },
 		alignItems: "center",
 		padding: {
-			default: "3.5rem",
-			[media.tabletOnly]: "2rem",
-			[media.mobile]: "1.5rem",
+			base: "3.5rem",
+			_tabletOnly: "2rem",
+			_mobile: "1.5rem",
 		},
 		borderRadius: "28px",
-		backgroundColor: site.tint,
-	},
-	copy: {
+		backgroundColor: "site.tint",
+	}),
+	copy: css({
 		display: "flex",
 		flexDirection: "column",
 		gap: "1.25rem",
-	},
-	body: {
-		maxWidth: 440,
-	},
-	preview: {
+	}),
+	body: css.raw({
+		maxWidth: "440px",
+	}),
+	preview: css.raw({
 		gap: "1.125rem",
-		padding: "1.375rem 1.5rem",
-	},
-	week: {
+		paddingBlock: "1.375rem",
+		paddingInline: "1.5rem",
+	}),
+	week: css({
 		display: "flex",
-		gap: 6,
+		gap: "6px",
 		listStyle: "none",
 		margin: 0,
 		padding: 0,
-	},
-	day: {
+	}),
+	day: css.raw({
 		flex: 1,
-		paddingBlock: 8,
+		paddingBlock: "8px",
 		borderRadius: "10px",
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
-		gap: 2,
-		color: site.muted,
-	},
-	dayToday: {
-		backgroundColor: site.primary,
+		gap: "2px",
+		color: "site.muted",
+	}),
+	dayToday: css.raw({
+		backgroundColor: "site.primary",
 		color: "#ffffff",
-	},
-	dayFuture: {
-		color: site.onDarkMuted,
-	},
-	dayNumber: {
+	}),
+	dayFuture: css.raw({
+		color: "site.onDarkMuted",
+	}),
+	dayNumber: css({
 		fontSize: "0.9375rem",
 		fontWeight: 600,
-	},
-	date: {
+	}),
+	date: css({
 		fontSize: "1.5rem",
 		fontWeight: 700,
-	},
-	entries: {
+	}),
+	entries: css({
 		listStyle: "none",
 		margin: 0,
 		padding: 0,
 		display: "flex",
 		flexDirection: "column",
-		gap: 10,
+		gap: "10px",
 		fontSize: "0.9375rem",
-	},
-	entry: {
+	}),
+	entry: css.raw({
 		display: "flex",
 		alignItems: "center",
-		gap: 10,
-	},
-	bullet: {
-		width: 6,
-		height: 6,
+		gap: "10px",
+	}),
+	bullet: css({
+		width: "6px",
+		height: "6px",
 		flexShrink: 0,
 		borderRadius: "50%",
-		backgroundColor: site.muted,
-		marginInline: 6,
-	},
-	carried: {
-		paddingBlock: 8,
-		paddingInline: 10,
-		marginBlockStart: 4,
-		marginInline: -10,
+		backgroundColor: "site.muted",
+		marginInline: "6px",
+	}),
+	carried: css.raw({
+		paddingBlock: "8px",
+		paddingInline: "10px",
+		marginBlockStart: "4px",
+		marginInline: "-10px",
 		borderRadius: "10px",
-		backgroundColor: site.primaryTint,
-	},
-	carriedIcon: {
-		color: site.primary,
+		backgroundColor: "site.primaryTint",
+	}),
+	carriedIcon: css({
+		color: "site.primary",
 		flexShrink: 0,
-	},
-	carriedLabel: {
+	}),
+	carriedLabel: css.raw({
 		marginInlineStart: "auto",
 		fontSize: "0.625rem",
-	},
-});
+	}),
+};
 
 const WEEK = [
 	{ label: "Mon", day: 21 },
@@ -127,57 +126,54 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
-			<div {...stylex.props(styles.panel)}>
-				<div {...stylex.props(styles.copy)}>
+			<div className={styles.panel}>
+				<div className={styles.copy}>
 					{block.eyebrow && <Eyebrow>{block.eyebrow}</Eyebrow>}
 					<Heading as="h2" id={headingId}>
 						{block.heading}
 					</Heading>
-					<Paragraphs text={block.body} style={styles.body} />
+					<Paragraphs text={block.body} css={styles.body} />
 				</div>
-				<Card tone="raised" padding="none" style={styles.preview}>
-					<ol aria-label="This week" {...stylex.props(styles.week)}>
+				<Card tone="raised" padding="none" css={styles.preview}>
+					<ol aria-label="This week" className={styles.week}>
 						{WEEK.map((entry) => (
 							<li
 								key={entry.label}
 								aria-current={entry.today ? "date" : undefined}
-								{...stylex.props(
+								className={css(
 									styles.day,
 									entry.today && styles.dayToday,
 									entry.future && styles.dayFuture,
 								)}
 							>
 								<Mono tone="inherit">{entry.label}</Mono>
-								<span {...stylex.props(styles.dayNumber)}>{entry.day}</span>
+								<span className={styles.dayNumber}>{entry.day}</span>
 							</li>
 						))}
 					</ol>
-					<p {...stylex.props(styles.date)}>{block.preview.dateLabel}</p>
-					<ul {...stylex.props(styles.entries)}>
+					<p className={styles.date}>{block.preview.dateLabel}</p>
+					<ul className={styles.entries}>
 						{entries.map((entry) =>
 							entry.carriedFrom ? (
 								<li
 									key={entry.id ?? entry.text}
-									{...stylex.props(styles.entry, styles.carried)}
+									className={css(styles.entry, styles.carried)}
 								>
 									<ArrowBendDownRightIcon
 										size={15}
 										aria-hidden="true"
-										{...stylex.props(styles.carriedIcon)}
+										className={styles.carriedIcon}
 									/>
 									<span>
 										<WikiText text={entry.text} />
 									</span>
-									<Mono tone="primary" style={styles.carriedLabel}>
+									<Mono tone="primary" css={styles.carriedLabel}>
 										carried from {entry.carriedFrom}
 									</Mono>
 								</li>
 							) : (
-								<li
-									key={entry.id ?? entry.text}
-									{...stylex.props(styles.entry)}
-								>
-									<span aria-hidden="true" {...stylex.props(styles.bullet)} />
+								<li key={entry.id ?? entry.text} className={css(styles.entry)}>
+									<span aria-hidden="true" className={styles.bullet} />
 									<span>
 										<WikiText text={entry.text} />
 									</span>

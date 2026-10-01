@@ -1,34 +1,33 @@
-import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
-import * as stylex from "@stylexjs/stylex";
+import { css } from "@cascade/theme/css";
 
-const styles = stylex.create({
-	pill: {
+const styles = {
+	pill: css.raw({
 		display: "inline-flex",
 		alignItems: "center",
-		gap: space["1"],
+		gap: "1",
 		flexShrink: 0,
 		paddingBlock: "2.5px",
-		paddingInline: space["2"],
-		borderRadius: radius.full,
-		fontSize: fontSize["300"],
+		paddingInline: "2",
+		borderRadius: "full",
+		fontSize: "300",
 		fontWeight: 500,
 		lineHeight: 1.4,
 		whiteSpace: "nowrap",
 		pointerEvents: "none",
-	},
-	neutral: {
-		backgroundColor: colors.inkSubtle,
-		color: colors.muted,
-	},
-	primary: {
-		backgroundColor: colors.surface,
-		color: colors.primary,
-	},
-	info: {
-		backgroundColor: colors.infoMuted,
-		color: colors.info,
-	},
-});
+	}),
+	neutral: css.raw({
+		backgroundColor: "inkSubtle",
+		color: "muted",
+	}),
+	primary: css.raw({
+		backgroundColor: "surface",
+		color: "primary",
+	}),
+	info: css.raw({
+		backgroundColor: "infoMuted",
+		color: "info",
+	}),
+};
 
 export type PillTone = "neutral" | "primary" | "info";
 
@@ -47,7 +46,7 @@ export function Pill({
 	...props
 }: PillProps) {
 	return (
-		<span {...stylex.props(styles.pill, styles[tone])} {...props}>
+		<span className={css(styles.pill, styles[tone])} {...props}>
 			{icon}
 			{children}
 		</span>

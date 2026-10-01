@@ -1,18 +1,11 @@
-import {
-	colors,
-	fontSize,
-	opacity,
-	radius,
-	space,
-} from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import { Kbd } from "@cascade/ui/kbd";
 import { CheckIcon, GoogleLogoIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 import { type FormEvent, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
 import { useSyncConfig } from "#/lib/outline-store.tsx";
+import { css, keyframes, viewTransition } from "#/styled-system/css";
 
 /** Query param the Google sign-in callback lands on, to reopen the account step. */
 const RETURN_PARAM = "onboarding";
@@ -101,29 +94,58 @@ const STEPS = [
 	{ id: "account", label: "Heads up" },
 ];
 
-const styles = stylex.create({
-	page: {
+// Header and footer glide to their new spot; the step slides in the direction
+// of travel (`--onboarding-shift` flips in panda.config's globalCss).
+const slideOut = keyframes({
+	to: {
+		opacity: 0,
+		transform: "translateX(calc(var(--onboarding-shift, 24px) * -1))",
+	},
+});
+const slideIn = keyframes({
+	from: { opacity: 0, transform: "translateX(var(--onboarding-shift, 24px))" },
+});
+const glide = viewTransition({
+	group: {
+		_motionSafe: {
+			animationDuration: "280ms",
+			animationTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
+		},
+	},
+});
+const slide = viewTransition({
+	old: { _motionSafe: { animation: `180ms ease-in both ${slideOut}` } },
+	new: {
+		_motionSafe: {
+			animation: `280ms cubic-bezier(0.2, 0, 0, 1) 60ms both ${slideIn}`,
+		},
+	},
+});
+
+const styles = {
+	page: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		minHeight: "100dvh",
-		padding: space["6"],
+		padding: "6",
 		boxSizing: "border-box",
-	},
-	form: {
+	}),
+	form: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["6"],
+		gap: "6",
 		width: "720px",
 		maxWidth: "100%",
-	},
-	header: {
+	}),
+	header: css({
 		display: "flex",
 		alignItems: "center",
 		flexWrap: "wrap",
-		gap: space["3.5"],
-	},
-	logo: {
+		gap: "3.5",
+		viewTransitionClass: glide,
+	}),
+	logo: css({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -131,260 +153,260 @@ const styles = stylex.create({
 		height: "22px",
 		marginRight: "auto",
 		borderRadius: "7px",
-		backgroundColor: colors.primary,
-	},
-	logoDot: {
+		backgroundColor: "primary",
+	}),
+	logoDot: css({
 		width: "6px",
 		height: "6px",
-		borderRadius: radius.full,
-		backgroundColor: colors.onPrimary,
-	},
-	stepper: {
+		borderRadius: "full",
+		backgroundColor: "onPrimary",
+	}),
+	stepper: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
+		gap: "2",
 		margin: 0,
 		padding: 0,
 		listStyle: "none",
-	},
-	step: {
+	}),
+	step: css.raw({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
-		color: colors.muted,
-		fontSize: fontSize["300"],
-	},
-	stepCurrent: {
-		color: colors.ink,
-	},
-	stepDot: {
+		gap: "2",
+		color: "muted",
+		fontSize: "300",
+	}),
+	stepCurrent: css.raw({
+		color: "ink",
+	}),
+	stepDot: css.raw({
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		width: "22px",
 		height: "22px",
-		borderRadius: radius.full,
-		boxShadow: `inset 0 0 0 1px ${colors.borderStrong}`,
+		borderRadius: "full",
+		boxShadow: "inset 0 0 0 1px token(colors.borderStrong)",
 		fontFamily: "monospace",
-		fontSize: fontSize["200"],
+		fontSize: "200",
 		fontWeight: 600,
-	},
-	stepDotDone: {
-		backgroundColor: colors.primary,
+	}),
+	stepDotDone: css.raw({
+		backgroundColor: "primary",
 		boxShadow: "none",
-		color: colors.onPrimary,
-	},
-	stepDotCurrent: {
-		boxShadow: `inset 0 0 0 1.5px ${colors.primary}`,
-		color: colors.primary,
-	},
-	stepLine: {
+		color: "onPrimary",
+	}),
+	stepDotCurrent: css.raw({
+		boxShadow: "inset 0 0 0 1.5px token(colors.primary)",
+		color: "primary",
+	}),
+	stepLine: css({
 		width: "28px",
 		height: "1px",
-		backgroundColor: colors.borderStrong,
-	},
-	content: {
+		backgroundColor: "borderStrong",
+	}),
+	content: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["6"],
-	},
-	intro: {
+		gap: "6",
+		viewTransitionClass: slide,
+	}),
+	intro: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["1.5"],
-	},
-	title: {
+		gap: "1.5",
+	}),
+	title: css({
 		margin: 0,
 		fontSize: "30px",
 		fontWeight: 600,
 		letterSpacing: "-0.02em",
-	},
-	subtitle: {
+	}),
+	subtitle: css({
 		margin: 0,
-		color: colors.muted,
-		fontSize: fontSize["400"],
-	},
-	templates: {
+		color: "muted",
+		fontSize: "400",
+	}),
+	templates: css({
 		display: "grid",
 		gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-		gap: space["3.5"],
+		gap: "3.5",
 		margin: 0,
 		padding: 0,
 		border: "none",
-	},
-	template: {
+	}),
+	template: css.raw({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["3"],
-		padding: space["3.5"],
-		borderRadius: radius.xl,
-		backgroundColor: colors.white,
-		boxShadow: `0 0 0 1px ${colors.border}`,
+		gap: "3",
+		padding: "3.5",
+		borderRadius: "xl",
+		backgroundColor: "white",
+		boxShadow: "0 0 0 1px token(colors.border)",
 		cursor: "pointer",
-	},
-	templateChecked: {
-		boxShadow: `0 0 0 2px ${colors.primary}, 0 6px 18px -8px rgba(173, 76, 78, 0.4)`,
-	},
-	templateDisabled: {
-		opacity: opacity.disabled,
+	}),
+	templateChecked: css.raw({
+		boxShadow:
+			"0 0 0 2px token(colors.primary), 0 6px 18px -8px rgba(173, 76, 78, 0.4)",
+	}),
+	templateDisabled: css.raw({
+		opacity: "disabled",
 		cursor: "not-allowed",
-	},
-	radio: {
+	}),
+	radio: css({
 		position: "absolute",
 		opacity: 0,
 		pointerEvents: "none",
-	},
-	preview: {
+	}),
+	preview: css({
 		display: "flex",
 		flexDirection: "column",
 		gap: "7px",
 		height: "112px",
-		padding: space["3"],
+		padding: "3",
 		boxSizing: "border-box",
 		borderRadius: "9px",
-		backgroundColor: colors.canvas,
-	},
-	previewLine: {
+		backgroundColor: "canvas",
+	}),
+	previewLine: css({
 		display: "flex",
 		alignItems: "center",
 		gap: "5px",
-	},
-	previewBullet: {
+	}),
+	previewBullet: css({
 		flexShrink: 0,
 		width: "7px",
 		height: "7px",
-		borderRadius: radius.full,
-		backgroundColor: colors.inkSubtleHover,
-	},
-	previewTask: {
+		borderRadius: "full",
+		backgroundColor: "inkSubtleHover",
+	}),
+	previewTask: css({
 		flexShrink: 0,
 		width: "7px",
 		height: "7px",
 		boxSizing: "border-box",
-		borderRadius: radius.full,
-		border: `1px solid ${colors.borderStrong}`,
-	},
-	previewBar: {
+		borderRadius: "full",
+		border: "1px solid token(colors.borderStrong)",
+	}),
+	previewBar: css({
 		height: "5px",
 		borderRadius: "3px",
-		backgroundColor: colors.inkSubtle,
-	},
-	templateName: {
+		backgroundColor: "inkSubtle",
+	}),
+	templateName: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2"],
+		gap: "2",
 		fontWeight: 600,
-	},
-	soon: {
+	}),
+	soon: css({
 		marginLeft: "auto",
-		color: colors.muted,
-		fontSize: fontSize["200"],
+		color: "muted",
+		fontSize: "200",
 		fontWeight: 500,
-	},
-	templateDescription: {
-		color: colors.muted,
-		fontSize: fontSize["300"],
+	}),
+	templateDescription: css({
+		color: "muted",
+		fontSize: "300",
 		lineHeight: 1.5,
-	},
-	basics: {
+	}),
+	basics: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["1"],
+		gap: "1",
 		margin: 0,
-		padding: space["2"],
-		borderRadius: radius.xl,
-		backgroundColor: colors.white,
-		boxShadow: `0 0 0 1px ${colors.border}`,
+		padding: "2",
+		borderRadius: "xl",
+		backgroundColor: "white",
+		boxShadow: "0 0 0 1px token(colors.border)",
 		listStyle: "none",
-	},
-	basic: {
+	}),
+	basic: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["3"],
-		paddingBlock: space["2"],
-		paddingInline: space["2.5"],
-		fontSize: fontSize["400"],
-	},
-	basicKeys: {
+		gap: "3",
+		paddingBlock: "2",
+		paddingInline: "2.5",
+		fontSize: "400",
+	}),
+	basicKeys: css({
 		display: "flex",
 		justifyContent: "flex-end",
-		gap: space["0.5"],
+		gap: "0.5",
 		flexShrink: 0,
 		width: "88px",
-	},
-	notice: {
+	}),
+	notice: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["2.5"],
+		gap: "2.5",
 		margin: 0,
-		padding: space["4"],
-		borderRadius: radius.xl,
-		backgroundColor: colors.primaryMuted,
-		fontSize: fontSize["400"],
+		padding: "4",
+		borderRadius: "xl",
+		backgroundColor: "primaryMuted",
+		fontSize: "400",
 		lineHeight: 1.6,
-	},
-	para: {
+	}),
+	para: css({
 		margin: 0,
-	},
-	account: {
+	}),
+	account: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["3"],
-		padding: space["4"],
-		borderRadius: radius.xl,
-		backgroundColor: colors.white,
-		boxShadow: `0 0 0 1px ${colors.border}`,
-	},
-	accountText: {
+		gap: "3",
+		padding: "4",
+		borderRadius: "xl",
+		backgroundColor: "white",
+		boxShadow: "0 0 0 1px token(colors.border)",
+	}),
+	accountText: css({
 		display: "flex",
 		flexDirection: "column",
-		gap: space["0.5"],
+		gap: "0.5",
 		flex: 1,
 		minWidth: 0,
-	},
-	accountName: {
-		display: "-webkit-box",
-		overflow: "hidden",
-		WebkitBoxOrient: "vertical",
-		WebkitLineClamp: 1,
+	}),
+	accountName: css({
+		lineClamp: 1,
 		fontWeight: 600,
-	},
-	accountHint: {
-		color: colors.muted,
-		fontSize: fontSize["300"],
-	},
-	avatar: {
+	}),
+	accountHint: css({
+		color: "muted",
+		fontSize: "300",
+	}),
+	avatar: css({
 		flexShrink: 0,
 		width: "36px",
 		height: "36px",
-		borderRadius: radius.full,
-		backgroundColor: colors.canvas,
-	},
-	footer: {
+		borderRadius: "full",
+		backgroundColor: "canvas",
+	}),
+	footer: css({
 		display: "flex",
 		alignItems: "center",
-		gap: space["2.5"],
-	},
-	hint: {
+		gap: "2.5",
+		viewTransitionClass: glide,
+	}),
+	hint: css({
 		marginRight: "auto",
-		color: colors.muted,
-		fontSize: fontSize["200"],
-	},
-});
+		color: "muted",
+		fontSize: "200",
+	}),
+};
 
 function Stepper({ current }: { current: number }) {
 	return (
-		<ol {...stylex.props(styles.stepper)} data-testid="onboarding-stepper">
+		<ol className={styles.stepper} data-testid="onboarding-stepper">
 			{STEPS.map(({ id, label }, i) => (
 				<li
 					key={id}
 					data-testid={`onboarding-stepper-${id}`}
-					{...stylex.props(styles.step, i === current && styles.stepCurrent)}
+					className={css(styles.step, i === current && styles.stepCurrent)}
 					aria-current={i === current ? "step" : undefined}
 				>
-					{i > 0 && <span {...stylex.props(styles.stepLine)} aria-hidden />}
+					{i > 0 && <span className={styles.stepLine} aria-hidden />}
 					<span
-						{...stylex.props(
+						className={css(
 							styles.stepDot,
 							i < current && styles.stepDotDone,
 							i === current && styles.stepDotCurrent,
@@ -402,20 +424,17 @@ function Stepper({ current }: { current: number }) {
 
 function Preview({ lines }: { lines: PreviewLine[] }) {
 	return (
-		<div {...stylex.props(styles.preview)} aria-hidden>
+		<div className={styles.preview} aria-hidden>
 			{lines.map(([depth, task, width], i) => (
 				<div
 					// biome-ignore lint/suspicious/noArrayIndexKey: static preview
 					key={i}
-					{...stylex.props(styles.previewLine)}
+					className={styles.previewLine}
 					style={{ paddingLeft: depth * 12 }}
 				>
-					<span {...stylex.props(styles.previewBullet)} />
-					{task && <span {...stylex.props(styles.previewTask)} />}
-					<span
-						{...stylex.props(styles.previewBar)}
-						style={{ width: `${width}%` }}
-					/>
+					<span className={styles.previewBullet} />
+					{task && <span className={styles.previewTask} />}
+					<span className={styles.previewBar} style={{ width: `${width}%` }} />
 				</div>
 			))}
 		</div>
@@ -441,20 +460,20 @@ function Account() {
 
 	if (config.user) {
 		return (
-			<div {...stylex.props(styles.account)} data-testid="account">
+			<div className={styles.account} data-testid="account">
 				{config.user.image ? (
 					<img
-						{...stylex.props(styles.avatar)}
+						className={styles.avatar}
 						src={config.user.image}
 						alt=""
 						referrerPolicy="no-referrer"
 					/>
 				) : (
-					<div {...stylex.props(styles.avatar)} aria-hidden />
+					<div className={styles.avatar} aria-hidden />
 				)}
-				<div {...stylex.props(styles.accountText)}>
-					<span {...stylex.props(styles.accountName)}>{config.user.name}</span>
-					<span {...stylex.props(styles.accountHint)}>
+				<div className={styles.accountText}>
+					<span className={styles.accountName}>{config.user.name}</span>
+					<span className={styles.accountHint}>
 						Signed in as {config.user.email}. Your outline syncs to this
 						account.
 					</span>
@@ -471,10 +490,10 @@ function Account() {
 	}
 
 	return (
-		<div {...stylex.props(styles.account)} data-testid="account">
-			<div {...stylex.props(styles.accountText)}>
-				<span {...stylex.props(styles.accountName)}>Sync across devices</span>
-				<span {...stylex.props(styles.accountHint)}>
+		<div className={styles.account} data-testid="account">
+			<div className={styles.accountText}>
+				<span className={styles.accountName}>Sync across devices</span>
+				<span className={styles.accountHint}>
 					Sign in to keep this outline on the server and open it anywhere.
 					Without an account it stays in this browser.
 				</span>
@@ -525,9 +544,9 @@ export function Onboarding({ onDone }: OnboardingProps) {
 	}
 
 	return (
-		<div {...stylex.props(styles.page)}>
+		<div className={styles.page}>
 			<form
-				{...stylex.props(styles.form)}
+				className={styles.form}
 				data-testid="onboarding"
 				onSubmit={submit}
 				onKeyDown={(event) => {
@@ -537,33 +556,33 @@ export function Onboarding({ onDone }: OnboardingProps) {
 				}}
 			>
 				<div
-					{...stylex.props(styles.header)}
+					className={styles.header}
 					style={{ viewTransitionName: "onboarding-header" }}
 				>
-					<div {...stylex.props(styles.logo)} aria-hidden>
-						<div {...stylex.props(styles.logoDot)} />
+					<div className={styles.logo} aria-hidden>
+						<div className={styles.logoDot} />
 					</div>
 					<Stepper current={step} />
 				</div>
 
 				<div
-					{...stylex.props(styles.content)}
+					className={styles.content}
 					data-testid={`onboarding-step-${STEPS[step].id}`}
 					style={{ viewTransitionName: "onboarding-content" }}
 				>
 					{step === 0 && (
 						<>
-							<div {...stylex.props(styles.intro)}>
-								<h1 {...stylex.props(styles.title)}>Everything is a line</h1>
-								<p {...stylex.props(styles.subtitle)}>
+							<div className={styles.intro}>
+								<h1 className={styles.title}>Everything is a line</h1>
+								<p className={styles.subtitle}>
 									Cascade is an outliner. Lines nest inside lines, as deep as
 									you like.
 								</p>
 							</div>
-							<ul {...stylex.props(styles.basics)}>
+							<ul className={styles.basics}>
 								{BASICS.map(({ keys, text }) => (
-									<li key={text} {...stylex.props(styles.basic)}>
-										<span {...stylex.props(styles.basicKeys)}>
+									<li key={text} className={styles.basic}>
+										<span className={styles.basicKeys}>
 											{keys.map((key) => (
 												<Kbd key={key}>{key}</Kbd>
 											))}
@@ -577,22 +596,17 @@ export function Onboarding({ onDone }: OnboardingProps) {
 
 					{step === 1 && (
 						<>
-							<div {...stylex.props(styles.intro)}>
-								<h1 {...stylex.props(styles.title)}>
-									How do you want to start?
-								</h1>
-								<p {...stylex.props(styles.subtitle)}>
+							<div className={styles.intro}>
+								<h1 className={styles.title}>How do you want to start?</h1>
+								<p className={styles.subtitle}>
 									You can change everything later. Templates are just nodes.
 								</p>
 							</div>
-							<fieldset
-								{...stylex.props(styles.templates)}
-								aria-label="Template"
-							>
+							<fieldset className={styles.templates} aria-label="Template">
 								{TEMPLATES.map((t, i) => (
 									<label
 										key={t.id}
-										{...stylex.props(
+										className={css(
 											styles.template,
 											template === t.id && styles.templateChecked,
 											!t.enabled && styles.templateDisabled,
@@ -606,17 +620,17 @@ export function Onboarding({ onDone }: OnboardingProps) {
 											checked={template === t.id}
 											disabled={!t.enabled}
 											onChange={() => setTemplate(t.id)}
-											{...stylex.props(styles.radio)}
+											className={styles.radio}
 										/>
 										<Preview lines={t.preview} />
-										<span {...stylex.props(styles.templateName)}>
+										<span className={styles.templateName}>
 											{t.title}
 											<Kbd>{i + 1}</Kbd>
 											{!t.enabled && (
-												<span {...stylex.props(styles.soon)}>Coming soon</span>
+												<span className={styles.soon}>Coming soon</span>
 											)}
 										</span>
-										<span {...stylex.props(styles.templateDescription)}>
+										<span className={styles.templateDescription}>
 											{t.description}
 										</span>
 									</label>
@@ -627,28 +641,25 @@ export function Onboarding({ onDone }: OnboardingProps) {
 
 					{step === 2 && (
 						<>
-							<div {...stylex.props(styles.intro)}>
-								<h1 {...stylex.props(styles.title)}>Still in development</h1>
-								<p {...stylex.props(styles.subtitle)}>
+							<div className={styles.intro}>
+								<h1 className={styles.title}>Still in development</h1>
+								<p className={styles.subtitle}>
 									Cascade is early. Expect rough edges.
 								</p>
 							</div>
-							<div {...stylex.props(styles.notice)}>
-								<p {...stylex.props(styles.para)}>
+							<div className={styles.notice}>
+								<p className={styles.para}>
 									Your outline is saved in this browser first: every edit lands
 									here before anything else. Sign in with Google and Cascade
 									syncs it to the server in the background.
 								</p>
 								{config !== null && !config.enabled && (
-									<p
-										{...stylex.props(styles.para)}
-										data-testid="sync-disabled-notice"
-									>
+									<p className={styles.para} data-testid="sync-disabled-notice">
 										Sync isn't configured on this server, so for now your notes
 										stay in this browser only.
 									</p>
 								)}
-								<p {...stylex.props(styles.para)}>
+								<p className={styles.para}>
 									Templates, import and more are on the way.
 								</p>
 							</div>
@@ -658,10 +669,10 @@ export function Onboarding({ onDone }: OnboardingProps) {
 				</div>
 
 				<div
-					{...stylex.props(styles.footer)}
+					className={styles.footer}
 					style={{ viewTransitionName: "onboarding-footer" }}
 				>
-					<span {...stylex.props(styles.hint)}>
+					<span className={styles.hint}>
 						{step === 1 && (
 							<>
 								<Kbd>1</Kbd> to pick

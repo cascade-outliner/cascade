@@ -1,11 +1,10 @@
-import { colors, duration, radius, shadow } from "@cascade/theme/tokens.stylex";
+import { css } from "@cascade/theme/css";
 import { CaretRightIcon } from "@phosphor-icons/react";
-import * as stylex from "@stylexjs/stylex";
 
-const styles = stylex.create({
-	chevron: {
-		width: { default: 16, "@media (hover: none)": 24 },
-		height: { default: 18, "@media (hover: none)": 24 },
+const styles = {
+	chevron: css.raw({
+		width: { base: "16px", _pointerCoarse: "24px" },
+		height: { base: "18px", _pointerCoarse: "24px" },
 		flexShrink: 0,
 		display: "flex",
 		alignItems: "center",
@@ -13,26 +12,26 @@ const styles = stylex.create({
 		border: "none",
 		padding: 0,
 		backgroundColor: "transparent",
-		color: colors.muted,
+		color: "muted",
 		cursor: "pointer",
-		opacity: { default: 0.35, "@media (hover: none)": 0.55 },
-		transition: `transform ${duration["100"]} ease-in-out`,
-		":hover": {
+		opacity: { base: 0.35, _pointerCoarse: 0.55 },
+		transition: "transform token(durations.100) ease-in-out",
+		_hover: {
 			opacity: 1,
 		},
-		":focus-visible": {
+		_focusVisible: {
 			opacity: 1,
-			boxShadow: shadow.focusRing,
-			borderRadius: radius.sm,
+			boxShadow: "focusRing",
+			borderRadius: "sm",
 		},
-	},
-	open: {
+	}),
+	open: css.raw({
 		transform: "rotate(90deg)",
-	},
-	hidden: {
+	}),
+	hidden: css.raw({
 		visibility: "hidden",
-	},
-});
+	}),
+};
 
 export interface ChevronProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -50,7 +49,7 @@ export function Chevron({ open, hidden, ...props }: ChevronProps) {
 			tabIndex={hidden ? -1 : 0}
 			aria-label="Toggle children"
 			aria-expanded={open}
-			{...stylex.props(
+			className={css(
 				styles.chevron,
 				open && styles.open,
 				hidden && styles.hidden,

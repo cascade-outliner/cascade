@@ -1,35 +1,35 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { site, siteFontSize } from "@/theme/site.stylex";
+import { css } from "@/styled-system/css";
+import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = stylex.create({
-	base: {
+const styles = {
+	base: css.raw({
 		margin: 0,
 		textWrap: "pretty",
-	},
-	lead: {
-		fontSize: siteFontSize.large,
+	}),
+	lead: css.raw({
+		fontSize: "site.large",
 		lineHeight: 1.6,
-	},
-	body: {
-		fontSize: siteFontSize.lead,
+	}),
+	body: css.raw({
+		fontSize: "site.lead",
 		lineHeight: 1.7,
-	},
-	small: {
-		fontSize: siteFontSize.small,
+	}),
+	small: css.raw({
+		fontSize: "site.small",
 		lineHeight: 1.65,
-	},
-	soft: { color: site.inkSoft },
-	muted: { color: site.muted },
-	onDark: { color: site.onDarkSoft },
-	inherit: { color: "inherit" },
-});
+	}),
+	soft: css.raw({ color: "site.inkSoft" }),
+	muted: css.raw({ color: "site.muted" }),
+	onDark: css.raw({ color: "site.onDarkSoft" }),
+	inherit: css.raw({ color: "inherit" }),
+};
 
 export interface TextProps {
 	children: ReactNode;
 	size?: "lead" | "body" | "small";
 	tone?: "soft" | "muted" | "onDark" | "inherit";
-	style?: stylex.StyleXStyles;
+	css?: SystemStyleObject;
 }
 
 /** Body copy. Newlines from CMS textareas become paragraph breaks. */
@@ -37,10 +37,10 @@ export function Text({
 	children,
 	size = "body",
 	tone = "soft",
-	style,
+	css: cssProp,
 }: TextProps) {
 	return (
-		<p {...stylex.props(styles.base, styles[size], styles[tone], style)}>
+		<p className={css(styles.base, styles[size], styles[tone], cssProp)}>
 			{children}
 		</p>
 	);

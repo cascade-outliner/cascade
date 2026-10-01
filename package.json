@@ -28,7 +28,9 @@
 		"format:write": "biome format --write",
 		"lint": "biome lint",
 		"check": "biome check",
-		"typecheck": "pnpm -r run typecheck"
+		"typecheck": "pnpm -r run typecheck",
+		"theme:build": "pnpm --filter @cascade/theme build",
+		"postinstall": "pnpm --filter @cascade/theme build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.13"
