@@ -1,7 +1,7 @@
 import { CheckIcon } from "@phosphor-icons/react";
 import { useId } from "react";
 import type { PricingBlock } from "@/payload-types";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import { ButtonLink } from "../ui/button-link";
 import { Card } from "../ui/card";
 import { Heading } from "../ui/heading";
@@ -69,12 +69,6 @@ const styles = {
 		fontWeight: 700,
 		lineHeight: 1,
 	}),
-	period: css.raw({
-		color: "site.muted",
-	}),
-	periodOnDark: css.raw({
-		color: "site.onDarkMuted",
-	}),
 	features: css({
 		listStyle: "none",
 		margin: 0,
@@ -88,18 +82,32 @@ const styles = {
 		display: "flex",
 		gap: "10px",
 	}),
-	check: css.raw({
-		flexShrink: 0,
-		marginBlockStart: "3px",
-		color: "site.primary",
-	}),
-	checkOnDark: css.raw({
-		color: "site.accentOnDark",
-	}),
 	cta: css.raw({
 		marginBlockStart: "auto",
 	}),
 };
+
+const period = cva({
+	variants: {
+		onDark: {
+			false: { color: "site.muted" },
+			true: { color: "site.onDarkMuted" },
+		},
+	},
+});
+
+const check = cva({
+	base: {
+		flexShrink: 0,
+		marginBlockStart: "3px",
+	},
+	variants: {
+		onDark: {
+			false: { color: "site.primary" },
+			true: { color: "site.accentOnDark" },
+		},
+	},
+});
 
 export function Pricing({ block }: { block: PricingBlock }) {
 	const headingId = useId();
@@ -133,12 +141,7 @@ export function Pricing({ block }: { block: PricingBlock }) {
 									<p className={styles.priceRow}>
 										<span className={styles.price}>{plan.price}</span>
 										{plan.period && (
-											<span
-												className={css(
-													styles.period,
-													featured && styles.periodOnDark,
-												)}
-											>
+											<span className={period({ onDark: featured })}>
 												{plan.period}
 											</span>
 										)}
@@ -154,10 +157,7 @@ export function Pricing({ block }: { block: PricingBlock }) {
 												<CheckIcon
 													size={16}
 													aria-hidden="true"
-													className={css(
-														styles.check,
-														featured && styles.checkOnDark,
-													)}
+													className={check({ onDark: featured })}
 												/>
 												{feature.text}
 											</li>

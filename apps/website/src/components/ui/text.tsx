@@ -1,29 +1,26 @@
 import type { ReactNode } from "react";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = {
-	base: css.raw({
+const text = cva({
+	base: {
 		margin: 0,
 		textWrap: "pretty",
-	}),
-	lead: css.raw({
-		fontSize: "site.large",
-		lineHeight: 1.6,
-	}),
-	body: css.raw({
-		fontSize: "site.lead",
-		lineHeight: 1.7,
-	}),
-	small: css.raw({
-		fontSize: "site.small",
-		lineHeight: 1.65,
-	}),
-	soft: css.raw({ color: "site.inkSoft" }),
-	muted: css.raw({ color: "site.muted" }),
-	onDark: css.raw({ color: "site.onDarkSoft" }),
-	inherit: css.raw({ color: "inherit" }),
-};
+	},
+	variants: {
+		size: {
+			lead: { fontSize: "site.large", lineHeight: 1.6 },
+			body: { fontSize: "site.lead", lineHeight: 1.7 },
+			small: { fontSize: "site.small", lineHeight: 1.65 },
+		},
+		tone: {
+			soft: { color: "site.inkSoft" },
+			muted: { color: "site.muted" },
+			onDark: { color: "site.onDarkSoft" },
+			inherit: { color: "inherit" },
+		},
+	},
+});
 
 export interface TextProps {
 	children: ReactNode;
@@ -39,11 +36,7 @@ export function Text({
 	tone = "soft",
 	css: cssProp,
 }: TextProps) {
-	return (
-		<p className={css(styles.base, styles[size], styles[tone], cssProp)}>
-			{children}
-		</p>
-	);
+	return <p className={css(text.raw({ size, tone }), cssProp)}>{children}</p>;
 }
 
 /** Splits a textarea value into one <Text> per paragraph. */

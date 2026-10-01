@@ -1,5 +1,5 @@
 import type { Row } from "@cascade/data";
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { DndContext } from "@dnd-kit/core";
 import {
 	useWindowVirtualizer,
@@ -22,17 +22,6 @@ const styles = {
 	list: css({
 		listStyle: "none",
 	}),
-	row: css.raw({
-		position: "absolute",
-		top: 0,
-		left: 0,
-		width: "100%",
-		paddingBottom: "1",
-		transition: "opacity token(durations.100) ease-in-out",
-	}),
-	dragging: css.raw({
-		opacity: 0.3,
-	}),
 	guide: css({
 		position: "absolute",
 		top: 0,
@@ -41,6 +30,22 @@ const styles = {
 		backgroundColor: "border",
 	}),
 };
+
+const listRow = cva({
+	base: {
+		position: "absolute",
+		top: 0,
+		left: 0,
+		width: "100%",
+		paddingBottom: "1",
+		transition: "opacity token(durations.100) ease-in-out",
+	},
+	variants: {
+		dragging: {
+			true: { opacity: 0.3 },
+		},
+	},
+});
 
 type RowRenderer = (row: Row) => React.ReactNode;
 
@@ -68,7 +73,7 @@ function VirtualRow({ item, row, virtualizer, children }: VirtualRowProps) {
 			ref={setRef}
 			data-testid="outliner-row"
 			data-index={item.index}
-			className={css(styles.row, dnd.isDragging && styles.dragging)}
+			className={listRow({ dragging: dnd.isDragging })}
 			style={{
 				transform: `translateY(${
 					item.start - virtualizer.options.scrollMargin

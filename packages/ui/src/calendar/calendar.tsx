@@ -1,4 +1,4 @@
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import {
 	DayButton as BaseDayButton,
@@ -67,7 +67,10 @@ const styles = {
 		padding: "px",
 		textAlign: "center",
 	}),
-	dayButton: css.raw({
+};
+
+const dayButton = cva({
+	base: {
 		width: "32px",
 		height: "32px",
 		padding: 0,
@@ -86,37 +89,47 @@ const styles = {
 			outline: "none",
 			boxShadow: "focusRing",
 		},
-	}),
-	today: css.raw({
-		color: "primary",
-		fontWeight: 600,
-	}),
-	outside: css.raw({
-		color: "placeholder",
-	}),
-	marked: css.raw({
-		position: "relative",
-		_after: {
-			content: '""',
-			position: "absolute",
-			bottom: "3px",
-			left: "50%",
-			width: "3px",
-			height: "3px",
-			marginLeft: "-1.5px",
-			borderRadius: "full",
-			backgroundColor: "currentColor",
+	},
+	variants: {
+		today: {
+			true: {
+				color: "primary",
+				fontWeight: 600,
+			},
 		},
-	}),
-	selected: css.raw({
-		backgroundColor: {
-			base: "primary",
-			_hover: "primary",
+		outside: {
+			true: {
+				color: "placeholder",
+			},
 		},
-		color: "onPrimary",
-		fontWeight: 600,
-	}),
-};
+		marked: {
+			true: {
+				position: "relative",
+				_after: {
+					content: '""',
+					position: "absolute",
+					bottom: "3px",
+					left: "50%",
+					width: "3px",
+					height: "3px",
+					marginLeft: "-1.5px",
+					borderRadius: "full",
+					backgroundColor: "currentColor",
+				},
+			},
+		},
+		selected: {
+			true: {
+				backgroundColor: {
+					base: "primary",
+					_hover: "primary",
+				},
+				color: "onPrimary",
+				fontWeight: 600,
+			},
+		},
+	},
+});
 
 /** The library's button (it moves focus on arrow keys), styled by the day's modifiers. */
 function DayButton({ modifiers, ...props }: DayButtonProps) {
@@ -124,13 +137,12 @@ function DayButton({ modifiers, ...props }: DayButtonProps) {
 		<BaseDayButton
 			{...props}
 			modifiers={modifiers}
-			className={css(
-				styles.dayButton,
-				modifiers.today && styles.today,
-				modifiers.outside && styles.outside,
-				modifiers.marked && styles.marked,
-				modifiers.selected && styles.selected,
-			)}
+			className={dayButton({
+				today: modifiers.today,
+				outside: modifiers.outside,
+				marked: modifiers.marked,
+				selected: modifiers.selected,
+			})}
 		/>
 	);
 }

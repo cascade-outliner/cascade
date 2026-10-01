@@ -1,4 +1,4 @@
-import { css, keyframes } from "@cascade/theme/css";
+import { css, cva, keyframes } from "@cascade/theme/css";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -51,33 +51,6 @@ const styles = {
 		},
 		transition: "box-shadow token(durations.150) ease",
 	}),
-	// Grows from 0 to its content's height: grid rows can transition, `height: auto` can't.
-	panel: css.raw({
-		display: "grid",
-		gridTemplateRows: "0fr",
-		transition: {
-			base: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
-			_motionReduce: "none",
-		},
-	}),
-	panelOpen: css.raw({
-		gridTemplateRows: "1fr",
-	}),
-	panelInner: css.raw({
-		minHeight: 0,
-		overflow: "hidden",
-		opacity: 0,
-		transition: {
-			base: "opacity 160ms ease",
-			_motionReduce: "none",
-		},
-	}),
-	panelInnerOpen: css.raw({
-		opacity: 1,
-		borderBottomWidth: "thin",
-		borderBottomStyle: "solid",
-		borderBottomColor: "border",
-	}),
 	row: css({
 		display: "flex",
 		alignItems: "flex-start",
@@ -86,42 +59,6 @@ const styles = {
 		paddingInlineStart: "3",
 		paddingInlineEnd: "2.5",
 		cursor: "text",
-	}),
-	ghost: css.raw({
-		width: "18px",
-		height: "18px",
-		marginTop: `${(LINE - 18) / 2}px`,
-		flexShrink: 0,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		borderRadius: "50%",
-		borderWidth: "thick",
-		borderStyle: "dashed",
-		borderColor: "borderStrong",
-		backgroundColor: "transparent",
-		transition:
-			"background-color token(durations.150) ease, border-color token(durations.150) ease",
-	}),
-	ghostFilled: css.raw({
-		borderColor: "transparent",
-		backgroundColor: "primaryMuted",
-	}),
-	ghostPop: css.raw({
-		animationName: { base: pop, _motionReduce: "none" },
-		animationDuration: "240ms",
-		animationTimingFunction: "ease-out",
-	}),
-	dot: css.raw({
-		width: "6px",
-		height: "6px",
-		borderRadius: "50%",
-		backgroundColor: "primary",
-		transform: "scale(0)",
-		transition: "transform token(durations.150) ease",
-	}),
-	dotVisible: css.raw({
-		transform: "scale(1)",
 	}),
 	split: css({
 		display: "flex",
@@ -231,6 +168,95 @@ const styles = {
 		marginTop: "-2px",
 	}),
 };
+
+// Grows from 0 to its content's height: grid rows can transition, `height: auto` can't.
+const collapsible = cva({
+	base: {
+		display: "grid",
+		gridTemplateRows: "0fr",
+		transition: {
+			base: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
+			_motionReduce: "none",
+		},
+	},
+	variants: {
+		open: {
+			true: { gridTemplateRows: "1fr" },
+		},
+	},
+});
+
+const panelInner = cva({
+	base: {
+		minHeight: 0,
+		overflow: "hidden",
+		opacity: 0,
+		transition: {
+			base: "opacity 160ms ease",
+			_motionReduce: "none",
+		},
+	},
+	variants: {
+		open: {
+			true: {
+				opacity: 1,
+				borderBottomWidth: "thin",
+				borderBottomStyle: "solid",
+				borderBottomColor: "border",
+			},
+		},
+	},
+});
+
+const ghost = cva({
+	base: {
+		width: "18px",
+		height: "18px",
+		marginTop: `${(LINE - 18) / 2}px`,
+		flexShrink: 0,
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		borderRadius: "50%",
+		borderWidth: "thick",
+		borderStyle: "dashed",
+		borderColor: "borderStrong",
+		backgroundColor: "transparent",
+		transition:
+			"background-color token(durations.150) ease, border-color token(durations.150) ease",
+	},
+	variants: {
+		filled: {
+			true: {
+				borderColor: "transparent",
+				backgroundColor: "primaryMuted",
+			},
+		},
+		pop: {
+			true: {
+				animationName: { base: pop, _motionReduce: "none" },
+				animationDuration: "240ms",
+				animationTimingFunction: "ease-out",
+			},
+		},
+	},
+});
+
+const dot = cva({
+	base: {
+		width: "6px",
+		height: "6px",
+		borderRadius: "50%",
+		backgroundColor: "primary",
+		transform: "scale(0)",
+		transition: "transform token(durations.150) ease",
+	},
+	variants: {
+		visible: {
+			true: { transform: "scale(1)" },
+		},
+	},
+});
 
 export interface CaptureBarHandle {
 	focus: () => void;
@@ -470,11 +496,8 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 
 	return (
 		<div className={styles.bar}>
-			<div className={css(styles.panel, open && styles.panelOpen)}>
-				<div
-					inert={!open}
-					className={css(styles.panelInner, open && styles.panelInnerOpen)}
-				>
+			<div className={collapsible({ open })}>
+				<div inert={!open} className={panelInner({ open })}>
 					{panel ?? lastPanel.current}
 				</div>
 			</div>
@@ -482,13 +505,9 @@ export function CaptureBar<T extends SlashMenuItem = SlashMenuItem>({
 				<span
 					key={added}
 					aria-hidden
-					className={css(
-						styles.ghost,
-						hasText && styles.ghostFilled,
-						added > 0 && styles.ghostPop,
-					)}
+					className={ghost({ filled: hasText, pop: added > 0 })}
 				>
-					<span className={css(styles.dot, hasText && styles.dotVisible)} />
+					<span className={dot({ visible: hasText })} />
 				</span>
 				{picked.map((item) => (
 					<span

@@ -1,5 +1,5 @@
 import { ContextMenu as Base } from "@base-ui/react/context-menu";
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { Kbd, KbdGroup } from "../kbd/kbd";
 
@@ -23,7 +23,10 @@ const styles = {
 		boxShadow: "popup",
 		outline: "none",
 	}),
-	item: css.raw({
+};
+
+const item = cva({
+	base: {
 		display: "flex",
 		alignItems: "center",
 		gap: "3",
@@ -47,20 +50,30 @@ const styles = {
 		_disabled: {
 			opacity: "disabled",
 		},
-	}),
-	danger: css.raw({
-		color: "danger",
-	}),
-	icon: css.raw({
+	},
+	variants: {
+		danger: {
+			true: { color: "danger" },
+		},
+	},
+});
+
+const itemIcon = cva({
+	base: {
 		width: "16px",
 		flexShrink: 0,
 		display: "flex",
 		justifyContent: "center",
 		color: "muted",
-	}),
-	dangerIcon: css.raw({
-		color: "danger",
-	}),
+	},
+	variants: {
+		danger: {
+			true: { color: "danger" },
+		},
+	},
+});
+
+const extra = {
 	label: css({
 		flex: 1,
 		minWidth: 0,
@@ -122,16 +135,12 @@ function Item({
 }: MenuItemProps) {
 	return (
 		<Base.Item
-			className={css(styles.item, danger && styles.danger)}
+			className={item({ danger })}
 			disabled={disabled}
 			onClick={onClick}
 		>
-			{icon && (
-				<span className={css(styles.icon, danger && styles.dangerIcon)}>
-					{icon}
-				</span>
-			)}
-			<span className={styles.label}>{children}</span>
+			{icon && <span className={itemIcon({ danger })}>{icon}</span>}
+			<span className={extra.label}>{children}</span>
 			{shortcut && (
 				<KbdGroup>
 					{[...shortcut].map((key, index) => (
@@ -145,7 +154,7 @@ function Item({
 }
 
 function Separator() {
-	return <Base.Separator className={styles.separator} />;
+	return <Base.Separator className={extra.separator} />;
 }
 
 export interface MenuSubmenuProps {
@@ -157,10 +166,10 @@ export interface MenuSubmenuProps {
 function Submenu({ icon, label, children }: MenuSubmenuProps) {
 	return (
 		<Base.SubmenuRoot highlightItemOnHover={false}>
-			<Base.SubmenuTrigger className={css(styles.item)}>
-				{icon && <span className={css(styles.icon)}>{icon}</span>}
-				<span className={styles.label}>{label}</span>
-				<span className={styles.chevron}>
+			<Base.SubmenuTrigger className={item()}>
+				{icon && <span className={itemIcon()}>{icon}</span>}
+				<span className={extra.label}>{label}</span>
+				<span className={extra.chevron}>
 					<CaretRightIcon size={11} weight="bold" />
 				</span>
 			</Base.SubmenuTrigger>
@@ -178,14 +187,10 @@ export interface MenuRadioItemProps {
 
 function RadioItem({ icon, value, disabled, children }: MenuRadioItemProps) {
 	return (
-		<Base.RadioItem
-			value={value}
-			disabled={disabled}
-			className={css(styles.item)}
-		>
-			{icon && <span className={css(styles.icon)}>{icon}</span>}
-			<span className={styles.label}>{children}</span>
-			<Base.RadioItemIndicator className={styles.radioIndicator}>
+		<Base.RadioItem value={value} disabled={disabled} className={item()}>
+			{icon && <span className={itemIcon()}>{icon}</span>}
+			<span className={extra.label}>{children}</span>
+			<Base.RadioItemIndicator className={extra.radioIndicator}>
 				<CheckIcon size={13} weight="bold" />
 			</Base.RadioItemIndicator>
 		</Base.RadioItem>
@@ -207,7 +212,7 @@ function Custom({ label, children }: MenuCustomProps) {
 	return (
 		<Base.Group
 			aria-label={label}
-			className={styles.custom}
+			className={extra.custom}
 			onKeyDown={(event) => {
 				if (event.key !== "Escape") event.stopPropagation();
 			}}

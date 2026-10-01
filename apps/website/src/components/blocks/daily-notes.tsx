@@ -1,7 +1,7 @@
 import { ArrowBendDownRightIcon } from "@phosphor-icons/react";
 import { useId } from "react";
 import type { DailyNotesBlock } from "@/payload-types";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import { Card } from "../ui/card";
 import { Eyebrow } from "../ui/eyebrow";
 import { Heading } from "../ui/heading";
@@ -47,23 +47,6 @@ const styles = {
 		margin: 0,
 		padding: 0,
 	}),
-	day: css.raw({
-		flex: 1,
-		paddingBlock: "8px",
-		borderRadius: "10px",
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "center",
-		gap: "2px",
-		color: "site.muted",
-	}),
-	dayToday: css.raw({
-		backgroundColor: "site.primary",
-		color: "#ffffff",
-	}),
-	dayFuture: css.raw({
-		color: "site.onDarkMuted",
-	}),
 	dayNumber: css({
 		fontSize: "0.9375rem",
 		fontWeight: 600,
@@ -81,11 +64,6 @@ const styles = {
 		gap: "10px",
 		fontSize: "0.9375rem",
 	}),
-	entry: css.raw({
-		display: "flex",
-		alignItems: "center",
-		gap: "10px",
-	}),
 	bullet: css({
 		width: "6px",
 		height: "6px",
@@ -93,14 +71,6 @@ const styles = {
 		borderRadius: "50%",
 		backgroundColor: "site.muted",
 		marginInline: "6px",
-	}),
-	carried: css.raw({
-		paddingBlock: "8px",
-		paddingInline: "10px",
-		marginBlockStart: "4px",
-		marginInline: "-10px",
-		borderRadius: "10px",
-		backgroundColor: "site.primaryTint",
 	}),
 	carriedIcon: css({
 		color: "site.primary",
@@ -111,6 +81,51 @@ const styles = {
 		fontSize: "0.625rem",
 	}),
 };
+
+const day = cva({
+	base: {
+		flex: 1,
+		paddingBlock: "8px",
+		borderRadius: "10px",
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		gap: "2px",
+		color: "site.muted",
+	},
+	variants: {
+		when: {
+			past: {},
+			today: {
+				backgroundColor: "site.primary",
+				color: "#ffffff",
+			},
+			future: {
+				color: "site.onDarkMuted",
+			},
+		},
+	},
+});
+
+const entryRow = cva({
+	base: {
+		display: "flex",
+		alignItems: "center",
+		gap: "10px",
+	},
+	variants: {
+		carried: {
+			true: {
+				paddingBlock: "8px",
+				paddingInline: "10px",
+				marginBlockStart: "4px",
+				marginInline: "-10px",
+				borderRadius: "10px",
+				backgroundColor: "site.primaryTint",
+			},
+		},
+	},
+});
 
 const WEEK = [
 	{ label: "Mon", day: 21 },
@@ -140,11 +155,13 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 							<li
 								key={entry.label}
 								aria-current={entry.today ? "date" : undefined}
-								className={css(
-									styles.day,
-									entry.today && styles.dayToday,
-									entry.future && styles.dayFuture,
-								)}
+								className={day({
+									when: entry.today
+										? "today"
+										: entry.future
+											? "future"
+											: "past",
+								})}
 							>
 								<Mono tone="inherit">{entry.label}</Mono>
 								<span className={styles.dayNumber}>{entry.day}</span>
@@ -157,7 +174,7 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 							entry.carriedFrom ? (
 								<li
 									key={entry.id ?? entry.text}
-									className={css(styles.entry, styles.carried)}
+									className={entryRow({ carried: true })}
 								>
 									<ArrowBendDownRightIcon
 										size={15}
@@ -172,7 +189,7 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 									</Mono>
 								</li>
 							) : (
-								<li key={entry.id ?? entry.text} className={css(styles.entry)}>
+								<li key={entry.id ?? entry.text} className={entryRow()}>
 									<span aria-hidden="true" className={styles.bullet} />
 									<span>
 										<WikiText text={entry.text} />

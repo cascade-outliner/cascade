@@ -1,16 +1,18 @@
 import { Fragment } from "react";
-import { css } from "@/styled-system/css";
+import { cva } from "@/styled-system/css";
 
-const styles = {
-	link: css.raw({
-		color: "site.primary",
-	}),
-	onDark: css.raw({
-		color: "inherit",
-		textDecoration: "underline",
-		textUnderlineOffset: "3px",
-	}),
-};
+const link = cva({
+	variants: {
+		tone: {
+			primary: { color: "site.primary" },
+			onDark: {
+				color: "inherit",
+				textDecoration: "underline",
+				textUnderlineOffset: "3px",
+			},
+		},
+	},
+});
 
 const WIKI_LINK = /\[\[([^\]]+)\]\]/g;
 
@@ -29,7 +31,7 @@ export function WikiText({ text, tone = "primary" }: WikiTextProps) {
 					<span
 						// biome-ignore lint/suspicious/noArrayIndexKey: static text, order is identity
 						key={index}
-						className={css(styles.link, tone === "onDark" && styles.onDark)}
+						className={link({ tone })}
 					>
 						[[{part}]]
 					</span>

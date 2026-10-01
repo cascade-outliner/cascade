@@ -5,7 +5,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { signInWithGoogle, signOut } from "#/lib/auth-client.ts";
 import { useSyncConfig } from "#/lib/outline-store.tsx";
-import { css, keyframes, viewTransition } from "#/styled-system/css";
+import { css, cva, keyframes, viewTransition } from "#/styled-system/css";
 
 /** Query param the Google sign-in callback lands on, to reopen the account step. */
 const RETURN_PARAM = "onboarding";
@@ -169,37 +169,6 @@ const styles = {
 		padding: 0,
 		listStyle: "none",
 	}),
-	step: css.raw({
-		display: "flex",
-		alignItems: "center",
-		gap: "2",
-		color: "muted",
-		fontSize: "300",
-	}),
-	stepCurrent: css.raw({
-		color: "ink",
-	}),
-	stepDot: css.raw({
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		width: "22px",
-		height: "22px",
-		borderRadius: "full",
-		boxShadow: "inset 0 0 0 1px token(colors.borderStrong)",
-		fontFamily: "monospace",
-		fontSize: "200",
-		fontWeight: 600,
-	}),
-	stepDotDone: css.raw({
-		backgroundColor: "primary",
-		boxShadow: "none",
-		color: "onPrimary",
-	}),
-	stepDotCurrent: css.raw({
-		boxShadow: "inset 0 0 0 1.5px token(colors.primary)",
-		color: "primary",
-	}),
 	stepLine: css({
 		width: "28px",
 		height: "1px",
@@ -234,24 +203,6 @@ const styles = {
 		margin: 0,
 		padding: 0,
 		border: "none",
-	}),
-	template: css.raw({
-		display: "flex",
-		flexDirection: "column",
-		gap: "3",
-		padding: "3.5",
-		borderRadius: "xl",
-		backgroundColor: "white",
-		boxShadow: "0 0 0 1px token(colors.border)",
-		cursor: "pointer",
-	}),
-	templateChecked: css.raw({
-		boxShadow:
-			"0 0 0 2px token(colors.primary), 0 6px 18px -8px rgba(173, 76, 78, 0.4)",
-	}),
-	templateDisabled: css.raw({
-		opacity: "disabled",
-		cursor: "not-allowed",
 	}),
 	radio: css({
 		position: "absolute",
@@ -394,6 +345,77 @@ const styles = {
 	}),
 };
 
+const step = cva({
+	base: {
+		display: "flex",
+		alignItems: "center",
+		gap: "2",
+		color: "muted",
+		fontSize: "300",
+	},
+	variants: {
+		current: {
+			true: { color: "ink" },
+		},
+	},
+});
+
+const stepDot = cva({
+	base: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		width: "22px",
+		height: "22px",
+		borderRadius: "full",
+		boxShadow: "inset 0 0 0 1px token(colors.borderStrong)",
+		fontFamily: "monospace",
+		fontSize: "200",
+		fontWeight: 600,
+	},
+	variants: {
+		state: {
+			todo: {},
+			done: {
+				backgroundColor: "primary",
+				boxShadow: "none",
+				color: "onPrimary",
+			},
+			current: {
+				boxShadow: "inset 0 0 0 1.5px token(colors.primary)",
+				color: "primary",
+			},
+		},
+	},
+});
+
+const template = cva({
+	base: {
+		display: "flex",
+		flexDirection: "column",
+		gap: "3",
+		padding: "3.5",
+		borderRadius: "xl",
+		backgroundColor: "white",
+		boxShadow: "0 0 0 1px token(colors.border)",
+		cursor: "pointer",
+	},
+	variants: {
+		checked: {
+			true: {
+				boxShadow:
+					"0 0 0 2px token(colors.primary), 0 6px 18px -8px rgba(173, 76, 78, 0.4)",
+			},
+		},
+		disabled: {
+			true: {
+				opacity: "disabled",
+				cursor: "not-allowed",
+			},
+		},
+	},
+});
+
 function Stepper({ current }: { current: number }) {
 	return (
 		<ol className={styles.stepper} data-testid="onboarding-stepper">
@@ -401,16 +423,14 @@ function Stepper({ current }: { current: number }) {
 				<li
 					key={id}
 					data-testid={`onboarding-stepper-${id}`}
-					className={css(styles.step, i === current && styles.stepCurrent)}
+					className={step({ current: i === current })}
 					aria-current={i === current ? "step" : undefined}
 				>
 					{i > 0 && <span className={styles.stepLine} aria-hidden />}
 					<span
-						className={css(
-							styles.stepDot,
-							i < current && styles.stepDotDone,
-							i === current && styles.stepDotCurrent,
-						)}
+						className={stepDot({
+							state: i < current ? "done" : i === current ? "current" : "todo",
+						})}
 						aria-hidden
 					>
 						{i < current ? <CheckIcon weight="bold" /> : i + 1}
@@ -523,7 +543,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
 			? STEPS.length - 1
 			: 0,
 	);
-	const [template, setTemplate] = useState<TemplateId>("blank");
+	const [templateId, setTemplate] = useState<TemplateId>("blank");
 	const config = useSyncConfig();
 	const last = STEPS.length - 1;
 
@@ -606,18 +626,17 @@ export function Onboarding({ onDone }: OnboardingProps) {
 								{TEMPLATES.map((t, i) => (
 									<label
 										key={t.id}
-										className={css(
-											styles.template,
-											template === t.id && styles.templateChecked,
-											!t.enabled && styles.templateDisabled,
-										)}
+										className={template({
+											checked: templateId === t.id,
+											disabled: !t.enabled,
+										})}
 									>
 										<input
 											type="radio"
 											name="template"
 											value={t.id}
 											data-testid={`onboarding-template-${t.id}`}
-											checked={template === t.id}
+											checked={templateId === t.id}
 											disabled={!t.enabled}
 											onChange={() => setTemplate(t.id)}
 											className={styles.radio}

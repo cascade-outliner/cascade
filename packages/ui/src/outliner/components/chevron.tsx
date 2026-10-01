@@ -1,8 +1,8 @@
-import { css } from "@cascade/theme/css";
+import { cva } from "@cascade/theme/css";
 import { CaretRightIcon } from "@phosphor-icons/react";
 
-const styles = {
-	chevron: css.raw({
+const chevron = cva({
+	base: {
 		width: { base: "16px", _pointerCoarse: "24px" },
 		height: { base: "18px", _pointerCoarse: "24px" },
 		flexShrink: 0,
@@ -24,14 +24,16 @@ const styles = {
 			boxShadow: "focusRing",
 			borderRadius: "sm",
 		},
-	}),
-	open: css.raw({
-		transform: "rotate(90deg)",
-	}),
-	hidden: css.raw({
-		visibility: "hidden",
-	}),
-};
+	},
+	variants: {
+		open: {
+			true: { transform: "rotate(90deg)" },
+		},
+		hidden: {
+			true: { visibility: "hidden" },
+		},
+	},
+});
 
 export interface ChevronProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -49,11 +51,7 @@ export function Chevron({ open, hidden, ...props }: ChevronProps) {
 			tabIndex={hidden ? -1 : 0}
 			aria-label="Toggle children"
 			aria-expanded={open}
-			className={css(
-				styles.chevron,
-				open && styles.open,
-				hidden && styles.hidden,
-			)}
+			className={chevron({ open, hidden })}
 			{...props}
 		>
 			<CaretRightIcon size={12} weight="bold" />

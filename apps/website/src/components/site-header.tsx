@@ -1,7 +1,7 @@
 import { ListIcon, XIcon } from "@phosphor-icons/react";
 import { useId, useState } from "react";
 import type { Header } from "@/payload-types";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import { ButtonLink } from "./ui/button-link";
 import { Container } from "./ui/container";
 import { Logo } from "./ui/logo";
@@ -53,15 +53,6 @@ const styles = {
 		outline: "none",
 		boxShadow: { base: "none", _focusVisible: "site.focus" },
 	}),
-	menu: css.raw({
-		display: { base: "none", _tablet: "flex" },
-		flexDirection: "column",
-		gap: "0.25rem",
-		paddingBlockEnd: "1.25rem",
-	}),
-	menuClosed: css.raw({
-		display: "none",
-	}),
 	menuLink: css({
 		display: "block",
 		paddingBlock: "0.75rem",
@@ -83,6 +74,20 @@ const styles = {
 		paddingInline: "0.75rem",
 	}),
 };
+
+const menu = cva({
+	base: {
+		display: { base: "none", _tablet: "flex" },
+		flexDirection: "column",
+		gap: "0.25rem",
+		paddingBlockEnd: "1.25rem",
+	},
+	variants: {
+		open: {
+			false: { display: "none" },
+		},
+	},
+});
 
 export interface SiteHeaderProps {
 	siteName: string;
@@ -139,11 +144,7 @@ export function SiteHeader({ siteName, header }: SiteHeaderProps) {
 						{open ? <XIcon size={22} /> : <ListIcon size={22} />}
 					</button>
 				</div>
-				<nav
-					id={menuId}
-					aria-label="Primary"
-					className={css(styles.menu, !open && styles.menuClosed)}
-				>
+				<nav id={menuId} aria-label="Primary" className={menu({ open })}>
 					{navigation.map((item) => (
 						<a
 							key={item.id ?? item.url}

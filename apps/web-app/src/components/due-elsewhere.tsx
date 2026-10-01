@@ -3,7 +3,7 @@ import { TaskMarker } from "@cascade/ui/outliner/task-marker";
 import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { observer } from "mobx-react-lite";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
-import { css } from "#/styled-system/css";
+import { css, cva } from "#/styled-system/css";
 
 const styles = {
 	root: css({
@@ -44,15 +44,6 @@ const styles = {
 		paddingBlock: "1.5",
 		paddingInline: "2.5",
 	}),
-	text: css.raw({
-		flex: 1,
-		minWidth: 0,
-		color: "ink",
-	}),
-	done: css.raw({
-		color: "muted",
-		textDecoration: "line-through",
-	}),
 	from: css({
 		display: "flex",
 		alignItems: "center",
@@ -73,6 +64,22 @@ const styles = {
 		cursor: "pointer",
 	}),
 };
+
+const text = cva({
+	base: {
+		flex: 1,
+		minWidth: 0,
+		color: "ink",
+	},
+	variants: {
+		done: {
+			true: {
+				color: "muted",
+				textDecoration: "line-through",
+			},
+		},
+	},
+});
 
 export interface DueElsewhereProps {
 	/** One section per day (`YYYY-MM-DD`); empty ones are left out. */
@@ -124,7 +131,7 @@ export const DueElsewhere = observer(function DueElsewhere({
 										onClick={() => store.setTask(node.id, { done: !done })}
 									/>
 								)}
-								<span className={css(styles.text, done && styles.done)}>
+								<span className={text({ done })}>
 									{plainText(node.content)}
 								</span>
 								<button

@@ -1,7 +1,7 @@
-import { css } from "@cascade/theme/css";
+import { cva } from "@cascade/theme/css";
 
-const styles = {
-	pill: css.raw({
+const pill = cva({
+	base: {
 		display: "inline-flex",
 		alignItems: "center",
 		gap: "1",
@@ -14,20 +14,24 @@ const styles = {
 		lineHeight: 1.4,
 		whiteSpace: "nowrap",
 		pointerEvents: "none",
-	}),
-	neutral: css.raw({
-		backgroundColor: "inkSubtle",
-		color: "muted",
-	}),
-	primary: css.raw({
-		backgroundColor: "surface",
-		color: "primary",
-	}),
-	info: css.raw({
-		backgroundColor: "infoMuted",
-		color: "info",
-	}),
-};
+	},
+	variants: {
+		tone: {
+			neutral: {
+				backgroundColor: "inkSubtle",
+				color: "muted",
+			},
+			primary: {
+				backgroundColor: "surface",
+				color: "primary",
+			},
+			info: {
+				backgroundColor: "infoMuted",
+				color: "info",
+			},
+		},
+	},
+});
 
 export type PillTone = "neutral" | "primary" | "info";
 
@@ -46,7 +50,7 @@ export function Pill({
 	...props
 }: PillProps) {
 	return (
-		<span className={css(styles.pill, styles[tone])} {...props}>
+		<span className={pill({ tone })} {...props}>
 			{icon}
 			{children}
 		</span>

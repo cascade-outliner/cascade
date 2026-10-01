@@ -1,4 +1,4 @@
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 const DAY_WIDTH = 64;
@@ -13,25 +13,6 @@ const styles = {
 		paddingBlock: "2",
 		paddingInline: { base: 0, _narrow: "1" },
 	}),
-	day: css.raw({
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "center",
-		gap: "0.5",
-		flex: 1,
-		minWidth: 0,
-		paddingBlock: "2",
-		borderWidth: 0,
-		borderRadius: "lg",
-		backgroundColor: "transparent",
-		color: "ink",
-		cursor: "pointer",
-		position: "relative",
-		transition: {
-			base: "color 200ms",
-			_motionReduce: "none",
-		},
-	}),
 	arrow: css({
 		display: "flex",
 		alignItems: "center",
@@ -43,10 +24,6 @@ const styles = {
 		backgroundColor: { base: "transparent", _hover: "primaryMuted" },
 		color: "muted",
 		cursor: "pointer",
-	}),
-	selected: css.raw({
-		color: "onPrimary",
-		backgroundColor: "primary",
 	}),
 	// One fill that slides between days, instead of one per day.
 	pill: css({
@@ -89,6 +66,36 @@ const styles = {
 		backgroundColor: "currentColor",
 	}),
 };
+
+const day = cva({
+	base: {
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		gap: "0.5",
+		flex: 1,
+		minWidth: 0,
+		paddingBlock: "2",
+		borderWidth: 0,
+		borderRadius: "lg",
+		backgroundColor: "transparent",
+		color: "ink",
+		cursor: "pointer",
+		position: "relative",
+		transition: {
+			base: "color 200ms",
+			_motionReduce: "none",
+		},
+	},
+	variants: {
+		selected: {
+			true: {
+				color: "onPrimary",
+				backgroundColor: "primary",
+			},
+		},
+	},
+});
 
 export interface StripItem {
 	/** Small text above the number, e.g. the weekday. */
@@ -160,7 +167,7 @@ export function PeriodStrip({
 						type="button"
 						aria-current={i === selected ? "date" : undefined}
 						onClick={item.onPick}
-						className={css(styles.day, i === selected && styles.selected)}
+						className={day({ selected: i === selected })}
 					>
 						<span className={styles.name}>{item.name}</span>
 						<span className={styles.num}>{item.label}</span>

@@ -1,7 +1,7 @@
-import { css } from "@cascade/theme/css";
+import { cva } from "@cascade/theme/css";
 
-const styles = {
-	row: css.raw({
+const row = cva({
+	base: {
 		position: "relative",
 		display: "flex",
 		alignItems: "center",
@@ -18,12 +18,16 @@ const styles = {
 			backgroundColor: "white",
 			boxShadow: "focus",
 		},
-	}),
-	active: css.raw({
-		backgroundColor: "white",
-		boxShadow: "focus",
-	}),
-};
+	},
+	variants: {
+		active: {
+			true: {
+				backgroundColor: "white",
+				boxShadow: "focus",
+			},
+		},
+	},
+});
 
 export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 	active?: boolean;
@@ -32,7 +36,7 @@ export interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Row({ active, children, ...props }: RowProps) {
 	return (
-		<div className={css(styles.row, active && styles.active)} {...props}>
+		<div className={row({ active })} {...props}>
 			{children}
 		</div>
 	);

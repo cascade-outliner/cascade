@@ -1,7 +1,7 @@
 import { Autocomplete } from "@base-ui/react/autocomplete";
 import { Dialog } from "@base-ui/react/dialog";
 import type { TextRange } from "@cascade/data";
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
 
@@ -71,7 +71,20 @@ const styles = {
 			color: "placeholder",
 		},
 	}),
-	meta: css.raw({
+	meta: css({
+		fontSize: "200",
+		whiteSpace: "nowrap",
+		color: "placeholder",
+	}),
+	footer: css({
+		display: "flex",
+		flexWrap: "wrap",
+		gap: "4",
+		paddingBlock: "2.5",
+		paddingInline: "5",
+		borderTopWidth: "thin",
+		borderTopStyle: "solid",
+		borderTopColor: "border",
 		fontSize: "200",
 		whiteSpace: "nowrap",
 		color: "placeholder",
@@ -155,24 +168,6 @@ const styles = {
 		whiteSpace: "nowrap",
 		color: "placeholder",
 	}),
-	enter: css.raw({
-		display: "none",
-		fontSize: "200",
-		color: "primary",
-	}),
-	enterShown: css.raw({
-		display: "inline",
-	}),
-	footer: css.raw({
-		display: "flex",
-		flexWrap: "wrap",
-		gap: "4",
-		paddingBlock: "2.5",
-		paddingInline: "5",
-		borderTopWidth: "thin",
-		borderTopStyle: "solid",
-		borderTopColor: "border",
-	}),
 	scope: css({
 		marginLeft: "auto",
 	}),
@@ -185,6 +180,19 @@ const styles = {
 		whiteSpace: "nowrap",
 	}),
 };
+
+const enter = cva({
+	base: {
+		display: "none",
+		fontSize: "200",
+		color: "primary",
+	},
+	variants: {
+		shown: {
+			true: { display: "inline" },
+		},
+	},
+});
 
 export interface PaletteItem {
 	id: string;
@@ -309,7 +317,7 @@ export function CommandPalette({
 									}
 								}}
 							/>
-							{status && <span className={css(styles.meta)}>{status}</span>}
+							{status && <span className={styles.meta}>{status}</span>}
 						</div>
 						<Dialog.Close className={styles.visuallyHidden}>
 							Close command palette
@@ -357,10 +365,9 @@ export function CommandPalette({
 																</span>
 															) : (
 																<span
-																	className={css(
-																		styles.enter,
-																		state.highlighted && styles.enterShown,
-																	)}
+																	className={enter({
+																		shown: state.highlighted,
+																	})}
 																>
 																	⏎
 																</span>
@@ -374,7 +381,7 @@ export function CommandPalette({
 								)}
 							</Autocomplete.List>
 						</div>
-						<div id={hintsId} className={css(styles.footer, styles.meta)}>
+						<div id={hintsId} className={styles.footer}>
 							{hints.map((hint) => (
 								<span key={hint}>{hint}</span>
 							))}

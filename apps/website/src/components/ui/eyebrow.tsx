@@ -1,20 +1,24 @@
 import type { ReactNode } from "react";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = {
-	eyebrow: css.raw({
+const eyebrow = cva({
+	base: {
 		display: "block",
 		fontFamily: "mono",
 		fontSize: "site.eyebrow",
 		fontWeight: 500,
 		textTransform: "uppercase",
 		lineHeight: 1.4,
-	}),
-	primary: css.raw({ color: "site.primary" }),
-	muted: css.raw({ color: "site.muted" }),
-	onDark: css.raw({ color: "site.onDarkMuted" }),
-};
+	},
+	variants: {
+		tone: {
+			primary: { color: "site.primary" },
+			muted: { color: "site.muted" },
+			onDark: { color: "site.onDarkMuted" },
+		},
+	},
+});
 
 export interface EyebrowProps {
 	children: ReactNode;
@@ -29,8 +33,6 @@ export function Eyebrow({
 	css: cssProp,
 }: EyebrowProps) {
 	return (
-		<span className={css(styles.eyebrow, styles[tone], cssProp)}>
-			{children}
-		</span>
+		<span className={css(eyebrow.raw({ tone }), cssProp)}>{children}</span>
 	);
 }

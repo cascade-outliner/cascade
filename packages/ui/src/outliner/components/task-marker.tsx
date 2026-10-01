@@ -1,4 +1,4 @@
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { CheckIcon } from "@phosphor-icons/react";
 
 const styles = {
@@ -9,7 +9,18 @@ const styles = {
 		flexShrink: 0,
 		display: "flex",
 	}),
-	marker: css.raw({
+	icon: css({
+		position: "absolute",
+		top: "50%",
+		left: "50%",
+		transform: "translate(-50%, -50%)",
+		color: "canvas",
+		pointerEvents: "none",
+	}),
+};
+
+const marker = cva({
+	base: {
 		appearance: "none",
 		margin: 0,
 		width: "100%",
@@ -22,26 +33,22 @@ const styles = {
 			boxShadow: "focusRing",
 			borderRadius: "full",
 		},
-	}),
-	todo: css.raw({
-		borderWidth: "thick",
-		borderStyle: "solid",
-		borderColor: "borderStrong",
-	}),
-	done: css.raw({
-		borderWidth: 0,
-		borderStyle: "none",
-		backgroundColor: "primary",
-	}),
-	icon: css({
-		position: "absolute",
-		top: "50%",
-		left: "50%",
-		transform: "translate(-50%, -50%)",
-		color: "canvas",
-		pointerEvents: "none",
-	}),
-};
+	},
+	variants: {
+		variant: {
+			todo: {
+				borderWidth: "thick",
+				borderStyle: "solid",
+				borderColor: "borderStrong",
+			},
+			done: {
+				borderWidth: 0,
+				borderStyle: "none",
+				backgroundColor: "primary",
+			},
+		},
+	},
+});
 
 export type TaskMarkerVariant = "todo" | "done";
 
@@ -57,11 +64,7 @@ export function TaskMarker({ variant, ...props }: TaskMarkerProps) {
 				type="checkbox"
 				checked={variant === "done"}
 				readOnly
-				className={css(
-					styles.marker,
-					variant === "done" && styles.done,
-					variant === "todo" && styles.todo,
-				)}
+				className={marker({ variant })}
 				{...props}
 			/>
 			{variant === "done" && (

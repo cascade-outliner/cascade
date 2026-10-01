@@ -1,4 +1,4 @@
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { useLayoutEffect, useRef, useState } from "react";
 import {
 	groupSlashMenuItems,
@@ -45,38 +45,6 @@ const styles = {
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 	}),
-	item: css.raw({
-		display: "flex",
-		alignItems: "center",
-		gap: "3",
-		paddingBlock: { base: "2", _pointerCoarse: "3" },
-		paddingInline: "3",
-		borderRadius: "md",
-		fontSize: "500",
-		color: "ink",
-		cursor: "default",
-		outline: "none",
-	}),
-	highlighted: css.raw({
-		backgroundColor: "primaryMuted",
-	}),
-	danger: css.raw({
-		color: "danger",
-	}),
-	icon: css.raw({
-		width: "22px",
-		height: "22px",
-		flexShrink: 0,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		borderRadius: "md",
-		backgroundColor: "inkSubtle",
-		color: "muted",
-	}),
-	dangerIcon: css.raw({
-		color: "danger",
-	}),
 	body: css({
 		flexGrow: 1,
 		minWidth: 0,
@@ -112,6 +80,48 @@ const styles = {
 		color: "placeholder",
 	}),
 };
+
+const option = cva({
+	base: {
+		display: "flex",
+		alignItems: "center",
+		gap: "3",
+		paddingBlock: { base: "2", _pointerCoarse: "3" },
+		paddingInline: "3",
+		borderRadius: "md",
+		fontSize: "500",
+		color: "ink",
+		cursor: "default",
+		outline: "none",
+	},
+	variants: {
+		highlighted: {
+			true: { backgroundColor: "primaryMuted" },
+		},
+		danger: {
+			true: { color: "danger" },
+		},
+	},
+});
+
+const icon = cva({
+	base: {
+		width: "22px",
+		height: "22px",
+		flexShrink: 0,
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		borderRadius: "md",
+		backgroundColor: "inkSubtle",
+		color: "muted",
+	},
+	variants: {
+		danger: {
+			true: { color: "danger" },
+		},
+	},
+});
 
 /** Matches the id LexicalMenu points `aria-activedescendant` at. */
 export function slashMenuItemId(index: number): string {
@@ -236,18 +246,12 @@ function SlashMenuOption<T extends SlashMenuItem>({
 			role="option"
 			aria-selected={highlighted}
 			tabIndex={-1}
-			className={css(
-				styles.item,
-				highlighted && styles.highlighted,
-				item.danger && styles.danger,
-			)}
+			className={option({ highlighted, danger: item.danger })}
 			onMouseEnter={() => onHighlight(index)}
 			onClick={() => onSelect(item)}
 		>
 			{item.icon && (
-				<span className={css(styles.icon, item.danger && styles.dangerIcon)}>
-					{item.icon}
-				</span>
+				<span className={icon({ danger: item.danger })}>{item.icon}</span>
 			)}
 			<div className={styles.body}>
 				<div className={styles.label}>{item.label}</div>

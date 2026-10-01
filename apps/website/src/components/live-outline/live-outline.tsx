@@ -3,7 +3,7 @@ import {
 	CaretDownIcon,
 } from "@phosphor-icons/react";
 import type { KeyboardEvent } from "react";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { type OutlineSeed, useOutline } from "./use-outline";
 
@@ -95,81 +95,6 @@ const styles = {
 		gap: "1px",
 		minHeight: "300px",
 	}),
-	row: css.raw({
-		display: "flex",
-		alignItems: "center",
-		gap: "0.375rem",
-		paddingBlock: "2px",
-		paddingInlineEnd: "0.5rem",
-		borderRadius: "9px",
-		backgroundColor: "transparent",
-	}),
-	rowFocused: css.raw({
-		backgroundColor: "site.primaryTint",
-	}),
-	caret: css.raw({
-		width: "16px",
-		height: "16px",
-		flexShrink: 0,
-		display: "grid",
-		placeItems: "center",
-		color: "site.muted",
-		cursor: "pointer",
-		borderRadius: "4px",
-		backgroundColor: "transparent",
-		outline: "none",
-		boxShadow: { base: "none", _focusVisible: "site.focus" },
-		transitionProperty: "transform",
-		transitionDuration: { base: "150ms", _motionReduce: "0ms" },
-	}),
-	caretHidden: css.raw({
-		visibility: "hidden",
-	}),
-	caretFolded: css.raw({
-		transform: "rotate(-90deg)",
-	}),
-	bullet: css.raw({
-		width: "20px",
-		height: "20px",
-		flexShrink: 0,
-		borderRadius: "50%",
-		display: "grid",
-		placeItems: "center",
-		cursor: "pointer",
-		backgroundColor: "transparent",
-		outline: "none",
-		boxShadow: { base: "none", _focusVisible: "site.focus" },
-	}),
-	bulletFolded: css.raw({
-		backgroundColor: "rgba(43, 45, 51, 0.14)",
-	}),
-	dot: css.raw({
-		width: "6px",
-		height: "6px",
-		borderRadius: "50%",
-		backgroundColor: "site.muted",
-	}),
-	dotDone: css.raw({
-		backgroundColor: "site.onDarkMuted",
-	}),
-	input: css.raw({
-		flex: 1,
-		minWidth: 0,
-		border: 0,
-		outline: "none",
-		backgroundColor: "transparent",
-		fontFamily: "site.sans",
-		fontSize: "0.9375rem",
-		lineHeight: 1.5,
-		paddingBlock: "5px",
-		color: "site.ink",
-		_placeholder: { color: "site.faint" },
-	}),
-	inputTop: css.raw({ fontWeight: 600 }),
-	inputDone: css.raw({
-		color: "site.faint",
-		textDecoration: "line-through",
-	}),
 	hints: css({
 		display: "flex",
 		flexWrap: "wrap",
@@ -193,6 +118,110 @@ const styles = {
 		fontSize: "site.eyebrow",
 	}),
 };
+
+const row = cva({
+	base: {
+		display: "flex",
+		alignItems: "center",
+		gap: "0.375rem",
+		paddingBlock: "2px",
+		paddingInlineEnd: "0.5rem",
+		borderRadius: "9px",
+		backgroundColor: "transparent",
+	},
+	variants: {
+		focused: {
+			true: { backgroundColor: "site.primaryTint" },
+		},
+	},
+});
+
+const caret = cva({
+	base: {
+		width: "16px",
+		height: "16px",
+		flexShrink: 0,
+		display: "grid",
+		placeItems: "center",
+		color: "site.muted",
+		cursor: "pointer",
+		borderRadius: "4px",
+		backgroundColor: "transparent",
+		outline: "none",
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+		transitionProperty: "transform",
+		transitionDuration: { base: "150ms", _motionReduce: "0ms" },
+	},
+	variants: {
+		hidden: {
+			true: { visibility: "hidden" },
+		},
+		folded: {
+			true: { transform: "rotate(-90deg)" },
+		},
+	},
+});
+
+const bullet = cva({
+	base: {
+		width: "20px",
+		height: "20px",
+		flexShrink: 0,
+		borderRadius: "50%",
+		display: "grid",
+		placeItems: "center",
+		cursor: "pointer",
+		backgroundColor: "transparent",
+		outline: "none",
+		boxShadow: { base: "none", _focusVisible: "site.focus" },
+	},
+	variants: {
+		folded: {
+			true: { backgroundColor: "rgba(43, 45, 51, 0.14)" },
+		},
+	},
+});
+
+const dot = cva({
+	base: {
+		width: "6px",
+		height: "6px",
+		borderRadius: "50%",
+		backgroundColor: "site.muted",
+	},
+	variants: {
+		done: {
+			true: { backgroundColor: "site.onDarkMuted" },
+		},
+	},
+});
+
+const input = cva({
+	base: {
+		flex: 1,
+		minWidth: 0,
+		border: 0,
+		outline: "none",
+		backgroundColor: "transparent",
+		fontFamily: "site.sans",
+		fontSize: "0.9375rem",
+		lineHeight: 1.5,
+		paddingBlock: "5px",
+		color: "site.ink",
+		_placeholder: { color: "site.faint" },
+	},
+	variants: {
+		top: {
+			true: { fontWeight: 600 },
+		},
+		done: {
+			true: {
+				color: "site.faint",
+				textDecoration: "line-through",
+			},
+		},
+	},
+});
 
 export interface LiveOutlineProps {
 	seed?: readonly OutlineSeed[];
@@ -259,7 +288,7 @@ export function LiveOutline({
 					return (
 						<li
 							key={node.id}
-							className={css(styles.row, focused && styles.rowFocused)}
+							className={row({ focused })}
 							style={{ paddingInlineStart: 4 + node.depth * INDENT_PX }}
 						>
 							<button
@@ -269,11 +298,7 @@ export function LiveOutline({
 								aria-expanded={hasChildren ? !folded : undefined}
 								aria-label={`${folded ? "Unfold" : "Fold"} “${label}”`}
 								onClick={() => outline.toggleFold(node.id)}
-								className={css(
-									styles.caret,
-									!hasChildren && styles.caretHidden,
-									folded && styles.caretFolded,
-								)}
+								className={caret({ hidden: !hasChildren, folded })}
 							>
 								<CaretDownIcon size={11} weight="bold" />
 							</button>
@@ -284,11 +309,9 @@ export function LiveOutline({
 								aria-expanded={hasChildren ? !folded : undefined}
 								aria-label={`${folded ? "Unfold" : "Fold"} “${label}”`}
 								onClick={() => outline.toggleFold(node.id)}
-								className={css(styles.bullet, folded && styles.bulletFolded)}
+								className={bullet({ folded })}
 							>
-								<span
-									className={css(styles.dot, node.done && styles.dotDone)}
-								/>
+								<span className={dot({ done: node.done })} />
 							</button>
 							<input
 								ref={outline.registerInput(node.id)}
@@ -302,11 +325,7 @@ export function LiveOutline({
 								}
 								onKeyDown={(event) => onKeyDown(event, node.id)}
 								onFocus={() => outline.setFocusedId(node.id)}
-								className={css(
-									styles.input,
-									node.depth === 0 && styles.inputTop,
-									node.done && styles.inputDone,
-								)}
+								className={input({ top: node.depth === 0, done: node.done })}
 							/>
 						</li>
 					);

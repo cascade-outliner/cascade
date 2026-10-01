@@ -1,9 +1,9 @@
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import { useContext } from "react";
 import { DragHandleContext } from "../context";
 
-const styles = {
-	bullet: css.raw({
+const bullet = cva({
+	base: {
 		width: "18px",
 		height: "18px",
 		flexShrink: 0,
@@ -16,10 +16,15 @@ const styles = {
 		padding: 0,
 		cursor: "grab",
 		touchAction: "none",
-	}),
-	dragging: css.raw({
-		cursor: "grabbing",
-	}),
+	},
+	variants: {
+		dragging: {
+			true: { cursor: "grabbing" },
+		},
+	},
+});
+
+const styles = {
 	dot: css({
 		width: "6px",
 		height: "6px",
@@ -42,7 +47,7 @@ export function Bullet({ collapsed, ...props }: BulletProps) {
 		<button
 			ref={drag?.setActivatorNodeRef}
 			type="button"
-			className={css(styles.bullet, drag?.isDragging && styles.dragging)}
+			className={bullet({ dragging: drag?.isDragging })}
 			{...drag?.listeners}
 			{...props}
 		>

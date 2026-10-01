@@ -1,5 +1,5 @@
 import { Popover } from "@base-ui/react/popover";
-import { css } from "@cascade/theme/css";
+import { css, cva } from "@cascade/theme/css";
 import {
 	CalendarBlankIcon,
 	CaretLeftIcon,
@@ -33,7 +33,23 @@ const styles = {
 		cursor: "pointer",
 		_hover: { backgroundColor: "inkSubtle" },
 	}),
-	today: css.raw({
+	positioner: css({
+		zIndex: "overlay",
+	}),
+	popup: css({
+		padding: "3",
+		borderRadius: "lg",
+		borderWidth: "thin",
+		borderStyle: "solid",
+		borderColor: "border",
+		backgroundColor: "white",
+		boxShadow: "popup",
+		outline: "none",
+	}),
+};
+
+const today = cva({
+	base: {
 		display: "flex",
 		alignItems: "center",
 		gap: "1.5",
@@ -50,28 +66,19 @@ const styles = {
 		color: "ink",
 		whiteSpace: "nowrap",
 		cursor: "pointer",
-	}),
-	positioner: css({
-		zIndex: "overlay",
-	}),
-	popup: css({
-		padding: "3",
-		borderRadius: "lg",
-		borderWidth: "thin",
-		borderStyle: "solid",
-		borderColor: "border",
-		backgroundColor: "white",
-		boxShadow: "popup",
-		outline: "none",
-	}),
-	active: css.raw({
-		backgroundColor: {
-			base: "primaryMuted",
-			_hover: "primaryMuted",
+	},
+	variants: {
+		active: {
+			true: {
+				backgroundColor: {
+					base: "primaryMuted",
+					_hover: "primaryMuted",
+				},
+				color: "primary",
+			},
 		},
-		color: "primary",
-	}),
-};
+	},
+});
 
 export interface DaySwitcherProps {
 	/** "Today", or the short date of the day note being shown. */
@@ -116,7 +123,7 @@ export function DaySwitcher({
 				type="button"
 				aria-current={active ? "page" : undefined}
 				onClick={onToday}
-				className={css(styles.today, active && styles.active)}
+				className={today({ active })}
 			>
 				{label}
 			</button>

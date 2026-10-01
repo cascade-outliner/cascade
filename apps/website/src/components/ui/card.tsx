@@ -1,42 +1,41 @@
 import type { ReactNode } from "react";
-import { css } from "@/styled-system/css";
+import { css, cva } from "@/styled-system/css";
 import type { SystemStyleObject } from "@/styled-system/types";
 
-const styles = {
-	card: css.raw({
+const card = cva({
+	base: {
 		display: "flex",
 		flexDirection: "column",
 		borderRadius: "18px",
-	}),
-	paper: css.raw({
-		backgroundColor: "site.card",
-		color: "site.ink",
-		boxShadow: "site.card",
-	}),
-	dark: css.raw({
-		backgroundColor: "site.ink",
-		color: "site.onDark",
-	}),
-	tint: css.raw({
-		backgroundColor: "site.tint",
-		color: "site.ink",
-	}),
-	raised: css.raw({
-		backgroundColor: "site.card",
-		color: "site.ink",
-		boxShadow: "site.lift",
-	}),
-	padded: css.raw({
-		padding: "1.375rem",
-	}),
-	roomy: css.raw({
-		padding: "2rem",
-		borderRadius: "22px",
-	}),
-	rounded: css.raw({
-		borderRadius: "lg",
-	}),
-};
+	},
+	variants: {
+		tone: {
+			paper: {
+				backgroundColor: "site.card",
+				color: "site.ink",
+				boxShadow: "site.card",
+			},
+			dark: {
+				backgroundColor: "site.ink",
+				color: "site.onDark",
+			},
+			tint: {
+				backgroundColor: "site.tint",
+				color: "site.ink",
+			},
+			raised: {
+				backgroundColor: "site.card",
+				color: "site.ink",
+				boxShadow: "site.lift",
+			},
+		},
+		padding: {
+			none: {},
+			padded: { padding: "1.375rem" },
+			roomy: { padding: "2rem", borderRadius: "22px" },
+		},
+	},
+});
 
 export interface CardProps {
 	children: ReactNode;
@@ -54,15 +53,6 @@ export function Card({
 	css: cssProp,
 }: CardProps) {
 	return (
-		<Tag
-			className={css(
-				styles.card,
-				styles[tone],
-				padding !== "none" && styles[padding],
-				cssProp,
-			)}
-		>
-			{children}
-		</Tag>
+		<Tag className={css(card.raw({ tone, padding }), cssProp)}>{children}</Tag>
 	);
 }
