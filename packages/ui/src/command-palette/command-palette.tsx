@@ -1,6 +1,7 @@
 import { Autocomplete } from "@base-ui/react/autocomplete";
 import { Dialog } from "@base-ui/react/dialog";
 import type { TextRange } from "@cascade/data";
+import { media } from "@cascade/theme/media.stylex";
 import {
 	borderWidth,
 	colors,
@@ -15,8 +16,6 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
-
 const styles = stylex.create({
 	backdrop: {
 		position: "fixed",
@@ -27,7 +26,10 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		transitionDuration: {
+			default: duration["150"],
+			[media.reducedMotion]: "0s",
+		},
 	},
 	popup: {
 		position: "fixed",
@@ -52,7 +54,10 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		transitionDuration: {
+			default: duration["150"],
+			[media.reducedMotion]: "0s",
+		},
 	},
 	inputRow: {
 		display: "flex",

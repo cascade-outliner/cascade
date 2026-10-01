@@ -1,4 +1,5 @@
 import { dueLabel, isoDay } from "@cascade/data";
+import { media } from "@cascade/theme/media.stylex";
 import {
 	borderWidth,
 	colors,
@@ -9,7 +10,6 @@ import { Pill } from "@cascade/ui/pill";
 import * as stylex from "@stylexjs/stylex";
 import type { SplitTask } from "#/server/split.ts";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 const dashed = `color-mix(in srgb, ${colors.primary} 55%, transparent)`;
 
 const rise = stylex.keyframes({
@@ -24,7 +24,7 @@ const styles = stylex.create({
 		gridTemplateRows: "1fr",
 		transition: {
 			default: "grid-template-rows 260ms cubic-bezier(0.2, 0, 0, 1)",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 		"@starting-style": {
 			gridTemplateRows: "0fr",
@@ -52,7 +52,7 @@ const styles = stylex.create({
 		paddingBlock: space["1.5"],
 		paddingInline: space["2.5"],
 		color: colors.ink,
-		animationName: { default: rise, [REDUCED_MOTION]: "none" },
+		animationName: { default: rise, [media.reducedMotion]: "none" },
 		animationDuration: "240ms",
 		animationTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
 		animationFillMode: "backwards",

@@ -7,6 +7,7 @@
 		"typecheck": "tsc"
 	},
 	"exports": {
+		"./media.stylex": "./src/media.stylex.ts",
 		"./tokens.stylex": "./src/tokens.stylex.ts",
 		"./reset.css": "./reset.css"
 	},

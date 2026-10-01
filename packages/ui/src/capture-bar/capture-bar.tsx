@@ -1,3 +1,4 @@
+import { media } from "@cascade/theme/media.stylex";
 import {
 	borderWidth,
 	colors,
@@ -38,7 +39,6 @@ import { Button } from "../button/button.tsx";
 import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
 
@@ -70,7 +70,7 @@ const styles = stylex.create({
 		gridTemplateRows: "0fr",
 		transition: {
 			default: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	panelOpen: {
@@ -82,7 +82,7 @@ const styles = stylex.create({
 		opacity: 0,
 		transition: {
 			default: "opacity 160ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	panelInnerOpen: {
@@ -119,7 +119,7 @@ const styles = stylex.create({
 		backgroundColor: colors.primaryMuted,
 	},
 	ghostPop: {
-		animationName: { default: pop, [REDUCED_MOTION]: "none" },
+		animationName: { default: pop, [media.reducedMotion]: "none" },
 		animationDuration: "240ms",
 		animationTimingFunction: "ease-out",
 	},
@@ -157,7 +157,7 @@ const styles = stylex.create({
 		},
 		transition: {
 			default: "opacity 150ms ease, transform 150ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 		"@starting-style": {
 			opacity: 0,
@@ -188,7 +188,7 @@ const styles = stylex.create({
 		},
 		transition: {
 			default: "opacity 150ms ease, transform 150ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	chipIcon: {
