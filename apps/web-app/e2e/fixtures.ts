@@ -4,6 +4,7 @@ import { CommandPalette } from "./pages/command-palette.ts";
 import { ContextMenu } from "./pages/context-menu.ts";
 import { DaySwitcher } from "./pages/day-switcher.ts";
 import { DueDateMenu } from "./pages/due-date-menu.ts";
+import { Links } from "./pages/links.ts";
 import { OnboardingPage } from "./pages/onboarding-page.ts";
 import { OutlinePage } from "./pages/outline-page.ts";
 import { SlashMenu } from "./pages/slash-menu.ts";
@@ -20,6 +21,7 @@ interface Fixtures {
 	contextMenu: ContextMenu;
 	daySwitcher: DaySwitcher;
 	dueDateMenu: DueDateMenu;
+	links: Links;
 	onboardingPage: OnboardingPage;
 	outlinePage: OutlinePage;
 	splitApi: SplitApi;
@@ -54,6 +56,9 @@ export const test = base.extend<Options & Fixtures>({
 	},
 	dueDateMenu: async ({ page }, use) => {
 		await use(new DueDateMenu(page));
+	},
+	links: async ({ page }, use) => {
+		await use(new Links(page));
 	},
 	onboardingPage: async ({ page }, use) => {
 		await use(new OnboardingPage(page));

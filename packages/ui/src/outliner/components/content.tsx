@@ -1,5 +1,6 @@
 import type { Node } from "@cascade/data";
-import { fontSize } from "@cascade/theme/tokens.stylex";
+import { colors, fontSize, radius } from "@cascade/theme/tokens.stylex";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -10,10 +11,13 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import * as stylex from "@stylexjs/stylex";
 import type { EditorState } from "lexical";
 import { type ReactNode, useEffect } from "react";
+import { LinkDialogPlugin } from "../../link/link-dialog.tsx";
+import { LinkPlugins } from "../../link/link-plugins.tsx";
 import { useItem } from "../context";
 
 const styles = stylex.create({
 	wrapper: {
+		position: "relative",
 		flexGrow: 1,
 		flexShrink: 1,
 		flexBasis: "0%",
@@ -22,7 +26,23 @@ const styles = stylex.create({
 		outline: "none",
 		fontSize: fontSize["600"],
 	},
+	link: {
+		color: colors.accent,
+		textDecoration: { default: "none", ":hover": "underline" },
+		cursor: "text",
+		marginRight: "1.25em",
+		borderRadius: radius.sm,
+		"[title]::after": {
+			content: "attr(title)",
+			display: "inline-block",
+			marginLeft: "0.4em",
+			fontSize: fontSize["300"],
+			color: colors.muted,
+		},
+	},
 });
+
+const linkClassName = stylex.props(styles.link).className;
 
 function Editable({
 	style,
@@ -99,6 +119,8 @@ export function Content({
 				namespace: `outliner-node-${node.id}`,
 				editorState: JSON.stringify(node.content),
 				editable,
+				nodes: [LinkNode, AutoLinkNode],
+				theme: { link: linkClassName },
 				onError: (error) => {
 					throw error;
 				},
@@ -110,6 +132,8 @@ export function Content({
 				ErrorBoundary={LexicalErrorBoundary}
 			/>
 			<HistoryPlugin />
+			<LinkPlugins />
+			{editable && <LinkDialogPlugin />}
 			<SyncContentPlugin content={node.content} />
 			{onChange && (
 				<OnChangePlugin
