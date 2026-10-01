@@ -14,6 +14,7 @@ export default defineConfig({
 	include: ["./src/**/*.{ts,tsx}"],
 	outdir: "styled-system",
 	jsxFramework: "react",
+	strictTokens: true,
 	conditions: {
 		narrow: "@media (max-width: 480px)",
 		mobile: "@media (max-width: 640px)",

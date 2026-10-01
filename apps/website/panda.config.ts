@@ -9,6 +9,7 @@ export default defineConfig({
 	outdir: "src/styled-system",
 	importMap: "@/styled-system",
 	jsxFramework: "react",
+	strictTokens: true,
 	// Panda emits conditions in this order, so a property that needs three
 	// values (desktop / tablet / phone) pairs `_tabletOnly` with `_mobile`
 	// instead of `_tablet`.

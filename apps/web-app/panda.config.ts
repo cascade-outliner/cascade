@@ -7,6 +7,7 @@ export default defineConfig({
 	outdir: "src/styled-system",
 	importMap: "#/styled-system",
 	jsxFramework: "react",
+	strictTokens: true,
 	globalCss: {
 		// Onboarding steps slide in the direction of travel.
 		'html[data-onboarding-back="true"]': { "--onboarding-shift": "-24px" },
