@@ -56,6 +56,8 @@ export function project({
 			break;
 		}
 	}
+	// A collapsed parent hides its children, so the gap position can't map to a
+	// visible slot among them; dropping into it intentionally appends.
 	if (parent?.node.collapsed) {
 		index = parent.childCount;
 	}
