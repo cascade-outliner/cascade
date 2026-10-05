@@ -151,8 +151,13 @@ export const OutlinerContextMenu = observer(function OutlinerContextMenu({
 				>
 					Zoom in
 				</Menu.Item>
-				<Menu.Item icon={<ArrowSquareOutIcon size={15} />} disabled>
-					Open in new pane
+				<Menu.Item
+					icon={<ArrowSquareOutIcon size={15} />}
+					onClick={() =>
+						window.open(`/node/${node.id}`, "_blank", "noopener,noreferrer")
+					}
+				>
+					Open in new tab
 				</Menu.Item>
 				<Menu.Separator />
 				<Menu.Submenu icon={<CopyIcon size={15} />} label="Duplicate">
