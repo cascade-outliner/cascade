@@ -1,3 +1,4 @@
+import { media } from "@cascade/theme/media.stylex";
 import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
@@ -31,7 +32,7 @@ const styles = stylex.create({
 		position: "relative",
 		transition: {
 			default: "color 200ms",
-			"@media (prefers-reduced-motion: reduce)": "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	arrow: {
@@ -60,7 +61,7 @@ const styles = stylex.create({
 		paddingInline: GAP / 2,
 		transition: {
 			default: "transform 260ms cubic-bezier(0.2, 0, 0, 1)",
-			"@media (prefers-reduced-motion: reduce)": "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	pillFill: {
