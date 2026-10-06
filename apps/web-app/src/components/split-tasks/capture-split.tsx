@@ -1,4 +1,5 @@
 import { textState } from "@cascade/data";
+import { media } from "@cascade/theme/media.stylex";
 import { colors, fontSize, space } from "@cascade/theme/tokens.stylex";
 import { Button } from "@cascade/ui/button";
 import {
@@ -20,7 +21,6 @@ import {
 } from "#/components/split-tasks/split.ts";
 import { useOutlineStore } from "#/lib/outline-store.tsx";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 const dashed = `color-mix(in srgb, ${colors.primary} 55%, transparent)`;
 
 const pulse = stylex.keyframes({
@@ -47,7 +47,7 @@ const styles = stylex.create({
 		textUnderlineOffset: 3,
 		transition: {
 			default: "text-decoration-color 400ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 		"@starting-style": {
 			textDecorationColor: "transparent",
@@ -83,7 +83,7 @@ const styles = stylex.create({
 		color: colors.primary,
 	},
 	pulse: {
-		animationName: { default: pulse, [REDUCED_MOTION]: "none" },
+		animationName: { default: pulse, [media.reducedMotion]: "none" },
 		animationDuration: "1.2s",
 		animationIterationCount: "infinite",
 		animationTimingFunction: "ease-in-out",
