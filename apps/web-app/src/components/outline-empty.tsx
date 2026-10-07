@@ -6,6 +6,7 @@ import {
 	ListDashesIcon,
 	MagnifyingGlassPlusIcon,
 	TreeStructureIcon,
+	WarningIcon,
 } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -34,6 +35,27 @@ export function NodeNotFound({ onBack }: NodeNotFoundProps) {
 				had any, went with it.
 			</Card.Description>
 			<Card.Action onClick={onBack}>Back to the outline</Card.Action>
+		</Card.Root>
+	);
+}
+
+export interface OutlineLoadFailedProps {
+	/** Retries loading the outline. */
+	onRetry: () => void;
+}
+
+export function OutlineLoadFailed({ onRetry }: OutlineLoadFailedProps) {
+	return (
+		<Card.Root>
+			<Card.Icon>
+				<WarningIcon />
+			</Card.Icon>
+			<Card.Title>Couldn't load your outline</Card.Title>
+			<Card.Description>
+				Your browser's storage didn't respond. Private browsing or disabled site
+				data can cause this.
+			</Card.Description>
+			<Card.Action onClick={onRetry}>Reload</Card.Action>
 		</Card.Root>
 	);
 }
