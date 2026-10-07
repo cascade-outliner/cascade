@@ -29,7 +29,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader } from "#/components/app-header.tsx";
 import { DueElsewhere } from "#/components/due-elsewhere.tsx";
 import { Onboarding } from "#/components/onboarding.tsx";
-import { NodeNotFound, OutlineEmpty } from "#/components/outline-empty.tsx";
+import {
+	NodeNotFound,
+	OutlineEmpty,
+	OutlineLoadFailed,
+} from "#/components/outline-empty.tsx";
 import { OutlinerContextMenu } from "#/components/outliner-context-menu.tsx";
 import {
 	captureSlashCommands,
@@ -208,7 +212,11 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 		void sync.isOnboarded().then(setOnboarded);
 	}, [sync]);
 
-	if (store.status !== "ready" || onboarded === null) {
+	// The `_app` loader gives up waiting after a timeout, so still loading here means storage is stuck.
+	if (store.status !== "ready") {
+		return <OutlineLoadFailed onRetry={() => window.location.reload()} />;
+	}
+	if (onboarded === null) {
 		return null;
 	}
 
