@@ -17,6 +17,7 @@ import { emptyState } from "./content.ts";
 import { dayDate, isDailyNode, isDayId, openDay } from "./daily.ts";
 import { type SearchResult, searchNodes } from "./search.ts";
 import {
+	adoptOrphans,
 	ancestorsOf,
 	breakCycles,
 	type Children,
@@ -414,6 +415,16 @@ export class OutlineStore {
 		}
 		runInAction(() => {
 			this.#merge({ put: nodes, delete: [] });
+			const orphans = adoptOrphans(this.nodes);
+			if (orphans.length > 0) {
+				console.warn(
+					`OutlineStore: moved ${orphans.length} orphaned node(s) to the root`,
+				);
+				for (const node of orphans) {
+					node.updatedAt = Date.now();
+				}
+				this.#persist(orphans);
+			}
 			this.status = "ready";
 		});
 	}

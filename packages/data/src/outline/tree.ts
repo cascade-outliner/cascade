@@ -164,3 +164,21 @@ export function breakCycles(nodes: {
 	}
 	return fixed;
 }
+
+/**
+ * Reparents to the root any node whose parent doesn't exist, so it doesn't
+ * stay invisible forever. Returns the nodes it changed.
+ */
+export function adoptOrphans(nodes: {
+	has(id: string): boolean;
+	values(): Iterable<Node>;
+}): Node[] {
+	const fixed: Node[] = [];
+	for (const node of nodes.values()) {
+		if (node.parentId !== null && !nodes.has(node.parentId)) {
+			node.parentId = null;
+			fixed.push(node);
+		}
+	}
+	return fixed;
+}
