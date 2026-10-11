@@ -3,6 +3,7 @@ import {
 	borderWidth,
 	colors,
 	fontSize,
+	media,
 	radius,
 	shadow,
 	space,
@@ -13,7 +14,6 @@ import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 
 const MOBILE = "@media (max-width: 640px)";
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
 const styles = stylex.create({
 	popup: {
@@ -48,7 +48,7 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: "200ms", [REDUCED_MOTION]: "0s" },
+		transitionDuration: { default: "200ms", [media.reducedMotion]: "0s" },
 		transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
 	},
 	header: {

@@ -3,6 +3,7 @@ import {
 	colors,
 	duration,
 	fontSize,
+	media,
 	radius,
 	shadow,
 	space,
@@ -43,7 +44,6 @@ import type { SlashMenuItem } from "../slash-menu/filter.ts";
 import { SlashMenu } from "../slash-menu/slash-menu.tsx";
 import { SlashMenuPlugin } from "../slash-menu/slash-menu-plugin.tsx";
 
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 const NARROW = "@media (max-width: 640px)";
 /** The editor's line box; the dot, chips and buttons line up with the first one. */
 const LINE = 24;
@@ -70,7 +70,7 @@ const styles = stylex.create({
 		gridTemplateRows: "0fr",
 		transition: {
 			default: "grid-template-rows 220ms cubic-bezier(0.2, 0, 0, 1)",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	panelOpen: {
@@ -82,7 +82,7 @@ const styles = stylex.create({
 		opacity: 0,
 		transition: {
 			default: "opacity 160ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	panelInnerOpen: {
@@ -168,7 +168,7 @@ const styles = stylex.create({
 		},
 		transition: {
 			default: "opacity 150ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	splitHidden: {
@@ -198,7 +198,7 @@ const styles = stylex.create({
 		},
 		transition: {
 			default: "opacity 150ms ease, transform 150ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 	},
 	chipIcon: {
@@ -277,7 +277,7 @@ const styles = stylex.create({
 		cursor: { default: "pointer", ":disabled": "not-allowed" },
 		transition: {
 			default: "background-color 150ms ease, color 150ms ease",
-			[REDUCED_MOTION]: "none",
+			[media.reducedMotion]: "none",
 		},
 		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
 	},
