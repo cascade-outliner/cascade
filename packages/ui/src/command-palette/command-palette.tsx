@@ -6,6 +6,7 @@ import {
 	colors,
 	duration,
 	fontSize,
+	media,
 	radius,
 	shadow,
 	space,
@@ -14,8 +15,6 @@ import {
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
-
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
 const styles = stylex.create({
 	backdrop: {
@@ -27,7 +26,10 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		transitionDuration: {
+			default: duration["150"],
+			[media.reducedMotion]: "0s",
+		},
 	},
 	popup: {
 		position: "fixed",
@@ -52,7 +54,10 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		transitionDuration: {
+			default: duration["150"],
+			[media.reducedMotion]: "0s",
+		},
 	},
 	inputRow: {
 		display: "flex",

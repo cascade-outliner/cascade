@@ -4,6 +4,7 @@ import {
 	colors,
 	duration,
 	fontSize,
+	media,
 	radius,
 	shadow,
 	space,
@@ -11,8 +12,6 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
 const styles = stylex.create({
 	backdrop: {
@@ -24,7 +23,10 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		transitionDuration: {
+			default: duration["150"],
+			[media.reducedMotion]: "0s",
+		},
 	},
 	popup: {
 		position: "fixed",
@@ -60,7 +62,10 @@ const styles = stylex.create({
 			opacity: 0,
 		},
 		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		transitionDuration: {
+			default: duration["150"],
+			[media.reducedMotion]: "0s",
+		},
 	},
 	header: {
 		display: "flex",

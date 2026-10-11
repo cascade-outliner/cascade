@@ -1,5 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 
+export const media = stylex.defineConsts({
+	reducedMotion: "@media (prefers-reduced-motion: reduce)",
+});
+
 const DARK_MEDIA = "@media (prefers-color-scheme: dark)";
 
 // Light values are the defaults; dark values apply automatically when the
