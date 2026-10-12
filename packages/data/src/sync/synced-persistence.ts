@@ -29,7 +29,7 @@ export class SyncedPersistence implements OutlinePersistence {
 	}
 
 	get(id: string): Promise<Node | undefined> {
-		return this.inner.get ? this.inner.get(id) : this.#find(id);
+		return this.inner.get(id);
 	}
 
 	async write(change: OutlineChange): Promise<void> {
@@ -66,9 +66,5 @@ export class SyncedPersistence implements OutlinePersistence {
 		for (const listener of this.#listeners) {
 			listener(change);
 		}
-	}
-
-	async #find(id: string): Promise<Node | undefined> {
-		return (await this.inner.load()).find((node) => node.id === id);
 	}
 }
