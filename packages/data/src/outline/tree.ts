@@ -117,21 +117,29 @@ export function descendantsOf(children: Children, id: string): string[] {
 export function rowsOf(children: Children, rootId: string | null): Row[] {
 	const rows: Row[] = [];
 	const seen = new Set(rootId === null ? [] : [rootId]);
-	const walk = (parentId: string | null, depth: number) => {
-		for (const node of childrenOf(children, parentId)) {
-			// Guards against a parent cycle that slipped past `breakCycles`.
-			if (seen.has(node.id)) {
-				continue;
-			}
-			seen.add(node.id);
-			const childCount = childrenOf(children, node.id).length;
-			rows.push({ node, depth, childCount });
-			if (childCount > 0 && !node.collapsed) {
-				walk(node.id, depth + 1);
-			}
+	// Explicit stack (children pushed reversed) keeps depth-first order without
+	// call-stack depth proportional to tree depth.
+	const stack: { node: Node; depth: number }[] = [];
+	const pushChildren = (parentId: string | null, depth: number) => {
+		const kids = childrenOf(children, parentId);
+		for (let i = kids.length - 1; i >= 0; i--) {
+			stack.push({ node: kids[i], depth });
 		}
 	};
-	walk(rootId, 0);
+	pushChildren(rootId, 0);
+	for (let item = stack.pop(); item; item = stack.pop()) {
+		const { node, depth } = item;
+		// Guards against a parent cycle that slipped past `breakCycles`.
+		if (seen.has(node.id)) {
+			continue;
+		}
+		seen.add(node.id);
+		const childCount = childrenOf(children, node.id).length;
+		rows.push({ node, depth, childCount });
+		if (childCount > 0 && !node.collapsed) {
+			pushChildren(node.id, depth + 1);
+		}
+	}
 	return rows;
 }
 
