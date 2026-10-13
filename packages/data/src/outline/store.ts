@@ -234,8 +234,8 @@ export class OutlineStore {
 			source: Node,
 			parentId: string | null,
 			order: string,
-		): Node => {
-			const copy = this.#put({
+		): Node =>
+			this.#put({
 				id: crypto.randomUUID(),
 				parentId,
 				order,
@@ -245,20 +245,24 @@ export class OutlineStore {
 				due: source.due,
 				updatedAt: Date.now(),
 			});
-			clones.push(copy);
-			let previousOrder: string | undefined;
-			for (const child of childrenOf(children, source.id)) {
-				previousOrder = orderBetween(previousOrder, undefined);
-				clone(child, copy.id, previousOrder);
-			}
-			return copy;
-		};
 
 		const root = clone(
 			node,
 			node.parentId,
 			orderAt(children, node.parentId, indexOf(children, node) + 1),
 		);
+		clones.push(root);
+		// Explicit stack: no call-stack depth proportional to tree depth.
+		const stack = [{ source: node, copy: root }];
+		for (let item = stack.pop(); item; item = stack.pop()) {
+			let previousOrder: string | undefined;
+			for (const child of childrenOf(children, item.source.id)) {
+				previousOrder = orderBetween(previousOrder, undefined);
+				const copy = clone(child, item.copy.id, previousOrder);
+				clones.push(copy);
+				stack.push({ source: child, copy });
+			}
+		}
 		this.#persist(clones);
 		return root.id;
 	}
