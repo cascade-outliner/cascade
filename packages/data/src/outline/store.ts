@@ -41,6 +41,9 @@ export class OutlineStore {
 
 	status: "loading" | "ready" = "loading";
 
+	/** The last persistence write failure, cleared by the next successful write. UIs can warn that edits aren't saved. */
+	writeError: unknown = null;
+
 	constructor(persistence: OutlinePersistence = new MemoryPersistence()) {
 		this.#persistence = persistence;
 		this.#children = computed(() => indexChildren(this.nodes.values()), {
@@ -470,6 +473,10 @@ export class OutlineStore {
 	#persist(put: Node[], remove: string[] = []): void {
 		void this.#persistence
 			.write({ put: put.map((node) => toJS(node)), delete: remove })
-			.catch((error) => console.error("OutlineStore: write failed", error));
+			.then(() => runInAction(() => (this.writeError = null)))
+			.catch((error) => {
+				console.error("OutlineStore: write failed", error);
+				runInAction(() => (this.writeError = error));
+			});
 	}
 }
