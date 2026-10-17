@@ -37,6 +37,8 @@ export class OutlineStore {
 	readonly nodes = observable.map<string, Node>(undefined, { deep: false });
 	readonly #persistence: OutlinePersistence;
 	readonly #children: IComputedValue<Children>;
+	/** Tail of the write queue, so writes reach persistence in call order. */
+	#writes: Promise<void> = Promise.resolve();
 	readonly ready: Promise<void>;
 
 	status: "loading" | "ready" = "loading";
@@ -468,8 +470,10 @@ export class OutlineStore {
 	}
 
 	#persist(put: Node[], remove: string[] = []): void {
-		void this.#persistence
-			.write({ put: put.map((node) => toJS(node)), delete: remove })
+		// Snapshot now; the write itself waits for the ones before it.
+		const change = { put: put.map((node) => toJS(node)), delete: remove };
+		this.#writes = this.#writes
+			.then(() => this.#persistence.write(change))
 			.catch((error) => console.error("OutlineStore: write failed", error));
 	}
 }
