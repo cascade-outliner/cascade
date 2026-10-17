@@ -39,6 +39,7 @@ import { SlashCommandsPlugin } from "#/components/slash-commands/slash-commands-
 import { CaptureSplit } from "#/components/split-tasks/capture-split.tsx";
 import { Marked } from "#/components/split-tasks/marked.tsx";
 import { SplitSheet } from "#/components/split-tasks/split-sheet.tsx";
+import { SummaryCard } from "#/components/summary/summary-card.tsx";
 import { useOutlineStore, useSync } from "#/lib/outline-store.tsx";
 
 const appRoute = getRouteApi("/_app");
@@ -255,6 +256,12 @@ export const Outline = observer(function Outline({ zoomedId }: OutlineProps) {
 							labelOf={(node) => relativeDay(node.id) ?? undefined}
 							onChange={(state) => store.setContent(zoomed.id, state.toJSON())}
 							titleTransitionName={zoomTransitionName(zoomed.id)}
+						/>
+						<SummaryCard
+							key={zoomed.id}
+							node={zoomed}
+							ai={aiEnabled}
+							onZoomTo={zoomTo}
 						/>
 					</div>
 				)}

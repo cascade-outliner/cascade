@@ -112,9 +112,13 @@ export function descendantsOf(children: Children, id: string): string[] {
 
 /**
  * The visible rows below `rootId` (the whole outline when `null`), depth-first.
- * Children of collapsed nodes are left out.
+ * Children of collapsed nodes are left out, unless `all`.
  */
-export function rowsOf(children: Children, rootId: string | null): Row[] {
+export function rowsOf(
+	children: Children,
+	rootId: string | null,
+	all = false,
+): Row[] {
 	const rows: Row[] = [];
 	const seen = new Set(rootId === null ? [] : [rootId]);
 	const walk = (parentId: string | null, depth: number) => {
@@ -126,7 +130,7 @@ export function rowsOf(children: Children, rootId: string | null): Row[] {
 			seen.add(node.id);
 			const childCount = childrenOf(children, node.id).length;
 			rows.push({ node, depth, childCount });
-			if (childCount > 0 && !node.collapsed) {
+			if (childCount > 0 && (all || !node.collapsed)) {
 				walk(node.id, depth + 1);
 			}
 		}

@@ -5,21 +5,22 @@ import { toCrossJSON } from "seroval";
 // TanStack Start derives the RPC id from the server file + export name, but
 // differently per mode: dev base64url-encodes them as JSON, production (CI)
 // sha256-hashes `<app-relative file>--<handler>`.
-const FILE = "src/server/split.ts";
-
-function serverFnUrl(exportName: string): (url: URL) => boolean {
+export function serverFnUrl(
+	exportName: string,
+	file = "src/server/split.ts",
+): (url: URL) => boolean {
 	const handler = `${exportName}_createServerFn_handler`;
 	const dev = Buffer.from(
-		JSON.stringify({ file: `/${FILE}?tss-serverfn-split`, export: handler }),
+		JSON.stringify({ file: `/${file}?tss-serverfn-split`, export: handler }),
 	).toString("base64url");
-	const prod = createHash("sha256").update(`${FILE}--${handler}`).digest("hex");
+	const prod = createHash("sha256").update(`${file}--${handler}`).digest("hex");
 	return (url) =>
 		url.pathname.endsWith(`/_serverFn/${dev}`) ||
 		url.pathname.endsWith(`/_serverFn/${prod}`);
 }
 
 /** Fulfills a server function route with a successful, start-serialized result. */
-async function fulfillResult(route: Route, result: unknown) {
+export async function fulfillResult(route: Route, result: unknown) {
 	await route.fulfill({
 		contentType: "application/json",
 		headers: { "x-tss-serialized": "true" },
