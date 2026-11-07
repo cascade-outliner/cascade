@@ -1,11 +1,9 @@
 import { colors, fonts } from "@cascade/theme/tokens.stylex";
+import fontLatin from "@fontsource-variable/onest/files/onest-latin-wght-normal.woff2?url";
 import * as stylex from "@stylexjs/stylex";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import appCss from "../styles.css?url";
-
-import "@fontsource-variable/dm-sans/opsz.css";
-import "@fontsource-variable/dm-sans/opsz-italic.css";
 
 export const Route = createRootRoute({
 	head: () => ({
@@ -23,10 +21,23 @@ export const Route = createRootRoute({
 			},
 			{
 				name: "theme-color",
-				content: "#ad4c4e",
+				content: "#f0f0f0",
+				media: "(prefers-color-scheme: light)",
+			},
+			{
+				name: "theme-color",
+				content: "#192036",
+				media: "(prefers-color-scheme: dark)",
 			},
 		],
 		links: [
+			{
+				rel: "preload",
+				href: fontLatin,
+				as: "font",
+				type: "font/woff2",
+				crossOrigin: "anonymous",
+			},
 			{
 				rel: "stylesheet",
 				href: appCss,

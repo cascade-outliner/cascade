@@ -1,0 +1,13 @@
+@import "@fontsource-variable/onest";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@font-face {
+	font-family: "Onest Fallback";
+	src:
+		local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo");
+	size-adjust: 105.93%;
+	ascent-override: 91.57%;
+	descent-override: 28.79%;
+	line-gap-override: 0%;
+}

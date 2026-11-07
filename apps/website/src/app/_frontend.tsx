@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import dmSans from "@fontsource-variable/dm-sans/files/dm-sans-latin-opsz-normal.woff2?url";
+import fontLatin from "@fontsource-variable/onest/files/onest-latin-wght-normal.woff2?url";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/site-footer";
@@ -17,12 +17,12 @@ export const Route = createFileRoute("/_frontend")({
 		meta: [
 			{ charSet: "utf-8" },
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
-			{ name: "theme-color", content: "#ad4c4e" },
+			{ name: "theme-color", content: "#f0f0f0" },
 		],
 		links: [
 			{
 				rel: "preload",
-				href: dmSans,
+				href: fontLatin,
 				as: "font",
 				type: "font/woff2",
 				crossOrigin: "anonymous",
@@ -67,7 +67,7 @@ const shell = stylex.create({
 		zIndex: 100,
 		paddingBlock: "0.5rem",
 		paddingInline: "0.875rem",
-		borderRadius: "8px",
+		borderRadius: "999px",
 		backgroundColor: site.ink,
 		color: site.onDark,
 		textDecoration: "none",

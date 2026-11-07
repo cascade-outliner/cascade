@@ -1,6 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import {
 	colors,
+	duration,
 	fontSize,
 	opacity,
 	radius,
@@ -21,7 +22,7 @@ const styles = stylex.create({
 		gap: space["1"],
 		paddingBlock: "5px",
 		paddingInline: space["3"],
-		borderRadius: radius.md,
+		borderRadius: radius.full,
 		outline: "none",
 		fontSize: fontSize["300"],
 		fontWeight: 500,
@@ -41,9 +42,11 @@ const styles = stylex.create({
 		color: colors.ink,
 	},
 	primary: {
-		backgroundColor: colors.primary,
+		backgroundColor: { default: colors.primary, ":hover": colors.primaryHover },
 		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
 		color: colors.onPrimary,
+		transitionProperty: "background-color, color",
+		transitionDuration: duration["200"],
 	},
 });
 
