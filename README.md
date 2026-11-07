@@ -20,6 +20,10 @@ pnpm website:dev                              # http://localhost:3000
 
 After changing a collection, block or global: `pnpm --filter @cascade/website generate:types`, then `pnpm website:migrate:create <name>`.
 
+## Mobile
+
+`mobile` is a Flutter port of the outliner with every web feature except sign-in and sync. See `mobile/README.md`.
+
 ## AI usage
 
 Use AI to accelerate implementation when the problem and solution are already understood. Do not use AI as a substitute for your own knowledge.

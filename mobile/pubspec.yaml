@@ -1,0 +1,33 @@
+name: cascade
+description: "Cascade outliner for mobile."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  path_provider: ^2.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Onest
+      fonts:
+        - asset: assets/fonts/Onest-400.ttf
+        - asset: assets/fonts/Onest-500.ttf
+          weight: 500
+        - asset: assets/fonts/Onest-600.ttf
+          weight: 600
+        - asset: assets/fonts/Onest-700.ttf
+          weight: 700
