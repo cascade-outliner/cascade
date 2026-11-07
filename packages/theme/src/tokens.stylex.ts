@@ -2,54 +2,71 @@ import * as stylex from "@stylexjs/stylex";
 
 const DARK_MEDIA = "@media (prefers-color-scheme: dark)";
 
-// Light values are the defaults; dark values apply automatically when the
-// device is in dark mode.
+// Palette from the "core" design system: snow, navy, plum, azure, coral.
+// Light values are the "snow" surface; dark values are the "navy" surface and
+// apply automatically when the device is in dark mode.
+export const palette = stylex.defineVars({
+	snow: "#f0f0f0",
+	snowDeep: "#dcdcdc",
+	plum: "#50216a",
+	navy: "#192036",
+	azure: "#0177bb",
+	azureDeep: "#016aa8",
+	coral: "#d65b5c",
+	white: "#ffffff",
+	gray300: "#e4e4e4",
+});
+
 export const colors = stylex.defineVars({
-	white: { default: "#ffffff", [DARK_MEDIA]: "#2a2420" },
-	canvas: { default: "#fcf5ee", [DARK_MEDIA]: "#1c1815" },
-	surface: { default: "#f9e4d6", [DARK_MEDIA]: "#342b25" },
-	danger: { default: "#ad4c4e", [DARK_MEDIA]: "#e2897e" },
-	muted: { default: "#62646b", [DARK_MEDIA]: "#a9a29b" },
-	accent: { default: "#e38b75", [DARK_MEDIA]: "#eab08f" },
-	ink: { default: "#2b2d33", [DARK_MEDIA]: "#f3ece4" },
-	primary: { default: "#ad4c4e", [DARK_MEDIA]: "#e2897e" },
+	white: { default: "#ffffff", [DARK_MEDIA]: "#232c48" },
+	canvas: { default: "#f0f0f0", [DARK_MEDIA]: "#192036" },
+	surface: { default: "#ffffff", [DARK_MEDIA]: "#222a44" },
+	danger: { default: "#d65b5c", [DARK_MEDIA]: "#e8807f" },
+	muted: { default: "#5b6072", [DARK_MEDIA]: "#a9adba" },
+	accent: { default: "#d65b5c", [DARK_MEDIA]: "#d65b5c" },
+	ink: { default: "#192036", [DARK_MEDIA]: "#f0f0f0" },
+	primary: { default: "#192036", [DARK_MEDIA]: "#f0f0f0" },
+	primaryHover: { default: "#50216a", [DARK_MEDIA]: "#d65b5c" },
 	/** Text and icons on a `primary` background. */
-	onPrimary: { default: "#ffffff", [DARK_MEDIA]: "#1c1815" },
-	placeholder: { default: "#a8a7ad", [DARK_MEDIA]: "#756e67" },
+	onPrimary: { default: "#f0f0f0", [DARK_MEDIA]: "#192036" },
+	placeholder: { default: "#8c909c", [DARK_MEDIA]: "#6e748a" },
 	border: {
-		default: "rgba(43, 45, 51, 0.08)",
-		[DARK_MEDIA]: "rgba(243, 236, 228, 0.1)",
+		default: "rgba(25, 32, 54, 0.2)",
+		[DARK_MEDIA]: "rgba(240, 240, 240, 0.2)",
 	},
 	borderStrong: {
-		default: "rgba(43, 45, 51, 0.22)",
-		[DARK_MEDIA]: "rgba(243, 236, 228, 0.24)",
+		default: "#192036",
+		[DARK_MEDIA]: "#f0f0f0",
 	},
 	overlay: {
-		default: "rgba(43, 45, 51, 0.32)",
-		[DARK_MEDIA]: "rgba(0, 0, 0, 0.5)",
+		default: "rgba(25, 32, 54, 0.4)",
+		[DARK_MEDIA]: "rgba(0, 0, 0, 0.55)",
 	},
 	inkSubtle: {
-		default: "rgba(43, 45, 51, 0.1)",
-		[DARK_MEDIA]: "rgba(243, 236, 228, 0.08)",
+		default: "rgba(25, 32, 54, 0.08)",
+		[DARK_MEDIA]: "rgba(240, 240, 240, 0.08)",
 	},
 	inkSubtleHover: {
-		default: "rgba(43, 45, 51, 0.18)",
-		[DARK_MEDIA]: "rgba(243, 236, 228, 0.16)",
+		default: "rgba(25, 32, 54, 0.16)",
+		[DARK_MEDIA]: "rgba(240, 240, 240, 0.16)",
 	},
 	/** Calm, informational accents: future due dates. */
-	info: { default: "#456089", [DARK_MEDIA]: "#a3b8d8" },
+	info: { default: "#0177bb", [DARK_MEDIA]: "#6cb8ea" },
 	infoMuted: {
-		default: "#e3e9f2",
-		[DARK_MEDIA]: "rgba(163, 184, 216, 0.14)",
+		default: "rgba(1, 119, 187, 0.1)",
+		[DARK_MEDIA]: "rgba(108, 184, 234, 0.14)",
 	},
 	primaryMuted: {
-		default: "rgba(173, 76, 78, 0.08)",
-		[DARK_MEDIA]: "rgba(226, 137, 126, 0.16)",
+		default: "rgba(25, 32, 54, 0.08)",
+		[DARK_MEDIA]: "rgba(240, 240, 240, 0.12)",
 	},
+	/** Brand highlight: plum. */
+	highlight: { default: "#50216a", [DARK_MEDIA]: "#c9a6dc" },
+	focusRing: { default: "#0177bb", [DARK_MEDIA]: "#f0f0f0" },
 });
 
 export const fonts = stylex.defineVars({
-	app: '"DM Sans Variable", ui-sans-serif, system-ui, sans-serif',
+	app: '"Onest Variable", "Onest", "Onest Fallback", system-ui, sans-serif',
 	mono: '"IBM Plex Mono", ui-monospace, monospace',
 });
 
@@ -64,12 +81,12 @@ export const fontSize = stylex.defineVars({
 	"800": "1.7rem",
 });
 
-// 4px base unit, same scale as `space` below.
+// core radius scale: control 8, card 20.
 export const radius = stylex.defineVars({
-	sm: "4px",
-	md: "8px",
-	lg: "12px",
-	xl: "16px",
+	sm: "8px",
+	md: "12px",
+	lg: "20px",
+	xl: "24px",
 	full: "999px",
 });
 
@@ -90,11 +107,14 @@ export const space = stylex.defineVars({
 });
 
 export const shadow = stylex.defineVars({
-	float: "0 10px 30px -8px rgba(0, 0, 0, 0.25)",
-	popup: "0 18px 40px -12px rgba(43, 45, 51, 0.3)",
+	float: "0 10px 30px -8px rgba(25, 32, 54, 0.25)",
+	popup: "0 18px 40px -12px rgba(25, 32, 54, 0.3)",
 	focus:
-		"0 0 0 1px rgba(173, 76, 78, 0.3), 0 3px 10px -3px rgba(0, 0, 0, 0.12)",
-	focusRing: "0 0 0 2px rgba(173, 76, 78, 0.35)",
+		"0 0 0 1px rgba(1, 119, 187, 0.4), 0 3px 10px -3px rgba(25, 32, 54, 0.12)",
+	focusRing: {
+		default: "0 0 0 2px #0177bb",
+		[DARK_MEDIA]: "0 0 0 2px #f0f0f0",
+	},
 });
 
 export const zIndex = stylex.defineVars({
@@ -107,6 +127,16 @@ export const duration = stylex.defineVars({
 	"50": "50ms",
 	"100": "100ms",
 	"150": "150ms",
+	"200": "200ms",
+});
+
+export const easing = stylex.defineVars({
+	soft: "cubic-bezier(0.2, 0.7, 0.2, 1)",
+	pop: "cubic-bezier(0.3, 1.4, 0.5, 1)",
+	slow: "cubic-bezier(0.7, 0, 0.2, 1)",
+	travel: "cubic-bezier(0.65, 0, 0.35, 1)",
+	spring: "cubic-bezier(0.3, 1.9, 0.5, 1)",
+	overshoot: "cubic-bezier(0.5, -0.4, 0.3, 1.4)",
 });
 
 export const opacity = stylex.defineVars({
@@ -119,5 +149,8 @@ export const borderWidth = stylex.defineVars({
 });
 
 export const lineHeight = stylex.defineVars({
+	tight: "1.14",
+	snug: "1.25",
+	normal: "1.4",
 	compact: "1.8",
 });

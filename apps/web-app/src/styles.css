@@ -1,4 +1,5 @@
 @import "@cascade/theme/reset.css";
+@import "@cascade/theme/fonts.css";
 
 /* biome-ignore lint/suspicious/noUnknownAtRules: stylex supported */
 @stylex;

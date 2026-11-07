@@ -32,9 +32,9 @@ importers:
       '@cascade/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@fontsource-variable/dm-sans':
-        specifier: ^5.3.0
-        version: 5.3.0
+      '@fontsource-variable/onest':
+        specifier: ^5.3.1
+        version: 5.3.1
       '@lexical/react':
         specifier: ^0.38.0
         version: 0.38.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(yjs@13.6.32)
@@ -141,12 +141,9 @@ importers:
       '@cascade/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@fontsource-variable/dm-sans':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource/ibm-plex-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
+      '@fontsource-variable/onest':
+        specifier: ^5.3.1
+        version: 5.3.1
       '@payloadcms/db-postgres':
         specifier: 4.0.0-canary.37
         version: 4.0.0-canary.37(kysely@0.29.5)(payload@4.0.0-canary.37(graphql@16.14.2)(typescript@6.0.3))(postgres@3.4.9)
@@ -323,6 +320,12 @@ importers:
 
   packages/theme:
     dependencies:
+      '@fontsource-variable/onest':
+        specifier: ^5.3.1
+        version: 5.3.1
+      '@fontsource/ibm-plex-mono':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@stylexjs/stylex':
         specifier: 0.19.0
         version: 0.19.0
@@ -1293,8 +1296,8 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@fontsource-variable/dm-sans@5.3.0':
-    resolution: {integrity: sha512-BpUG5bqePiDFMBM4ZtLSlPdAIOM990uB1dlXzIf4aw21yQR7BmykedLXXXMqGWsR18aMLOsbWccwJNh3ztTQaA==}
+  '@fontsource-variable/onest@5.3.1':
+    resolution: {integrity: sha512-xaaw6G4HDB2/RczsWLD/2bnib4ykmQlTlBUN3GOEOiyErilZukQWVJG95h9zwAy0i8KY+QzDa+COPfqhI72Acw==}
 
   '@fontsource/ibm-plex-mono@5.3.0':
     resolution: {integrity: sha512-eTgnZjZEGk1QtD3ZstF+Vclo2HLAni8YMy34/DxllwZvyz1lR/1RF/xTiAquOBO7MvqBx8D2Ig2WCPMVfdZu7Q==}
@@ -5666,7 +5669,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@fontsource-variable/dm-sans@5.3.0': {}
+  '@fontsource-variable/onest@5.3.1': {}
 
   '@fontsource/ibm-plex-mono@5.3.0': {}
 
