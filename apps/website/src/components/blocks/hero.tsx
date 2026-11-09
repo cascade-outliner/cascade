@@ -1,4 +1,4 @@
-import { fonts } from "@cascade/theme/tokens.stylex";
+import { duration, easing, fonts } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { HeroBlock } from "@/payload-types";
 import { media } from "@/theme/breakpoints.stylex";
@@ -10,6 +10,44 @@ import { Eyebrow } from "../ui/eyebrow";
 import { Heading } from "../ui/heading";
 import { Mono } from "../ui/mono";
 import { Paragraphs } from "../ui/text";
+
+const rise = stylex.keyframes({
+	from: { opacity: 0, transform: "translateY(18px)" },
+});
+
+const settle = stylex.keyframes({
+	from: { opacity: 0, transform: "translateY(32px) scale(0.97)" },
+});
+
+const stick = stylex.keyframes({
+	from: { opacity: 0, transform: "rotate(-10deg) scale(0.4)" },
+});
+
+const enter = stylex.create({
+	rise: {
+		animationName: { default: rise, [media.reducedMotion]: "none" },
+		animationDuration: duration["600"],
+		animationTimingFunction: easing.soft,
+		animationFillMode: "backwards",
+	},
+	settle: {
+		animationName: { default: settle, [media.reducedMotion]: "none" },
+		animationDuration: "900ms",
+		animationTimingFunction: easing.soft,
+		animationFillMode: "backwards",
+		animationDelay: "120ms",
+	},
+	stick: {
+		animationName: { default: stick, [media.reducedMotion]: "none" },
+		animationDuration: duration["600"],
+		animationTimingFunction: easing.spring,
+		animationFillMode: "backwards",
+		animationDelay: "800ms",
+	},
+	second: { animationDelay: "70ms" },
+	third: { animationDelay: "140ms" },
+	fourth: { animationDelay: "210ms" },
+});
 
 const styles = stylex.create({
 	hero: {
@@ -69,10 +107,18 @@ export function Hero({ block }: { block: HeroBlock }) {
 		<Container>
 			<header {...stylex.props(styles.hero)}>
 				<div {...stylex.props(styles.copy)}>
-					{block.eyebrow && <Eyebrow>{block.eyebrow}</Eyebrow>}
-					<Heading as="h1">{block.heading}</Heading>
-					<Paragraphs text={block.body} size="lead" style={styles.body} />
-					<div {...stylex.props(styles.actions)}>
+					{block.eyebrow && (
+						<Eyebrow style={enter.rise}>{block.eyebrow}</Eyebrow>
+					)}
+					<Heading as="h1" style={[enter.rise, enter.second]}>
+						{block.heading}
+					</Heading>
+					<Paragraphs
+						text={block.body}
+						size="lead"
+						style={[styles.body, enter.rise, enter.third]}
+					/>
+					<div {...stylex.props(styles.actions, enter.rise, enter.fourth)}>
 						<ButtonLink
 							href={block.cta.url}
 							newTab={block.cta.newTab}
@@ -83,9 +129,12 @@ export function Hero({ block }: { block: HeroBlock }) {
 						{block.note && <Mono>{block.note}</Mono>}
 					</div>
 				</div>
-				<div {...stylex.props(styles.outlineWrap)}>
+				<div {...stylex.props(styles.outlineWrap, enter.settle)}>
 					{block.sticker && (
-						<span aria-hidden="true" {...stylex.props(styles.sticker)}>
+						<span
+							aria-hidden="true"
+							{...stylex.props(styles.sticker, enter.stick)}
+						>
 							{block.sticker}
 						</span>
 					)}

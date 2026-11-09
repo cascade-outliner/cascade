@@ -7,6 +7,7 @@ import { site, siteShadow } from "@/theme/site.stylex";
 import { FeatureIllustrationView } from "../illustrations/feature-illustrations";
 import { Card } from "../ui/card";
 import { Heading } from "../ui/heading";
+import { Reveal } from "../ui/reveal";
 import { Section } from "../ui/section";
 import { Text } from "../ui/text";
 
@@ -102,7 +103,7 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
-			<div {...stylex.props(styles.intro)}>
+			<Reveal style={styles.intro}>
 				<Heading as="h2" id={headingId} style={styles.heading}>
 					{block.heading}
 				</Heading>
@@ -111,12 +112,13 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 						{block.body}
 					</Text>
 				)}
-			</div>
+			</Reveal>
 			<ul {...stylex.props(styles.grid)}>
-				{features.map((feature) => (
+				{features.map((feature, index) => (
 					<Card
 						key={feature.id ?? feature.title}
 						as="li"
+						revealDelay={(index % 3) * 80}
 						style={[styles.card, feature.comingSoon && styles.cardSoon]}
 					>
 						<div {...stylex.props(styles.art)}>

@@ -1,6 +1,8 @@
 import {
 	borderWidth,
 	colors,
+	duration,
+	easing,
 	radius,
 	shadow,
 } from "@cascade/theme/tokens.stylex";
@@ -24,28 +26,39 @@ const styles = stylex.create({
 		padding: 0,
 		backgroundColor: "transparent",
 		cursor: "pointer",
+		borderWidth: borderWidth.thick,
+		borderStyle: "solid",
+		borderColor: colors.borderStrong,
+		transitionProperty: "background-color, border-color, transform",
+		transitionDuration: duration["150"],
+		transitionTimingFunction: easing.soft,
+		transform: { default: null, ":active": "scale(0.88)" },
 		":focus-visible": {
 			boxShadow: shadow.focusRing,
 			borderRadius: radius.full,
 		},
 	},
-	todo: {
-		borderWidth: borderWidth.thick,
-		borderStyle: "solid",
-		borderColor: colors.borderStrong,
-	},
 	done: {
-		borderWidth: 0,
-		borderStyle: "none",
+		borderColor: colors.primary,
 		backgroundColor: colors.primary,
 	},
 	icon: {
 		position: "absolute",
 		top: "50%",
 		left: "50%",
-		transform: "translate(-50%, -50%)",
+		transform: "translate(-50%, -50%) scale(0.3)",
+		opacity: 0,
 		color: colors.canvas,
 		pointerEvents: "none",
+		transitionProperty: "transform, opacity",
+		transitionDuration: duration["100"],
+		transitionTimingFunction: easing.exit,
+	},
+	iconDone: {
+		transform: "translate(-50%, -50%) scale(1)",
+		opacity: 1,
+		transitionDuration: duration["300"],
+		transitionTimingFunction: easing.spring,
 	},
 });
 
@@ -63,16 +76,15 @@ export function TaskMarker({ variant, ...props }: TaskMarkerProps) {
 				type="checkbox"
 				checked={variant === "done"}
 				readOnly
-				{...stylex.props(
-					styles.marker,
-					variant === "done" && styles.done,
-					variant === "todo" && styles.todo,
-				)}
+				{...stylex.props(styles.marker, variant === "done" && styles.done)}
 				{...props}
 			/>
-			{variant === "done" && (
-				<CheckIcon size={11} weight="bold" {...stylex.props(styles.icon)} />
-			)}
+			<CheckIcon
+				size={11}
+				weight="bold"
+				aria-hidden
+				{...stylex.props(styles.icon, variant === "done" && styles.iconDone)}
+			/>
 		</span>
 	);
 }

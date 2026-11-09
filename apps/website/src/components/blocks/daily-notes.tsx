@@ -8,6 +8,7 @@ import { Card } from "../ui/card";
 import { Eyebrow } from "../ui/eyebrow";
 import { Heading } from "../ui/heading";
 import { Mono } from "../ui/mono";
+import { Reveal } from "../ui/reveal";
 import { Section } from "../ui/section";
 import { Paragraphs } from "../ui/text";
 import { WikiText } from "../ui/wiki-text";
@@ -127,7 +128,7 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
-			<div {...stylex.props(styles.panel)}>
+			<Reveal style={styles.panel}>
 				<div {...stylex.props(styles.copy)}>
 					{block.eyebrow && <Eyebrow>{block.eyebrow}</Eyebrow>}
 					<Heading as="h2" id={headingId}>
@@ -135,7 +136,12 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 					</Heading>
 					<Paragraphs text={block.body} style={styles.body} />
 				</div>
-				<Card tone="raised" padding="none" style={styles.preview}>
+				<Card
+					tone="raised"
+					padding="none"
+					revealDelay={120}
+					style={styles.preview}
+				>
 					<ol aria-label="This week" {...stylex.props(styles.week)}>
 						{WEEK.map((entry) => (
 							<li
@@ -186,7 +192,7 @@ export function DailyNotes({ block }: { block: DailyNotesBlock }) {
 						)}
 					</ul>
 				</Card>
-			</div>
+			</Reveal>
 		</Section>
 	);
 }

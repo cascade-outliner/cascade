@@ -3,6 +3,7 @@ import {
 	borderWidth,
 	colors,
 	duration,
+	easing,
 	fontSize,
 	radius,
 	shadow,
@@ -11,8 +12,7 @@ import {
 } from "@cascade/theme/tokens.stylex";
 import { XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+import { motion } from "../motion/motion.ts";
 
 const styles = stylex.create({
 	backdrop: {
@@ -20,11 +20,6 @@ const styles = stylex.create({
 		inset: 0,
 		zIndex: zIndex.overlay,
 		backgroundColor: colors.overlay,
-		"@starting-style": {
-			opacity: 0,
-		},
-		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
 	},
 	popup: {
 		position: "fixed",
@@ -52,15 +47,25 @@ const styles = stylex.create({
 		padding: { default: space["5"], "@media (max-width: 640px)": space["4"] },
 		boxShadow: shadow.popup,
 		outline: "none",
-		"@starting-style": {
+		transitionProperty: "transform, opacity",
+		transitionDuration: duration["300"],
+		transitionTimingFunction: easing.pop,
+		"[data-starting-style]": {
 			transform: {
-				default: "translate(-50%, -50%) scale(0.96)",
-				"@media (max-width: 640px)": "translateY(16px)",
+				default: "translate(-50%, -50%) scale(0.94)",
+				"@media (max-width: 640px)": "translateY(24px)",
 			},
 			opacity: 0,
 		},
-		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		"[data-ending-style]": {
+			transform: {
+				default: "translate(-50%, -50%) scale(0.97)",
+				"@media (max-width: 640px)": "translateY(16px)",
+			},
+			opacity: 0,
+			transitionDuration: duration["150"],
+			transitionTimingFunction: easing.exit,
+		},
 	},
 	header: {
 		display: "flex",
@@ -94,6 +99,12 @@ const styles = stylex.create({
 		color: colors.muted,
 		cursor: "pointer",
 		outline: "none",
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transform: { default: null, ":active": "scale(0.9)" },
+		":hover": {
+			backgroundColor: colors.surface,
+		},
 		"[data-highlighted]": {
 			backgroundColor: colors.surface,
 		},
@@ -127,7 +138,7 @@ function Popup({
 }) {
 	return (
 		<Base.Portal>
-			<Base.Backdrop {...stylex.props(styles.backdrop)} />
+			<Base.Backdrop {...stylex.props(styles.backdrop, motion.backdrop)} />
 			<Base.Popup {...stylex.props(styles.popup)}>
 				<div {...stylex.props(styles.header)}>
 					<div>

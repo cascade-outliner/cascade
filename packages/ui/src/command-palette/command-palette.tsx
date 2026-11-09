@@ -5,6 +5,7 @@ import {
 	borderWidth,
 	colors,
 	duration,
+	easing,
 	fontSize,
 	radius,
 	shadow,
@@ -14,8 +15,7 @@ import {
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
-
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+import { motion } from "../motion/motion.ts";
 
 const styles = stylex.create({
 	backdrop: {
@@ -23,11 +23,6 @@ const styles = stylex.create({
 		inset: 0,
 		zIndex: zIndex.overlay,
 		backgroundColor: colors.overlay,
-		"@starting-style": {
-			opacity: 0,
-		},
-		transitionProperty: "opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
 	},
 	popup: {
 		position: "fixed",
@@ -47,12 +42,20 @@ const styles = stylex.create({
 		backgroundColor: colors.white,
 		boxShadow: shadow.popup,
 		outline: "none",
-		"@starting-style": {
-			transform: "translateX(-50%) translateY(-8px)",
+		transformOrigin: "top center",
+		transitionProperty: "transform, opacity",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.pop,
+		"[data-starting-style]": {
+			transform: "translateX(-50%) translateY(-8px) scale(0.97)",
 			opacity: 0,
 		},
-		transitionProperty: "transform, opacity",
-		transitionDuration: { default: duration["150"], [REDUCED_MOTION]: "0s" },
+		"[data-ending-style]": {
+			transform: "translateX(-50%) scale(0.98)",
+			opacity: 0,
+			transitionDuration: duration["100"],
+			transitionTimingFunction: easing.exit,
+		},
 	},
 	inputRow: {
 		display: "flex",
@@ -124,6 +127,8 @@ const styles = stylex.create({
 		color: colors.ink,
 		cursor: "default",
 		outline: "none",
+		transitionProperty: "background-color",
+		transitionDuration: duration["50"],
 		"[data-highlighted]": {
 			backgroundColor: colors.primaryMuted,
 		},
@@ -286,7 +291,7 @@ export function CommandPalette({
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog.Portal>
-				<Dialog.Backdrop {...stylex.props(styles.backdrop)} />
+				<Dialog.Backdrop {...stylex.props(styles.backdrop, motion.backdrop)} />
 				<Dialog.Popup
 					{...stylex.props(styles.popup)}
 					aria-label="Command palette"

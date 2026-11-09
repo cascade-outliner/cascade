@@ -122,12 +122,16 @@ export const zIndex = stylex.defineVars({
 	popup: "101",
 });
 
-// Milliseconds.
+const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
+
 export const duration = stylex.defineVars({
-	"50": "50ms",
-	"100": "100ms",
-	"150": "150ms",
-	"200": "200ms",
+	"50": { default: "50ms", [REDUCED_MOTION]: "0s" },
+	"100": { default: "100ms", [REDUCED_MOTION]: "0s" },
+	"150": { default: "150ms", [REDUCED_MOTION]: "0s" },
+	"200": { default: "200ms", [REDUCED_MOTION]: "0s" },
+	"300": { default: "300ms", [REDUCED_MOTION]: "0s" },
+	"400": { default: "400ms", [REDUCED_MOTION]: "0s" },
+	"600": { default: "600ms", [REDUCED_MOTION]: "0s" },
 });
 
 export const easing = stylex.defineVars({
@@ -137,6 +141,7 @@ export const easing = stylex.defineVars({
 	travel: "cubic-bezier(0.65, 0, 0.35, 1)",
 	spring: "cubic-bezier(0.3, 1.9, 0.5, 1)",
 	overshoot: "cubic-bezier(0.5, -0.4, 0.3, 1.4)",
+	exit: "cubic-bezier(0.4, 0, 1, 1)",
 });
 
 export const opacity = stylex.defineVars({

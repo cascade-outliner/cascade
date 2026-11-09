@@ -2,6 +2,8 @@ import { Dialog as Base } from "@base-ui/react/dialog";
 import {
 	borderWidth,
 	colors,
+	duration,
+	easing,
 	fontSize,
 	radius,
 	shadow,
@@ -13,7 +15,6 @@ import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 
 const MOBILE = "@media (max-width: 640px)";
-const REDUCED_MOTION = "@media (prefers-reduced-motion: reduce)";
 
 const styles = stylex.create({
 	popup: {
@@ -40,16 +41,26 @@ const styles = stylex.create({
 		backgroundColor: colors.white,
 		boxShadow: shadow.popup,
 		outline: "none",
-		"@starting-style": {
+		transformOrigin: { default: "top right", [MOBILE]: "bottom center" },
+		transitionProperty: "transform, opacity",
+		transitionDuration: duration["300"],
+		transitionTimingFunction: easing.pop,
+		"[data-starting-style]": {
+			transform: {
+				default: "translateX(24px) scale(0.97)",
+				[MOBILE]: "translateY(24px)",
+			},
+			opacity: 0,
+		},
+		"[data-ending-style]": {
 			transform: {
 				default: "translateX(16px) scale(0.98)",
 				[MOBILE]: "translateY(16px)",
 			},
 			opacity: 0,
+			transitionDuration: duration["150"],
+			transitionTimingFunction: easing.exit,
 		},
-		transitionProperty: "transform, opacity",
-		transitionDuration: { default: "200ms", [REDUCED_MOTION]: "0s" },
-		transitionTimingFunction: "cubic-bezier(0.2, 0, 0, 1)",
 	},
 	header: {
 		display: "flex",
@@ -90,6 +101,9 @@ const styles = stylex.create({
 		color: colors.muted,
 		cursor: "pointer",
 		outline: "none",
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transform: { default: null, ":active": "scale(0.9)" },
 		":focus-visible": {
 			boxShadow: shadow.focusRing,
 		},

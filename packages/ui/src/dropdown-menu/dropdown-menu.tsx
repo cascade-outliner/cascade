@@ -9,6 +9,7 @@ import {
 	zIndex,
 } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
+import { motion } from "../motion/motion.ts";
 
 const styles = stylex.create({
 	positioner: { zIndex: zIndex.overlay, outline: "none" },
@@ -52,7 +53,9 @@ function Popup({ children }: { children: React.ReactNode }) {
 				align="end"
 				sideOffset={4}
 			>
-				<Base.Popup {...stylex.props(styles.popup)}>{children}</Base.Popup>
+				<Base.Popup {...stylex.props(styles.popup, motion.floating)}>
+					{children}
+				</Base.Popup>
 			</Base.Positioner>
 		</Base.Portal>
 	);

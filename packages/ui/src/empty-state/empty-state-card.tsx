@@ -2,6 +2,7 @@ import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { Button } from "../button/button.tsx";
+import { motion } from "../motion/motion.ts";
 
 interface ChildrenProps {
 	children: ReactNode;
@@ -17,6 +18,11 @@ const styles = stylex.create({
 		paddingInline: "22px",
 		color: colors.ink,
 		textAlign: "center",
+		animationDelay: {
+			default: "0ms",
+			":nth-child(2)": "60ms",
+			":nth-child(3)": "120ms",
+		},
 	},
 	glyph: {
 		display: "flex",
@@ -44,7 +50,7 @@ const styles = stylex.create({
 });
 
 function Root({ children }: ChildrenProps) {
-	return <div {...stylex.props(styles.card)}>{children}</div>;
+	return <div {...stylex.props(motion.rise, styles.card)}>{children}</div>;
 }
 
 function Icon({ children }: ChildrenProps) {

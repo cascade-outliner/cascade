@@ -12,6 +12,8 @@ import {
 import {
 	borderWidth,
 	colors,
+	duration,
+	easing,
 	fontSize,
 	radius,
 	space,
@@ -107,6 +109,10 @@ const styles = stylex.create({
 		backgroundColor: { default: "transparent", ":hover": colors.inkSubtle },
 		color: colors.muted,
 		cursor: "pointer",
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transitionTimingFunction: easing.pop,
+		transform: { default: null, ":active": "scale(0.92)" },
 	},
 	account: {
 		display: "flex",
@@ -143,6 +149,10 @@ const styles = stylex.create({
 		borderRadius: radius.full,
 		backgroundColor: "transparent",
 		cursor: "pointer",
+		transitionProperty: "transform",
+		transitionDuration: duration["150"],
+		transitionTimingFunction: easing.pop,
+		transform: { default: null, ":active": "scale(0.92)" },
 	},
 	avatar: {
 		width: 32,

@@ -16,6 +16,7 @@ import {
 import * as stylex from "@stylexjs/stylex";
 import { useState } from "react";
 import { Calendar } from "../../calendar/calendar";
+import { motion } from "../../motion/motion.ts";
 
 const styles = stylex.create({
 	group: {
@@ -146,7 +147,7 @@ export function DaySwitcher({
 						sideOffset={8}
 						{...stylex.props(styles.positioner)}
 					>
-						<Popover.Popup {...stylex.props(styles.popup)}>
+						<Popover.Popup {...stylex.props(styles.popup, motion.floating)}>
 							<Calendar
 								value={date}
 								marked={marked}

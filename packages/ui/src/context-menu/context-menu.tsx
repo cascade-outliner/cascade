@@ -12,6 +12,7 @@ import {
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { Kbd, KbdGroup } from "../kbd/kbd";
+import { motion } from "../motion/motion.ts";
 
 const styles = stylex.create({
 	trigger: {
@@ -109,7 +110,9 @@ function Popup({ children }: { children: React.ReactNode }) {
 	return (
 		<Base.Portal>
 			<Base.Positioner {...stylex.props(styles.positioner)} sideOffset={4}>
-				<Base.Popup {...stylex.props(styles.popup)}>{children}</Base.Popup>
+				<Base.Popup {...stylex.props(styles.popup, motion.floating)}>
+					{children}
+				</Base.Popup>
 			</Base.Positioner>
 		</Base.Portal>
 	);

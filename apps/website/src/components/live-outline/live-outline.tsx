@@ -1,10 +1,10 @@
-import { fonts } from "@cascade/theme/tokens.stylex";
+import { duration, easing, fonts } from "@cascade/theme/tokens.stylex";
 import {
 	ArrowCounterClockwiseIcon,
 	CaretDownIcon,
 } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import type { KeyboardEvent } from "react";
+import { type KeyboardEvent, useEffect, useState } from "react";
 import { media } from "@/theme/breakpoints.stylex";
 import { site, siteFont, siteFontSize, siteShadow } from "@/theme/site.stylex";
 import { VisuallyHidden } from "../ui/visually-hidden";
@@ -25,6 +25,10 @@ const DEFAULT_SEED: readonly OutlineSeed[] = [
 ];
 
 const INDENT_PX = 26;
+
+const rowIn = stylex.keyframes({
+	from: { opacity: 0, transform: "translateY(-6px)" },
+});
 
 const styles = stylex.create({
 	frame: {
@@ -105,7 +109,18 @@ const styles = stylex.create({
 		paddingInlineEnd: "0.5rem",
 		borderRadius: "9px",
 		backgroundColor: "transparent",
+		transitionProperty: "background-color, padding-inline-start",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.soft,
+		animationName: { default: rowIn, [media.reducedMotion]: "none" },
+		animationDuration: duration["300"],
+		animationTimingFunction: easing.soft,
+		animationFillMode: "backwards",
 	},
+	// The seed rows cascade in on load; rows added later appear at once.
+	cascade: (index: number) => ({
+		animationDelay: `${350 + index * 45}ms`,
+	}),
 	rowFocused: {
 		backgroundColor: site.primaryTint,
 	},
@@ -125,7 +140,8 @@ const styles = stylex.create({
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
 		transitionProperty: "transform",
-		transitionDuration: { default: "150ms", [media.reducedMotion]: "0ms" },
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.pop,
 	},
 	caretHidden: {
 		visibility: "hidden",
@@ -144,6 +160,10 @@ const styles = stylex.create({
 		backgroundColor: "transparent",
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.pop,
+		transform: { default: null, ":active": "scale(0.86)" },
 	},
 	bulletFolded: {
 		backgroundColor: "rgba(43, 45, 51, 0.14)",
@@ -153,6 +173,8 @@ const styles = stylex.create({
 		height: 6,
 		borderRadius: "50%",
 		backgroundColor: site.muted,
+		transitionProperty: "background-color",
+		transitionDuration: duration["200"],
 	},
 	dotDone: {
 		backgroundColor: site.onDarkMuted,
@@ -168,6 +190,8 @@ const styles = stylex.create({
 		lineHeight: 1.5,
 		paddingBlock: 5,
 		color: site.ink,
+		transitionProperty: "color",
+		transitionDuration: duration["200"],
 		"::placeholder": { color: site.faint },
 	},
 	inputTop: { fontWeight: 600 },
@@ -210,6 +234,11 @@ export function LiveOutline({
 	path = ["Home", "Scratchpad"],
 }: LiveOutlineProps) {
 	const outline = useOutline(seed);
+	const [settled, setSettled] = useState(false);
+	useEffect(() => {
+		const timer = setTimeout(() => setSettled(true), 1500);
+		return () => clearTimeout(timer);
+	}, []);
 
 	const onKeyDown = (event: KeyboardEvent<HTMLInputElement>, id: string) => {
 		const input = event.currentTarget;
@@ -261,7 +290,7 @@ export function LiveOutline({
 				</button>
 			</div>
 			<ol aria-label="Editable outline" {...stylex.props(styles.list)}>
-				{outline.rows.map(({ node, hasChildren, folded }) => {
+				{outline.rows.map(({ node, hasChildren, folded }, index) => {
 					const focused = outline.focusedId === node.id;
 					const label = node.text || "empty line";
 					return (
@@ -270,6 +299,7 @@ export function LiveOutline({
 							{...stylex.props(
 								styles.row,
 								styles.indent(node.depth),
+								!settled && styles.cascade(index),
 								focused && styles.rowFocused,
 							)}
 						>
