@@ -8,6 +8,7 @@ import { site, siteFontSize } from "@/theme/site.stylex";
 import { ButtonLink } from "../ui/button-link";
 import { Card } from "../ui/card";
 import { Heading } from "../ui/heading";
+import { Reveal } from "../ui/reveal";
 import { Section } from "../ui/section";
 import { Text } from "../ui/text";
 
@@ -111,14 +112,14 @@ export function Pricing({ block }: { block: PricingBlock }) {
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
 			<div {...stylex.props(styles.wrap)}>
-				<div {...stylex.props(styles.intro)}>
+				<Reveal style={styles.intro}>
 					<Heading as="h2" id={headingId}>
 						{block.heading}
 					</Heading>
 					{block.body && <Text tone="muted">{block.body}</Text>}
-				</div>
+				</Reveal>
 				<ul {...stylex.props(styles.plans)}>
-					{plans.map((plan) => {
+					{plans.map((plan, index) => {
 						const featured = Boolean(plan.featured);
 						return (
 							<Card
@@ -126,6 +127,7 @@ export function Pricing({ block }: { block: PricingBlock }) {
 								as="li"
 								tone={featured ? "dark" : "paper"}
 								padding="roomy"
+								revealDelay={index * 100}
 								style={styles.plan}
 							>
 								{featured && plan.badge && (

@@ -2,6 +2,7 @@ import {
 	borderWidth,
 	colors,
 	duration,
+	easing,
 	fontSize,
 	radius,
 	shadow,
@@ -121,6 +122,10 @@ const styles = stylex.create({
 		touchAction: "manipulation",
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transitionTimingFunction: easing.pop,
+		transform: { default: null, ":active": "scale(0.9)" },
 	},
 	row: {
 		display: "flex",
@@ -276,9 +281,10 @@ const styles = stylex.create({
 		outline: "none",
 		cursor: { default: "pointer", ":disabled": "not-allowed" },
 		transition: {
-			default: "background-color 150ms ease, color 150ms ease",
+			default: `background-color 150ms ease, color 150ms ease, transform 150ms ${easing.pop}`,
 			[REDUCED_MOTION]: "none",
 		},
+		transform: { default: null, ":enabled:active": "scale(0.9)" },
 		boxShadow: { default: "none", ":focus-visible": shadow.focusRing },
 	},
 });

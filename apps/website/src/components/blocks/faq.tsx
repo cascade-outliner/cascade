@@ -1,12 +1,20 @@
+import { duration, easing } from "@cascade/theme/tokens.stylex";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { FaqBlock } from "@/payload-types";
 import { media } from "@/theme/breakpoints.stylex";
 import { site, siteFontSize, siteShadow } from "@/theme/site.stylex";
 import { Heading } from "../ui/heading";
+import { Reveal } from "../ui/reveal";
 import { Section } from "../ui/section";
 import { Paragraphs } from "../ui/text";
+
+const SIZABLE = "@supports (interpolate-size: allow-keywords)";
+
+const unfold = stylex.keyframes({
+	from: { opacity: 0, transform: "translateY(-6px)" },
+});
 
 const styles = stylex.create({
 	layout: {
@@ -30,6 +38,20 @@ const styles = stylex.create({
 		borderTopStyle: "solid",
 		borderTopColor: site.rule,
 		paddingBlock: "1.25rem",
+		interpolateSize: "allow-keywords",
+		"::details-content": {
+			blockSize: { default: null, [SIZABLE]: 0 },
+			overflow: { default: null, [SIZABLE]: "clip" },
+			transitionProperty: "block-size, content-visibility",
+			transitionDuration: duration["300"],
+			transitionTimingFunction: easing.soft,
+			transitionBehavior: "allow-discrete",
+		},
+	},
+	itemOpen: {
+		"::details-content": {
+			blockSize: { default: null, [SIZABLE]: "auto" },
+		},
 	},
 	summary: {
 		display: "flex",
@@ -50,7 +72,8 @@ const styles = stylex.create({
 		flexShrink: 0,
 		color: site.muted,
 		transitionProperty: "transform",
-		transitionDuration: { default: "150ms", [media.reducedMotion]: "0ms" },
+		transitionDuration: duration["300"],
+		transitionTimingFunction: easing.pop,
 	},
 	caretOpen: {
 		transform: "rotate(180deg)",
@@ -63,7 +86,55 @@ const styles = stylex.create({
 		gap: "0.75rem",
 		fontSize: siteFontSize.body,
 	},
+	answerOpen: {
+		animationName: { default: unfold, [media.reducedMotion]: "none" },
+		animationDuration: duration["300"],
+		animationTimingFunction: easing.soft,
+	},
 });
+
+type FaqItemData = NonNullable<FaqBlock["items"]>[number];
+
+function FaqItem({
+	item,
+	initiallyOpen,
+}: {
+	item: FaqItemData;
+	initiallyOpen: boolean;
+}) {
+	const [open, setOpen] = useState(initiallyOpen);
+	// Only answers opened by hand unfold; the one open on load is just there.
+	const [toggled, setToggled] = useState(false);
+
+	return (
+		<details
+			open={open}
+			name="faq"
+			onToggle={(event) => {
+				const next = event.currentTarget.open;
+				if (next !== open) {
+					setOpen(next);
+					setToggled(true);
+				}
+			}}
+			{...stylex.props(styles.item, open && styles.itemOpen)}
+		>
+			<summary {...stylex.props(styles.summary)}>
+				{item.question}
+				<CaretDownIcon
+					size={16}
+					aria-hidden="true"
+					{...stylex.props(styles.caret, open && styles.caretOpen)}
+				/>
+			</summary>
+			<div
+				{...stylex.props(styles.answer, open && toggled && styles.answerOpen)}
+			>
+				<Paragraphs text={item.answer} tone="muted" />
+			</div>
+		</details>
+	);
+}
 
 export function Faq({ block }: { block: FaqBlock }) {
 	const headingId = useId();
@@ -72,31 +143,20 @@ export function Faq({ block }: { block: FaqBlock }) {
 	return (
 		<Section id={block.anchor} labelledBy={headingId}>
 			<div {...stylex.props(styles.layout)}>
-				<Heading as="h2" id={headingId}>
-					{block.heading}
-				</Heading>
-				<div {...stylex.props(styles.list)}>
+				<Reveal>
+					<Heading as="h2" id={headingId}>
+						{block.heading}
+					</Heading>
+				</Reveal>
+				<Reveal delay={100} style={styles.list}>
 					{items.map((item, index) => (
-						<details
+						<FaqItem
 							key={item.id ?? item.question}
-							open={index === 0}
-							name="faq"
-							{...stylex.props(styles.item)}
-						>
-							<summary {...stylex.props(styles.summary)}>
-								{item.question}
-								<CaretDownIcon
-									size={16}
-									aria-hidden="true"
-									{...stylex.props(styles.caret)}
-								/>
-							</summary>
-							<div {...stylex.props(styles.answer)}>
-								<Paragraphs text={item.answer} tone="muted" />
-							</div>
-						</details>
+							item={item}
+							initiallyOpen={index === 0}
+						/>
 					))}
-				</div>
+				</Reveal>
 			</div>
 		</Section>
 	);

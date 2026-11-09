@@ -2,6 +2,7 @@ import { radius } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { site, siteShadow } from "@/theme/site.stylex";
+import { revealStyle, useReveal } from "./reveal";
 
 const styles = stylex.create({
 	card: {
@@ -44,6 +45,8 @@ export interface CardProps {
 	tone?: "paper" | "dark" | "tint" | "raised";
 	padding?: "none" | "padded" | "roomy";
 	as?: "div" | "article" | "li";
+	/** Fade up on scroll, after this many milliseconds. Leave unset for no reveal. */
+	revealDelay?: number;
 	style?: stylex.StyleXStyles;
 }
 
@@ -52,11 +55,15 @@ export function Card({
 	tone = "paper",
 	padding = "padded",
 	as: Tag = "div",
+	revealDelay,
 	style,
 }: CardProps) {
+	const ref = useReveal(revealDelay, revealDelay !== undefined);
 	return (
 		<Tag
+			ref={ref}
 			{...stylex.props(
+				revealDelay !== undefined && revealStyle,
 				styles.card,
 				styles[tone],
 				padding !== "none" && styles[padding],

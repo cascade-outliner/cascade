@@ -1,6 +1,8 @@
 import type { Row } from "@cascade/data";
 import {
 	colors,
+	duration,
+	easing,
 	fontSize,
 	lineHeight,
 	radius,
@@ -11,11 +13,24 @@ import * as stylex from "@stylexjs/stylex";
 import { ItemContext } from "../context";
 import { INDENT, ROW_GAP } from "../layout";
 
+const lift = stylex.keyframes({
+	from: { transform: "scale(1)", opacity: 1 },
+});
+
+const pop = stylex.keyframes({
+	from: { transform: "scale(0)" },
+});
+
 const styles = stylex.create({
 	ghost: {
 		position: "relative",
 		cursor: "grabbing",
-		opacity: 0.85,
+		opacity: 0.9,
+		transform: "scale(1.02)",
+		transformOrigin: "left center",
+		animationName: lift,
+		animationDuration: duration["200"],
+		animationTimingFunction: easing.pop,
 	},
 	pill: {
 		position: "absolute",
@@ -32,6 +47,9 @@ const styles = stylex.create({
 		fontSize: fontSize["200"],
 		lineHeight: lineHeight.compact,
 		whiteSpace: "nowrap",
+		animationName: pop,
+		animationDuration: duration["300"],
+		animationTimingFunction: easing.spring,
 	},
 });
 

@@ -1,3 +1,4 @@
+import { duration, easing } from "@cascade/theme/tokens.stylex";
 import { ListIcon, XIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { useId, useState } from "react";
@@ -33,7 +34,7 @@ const styles = stylex.create({
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
 		transitionProperty: "color",
-		transitionDuration: "150ms",
+		transitionDuration: duration["150"],
 	},
 	actions: {
 		marginInlineStart: "auto",
@@ -54,15 +55,43 @@ const styles = stylex.create({
 		cursor: "pointer",
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transitionTimingFunction: easing.pop,
+		transform: { default: null, ":active": "scale(0.92)" },
+	},
+	// Grows from 0 to its content's height: grid rows can transition, `height: auto` can't.
+	menuWrap: {
+		display: { default: "none", [media.tablet]: "grid" },
+		gridTemplateRows: "0fr",
+		visibility: "hidden",
+		transitionProperty: "grid-template-rows, visibility",
+		transitionDuration: duration["300"],
+		transitionTimingFunction: easing.soft,
+	},
+	menuWrapOpen: {
+		gridTemplateRows: "1fr",
+		visibility: "visible",
 	},
 	menu: {
-		display: { default: "none", [media.tablet]: "flex" },
+		display: "flex",
 		flexDirection: "column",
 		gap: "0.25rem",
-		paddingBlockEnd: "1.25rem",
+		minHeight: 0,
+		overflow: "hidden",
+		// Room for the links' focus rings inside the clip.
+		marginInline: -4,
+		paddingInline: 4,
+		opacity: 0,
+		transform: "translateY(-8px)",
+		transitionProperty: "opacity, transform",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.soft,
 	},
-	menuClosed: {
-		display: "none",
+	menuOpen: {
+		opacity: 1,
+		transform: "none",
+		transitionDuration: duration["300"],
 	},
 	menuLink: {
 		display: "block",
@@ -83,6 +112,7 @@ const styles = stylex.create({
 		gap: "0.625rem",
 		marginBlockStart: "0.75rem",
 		paddingInline: "0.75rem",
+		paddingBlockEnd: "1.25rem",
 	},
 });
 
@@ -141,42 +171,44 @@ export function SiteHeader({ siteName, header }: SiteHeaderProps) {
 						{open ? <XIcon size={22} /> : <ListIcon size={22} />}
 					</button>
 				</div>
-				<nav
-					id={menuId}
-					aria-label="Primary"
-					{...stylex.props(styles.menu, !open && styles.menuClosed)}
-				>
-					{navigation.map((item) => (
-						<a
-							key={item.id ?? item.url}
-							href={item.url}
-							onClick={() => setOpen(false)}
-							{...stylex.props(styles.menuLink)}
-						>
-							{item.label}
-						</a>
-					))}
-					<div {...stylex.props(styles.menuActions)}>
-						{header.secondaryAction?.url && header.secondaryAction.label && (
+				<div {...stylex.props(styles.menuWrap, open && styles.menuWrapOpen)}>
+					<nav
+						id={menuId}
+						aria-label="Primary"
+						{...stylex.props(styles.menu, open && styles.menuOpen)}
+					>
+						{navigation.map((item) => (
+							<a
+								key={item.id ?? item.url}
+								href={item.url}
+								onClick={() => setOpen(false)}
+								{...stylex.props(styles.menuLink)}
+							>
+								{item.label}
+							</a>
+						))}
+						<div {...stylex.props(styles.menuActions)}>
+							{header.secondaryAction?.url && header.secondaryAction.label && (
+								<ButtonLink
+									href={header.secondaryAction.url}
+									newTab={header.secondaryAction.newTab}
+									variant="outline"
+									block
+								>
+									{header.secondaryAction.label}
+								</ButtonLink>
+							)}
 							<ButtonLink
-								href={header.secondaryAction.url}
-								newTab={header.secondaryAction.newTab}
-								variant="outline"
+								href={header.primaryAction.url}
+								newTab={header.primaryAction.newTab}
+								variant="dark"
 								block
 							>
-								{header.secondaryAction.label}
+								{header.primaryAction.label}
 							</ButtonLink>
-						)}
-						<ButtonLink
-							href={header.primaryAction.url}
-							newTab={header.primaryAction.newTab}
-							variant="dark"
-							block
-						>
-							{header.primaryAction.label}
-						</ButtonLink>
-					</div>
-				</nav>
+						</div>
+					</nav>
+				</div>
 			</Container>
 		</header>
 	);

@@ -1,4 +1,10 @@
-import { colors, duration, radius, shadow } from "@cascade/theme/tokens.stylex";
+import {
+	colors,
+	duration,
+	easing,
+	radius,
+	shadow,
+} from "@cascade/theme/tokens.stylex";
 import { CaretRightIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -16,7 +22,9 @@ const styles = stylex.create({
 		color: colors.muted,
 		cursor: "pointer",
 		opacity: { default: 0.35, "@media (hover: none)": 0.55 },
-		transition: `transform ${duration["100"]} ease-in-out`,
+		transitionProperty: "transform, opacity",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.pop,
 		":hover": {
 			opacity: 1,
 		},

@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { colors, duration, easing } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import { useContext } from "react";
 import { DragHandleContext } from "../context";
@@ -9,7 +9,14 @@ const styles = stylex.create({
 		height: 18,
 		flexShrink: 0,
 		borderRadius: "50%",
-		backgroundColor: colors.inkSubtle,
+		backgroundColor: {
+			default: colors.inkSubtle,
+			":hover": colors.inkSubtleHover,
+		},
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transitionTimingFunction: easing.pop,
+		transform: { default: null, ":active": "scale(0.86)" },
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",

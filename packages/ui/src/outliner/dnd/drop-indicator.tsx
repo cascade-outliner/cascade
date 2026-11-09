@@ -1,4 +1,4 @@
-import { colors } from "@cascade/theme/tokens.stylex";
+import { colors, duration, easing } from "@cascade/theme/tokens.stylex";
 import { ArrowElbowDownRightIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { INDENT, NEST_SHIFT, ROW_GAP, ROW_INSET } from "../layout";
@@ -14,6 +14,9 @@ const styles = stylex.create({
 		backgroundColor: colors.primary,
 		pointerEvents: "none",
 		zIndex: 1,
+		transitionProperty: "transform, left",
+		transitionDuration: duration["100"],
+		transitionTimingFunction: easing.soft,
 	},
 	dot: {
 		position: "absolute",

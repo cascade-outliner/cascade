@@ -1,4 +1,11 @@
-import { colors, fontSize, radius, space } from "@cascade/theme/tokens.stylex";
+import {
+	colors,
+	duration,
+	easing,
+	fontSize,
+	radius,
+	space,
+} from "@cascade/theme/tokens.stylex";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 
@@ -29,10 +36,10 @@ const styles = stylex.create({
 		color: colors.ink,
 		cursor: "pointer",
 		position: "relative",
-		transition: {
-			default: "color 200ms",
-			"@media (prefers-reduced-motion: reduce)": "none",
-		},
+		transitionProperty: "color, transform",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.soft,
+		transform: { default: null, ":active": "scale(0.94)" },
 	},
 	arrow: {
 		display: "flex",
@@ -45,6 +52,9 @@ const styles = stylex.create({
 		backgroundColor: { default: "transparent", ":hover": colors.primaryMuted },
 		color: colors.muted,
 		cursor: "pointer",
+		transitionProperty: "background-color, transform",
+		transitionDuration: duration["150"],
+		transform: { default: null, ":active": "scale(0.9)" },
 	},
 	selected: {
 		color: colors.onPrimary,
@@ -58,10 +68,9 @@ const styles = stylex.create({
 		height: "100%",
 		boxSizing: "border-box",
 		paddingInline: GAP / 2,
-		transition: {
-			default: "transform 260ms cubic-bezier(0.2, 0, 0, 1)",
-			"@media (prefers-reduced-motion: reduce)": "none",
-		},
+		transitionProperty: "transform",
+		transitionDuration: duration["300"],
+		transitionTimingFunction: easing.pop,
 	},
 	pillFill: {
 		width: "100%",

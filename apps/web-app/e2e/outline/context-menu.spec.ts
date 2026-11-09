@@ -109,14 +109,14 @@ test.describe("indent and outdent", () => {
 		await contextMenu.open(outlinePage.row("Call the landlord"));
 		await contextMenu.item("Indent").click();
 
-		const indentedX = (await text.boundingBox())?.x;
-		expect(indentedX).toBeGreaterThan(beforeX ?? 0);
+		await expect
+			.poll(async () => (await text.boundingBox())?.x)
+			.toBeGreaterThan(beforeX ?? 0);
 
 		await contextMenu.open(outlinePage.row("Call the landlord"));
 		await contextMenu.item("Outdent").click();
 
-		const outdentedX = (await text.boundingBox())?.x;
-		expect(outdentedX).toBe(beforeX);
+		await expect.poll(async () => (await text.boundingBox())?.x).toBe(beforeX);
 	});
 
 	test("Indent is disabled on the first row, Outdent on a top-level one", async ({

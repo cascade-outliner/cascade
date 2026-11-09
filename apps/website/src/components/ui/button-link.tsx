@@ -1,4 +1,4 @@
-import { radius } from "@cascade/theme/tokens.stylex";
+import { duration, easing, radius } from "@cascade/theme/tokens.stylex";
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { media } from "@/theme/breakpoints.stylex";
@@ -16,7 +16,13 @@ const styles = stylex.create({
 		whiteSpace: "nowrap",
 		borderRadius: radius.lg,
 		transitionProperty: "background-color, color, box-shadow, transform",
-		transitionDuration: "150ms",
+		transitionDuration: duration["200"],
+		transitionTimingFunction: easing.pop,
+		transform: {
+			default: null,
+			":hover": "translateY(-1px)",
+			":active": "translateY(0) scale(0.97)",
+		},
 		outline: "none",
 		boxShadow: { default: "none", ":focus-visible": siteShadow.focus },
 	},
